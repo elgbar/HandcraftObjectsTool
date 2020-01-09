@@ -13,7 +13,7 @@ Features of the project that will be completed before considering the project in
 * [ ] Load wanted class from given JAR(s).
 * [ ] Serialize to YAML.
 * [ ] Type checking for primitives.
-* [ ] API for (de)serialization of object you can and can not modify.
+* [ ] API for (de)annontation of object you can and can not modify.
 * [ ] API to communicate information about an object.
 * [ ] Allow objects to be optional.
 * [ ] Support for lists, sets and maps:
@@ -28,7 +28,7 @@ Features of the project that will be completed before considering the project in
 
 This is a list of planned features this project _might_ have, the order is random.
 
-* [ ] Support for serialization to other formats:
+* [ ] Support for annontation to other formats:
   * [ ] JSON
   * [ ] XML
 * [ ] API for creating wizards for complicated objects.
