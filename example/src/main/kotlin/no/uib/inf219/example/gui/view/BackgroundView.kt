@@ -2,7 +2,6 @@ package no.uib.inf219.example.gui.view
 
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.Priority
-import no.uib.inf219.example.gui.Main
 import tornadofx.*
 
 /**
@@ -20,10 +19,8 @@ class BackgroundView : View("HOT Conversation Example GUI") {
                 vhGrow = Priority.ALWAYS
             }
             tab("Select Conversation", BorderPane()) {
+                add(SelectConversationView(this@tabpane))
                 this.isClosable = false
-            }
-            tab("Example Conversation #1", BorderPane()) {
-                add(ConversationView(this, Main.TEST_CONV).root)
             }
         }
     }
