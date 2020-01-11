@@ -3,7 +3,6 @@ package no.uib.inf219.example.data
 import javafx.scene.control.Button
 import javafx.scene.control.Tooltip
 import no.uib.inf219.api.serialization.Serializer
-import kotlin.system.exitProcess
 
 /**
  * @author Elg
@@ -30,10 +29,11 @@ class Response(
         val exitResponse = Response("Exit", "End conversation", Conversation("", ""), true)
     }
 
-    fun onSelect() {
-        if (end) {
-            exitProcess(0)
-        }
+    /**
+     * @return If the conversation should close
+     */
+    fun shouldClose(): Boolean {
+        return end
     }
 
     fun tooltip(): Tooltip? {

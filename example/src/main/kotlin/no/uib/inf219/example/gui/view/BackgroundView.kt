@@ -1,20 +1,30 @@
 package no.uib.inf219.example.gui.view
 
-import no.uib.inf219.example.gui.controller.ViewController
-import tornadofx.View
-import tornadofx.borderpane
+import javafx.scene.layout.BorderPane
+import javafx.scene.layout.Priority
+import no.uib.inf219.example.gui.Main
+import tornadofx.*
 
 /**
  * @author Elg
  */
-class BackgroundView : View() {
+class BackgroundView : View("HOT Conversation Example GUI") {
 
-    val controller: ViewController = ViewController()
 
-    override val root = borderpane {
-        setMinSize(600.0, 480.0)
-        title = controller.conv.name
+    override val root = gridpane() {
+        setPrefSize(600.0, 480.0)
+//        center = ConversationView(Main.TEST_CONV).root
 
-        center = ConversationView(controller).root
+        tabpane {
+            gridpaneConstraints {
+                vhGrow = Priority.ALWAYS
+            }
+            tab("Select Conversation", BorderPane()) {
+                this.isClosable = false
+            }
+            tab("Example Conversation #1", BorderPane()) {
+                add(ConversationView(this, Main.TEST_CONV).root)
+            }
+        }
     }
 }

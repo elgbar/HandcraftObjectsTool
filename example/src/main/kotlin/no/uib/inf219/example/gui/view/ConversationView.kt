@@ -1,23 +1,29 @@
 package no.uib.inf219.example.gui.view
 
 import javafx.geometry.Pos
+import javafx.scene.control.Tab
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.HBox
+import no.uib.inf219.example.data.Conversation
 import no.uib.inf219.example.data.Response
-import no.uib.inf219.example.gui.controller.ViewController
 import tornadofx.*
 
 /**
  * @author Elg
  */
-class ConversationView(val cont: ViewController) : View() {
+class ConversationView(val tab: Tab, var conv: Conversation) : View() {
+
     override val root = borderpane {
         title = "conversation"
-        setText(this, cont.conv.text)
+        style {
+            padding = box(5.px)
+        }
+        setText(this, conv.text)
         bottom {
             hbox {
                 alignment = Pos.BASELINE_LEFT
-                createButtons(cont.conv.responses, this)
+                spacing = 5.0
+                createButtons(conv.responses, this)
             }
         }
     }
@@ -30,9 +36,12 @@ class ConversationView(val cont: ViewController) : View() {
                 add(response)
 
                 response.setOnAction {
-                    response.onSelect()
-                    cont.conv = response.conv
-                    setText(root, cont.conv.text)
+                    if (response.shouldClose()) {
+                        tab.close()
+                        return@setOnAction
+                    }
+                    conv = response.conv
+                    setText(root, conv.text)
                     createButtons(response.conv.responses, parent)
                 }
                 response.tooltip = response.tooltip()
@@ -43,9 +52,7 @@ class ConversationView(val cont: ViewController) : View() {
 
     private fun setText(parent: BorderPane, text: String) {
         with(parent) {
-            top = borderpane {
-                center = label(text)
-            }
+            top = label(text)
         }
     }
 }

@@ -13,10 +13,10 @@ class Styles : Stylesheet() {
     init {
         star {
             wrapText = true
-            spacing = 10.px
-            padding = box(10.px, 5.px)
         }
         label {
+            spacing = 10.px
+            padding = box(10.px, 5.px)
             fontSize = 20.px
             backgroundColor += c("#cecece")
         }
@@ -29,5 +29,6 @@ class Styles : Stylesheet() {
         tooltip {
             fontSize = 13.px
         }
+
     }
 }

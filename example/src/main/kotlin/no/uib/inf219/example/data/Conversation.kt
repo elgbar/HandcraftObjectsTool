@@ -3,6 +3,8 @@ package no.uib.inf219.example.data
 import no.uib.inf219.api.serialization.Serializer
 
 /**
+ * TODO allow for multiple pages of text
+ *
  * @author Elg
  */
 class Conversation(
