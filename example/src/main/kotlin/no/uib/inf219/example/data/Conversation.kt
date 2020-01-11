@@ -5,10 +5,10 @@ import no.uib.inf219.api.serialization.Serializer
 /**
  * @author Elg
  */
-open class Conversation(
+class Conversation(
     val text: String,
     val name: String = "",
-    val responses: List<Response> = listOf(ExitResponse)
+    val responses: List<Response> = listOf(Response.exitResponse)
 ) : Serializer {
 
     companion object {
@@ -22,6 +22,12 @@ open class Conversation(
             val responses = map[RESPONSE_PATH] as List<Response>
             return Conversation(text, name, responses)
         }
+
+        val endConversation = Conversation(
+            "(Conversation ended)",
+            "End of Conversation",
+            listOf(Response("End conversation", end = true, conv = Conversation("")))
+        )
     }
 
     override fun serialize(): Map<String, Any?> {

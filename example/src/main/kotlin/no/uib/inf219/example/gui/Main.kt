@@ -27,9 +27,7 @@ class Main : App(BackgroundView::class, Styles::class) {
             )
             respList += Response(
                 "Yes, I do", conv = Conversation(
-                    "You now know all there is about recursion", responses = listOf(
-                        Response("Hurray!", end = true)
-                    )
+                    "You now know all there is about recursion"
                 )
             )
         }

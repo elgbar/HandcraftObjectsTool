@@ -8,22 +8,12 @@ import kotlin.system.exitProcess
 /**
  * @author Elg
  */
-open class Response(
+class Response(
     text: String,
     val name: String = "",
-    val conv: Conversation = EndConversation,
+    val conv: Conversation = Conversation.endConversation,
     val end: Boolean = false
 ) : Serializer, Button(text) {
-
-    fun onSelect() {
-        if (end) {
-            exitProcess(0)
-        }
-    }
-
-    fun tooltip(): Tooltip? {
-        return if (end) Tooltip("This will end the conversation") else null
-    }
 
     companion object {
         const val NAME_PATH = "name"
@@ -36,6 +26,18 @@ open class Response(
             val conv = map[SUB_CONVERSATION_PATH] as Conversation
             return Response(text, name, conv)
         }
+
+        val exitResponse = Response("Exit", "End conversation", Conversation("", ""), true)
+    }
+
+    fun onSelect() {
+        if (end) {
+            exitProcess(0)
+        }
+    }
+
+    fun tooltip(): Tooltip? {
+        return if (end) Tooltip("This will end the conversation") else null
     }
 
     override fun serialize(): Map<String, Any?> {
