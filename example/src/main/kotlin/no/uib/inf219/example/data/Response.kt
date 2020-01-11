@@ -25,7 +25,7 @@ class Response(
             return Response(text, name, conv)
         }
 
-        val exitResponse = Response("Exit", "End conversation", Conversation("", ""), true)
+        val exitResponse = Response("End conversation", "Exit", Conversation("", ""), true)
     }
 
     /**

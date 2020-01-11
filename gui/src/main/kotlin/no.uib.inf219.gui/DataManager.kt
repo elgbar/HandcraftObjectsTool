@@ -27,22 +27,33 @@ object DataManager {
     }
 
     fun addSource(file: File) {
-
+//        ConfigurationSerialization.registerClass(PartData::class.java)
+//        ConfigurationSerialization.registerClass(AttributeData::class.java)
+//        val root = Yaml()
+////        root.options().pathSeparator(':')
+//
+//
+//        try {
+//            root.load(file)
+//        } catch (ex: FileNotFoundException) {
+//        } catch (ex: IOException) {
+//            println("Cannot load $file\n$ex")
+//        } catch (ex: InvalidConfigurationException) {
+//            println("Cannot load $file\n$ex")
+//        }
+//        System.err.println("root.saveToString() = ${root.saveToString()}")
+//
+//        addSource(root)
     }
 
-    private fun addSource(conf: Yaml, absPath: String = "") {
-//        conf.addImplicitResolver()
+//    private fun addSource(conf: ConfigurationSection, absPath: String = "") {
 //        for (type in conf.getKeys(true)) {
 //            when (val sec = conf.get(type)) {
-//                is PartData -> PARTS[sec.className] =
-//                    PartComp(sec)
-//                is ConfigurationSection -> addSource(
-//                    sec,
-//                    "$absPath.$type"
-//                )
+//                is PartData -> PARTS[sec.className] = PartComp(sec)
+//                is ConfigurationSection -> addSource(sec, "$absPath.$type")
 //                else -> System.err.println("Failed to find a config sec or data!")
 //            }
 //        }
-        logger.info("data = $PARTS")
-    }
+//        println("data = $PARTS")
+//    }
 }
