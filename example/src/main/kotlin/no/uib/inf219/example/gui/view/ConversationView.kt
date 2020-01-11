@@ -6,6 +6,7 @@ import javafx.scene.layout.BorderPane
 import javafx.scene.layout.HBox
 import no.uib.inf219.example.data.Conversation
 import no.uib.inf219.example.data.Response
+import no.uib.inf219.example.gui.Styles
 import tornadofx.*
 
 /**
@@ -44,6 +45,7 @@ class ConversationView(val tab: Tab, var conv: Conversation) : View() {
                         createButtons(response.conv.responses, parent)
                     }
                     tooltip = response.tooltip()
+                    addClass(Styles.responseButton)
                 }
 
             }
@@ -52,7 +54,9 @@ class ConversationView(val tab: Tab, var conv: Conversation) : View() {
 
     private fun setText(parent: BorderPane, text: String) {
         with(parent) {
-            top = label(text)
+            top = label(text) {
+                addClass(Styles.conversationLabel)
+            }
         }
     }
 }
