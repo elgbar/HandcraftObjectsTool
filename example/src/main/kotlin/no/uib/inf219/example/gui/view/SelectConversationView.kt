@@ -8,6 +8,7 @@ import javafx.stage.FileChooser
 import no.uib.inf219.example.data.Conversation
 import no.uib.inf219.example.gui.Main
 import no.uib.inf219.example.gui.Styles
+import org.yaml.snakeyaml.Yaml
 import tornadofx.*
 
 
@@ -27,18 +28,17 @@ class SelectConversationView(val tabPane: TabPane) : View("") {
             label("Load conversation") {
                 addClass(Styles.headLineLabel)
             }
-            val but = button {
-                text = "Choose file"
-            }
-            val selSP = scrollpane(fitToHeight = true, fitToWidth = true) {
+            val vbb = hbox {
                 style {
-                    minHeight = 120.px
+                    padding = box(2.px)
+                    spacing = 2.px
                 }
-            }.flowpane() {
-                hgap = 3.0
-                vgap = 3.0
             }
-            with(but) {
+            val output = scrollpane(fitToHeight = true, fitToWidth = true).textarea {
+                editableProperty().set(false)
+            }
+            vbb += button {
+                text = "Choose file"
                 setOnAction {
                     val files = chooseFile(
                         "Choose conversations to load",
@@ -49,13 +49,15 @@ class SelectConversationView(val tabPane: TabPane) : View("") {
                         FileChooserMode.Multi
                     )
                     for (file in files) {
-                        selSP.button("File ${file.name}") {
-                            setOnAction {
-                                log.info(file.readText())
-                            }
-                        }
+                        output.appendText("Loading file ${file.absolutePath}\n")
+                        output.appendText("content:\n")
+                        output.appendText(file.readText())
                     }
-                    requestLayout()
+                }
+            }
+            vbb += button("Clear") {
+                setOnAction {
+                    output.clear()
                 }
             }
 
@@ -72,6 +74,8 @@ class SelectConversationView(val tabPane: TabPane) : View("") {
                         with(button) {
                             minWidth = 120.0 //magic number is magic
                             setOnAction {
+                                val yaml = Yaml()
+                                output.appendText("Conversation:\n ${yaml.dump(conv)}")
                                 createTab(text, conv)
                             }
                         }
@@ -87,29 +91,7 @@ class SelectConversationView(val tabPane: TabPane) : View("") {
         }
         convs.addAll(
             Main.TEST_CONV,
-            Conversation("test"),
-            Conversation("test2", "name"),
-            Conversation("test3"),
-            Conversation("test4", "4"),
-            Conversation("test5", "a  convaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"),
-            Conversation("test5", "a  convaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"),
-            Conversation("test5", "a  convaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"),
-            Conversation("test5", "a  convaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"),
-            Conversation("test5", "a  convaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"),
-            Conversation("test5", "a  convaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"),
-            Conversation("test5", "a  convaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"),
-            Conversation("test5", "a  convaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"),
-            Conversation("test5", "a  convaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"),
-            Conversation("test5", "a  convaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"),
-            Conversation("test5", "a  convaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"),
-            Conversation("test5", "a  convaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"),
-            Conversation("test5", "a  convaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"),
-            Conversation("test5", "a  convaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"),
-            Conversation("test5", "a  convaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"),
-            Conversation("test5", "a  convaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"),
-            Conversation("test6"),
-            Conversation("test7"),
-            Conversation("test8", "inside nr 8")
+            Conversation("test")
         )
     }
 
@@ -119,4 +101,6 @@ class SelectConversationView(val tabPane: TabPane) : View("") {
             tabPane.selectionModel.select(this)
         }
     }
+
+
 }
