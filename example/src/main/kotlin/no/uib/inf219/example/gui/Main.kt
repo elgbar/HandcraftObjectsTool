@@ -16,47 +16,57 @@ class Main : App(BackgroundView::class, Styles::class) {
 
         init {
             val respList = ArrayList<Response>()
-            recursionConv = Conversation("recursion", "Do you know what recursion is?", respList)
+            recursionConv = Conversation("Do you know what recursion is?", responses = respList)
             respList += Response(
-                "recNo", "No, I do not",
+                "No, I do not", conv =
                 Conversation(
-                    "recNow", "Well I will teach you", listOf(
-                        Response("g", "Okay great!", recursionConv)
+                    "Well I will teach you", responses = listOf(
+                        Response("Okay great!", conv = recursionConv)
                     )
                 )
             )
-            respList += Response("recYes", "Yes, I do")
+            respList += Response(
+                "Yes, I do", conv = Conversation(
+                    "You now know all there is about recursion", responses = listOf(
+                        Response("Hurray!", end = true)
+                    )
+                )
+            )
         }
 
 
         val TEST_CONV = Conversation(
-            "Intro", "Welcome to this conversation!",
-            listOf(
+            "Welcome to this conversation!",
+            responses = listOf(
                 Response(
-                    "Weird intro response", "That's a weird thing to say",
-                    Conversation(
-                        "yes", "Yes it is, this is just an example though. I need to write something.", listOf(
-                            Response("yes2", "I suppose it is")
+                    "That's a weird thing to say",
+                    conv = Conversation(
+                        "Yes it is, this is just an example though. I do need to write something to fill this example.",
+                        responses = listOf(
+                            Response("I suppose you do", end = true)
                         )
                     )
                 ),
                 Response(
-                    "confused intro response", "Wait, what is this?",
-                    Conversation(
-                        "example",
+                    "Wait, what is this?",
+                    conv = Conversation(
                         "This is an example application, it's just a way to show off what HOT can be used for",
-                        listOf(
+                        responses = listOf(
                             Response(
-                                "hot", "So whats HOT then?",
-                                Conversation(
-                                    "so hot",
-                                    "HOT (or Handcraft Objects Tool) is an interactive way to create JVM objects, Like this conversation.",
-                                    listOf(
+                                "So whats HOT then?",
+                                conv = Conversation(
+                                    "HOT (or Handcraft Objects Tool) is an interactive way to create JVM objects, like this conversation.",
+                                    responses = listOf(
                                         Response(
-                                            "que confusion", "So this is made in HOT?",
-                                            Conversation(
-                                                "oops",
-                                                "Well, err no. This is just hardcoded in"
+                                            "So this is made in HOT?",
+                                            conv = Conversation(
+                                                "Well, err no. This is just hardcoded in",
+                                                responses = listOf(
+                                                    Response(
+                                                        "Oh well that is disappointing...",
+                                                        end = true
+                                                    )
+                                                )
                                             )
                                         )
                                     )
@@ -64,7 +74,7 @@ class Main : App(BackgroundView::class, Styles::class) {
                             )
                         )
                     )
-                ), Response("rec", "Can you teach me about recursion?", recursionConv)
+                ), Response("Can you teach me about recursion?", conv = recursionConv)
             )
         )
     }

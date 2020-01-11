@@ -1,18 +1,28 @@
 package no.uib.inf219.example.data
 
+import javafx.scene.control.Button
+import javafx.scene.control.Tooltip
 import no.uib.inf219.api.serialization.Serializer
+import kotlin.system.exitProcess
 
 /**
  * @author Elg
  */
 open class Response(
-    val name: String,
-    val text: String,
-    val conversation: Conversation = EndConversation
-) : Serializer {
+    text: String,
+    val name: String = "",
+    val conv: Conversation = EndConversation,
+    val end: Boolean = false
+) : Serializer, Button(text) {
 
-    open fun onSelect() {
-        
+    fun onSelect() {
+        if (end) {
+            exitProcess(0)
+        }
+    }
+
+    fun tooltip(): Tooltip? {
+        return if (end) Tooltip("This will end the conversation") else null
     }
 
     companion object {
@@ -24,7 +34,7 @@ open class Response(
             val text = map[TEXT_PATH] as String
             val name = map[NAME_PATH] as String
             val conv = map[SUB_CONVERSATION_PATH] as Conversation
-            return Response(name, text, conv)
+            return Response(text, name, conv)
         }
     }
 
@@ -32,7 +42,7 @@ open class Response(
         val map = HashMap<String, Any?>()
         map[NAME_PATH] = name
         map[TEXT_PATH] = text
-        map[SUB_CONVERSATION_PATH] = conversation
+        map[SUB_CONVERSATION_PATH] = conv
         return map
     }
 }
