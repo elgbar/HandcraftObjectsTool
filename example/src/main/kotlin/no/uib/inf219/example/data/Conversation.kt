@@ -6,9 +6,9 @@ import no.uib.inf219.api.serialization.Serializer
  * @author Elg
  */
 open class Conversation(
-    val text: String,
     val name: String,
-    val responses: List<Response> = ArrayList()
+    val text: String,
+    val responses: List<Response> = listOf(ExitResponse)
 ) : Serializer {
 
     companion object {
@@ -20,7 +20,7 @@ open class Conversation(
             val text = map[TEXT_PATH] as String
             val name = map[NAME_PATH] as String
             val responses = map[RESPONSE_PATH] as List<Response>
-            return Conversation(text, name, responses)
+            return Conversation(name, text, responses)
         }
     }
 

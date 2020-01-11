@@ -5,11 +5,15 @@ import no.uib.inf219.api.serialization.Serializer
 /**
  * @author Elg
  */
-class Response(
+open class Response(
     val name: String,
     val text: String,
     val conversation: Conversation = EndConversation
 ) : Serializer {
+
+    open fun onSelect() {
+        
+    }
 
     companion object {
         const val NAME_PATH = "name"
