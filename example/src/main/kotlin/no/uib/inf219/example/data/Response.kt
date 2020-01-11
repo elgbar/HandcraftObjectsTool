@@ -1,6 +1,5 @@
 package no.uib.inf219.example.data
 
-import javafx.scene.control.Button
 import javafx.scene.control.Tooltip
 import no.uib.inf219.api.serialization.Serializer
 
@@ -8,11 +7,11 @@ import no.uib.inf219.api.serialization.Serializer
  * @author Elg
  */
 class Response(
-    text: String,
+    val text: String,
     val name: String = "",
     val conv: Conversation = Conversation.endConversation,
     val end: Boolean = false
-) : Serializer, Button(text) {
+) : Serializer {
 
     companion object {
         const val NAME_PATH = "name"

@@ -33,18 +33,18 @@ class ConversationView(val tab: Tab, var conv: Conversation) : View() {
             clear()
 
             for (response in resps) {
-                add(response)
-
-                response.setOnAction {
-                    if (response.shouldClose()) {
-                        tab.close()
-                        return@setOnAction
+                with(button(response.text)) {
+                    setOnAction {
+                        if (response.shouldClose()) {
+                            tab.close()
+                            return@setOnAction
+                        }
+                        conv = response.conv
+                        setText(root, conv.text)
+                        createButtons(response.conv.responses, parent)
                     }
-                    conv = response.conv
-                    setText(root, conv.text)
-                    createButtons(response.conv.responses, parent)
+                    tooltip = response.tooltip()
                 }
-                response.tooltip = response.tooltip()
 
             }
         }
