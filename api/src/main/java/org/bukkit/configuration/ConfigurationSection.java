@@ -11,6 +11,7 @@ import java.util.Set;
 /**
  * Represents a section of a {@link Configuration}
  */
+@SuppressWarnings("unused")
 public interface ConfigurationSection {
     /**
      * Gets a set containing all keys in this section.
@@ -800,4 +801,11 @@ public interface ConfigurationSection {
      * @throws IllegalArgumentException Thrown if path is null.
      */
     void addDefault(@NotNull String path, @Nullable Object value);
+
+    /**
+     * Check if this section has any keys, including default keys.
+     *
+     * @return If this section contains no elements
+     */
+    boolean isEmpty();
 }

@@ -159,6 +159,11 @@ public class MemorySection implements ConfigurationSection {
     }
 
     @Override
+    public boolean isEmpty() {
+        return getKeys(false).isEmpty();
+    }
+
+    @Override
     @Nullable
     public ConfigurationSection getDefaultSection() {
         Configuration root = getRoot();

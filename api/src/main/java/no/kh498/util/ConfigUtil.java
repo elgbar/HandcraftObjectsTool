@@ -132,14 +132,6 @@ public class ConfigUtil {
     }
 
     /**
-     * @param conf to check
-     * @return If the given conf is {@code null} or has no keys
-     */
-    public static boolean isEmpty(@Nullable ConfigurationSection conf) {
-        return conf == null || conf.getKeys(false).isEmpty();
-    }
-
-    /**
      * @param conf The conf to convert
      * @return A YamlConfiguration version of the given conf
      */
