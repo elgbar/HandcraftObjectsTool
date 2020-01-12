@@ -6,9 +6,15 @@ import javafx.scene.control.TabPane
 import javafx.scene.layout.BorderPane
 import javafx.stage.FileChooser
 import no.uib.inf219.example.data.Conversation
+import no.uib.inf219.example.data.prerequisite.AlwaysFalsePrereq
+import no.uib.inf219.example.data.prerequisite.AlwaysTruePrerec
+import no.uib.inf219.example.data.prerequisite.AndPrereq
+import no.uib.inf219.example.data.prerequisite.Prerequisite
 import no.uib.inf219.example.gui.Main
 import no.uib.inf219.example.gui.Styles
+import org.yaml.snakeyaml.DumperOptions
 import org.yaml.snakeyaml.Yaml
+import org.yaml.snakeyaml.nodes.Tag
 import tornadofx.*
 
 
@@ -54,6 +60,51 @@ class SelectConversationView(val tabPane: TabPane) : View("") {
             hBox += button("Clear") {
                 setOnAction {
                     output.clear()
+                }
+            }
+            hBox += button("Test generic") {
+                setOnAction {
+                    //
+//                    val constructor = Constructor(Prerequisite::class.java)
+//
+//                    val andpre = TypeDescription(AndPrereq::class.java)
+//                    andpre.addPropertyParameters("others", List::class.java)
+//                    constructor.addTypeDescription(andpre)
+//
+//                    constructor.addTypeDescription(TypeDescription(AlwaysTruePrerec::class.java))
+//                    constructor.addTypeDescription(TypeDescription(AlwaysFalsePrereq::class.java))
+
+
+                    val dumper = DumperOptions()
+                    dumper.indent = 2
+                    dumper.isPrettyFlow = true
+
+                    val yaml = Yaml()
+
+                    val o = AndPrereq()
+                    o.others = listOf(AlwaysTruePrerec(), AlwaysFalsePrereq())
+//                    val o = AndPrereq(listOf(AlwaysFalsePrereq(), AlwaysTruePrerec()))
+
+                    val dump = yaml.dumpAs(o, Tag.MAP, DumperOptions.FlowStyle.AUTO)
+                    output.appendText(dump)
+                    output.appendText("\n\n")
+                    val oread: Prerequisite
+
+                    try {
+                        val oread0 = yaml.load<Map<String, *>>(dump)
+                        oread = AndPrereq.deserialize(oread0)
+                    } catch (e: Exception) {
+                        output.appendText("Failed to load object back\n$e")
+                        e.printStackTrace()
+                        return@setOnAction
+                    }
+
+//                    output.appendText(oread.toString())
+                    output.appendText("\ntake 2: \n${yaml.dump(oread)}\n")
+//                    for ((i, prerec) in oread.withIndex()) {
+                    output.appendText("Can use ${oread::class.simpleName}? ${oread.check()}${if (!oread.check()) " (due to '${oread.reason()}')" else ""}\n")
+//                    }
+
                 }
             }
 
