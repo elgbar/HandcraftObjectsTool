@@ -58,11 +58,7 @@ subprojects {
     dependencies {
         implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 
-        implementation "org.yaml:snakeyaml:1.25"
-        implementation "org.slf4j:slf4j-api:1.7.25"
         implementation "org.jetbrains:annotations:17.0.0"
-//    implementation "no.kh498.util:CommonUtil:1.0.4"
-        implementation "org.apache.commons:commons-text:1.8"
 
         implementation("com.google.guava:guava:28.2-jre")
 
@@ -74,6 +70,9 @@ subprojects {
 
 project(":api") {
     version "0.1.0"
+    dependencies {
+        api "org.yaml:snakeyaml:1.25"
+    }
 }
 
 project(":example") {
@@ -89,5 +88,7 @@ project(":gui") {
     dependencies {
         implementation project(":api")
         implementation "no.tornado:tornadofx:$tornadofx_version"
+        implementation "org.apache.commons:commons-text:1.8"
+        implementation "org.slf4j:slf4j-api:1.7.25"
     }
 }
