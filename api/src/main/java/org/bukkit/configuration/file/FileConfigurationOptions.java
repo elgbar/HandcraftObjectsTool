@@ -10,7 +10,7 @@ import org.jetbrains.annotations.Nullable;
  * FileConfiguration}
  */
 public class FileConfigurationOptions extends MemoryConfigurationOptions {
-    private String header = null;
+    private String header;
     private boolean copyHeader = true;
 
     protected FileConfigurationOptions(@NotNull MemoryConfiguration configuration) {

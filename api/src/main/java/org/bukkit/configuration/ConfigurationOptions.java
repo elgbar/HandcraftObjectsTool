@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
  */
 public class ConfigurationOptions {
     private char pathSeparator = '.';
-    private boolean copyDefaults = false;
+    private boolean copyDefaults;
     private final Configuration configuration;
 
     protected ConfigurationOptions(@NotNull Configuration configuration) {

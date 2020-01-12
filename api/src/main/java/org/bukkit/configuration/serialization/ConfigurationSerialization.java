@@ -1,5 +1,10 @@
 package org.bukkit.configuration.serialization;
 
+import org.apache.commons.lang.Validate;
+import org.bukkit.configuration.Configuration;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -8,20 +13,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.apache.commons.lang.Validate;
-import org.bukkit.Color;
-import org.bukkit.FireworkEffect;
-import org.bukkit.Location;
-import org.bukkit.attribute.AttributeModifier;
-import org.bukkit.block.banner.Pattern;
-import org.bukkit.configuration.Configuration;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.util.BlockVector;
-import org.bukkit.util.BoundingBox;
-import org.bukkit.util.Vector;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Utility class for storing and retrieving classes for {@link Configuration}.
@@ -30,19 +21,6 @@ public class ConfigurationSerialization {
     public static final String SERIALIZED_TYPE_KEY = "==";
     private final Class<? extends ConfigurationSerializable> clazz;
     private static Map<String, Class<? extends ConfigurationSerializable>> aliases = new HashMap<String, Class<? extends ConfigurationSerializable>>();
-
-    static {
-        registerClass(Vector.class);
-        registerClass(BlockVector.class);
-        registerClass(ItemStack.class);
-        registerClass(Color.class);
-        registerClass(PotionEffect.class);
-        registerClass(FireworkEffect.class);
-        registerClass(Pattern.class);
-        registerClass(Location.class);
-        registerClass(AttributeModifier.class);
-        registerClass(BoundingBox.class);
-    }
 
     protected ConfigurationSerialization(@NotNull Class<? extends ConfigurationSerializable> clazz) {
         this.clazz = clazz;
@@ -61,9 +39,7 @@ public class ConfigurationSerialization {
             }
 
             return method;
-        } catch (NoSuchMethodException ex) {
-            return null;
-        } catch (SecurityException ex) {
+        } catch (NoSuchMethodException | SecurityException ex) {
             return null;
         }
     }
@@ -72,9 +48,7 @@ public class ConfigurationSerialization {
     protected Constructor<? extends ConfigurationSerializable> getConstructor() {
         try {
             return clazz.getConstructor(Map.class);
-        } catch (NoSuchMethodException ex) {
-            return null;
-        } catch (SecurityException ex) {
+        } catch (NoSuchMethodException | SecurityException ex) {
             return null;
         }
     }
@@ -120,12 +94,10 @@ public class ConfigurationSerialization {
         ConfigurationSerializable result = null;
         Method method = null;
 
-        if (result == null) {
-            method = getMethod("deserialize", true);
+        method = getMethod("deserialize", true);
 
-            if (method != null) {
-                result = deserializeViaMethod(method, args);
-            }
+        if (method != null) {
+            result = deserializeViaMethod(method, args);
         }
 
         if (result == null) {
@@ -158,7 +130,7 @@ public class ConfigurationSerialization {
      * If a new instance could not be made, an example being the class not
      * fully implementing the interface, null will be returned.
      *
-     * @param args Arguments for deserialization
+     * @param args  Arguments for deserialization
      * @param clazz Class to deserialize into
      * @return New instance of the specified class
      */
@@ -251,7 +223,6 @@ public class ConfigurationSerialization {
      */
     public static void unregisterClass(@NotNull Class<? extends ConfigurationSerializable> clazz) {
         while (aliases.values().remove(clazz)) {
-            ;
         }
     }
 
