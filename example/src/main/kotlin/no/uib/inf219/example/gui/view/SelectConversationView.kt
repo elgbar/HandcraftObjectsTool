@@ -23,21 +23,17 @@ class SelectConversationView(val tabPane: TabPane) : View("") {
 
     init {
         with(root) {
-            padding = insets(3)
-            spacing = 2.0
+            addClass(Styles.parent)
             label("Load conversation") {
                 addClass(Styles.headLineLabel)
             }
-            val vbb = hbox {
-                style {
-                    padding = box(2.px)
-                    spacing = 2.px
-                }
+            val hBox = hbox() {
+                addClass(Styles.parent)
             }
             val output = scrollpane(fitToHeight = true, fitToWidth = true).textarea {
                 editableProperty().set(false)
             }
-            vbb += button {
+            hBox += button {
                 text = "Choose file"
                 setOnAction {
                     val files = chooseFile(
@@ -55,7 +51,7 @@ class SelectConversationView(val tabPane: TabPane) : View("") {
                     }
                 }
             }
-            vbb += button("Clear") {
+            hBox += button("Clear") {
                 setOnAction {
                     output.clear()
                 }
@@ -67,12 +63,15 @@ class SelectConversationView(val tabPane: TabPane) : View("") {
             scrollpane(fitToHeight = true, fitToWidth = true) {
 
                 flowpane {
+                    addClass(Styles.parent)
+                    hgap = 3.0
+                    vgap = 3.0
+
                     bindChildren(convs) {
                         val conv = it
                         val button =
                             button(if (conv.name.isEmpty()) "Conversation #${convs.indexOf(conv)}" else conv.name)
                         with(button) {
-                            minWidth = 120.0 //magic number is magic
                             setOnAction {
                                 val yaml = Yaml()
                                 output.appendText("Conversation:\n ${yaml.dump(conv)}")
@@ -81,11 +80,6 @@ class SelectConversationView(val tabPane: TabPane) : View("") {
                         }
                         return@bindChildren button
                     }
-                    style {
-                        padding = box(1.px)
-                    }
-                    hgap = 3.0
-                    vgap = 3.0
                 }
             }
         }

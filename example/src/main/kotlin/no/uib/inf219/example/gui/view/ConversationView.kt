@@ -1,12 +1,13 @@
 package no.uib.inf219.example.gui.view
 
-import javafx.geometry.Pos
 import javafx.scene.control.Tab
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.HBox
 import no.uib.inf219.example.data.Conversation
 import no.uib.inf219.example.data.Response
 import no.uib.inf219.example.gui.Styles
+import no.uib.inf219.example.gui.Styles.Companion.conversationBorderPane
+import no.uib.inf219.example.gui.Styles.Companion.responseHBox
 import tornadofx.*
 
 /**
@@ -16,14 +17,12 @@ class ConversationView(val tab: Tab, var conv: Conversation) : View() {
 
     override val root = borderpane {
         title = "conversation"
-        style {
-            padding = box(5.px)
-        }
+        addClass(conversationBorderPane)
+
         setText(this, conv.text)
         bottom {
             hbox {
-                alignment = Pos.BASELINE_LEFT
-                spacing = 5.0
+                addClass(responseHBox)
                 createButtons(conv.responses, this)
             }
         }
