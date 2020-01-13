@@ -1,11 +1,11 @@
 package no.uib.inf219.example.data.prerequisite
 
-import org.bukkit.configuration.serialization.ConfigurationSerializable
+import no.uib.inf219.api.serialization.Serializable
 
 /**
  * @author Elg
  */
-interface Prerequisite : ConfigurationSerializable {
+interface Prerequisite : Serializable {
 
     fun check(): Boolean
 

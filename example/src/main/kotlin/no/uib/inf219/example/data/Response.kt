@@ -1,7 +1,7 @@
 package no.uib.inf219.example.data
 
 import javafx.scene.control.Tooltip
-import org.bukkit.configuration.serialization.ConfigurationSerializable
+import no.uib.inf219.api.serialization.Serializable
 
 /**
  * @author Elg
@@ -11,7 +11,7 @@ class Response(
     val name: String = "",
     val conv: Conversation = Conversation.endConversation,
     val end: Boolean = false
-) : ConfigurationSerializable {
+) : Serializable {
 
     companion object {
         const val NAME_PATH = "name"

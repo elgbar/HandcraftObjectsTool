@@ -1,6 +1,6 @@
 package no.uib.inf219.example.data
 
-import org.bukkit.configuration.serialization.ConfigurationSerializable
+import no.uib.inf219.api.serialization.Serializable
 
 /**
  * TODO allow for multiple pages of text
@@ -11,7 +11,7 @@ class Conversation(
     val text: String,
     val name: String = "",
     val responses: List<Response> = listOf(Response.exitResponse)
-) : ConfigurationSerializable {
+) : Serializable {
 
     companion object {
         const val NAME_PATH = "name"
