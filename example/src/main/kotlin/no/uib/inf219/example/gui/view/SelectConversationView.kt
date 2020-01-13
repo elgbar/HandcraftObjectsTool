@@ -5,6 +5,7 @@ import javafx.collections.ObservableList
 import javafx.scene.control.TabPane
 import javafx.scene.layout.BorderPane
 import javafx.stage.FileChooser
+import no.uib.inf219.api.serialization.SerializationManager
 import no.uib.inf219.example.data.Conversation
 import no.uib.inf219.example.data.prerequisite.AlwaysFalsePrereq
 import no.uib.inf219.example.data.prerequisite.AlwaysTruePrerec
@@ -12,9 +13,9 @@ import no.uib.inf219.example.data.prerequisite.AndPrereq
 import no.uib.inf219.example.data.prerequisite.Prerequisite
 import no.uib.inf219.example.gui.Main
 import no.uib.inf219.example.gui.Styles
+import org.bukkit.configuration.file.YamlConfiguration
 import org.yaml.snakeyaml.DumperOptions
 import org.yaml.snakeyaml.Yaml
-import org.yaml.snakeyaml.nodes.Tag
 import tornadofx.*
 
 
@@ -54,6 +55,17 @@ class SelectConversationView(val tabPane: TabPane) : View("") {
                         output.appendText("Loading file ${file.absolutePath}\n")
                         output.appendText("content:\n")
                         output.appendText(file.readText())
+                        output.appendText("\n")
+
+                        try {
+                            val conv = SerializationManager.load<Conversation>(file.readText())
+                            convs += conv
+                            output.appendText("Successfully loaded conversation!")
+                        } catch (e: Exception) {
+                            output.appendText("Failed to load conversation\n$e")
+                            e.printStackTrace()
+                            return@setOnAction
+                        }
                     }
                 }
             }
@@ -64,16 +76,6 @@ class SelectConversationView(val tabPane: TabPane) : View("") {
             }
             hBox += button("Test generic") {
                 setOnAction {
-                    //
-//                    val constructor = Constructor(Prerequisite::class.java)
-//
-//                    val andpre = TypeDescription(AndPrereq::class.java)
-//                    andpre.addPropertyParameters("others", List::class.java)
-//                    constructor.addTypeDescription(andpre)
-//
-//                    constructor.addTypeDescription(TypeDescription(AlwaysTruePrerec::class.java))
-//                    constructor.addTypeDescription(TypeDescription(AlwaysFalsePrereq::class.java))
-
 
                     val dumper = DumperOptions()
                     dumper.indent = 2
@@ -82,28 +84,37 @@ class SelectConversationView(val tabPane: TabPane) : View("") {
                     val yaml = Yaml()
 
                     val o = AndPrereq()
-                    o.others = listOf(AlwaysTruePrerec(), AlwaysFalsePrereq())
-//                    val o = AndPrereq(listOf(AlwaysFalsePrereq(), AlwaysTruePrerec()))
+                    val o2 = AndPrereq()
+                    o2.others = listOf(AlwaysTruePrerec(), AlwaysTruePrerec())
+                    o.others = listOf(AlwaysTruePrerec(), AlwaysFalsePrereq(), o2)
 
-                    val dump = yaml.dumpAs(o, Tag.MAP, DumperOptions.FlowStyle.AUTO)
+                    val dump = YamlConfiguration().yaml.dump(o)
                     output.appendText(dump)
                     output.appendText("\n\n")
                     val oread: Prerequisite
 
                     try {
-                        val oread0 = yaml.load<Map<String, *>>(dump)
-                        oread = AndPrereq.deserialize(oread0)
+                        oread = YamlConfiguration().yaml.load<Prerequisite>(dump)
                     } catch (e: Exception) {
                         output.appendText("Failed to load object back\n$e")
                         e.printStackTrace()
                         return@setOnAction
                     }
 
-//                    output.appendText(oread.toString())
                     output.appendText("\ntake 2: \n${yaml.dump(oread)}\n")
-//                    for ((i, prerec) in oread.withIndex()) {
                     output.appendText("Can use ${oread::class.simpleName}? ${oread.check()}${if (!oread.check()) " (due to '${oread.reason()}')" else ""}\n")
-//                    }
+                }
+            }
+
+            hBox += button("Dump TEST CONV") {
+                setOnAction {
+                    val dump = SerializationManager.dump(Main.TEST_CONV)
+                    output.appendText("\n\nTrying to load it back in\n\n")
+                    output.appendText("eql test conv obj? ${SerializationManager.load<Conversation>(dump) == Main.TEST_CONV}\n")
+                    val dump2 = SerializationManager.dump(SerializationManager.load<Conversation>(dump));
+                    output.appendText("eql test conv str? ${dump2 == dump}\n")
+                    output.appendText("dump\n $dump\n")
+                    output.appendText("dump2\n $dump2")
 
                 }
             }
