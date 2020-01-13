@@ -1,11 +1,9 @@
 package no.uib.inf219.example.data.prerequisite
 
-import no.uib.inf219.api.serialization.Serializer
-
 /**
  * @author Elg
  */
-class AndPrereq : Prerequisite, Serializer {
+class AndPrereq : Prerequisite {
 
 
     lateinit var others: List<Prerequisite>

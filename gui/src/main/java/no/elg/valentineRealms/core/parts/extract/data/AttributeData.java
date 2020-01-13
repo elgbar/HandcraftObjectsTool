@@ -4,8 +4,7 @@ import no.elg.valentineRealms.core.parts.extract.AnnotationUtil;
 import no.elg.valentineRealms.core.parts.extract.PartsExtractor;
 import no.uib.inf219.api.annontation.AttributeDoc;
 import no.uib.inf219.api.annontation.EnumValueDesc;
-import no.uib.inf219.api.serialization.SerializationManager;
-import no.uib.inf219.api.serialization.Serializer;
+import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -19,7 +18,7 @@ import java.util.Objects;
  * @author Elg
  */
 //@SerializableAs("part_attribute")
-public class AttributeData implements Serializer {
+public class AttributeData implements ConfigurationSerializable {
 
     public static final String PATH_KEY = "path";
     public static final String CLASS_NAME_KEY = "className";
@@ -66,10 +65,6 @@ public class AttributeData implements Serializer {
      * @see AttributeDoc#required()
      */
     public final boolean required;
-
-    static {
-        SerializationManager.registerClass(AttributeData.class);
-    }
 
     @Contract(pure = true)
     public AttributeData(@NotNull String path, @NotNull String className, boolean isList, boolean required,
@@ -137,7 +132,7 @@ public class AttributeData implements Serializer {
 
     @SuppressWarnings("unused")
     @NotNull
-    public static AttributeData deserialize(@NotNull Map<String, Object> args) {
+    public static AttributeData deserialize(@NotNull Map<String, ?> args) {
         String path = (String) args.get(PATH_KEY);
         String className = (String) args.get(CLASS_NAME_KEY);
         Boolean isList = (Boolean) args.get(IS_LIST_KEY);

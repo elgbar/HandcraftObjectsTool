@@ -1,7 +1,6 @@
 package no.elg.valentineRealms.core.parts.extract.data;
 
-import no.uib.inf219.api.serialization.SerializationManager;
-import no.uib.inf219.api.serialization.Serializer;
+import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -13,7 +12,7 @@ import java.util.Map;
  * @author Elg
  */
 //@SerializableAs("part_metadata")
-public class PartData implements Serializer {
+public class PartData implements ConfigurationSerializable {
 
     public static final String CLASS_KEY = "class";
     public static final String ATTRIBUTES_KEY = "attributes";
@@ -31,10 +30,6 @@ public class PartData implements Serializer {
      */
     @NotNull
     public final List<AttributeData> attributes;
-
-    static {
-        SerializationManager.registerClass(PartData.class);
-    }
 
     @Contract(pure = true)
     public PartData(@NotNull Class<?> clazz, @NotNull List<AttributeData> attributes) {

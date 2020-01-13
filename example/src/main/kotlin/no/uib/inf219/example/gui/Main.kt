@@ -1,5 +1,6 @@
 package no.uib.inf219.example.gui
 
+import no.uib.inf219.api.serialization.SerializationManager
 import no.uib.inf219.example.data.Conversation
 import no.uib.inf219.example.data.Response
 import no.uib.inf219.example.gui.view.BackgroundView
@@ -15,6 +16,10 @@ class Main : App(BackgroundView::class, Styles::class) {
         private val recursionConv: Conversation
 
         init {
+            SerializationManager.registerConfigurationSerializers(
+                "no.uib.inf219.example"
+            )
+
             val respList = ArrayList<Response>()
             recursionConv = Conversation("Do you know what recursion is?", responses = respList)
             respList += Response(
