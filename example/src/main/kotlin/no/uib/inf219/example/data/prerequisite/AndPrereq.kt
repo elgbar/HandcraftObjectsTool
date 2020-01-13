@@ -11,13 +11,17 @@ class AndPrereq : Prerequisite {
     companion object {
         const val OTHERS_PATH = "others"
 
+        @JvmStatic
         fun deserialize(map: Map<String, Any?>): AndPrereq {
             val responses = ArrayList<Prerequisite>()
             for ((i, elem) in (map[OTHERS_PATH] as List<Any?>).withIndex()) {
-                if (elem is Prerequisite) {
-                    responses += elem
-                } else {
-                    throw IllegalStateException("Given map contains non-prerequisites. Found a ${if (elem == null) "null" else elem::class.java.simpleName} at position $i")
+                when (elem) {
+                    is Prerequisite -> {
+                        responses += elem
+                    }
+                    else -> {
+                        throw IllegalStateException("Given map contains non-prerequisites. Found a ${if (elem == null) "null" else elem::class.java.simpleName} at position $i")
+                    }
                 }
             }
 

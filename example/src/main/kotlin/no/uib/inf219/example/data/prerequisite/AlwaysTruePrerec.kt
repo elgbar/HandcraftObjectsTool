@@ -11,4 +11,15 @@ class AlwaysTruePrerec : Prerequisite {
     override fun reason(): String {
         return "This prerequisite is always true"
     }
+
+    override fun serialize(): Map<String, Any?> {
+        return HashMap()
+    }
+
+    companion object {
+        @JvmStatic
+        fun deserialize(map: Map<String, Any?>): AlwaysTruePrerec {
+            return AlwaysTruePrerec()
+        }
+    }
 }
