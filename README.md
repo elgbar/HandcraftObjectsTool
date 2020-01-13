@@ -13,7 +13,7 @@ Features of the project that will be completed before considering the project in
 * [ ] Load wanted class from given JAR(s).
 * [ ] Serialize to YAML.
 * [ ] Type checking for primitives.
-* [ ] API for (de)annontation of object you can and can not modify.
+* [ ] API for (de)serialization of object you can and cannot modify.
 * [ ] API to communicate information about an object.
 * [ ] Allow objects to be optional.
 * [ ] Support for lists, sets and maps:
@@ -28,16 +28,17 @@ Features of the project that will be completed before considering the project in
 
 This is a list of planned features this project _might_ have, the order is random.
 
-* [ ] Support for annontation to other formats:
+* [ ] Support for annotation to other formats:
   * [ ] JSON
   * [ ] XML
 * [ ] API for creating wizards for complicated objects.
   * If an object is particularly hard to write by hand it might be useful to create a wizard to allow easier configuration of said object.
 * [ ] Web version.
   * A version that can be used in the browser.
+  * Will be hard when using JavaFx
 * [ ] Allow to specify a range a number (ie byte, int, long, float, double) can be.
 * [ ] API for custom type checking on non-primitive objects.
-* [ ] Easy enum selection
+* [ ] Easy enum selection.
 * [ ] Support for name suggestion when referencing an object
 * [ ] OS independent deployment.
   * A runnable jar that do not depend on the system java version.
