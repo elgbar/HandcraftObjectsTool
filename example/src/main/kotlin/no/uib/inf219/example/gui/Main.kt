@@ -77,7 +77,9 @@ class Main : App(BackgroundView::class, Styles::class) {
                             )
                         )
                     )
-                ), Response("Can you teach me about recursion?", conv = recursionConv)
+                )
+                //FIXME allow for recursion
+//                , Response("Can you teach me about recursion?", conv = recursionConv)
             )
         )
     }
