@@ -30,7 +30,7 @@ public class YamlConfiguration extends FileConfiguration {
     protected static final String BLANK_CONFIG = "{}\n";
     private final DumperOptions yamlOptions = new DumperOptions();
     private final Representer yamlRepresenter = new YamlRepresenter();
-    private final Yaml yaml = new Yaml(new YamlConstructor(), yamlRepresenter, yamlOptions);
+    public final Yaml yaml = new Yaml(new YamlConstructor(), yamlRepresenter, yamlOptions);
 
     @NotNull
     @Override
@@ -49,9 +49,9 @@ public class YamlConfiguration extends FileConfiguration {
         return header + dump;
     }
 
+
     @Override
-    public void loadFromString(@NotNull String contents) throws InvalidConfigurationException {
-        Validate.notNull(contents, "Contents cannot be null");
+    public void load(@NotNull String contents) throws InvalidConfigurationException {
 
         Map<?, ?> input;
         try {
@@ -63,13 +63,11 @@ public class YamlConfiguration extends FileConfiguration {
         }
 
         String header = parseHeader(contents);
-        if (header.length() > 0) {
+        if (!header.isEmpty()) {
             options().header(header);
         }
 
-        if (input != null) {
-            convertMapsToSections(input, this);
-        }
+        convertMapsToSections(input, this);
     }
 
     protected void convertMapsToSections(@NotNull Map<?, ?> input, @NotNull ConfigurationSection section) {
@@ -84,6 +82,7 @@ public class YamlConfiguration extends FileConfiguration {
             }
         }
     }
+
 
     @NotNull
     protected String parseHeader(@NotNull String input) {
@@ -105,7 +104,7 @@ public class YamlConfiguration extends FileConfiguration {
                 }
 
                 foundHeader = true;
-            } else if ((foundHeader) && (line.length() == 0)) {
+            } else if ((foundHeader) && (line.isEmpty())) {
                 result.append("\n");
             } else if (foundHeader) {
                 readingHeader = false;
@@ -123,11 +122,11 @@ public class YamlConfiguration extends FileConfiguration {
         if (options().copyHeader()) {
             Configuration def = getDefaults();
 
-            if ((def != null) && (def instanceof FileConfiguration)) {
+            if ((def instanceof FileConfiguration)) {
                 FileConfiguration filedefaults = (FileConfiguration) def;
                 String defaultsHeader = filedefaults.buildHeader();
 
-                if ((defaultsHeader != null) && (defaultsHeader.length() > 0)) {
+                if (!defaultsHeader.isEmpty()) {
                     return defaultsHeader;
                 }
             }
@@ -144,7 +143,7 @@ public class YamlConfiguration extends FileConfiguration {
         for (int i = lines.length - 1; i >= 0; i--) {
             builder.insert(0, "\n");
 
-            if ((startedHeader) || (lines[i].length() != 0)) {
+            if ((startedHeader) || (!lines[i].isEmpty())) {
                 builder.insert(0, lines[i]);
                 builder.insert(0, COMMENT_PREFIX);
                 startedHeader = true;

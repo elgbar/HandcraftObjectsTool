@@ -149,31 +149,7 @@ public abstract class FileConfiguration extends MemoryConfiguration {
             input.close();
         }
 
-        loadFromString(builder.toString());
-    }
-
-    /**
-     * Loads this {@link FileConfiguration} from the specified location.
-     * <p>
-     * All the values contained within this configuration will be removed,
-     * leaving only settings and defaults, and the new values will be loaded
-     * from the given file.
-     * <p>
-     * If the file cannot be loaded for any reason, an exception will be
-     * thrown.
-     *
-     * @param file File to load from.
-     * @throws FileNotFoundException         Thrown when the given file cannot be
-     *                                       opened.
-     * @throws IOException                   Thrown when the given file cannot be read.
-     * @throws InvalidConfigurationException Thrown when the given file is not
-     *                                       a valid Configuration.
-     * @throws IllegalArgumentException      Thrown when file is null.
-     */
-    public void load(@NotNull String file) throws FileNotFoundException, IOException, InvalidConfigurationException {
-        Validate.notNull(file, "File cannot be null");
-
-        load(new File(file));
+        load(builder.toString());
     }
 
     /**
@@ -191,7 +167,7 @@ public abstract class FileConfiguration extends MemoryConfiguration {
      *                                       invalid.
      * @throws IllegalArgumentException      Thrown if contents is null.
      */
-    public abstract void loadFromString(@NotNull String contents) throws InvalidConfigurationException;
+    public abstract void load(@NotNull String contents) throws InvalidConfigurationException;
 
     /**
      * Compiles the header for this {@link FileConfiguration} and returns the

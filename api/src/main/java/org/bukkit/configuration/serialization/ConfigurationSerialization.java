@@ -1,6 +1,5 @@
 package org.bukkit.configuration.serialization;
 
-import org.apache.commons.lang.Validate;
 import org.bukkit.configuration.Configuration;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -20,7 +19,7 @@ import java.util.logging.Logger;
 public class ConfigurationSerialization {
     public static final String SERIALIZED_TYPE_KEY = "==";
     private final Class<? extends ConfigurationSerializable> clazz;
-    private static Map<String, Class<? extends ConfigurationSerializable>> aliases = new HashMap<String, Class<? extends ConfigurationSerializable>>();
+    private static Map<String, Class<? extends ConfigurationSerializable>> aliases = new HashMap<>();
 
     protected ConfigurationSerialization(@NotNull Class<? extends ConfigurationSerializable> clazz) {
         this.clazz = clazz;
@@ -89,10 +88,9 @@ public class ConfigurationSerialization {
 
     @Nullable
     public ConfigurationSerializable deserialize(@NotNull Map<String, ?> args) {
-        Validate.notNull(args, "Args must not be null");
 
         ConfigurationSerializable result = null;
-        Method method = null;
+        Method method;
 
         method = getMethod("deserialize", true);
 
@@ -155,7 +153,7 @@ public class ConfigurationSerialization {
      */
     @Nullable
     public static ConfigurationSerializable deserializeObject(@NotNull Map<String, ?> args) {
-        Class<? extends ConfigurationSerializable> clazz = null;
+        Class<? extends ConfigurationSerializable> clazz;
 
         if (args.containsKey(SERIALIZED_TYPE_KEY)) {
             try {
@@ -250,19 +248,18 @@ public class ConfigurationSerialization {
         DelegateDeserialization delegate = clazz.getAnnotation(DelegateDeserialization.class);
 
         if (delegate != null) {
-            if ((delegate.value() == null) || (delegate.value() == clazz)) {
+            if (delegate.value() == clazz) {
                 delegate = null;
             } else {
                 return getAlias(delegate.value());
             }
         }
 
-        if (delegate == null) {
-            SerializableAs alias = clazz.getAnnotation(SerializableAs.class);
+        SerializableAs alias = clazz.getAnnotation(SerializableAs.class);
 
-            if ((alias != null) && (alias.value() != null)) {
-                return alias.value();
-            }
+        if ((alias != null)) {
+            alias.value();
+            return alias.value();
         }
 
         return clazz.getName();
