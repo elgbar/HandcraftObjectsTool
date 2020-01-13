@@ -39,7 +39,8 @@ class Main : App(BackgroundView::class, Styles::class) {
 
         val TEST_CONV = Conversation(
             "Welcome to this conversation!",
-            responses = listOf(
+            "Hard coded conversation",
+            listOf(
                 Response(
                     "That's a weird thing to say",
                     conv = Conversation(

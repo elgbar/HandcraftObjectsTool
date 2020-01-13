@@ -1,0 +1,37 @@
+==: no.uib.inf219.example.data.Conversation
+responses:
+  - ==: no.uib.inf219.example.data.Response
+    text: That's a weird thing to say
+    conversations:
+      ==: no.uib.inf219.example.data.Conversation
+      responses:
+        - ==: no.uib.inf219.example.data.Response
+          end: true
+          text: I suppose you do
+      text: Yes it is, this is just an example though. I do need to write something
+        to fill this example.
+  - ==: no.uib.inf219.example.data.Response
+    text: Wait, what is this?
+    conversations:
+      ==: no.uib.inf219.example.data.Conversation
+      responses:
+        - ==: no.uib.inf219.example.data.Response
+          text: So whats HOT then?
+          conversations:
+            ==: no.uib.inf219.example.data.Conversation
+            responses:
+              - ==: no.uib.inf219.example.data.Response
+                text: So this is made in HOT?
+                conversations:
+                  ==: no.uib.inf219.example.data.Conversation
+                  responses:
+                    - ==: no.uib.inf219.example.data.Response
+                      end: true
+                      text: Oh well that is slightly less disappointing...
+                  text: Well, err no. This is just written to a yaml file, its just loaded in.
+            text: HOT (or Handcraft Objects Tool) is an interactive way to create JVM
+              objects, like this conversation.
+      text: This is an example application, it's just a way to show off what HOT can
+        be used for
+text: Welcome to this conversation!
+name: Loaded in conversation
