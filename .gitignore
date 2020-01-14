@@ -2,4 +2,4 @@
 build
 out
 gradle/wrapper/gradle-wrapper.jar
-.idea/misc.xml
+*.iml
