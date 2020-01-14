@@ -1,10 +1,11 @@
-package no.uib.inf219.example.data.prerequisite
+package no.uib.inf219.example.data.prerequisite.logical
+
+import no.uib.inf219.example.data.prerequisite.Prerequisite
 
 /**
  * @author Elg
  */
-class AndPrerequisite : Prerequisite {
-
+abstract class LogicalPrerequisite : Prerequisite {
 
     lateinit var others: List<Prerequisite>
 
@@ -12,7 +13,10 @@ class AndPrerequisite : Prerequisite {
         const val OTHERS_PATH = "others"
 
         @JvmStatic
-        fun deserialize(map: Map<String, Any?>): AndPrerequisite {
+        fun <T : LogicalPrerequisite> deserializeOthers(
+            impl: T,
+            map: Map<String, Any?>
+        ): T {
             val responses = ArrayList<Prerequisite>()
             for ((i, elem) in (map[OTHERS_PATH] as List<Any?>).withIndex()) {
                 when (elem) {
@@ -24,21 +28,9 @@ class AndPrerequisite : Prerequisite {
                     }
                 }
             }
-
-            val a = AndPrerequisite()
-            a.others = responses
-            return a
+            impl.others = responses
+            return impl
         }
-    }
-
-    override fun check(): Boolean {
-        return others.all {
-            it.check()
-        }
-    }
-
-    override fun reason(): String {
-        return "One or more of the given prerequisite are false"
     }
 
     override fun serialize(): Map<String, Any?> {
@@ -47,4 +39,5 @@ class AndPrerequisite : Prerequisite {
         map[OTHERS_PATH] = others
         return map
     }
+
 }

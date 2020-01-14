@@ -9,8 +9,8 @@ import no.uib.inf219.api.serialization.SerializationManager
 import no.uib.inf219.example.data.Conversation
 import no.uib.inf219.example.data.prerequisite.AlwaysFalsePrerequisite
 import no.uib.inf219.example.data.prerequisite.AlwaysTruePrerequisite
-import no.uib.inf219.example.data.prerequisite.AndPrerequisite
 import no.uib.inf219.example.data.prerequisite.Prerequisite
+import no.uib.inf219.example.data.prerequisite.logical.AndPrerequisite
 import no.uib.inf219.example.gui.Main
 import no.uib.inf219.example.gui.Styles
 import org.bukkit.configuration.file.YamlConfiguration
