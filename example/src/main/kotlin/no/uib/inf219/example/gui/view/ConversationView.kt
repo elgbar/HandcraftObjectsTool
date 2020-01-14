@@ -23,6 +23,7 @@ class ConversationView(val tab: Tab, var conv: Conversation) : View() {
         bottom {
             hbox {
                 addClass(responseHBox)
+                conv.hasBeenRead = true
                 createButtons(conv.responses, this)
             }
         }
@@ -40,6 +41,7 @@ class ConversationView(val tab: Tab, var conv: Conversation) : View() {
                             return@setOnAction
                         }
                         conv = response.conv
+                        conv.hasBeenRead = true
                         setText(root, conv.text)
                         createButtons(response.conv.responses, parent)
                     }
