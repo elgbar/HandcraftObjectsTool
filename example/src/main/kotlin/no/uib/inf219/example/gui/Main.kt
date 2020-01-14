@@ -1,6 +1,7 @@
 package no.uib.inf219.example.gui
 
 import no.uib.inf219.api.serialization.SerializationManager
+import no.uib.inf219.api.serialization.storage.UUIDSerializableStorage
 import no.uib.inf219.example.data.Conversation
 import no.uib.inf219.example.data.Response
 import no.uib.inf219.example.gui.view.BackgroundView
@@ -14,6 +15,7 @@ class Main : App(BackgroundView::class, Styles::class) {
     companion object {
 
         private val recursionConv: Conversation
+        val conversations = UUIDSerializableStorage<Conversation>()
 
         init {
             SerializationManager.registerConfigurationSerializers(

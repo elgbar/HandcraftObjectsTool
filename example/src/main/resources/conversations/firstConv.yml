@@ -1,37 +1,46 @@
 ==: no.uib.inf219.example.data.Conversation
+#name: Hard coded conversation
 responses:
   - ==: no.uib.inf219.example.data.Response
     text: That's a weird thing to say
     conversations:
       ==: no.uib.inf219.example.data.Conversation
+      name: 'Conversation #1'
       responses:
         - ==: no.uib.inf219.example.data.Response
           end: true
           text: I suppose you do
       text: Yes it is, this is just an example though. I do need to write something
         to fill this example.
+      id: !!java.util.UUID '330e7ec8-cab8-4176-960f-e3f2c7cbb0e6'
   - ==: no.uib.inf219.example.data.Response
     text: Wait, what is this?
     conversations:
       ==: no.uib.inf219.example.data.Conversation
+      name: 'Conversation #1'
       responses:
         - ==: no.uib.inf219.example.data.Response
           text: So whats HOT then?
           conversations:
             ==: no.uib.inf219.example.data.Conversation
+            name: 'Conversation #1'
             responses:
               - ==: no.uib.inf219.example.data.Response
                 text: So this is made in HOT?
                 conversations:
                   ==: no.uib.inf219.example.data.Conversation
+                  name: 'Conversation #1'
                   responses:
                     - ==: no.uib.inf219.example.data.Response
                       end: true
-                      text: Oh well that is slightly less disappointing...
-                  text: Well, err no. This is just written to a yaml file, its just loaded in.
+                      text: Oh well that is disappointing...
+                  text: Well, err no. This is just hardcoded in
+                  id: !!java.util.UUID 'f7589a13-af2c-4985-9b1e-7fbc2b52a9c9'
             text: HOT (or Handcraft Objects Tool) is an interactive way to create JVM
               objects, like this conversation.
+            id: !!java.util.UUID 'ee44ca1c-02e9-4cbf-8c82-81d2dd55aee9'
       text: This is an example application, it's just a way to show off what HOT can
         be used for
+      id: !!java.util.UUID '38afc654-bd1d-4cc0-9e5f-bdf7cf6ce7b5'
 text: Welcome to this conversation!
-name: Loaded in conversation
+id: !!java.util.UUID '01934a8c-d5dc-442a-aba2-22847b4dd360'
