@@ -109,13 +109,18 @@ class SelectConversationView(val tabPane: TabPane) : View("") {
             hBox += button("Dump TEST CONV") {
                 setOnAction {
                     val dump = SerializationManager.dump(Main.TEST_CONV)
-                    output.appendText("\n\nTrying to load it back in\n\n")
-                    output.appendText("eql test conv obj? ${SerializationManager.load<Conversation>(dump) == Main.TEST_CONV}\n")
-                    val dump2 = SerializationManager.dump(SerializationManager.load<Conversation>(dump));
+                    val dump2: String
+                    dump2 = try {
+                        val conv = SerializationManager.load<Conversation>(dump)
+                        output.appendText("eql test conv obj? ${conv == Main.TEST_CONV}\n")
+                        SerializationManager.dump(conv);
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        "failed to load it back in"
+                    }
                     output.appendText("eql test conv str? ${dump2 == dump}\n")
                     output.appendText("dump\n $dump\n")
                     output.appendText("dump2\n $dump2")
-
                 }
             }
 
