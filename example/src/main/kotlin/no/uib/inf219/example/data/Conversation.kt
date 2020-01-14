@@ -9,14 +9,21 @@ import no.uib.inf219.api.serialization.Serializable
  */
 class Conversation(
     val text: String,
-    val name: String = "",
+    val name: String = "Conversation #$convCount",
     val responses: List<Response> = listOf(Response.exitResponse)
 ) : Serializable {
+
 
     companion object {
         const val NAME_PATH = "name"
         const val TEXT_PATH = "text"
         const val RESPONSE_PATH = "responses"
+
+        private var convCount = 0
+
+        init {
+            convCount++
+        }
 
         @JvmStatic
         fun deserialize(map: Map<String, Any?>): Conversation {
