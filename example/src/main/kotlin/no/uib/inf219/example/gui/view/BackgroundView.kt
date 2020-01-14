@@ -11,8 +11,6 @@ class BackgroundView : View("HOT Conversation Example GUI") {
 
 
     override val root = gridpane() {
-        setPrefSize(600.0, 480.0)
-//        center = ConversationView(Main.TEST_CONV).root
 
         tabpane {
             gridpaneConstraints {

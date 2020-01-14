@@ -3,6 +3,7 @@ package no.uib.inf219.example.gui
 import javafx.geometry.Pos
 import javafx.scene.control.OverrunStyle
 import javafx.scene.text.FontWeight
+import javafx.stage.Screen
 import tornadofx.*
 
 /**
@@ -11,32 +12,37 @@ import tornadofx.*
 class Styles : Stylesheet() {
 
     companion object {
+
+        const val X1_DPI = 120
+        val scale = Screen.getPrimary().dpi / X1_DPI
+
         val headLineLabel by cssclass()
         val responseButton by cssclass()
         val conversationLabel by cssclass()
         val conversationBorderPane by cssclass()
         val responseHBox by cssclass()
         val parent by cssclass()
+
+        //em scaled
+        val Number.ems: Dimension<Dimension.LinearUnits>
+            get() = Dimension(
+                this.toDouble() * scale,
+                Dimension.LinearUnits.em
+            )
     }
 
     init {
         star {
             wrapText = true
-        }
-        label {
-            fontSize = 1.em
-        }
-        button {
-            fontSize = 1.em
-            padding = box(0.4.em, 0.5.em)
+            fontSize = 1.ems
         }
 
-        tooltip {
-            fontSize = 1.em
+        button {
+            padding = box(0.4.ems, 0.5.ems)
         }
 
         headLineLabel {
-            fontSize = 2.em
+            fontSize = 2.ems
             fontWeight = FontWeight.BOLD
         }
 
@@ -44,33 +50,33 @@ class Styles : Stylesheet() {
          * Generic rule for stuff that has multiple other elements within them
          */
         parent {
-            padding = box(0.333.em)
-            spacing = 0.333.em
+            padding = box(0.333.ems)
+            spacing = 0.333.ems
         }
 
         //conversation
 
         conversationBorderPane {
-            padding = box(0.333.em)
+            padding = box(0.333.ems)
 
             backgroundColor += c("#cecece")
         }
 
         conversationLabel {
-            padding = box(0.5.em, 0.25.em)
-            fontSize = 2.em
+            padding = box(0.5.ems, 0.25.ems)
+            fontSize = 2.ems
         }
 
         //response
 
         responseHBox {
             alignment = Pos.BASELINE_LEFT
-            spacing = 0.333.em
+            spacing = 0.333.ems
         }
         responseButton {
-            fontSize = 1.25.em
+            fontSize = 1.25.ems
             textOverrun = OverrunStyle.CLIP
-            padding = box(1.0.em)
+            padding = box(1.0.ems)
         }
     }
 }
