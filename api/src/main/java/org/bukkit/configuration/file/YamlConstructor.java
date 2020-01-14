@@ -1,5 +1,6 @@
 package org.bukkit.configuration.file;
 
+import no.uib.inf219.api.serialization.constructs.UUIDConstruct;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -10,11 +11,13 @@ import org.yaml.snakeyaml.nodes.Tag;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class YamlConstructor extends SafeConstructor {
 
     public YamlConstructor() {
         this.yamlConstructors.put(Tag.MAP, new ConstructCustomObject());
+        yamlConstructors.put(new Tag(UUID.class), new UUIDConstruct());
     }
 
     private class ConstructCustomObject extends ConstructYamlMap {
