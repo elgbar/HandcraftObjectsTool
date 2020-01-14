@@ -13,7 +13,7 @@ class Styles : Stylesheet() {
 
     companion object {
 
-        const val X1_DPI = 120
+        const val X1_DPI = 108 // dpi of screen originally implemented on
         val scale = Screen.getPrimary().dpi / X1_DPI
 
         val headLineLabel by cssclass()
