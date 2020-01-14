@@ -43,6 +43,7 @@ class AndPrerequisite : Prerequisite {
 
     override fun serialize(): Map<String, Any?> {
         val map = HashMap<String, Any?>()
+        if (!::others.isInitialized) throw IllegalStateException("Cannot serialize an object that is not initialized")
         map[OTHERS_PATH] = others
         return map
     }
