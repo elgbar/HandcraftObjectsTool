@@ -17,6 +17,7 @@ object SerializationManager {
      *
      * @see registerConfigurationSerializers to register multiple classes at once
      */
+    @JvmStatic
     fun registerClass(clazz: Class<out Serializable>) {
         ConfigurationSerialization.registerClass(clazz)
     }
