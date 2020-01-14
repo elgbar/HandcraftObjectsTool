@@ -42,3 +42,15 @@ This is a list of planned features this project _might_ have, the order is rando
 * [ ] Support for name suggestion when referencing an object
 * [ ] OS independent deployment.
   * A runnable jar that do not depend on the system java version.
+
+## Fix javaFx problems
+
+To run you need to have JDK 8 with support for JavaFx. 
+
+Here are two ways to get it:
+
+1. Use Oracle JDK 8, [found here](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) (you need to login to download)
+2. Use ZuluFx, [found here](https://www.azul.com/downloads/zulu-community/)
+
+In IntelliJ add the new JDK and use it as the project jdk
+
