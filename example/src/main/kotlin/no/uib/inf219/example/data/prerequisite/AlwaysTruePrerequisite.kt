@@ -3,7 +3,7 @@ package no.uib.inf219.example.data.prerequisite
 /**
  * @author Elg
  */
-class AlwaysTruePrerec : Prerequisite {
+class AlwaysTruePrerequisite : Prerequisite {
     override fun check(): Boolean {
         return true
     }
@@ -18,8 +18,8 @@ class AlwaysTruePrerec : Prerequisite {
 
     companion object {
         @JvmStatic
-        fun deserialize(map: Map<String, Any?>): AlwaysTruePrerec {
-            return AlwaysTruePrerec()
+        fun deserialize(map: Map<String, Any?>): AlwaysTruePrerequisite {
+            return AlwaysTruePrerequisite()
         }
     }
 }

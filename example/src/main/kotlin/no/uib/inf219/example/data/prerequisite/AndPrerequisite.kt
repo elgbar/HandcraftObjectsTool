@@ -3,7 +3,7 @@ package no.uib.inf219.example.data.prerequisite
 /**
  * @author Elg
  */
-class AndPrereq : Prerequisite {
+class AndPrerequisite : Prerequisite {
 
 
     lateinit var others: List<Prerequisite>
@@ -12,7 +12,7 @@ class AndPrereq : Prerequisite {
         const val OTHERS_PATH = "others"
 
         @JvmStatic
-        fun deserialize(map: Map<String, Any?>): AndPrereq {
+        fun deserialize(map: Map<String, Any?>): AndPrerequisite {
             val responses = ArrayList<Prerequisite>()
             for ((i, elem) in (map[OTHERS_PATH] as List<Any?>).withIndex()) {
                 when (elem) {
@@ -25,7 +25,7 @@ class AndPrereq : Prerequisite {
                 }
             }
 
-            val a = AndPrereq()
+            val a = AndPrerequisite()
             a.others = responses
             return a
         }

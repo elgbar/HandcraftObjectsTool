@@ -7,9 +7,9 @@ import javafx.scene.layout.BorderPane
 import javafx.stage.FileChooser
 import no.uib.inf219.api.serialization.SerializationManager
 import no.uib.inf219.example.data.Conversation
-import no.uib.inf219.example.data.prerequisite.AlwaysFalsePrereq
-import no.uib.inf219.example.data.prerequisite.AlwaysTruePrerec
-import no.uib.inf219.example.data.prerequisite.AndPrereq
+import no.uib.inf219.example.data.prerequisite.AlwaysFalsePrerequisite
+import no.uib.inf219.example.data.prerequisite.AlwaysTruePrerequisite
+import no.uib.inf219.example.data.prerequisite.AndPrerequisite
 import no.uib.inf219.example.data.prerequisite.Prerequisite
 import no.uib.inf219.example.gui.Main
 import no.uib.inf219.example.gui.Styles
@@ -83,10 +83,10 @@ class SelectConversationView(val tabPane: TabPane) : View("") {
 
                     val yaml = Yaml()
 
-                    val o = AndPrereq()
-                    val o2 = AndPrereq()
-                    o2.others = listOf(AlwaysTruePrerec(), AlwaysTruePrerec())
-                    o.others = listOf(AlwaysTruePrerec(), AlwaysFalsePrereq(), o2)
+                    val o = AndPrerequisite()
+                    val o2 = AndPrerequisite()
+                    o2.others = listOf(AlwaysTruePrerequisite(), AlwaysTruePrerequisite())
+                    o.others = listOf(AlwaysTruePrerequisite(), AlwaysFalsePrerequisite(), o2)
 
                     val dump = YamlConfiguration().yaml.dump(o)
                     output.appendText(dump)
