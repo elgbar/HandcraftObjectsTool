@@ -4,12 +4,10 @@ import no.elg.valentineRealms.core.parts.extract.AnnotationUtil;
 import no.elg.valentineRealms.core.parts.extract.PartsExtractor;
 import no.uib.inf219.api.annontation.AttributeDoc;
 import no.uib.inf219.api.annontation.EnumValueDesc;
-import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Field;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -17,8 +15,7 @@ import java.util.Objects;
 /**
  * @author Elg
  */
-//@SerializableAs("part_attribute")
-public class AttributeData implements ConfigurationSerializable {
+public class AttributeData {
 
     public static final String PATH_KEY = "path";
     public static final String CLASS_NAME_KEY = "className";
@@ -115,33 +112,6 @@ public class AttributeData implements ConfigurationSerializable {
         defaultValue = tempDefaultValue;
         note = ad.note();
     }
-
-    @NotNull
-    @Override
-    public Map<String, Object> serialize() {
-        Map<String, Object> serialized = new HashMap<>();
-        serialized.put(PATH_KEY, path);
-        serialized.put(CLASS_NAME_KEY, className);
-        serialized.put(IS_LIST_KEY, isList);
-        serialized.put(REQUIRED_KEY, required);
-        serialized.put(DEFAULT_VALUE_KEY, defaultValue);
-        serialized.put(NOTE_KEY, note);
-        return serialized;
-    }
-
-
-    @SuppressWarnings("unused")
-    @NotNull
-    public static AttributeData deserialize(@NotNull Map<String, ?> args) {
-        String path = (String) args.get(PATH_KEY);
-        String className = (String) args.get(CLASS_NAME_KEY);
-        Boolean isList = (Boolean) args.get(IS_LIST_KEY);
-        Boolean required = (Boolean) args.get(REQUIRED_KEY);
-        String defaultValue = (String) args.get(DEFAULT_VALUE_KEY);
-        String note = (String) args.get(NOTE_KEY);
-        return new AttributeData(path, className, isList, required, defaultValue, note);
-    }
-
 
     @Override
     public boolean equals(Object o) {

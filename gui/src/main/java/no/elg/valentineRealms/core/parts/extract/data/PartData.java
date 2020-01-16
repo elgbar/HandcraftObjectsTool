@@ -1,18 +1,14 @@
 package no.elg.valentineRealms.core.parts.extract.data;
 
-import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Elg
  */
-//@SerializableAs("part_metadata")
-public class PartData implements ConfigurationSerializable {
+public class PartData {
 
     public static final String CLASS_KEY = "class";
     public static final String ATTRIBUTES_KEY = "attributes";
@@ -41,23 +37,6 @@ public class PartData implements ConfigurationSerializable {
     public PartData(@NotNull String className, @NotNull List<AttributeData> attributes) {
         this.className = className;
         this.attributes = attributes;
-    }
-
-    @Override
-    public Map<String, Object> serialize() {
-        Map<String, Object> map = new HashMap<>();
-        map.put(CLASS_KEY, className);
-        map.put(ATTRIBUTES_KEY, attributes);
-        return map;
-    }
-
-    @SuppressWarnings("unused")
-    @NotNull
-    public static PartData deserialize(@NotNull Map<String, Object> args) {
-        String className = (String) args.get(CLASS_KEY);
-        //noinspection unchecked
-        List<AttributeData> data = (List<AttributeData>) args.get(ATTRIBUTES_KEY);
-        return new PartData(className, data);
     }
 
     @Override
