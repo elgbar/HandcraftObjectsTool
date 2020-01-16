@@ -6,10 +6,10 @@ import no.uib.inf219.example.data.Conversation
 /**
  * @author Elg
  */
-class ReadConversationPrerequisite : Prerequisite {
-
+class ReadConversationPrerequisite(
     @JsonProperty("conversation", required = true)
-    lateinit var conv: Conversation
+    val conv: Conversation
+) : Prerequisite {
 
     override fun check(): Boolean {
         return conv.hasBeenRead

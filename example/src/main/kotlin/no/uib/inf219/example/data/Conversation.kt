@@ -9,17 +9,11 @@ import com.fasterxml.jackson.annotation.JsonProperty
  *
  * @author Elg
  */
-//@JsonIdentityInfo(
-//    generator = ObjectIdGenerators.IntSequenceGenerator::class,
-//    scope = Conversation::class
-//)
-//@JsonIdentityInfo(generator = ObjectIdGenerators.StringIdGenerator::class)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 class Conversation(
     @JsonProperty("text", required = true)
     val text: String,
 
-//    @JsonManagedReference
     @JsonProperty("name", defaultValue = "Conversation")
     val name: String = "Conversation #?",
 
@@ -40,9 +34,6 @@ class Conversation(
         }
 
     companion object {
-        const val NAME_PATH = "name"
-        const val TEXT_PATH = "text"
-        const val RESPONSE_PATH = "responses"
 
         val endConversation = Conversation(
             "(Conversation ended)",

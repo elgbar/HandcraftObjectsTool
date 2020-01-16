@@ -7,11 +7,6 @@ import javafx.scene.control.Tooltip
 /**
  * @author Elg
  */
-//@JsonIdentityInfo(
-//    generator = ObjectIdGenerators.IntSequenceGenerator::class,
-//    scope = Conversation::class
-//)
-//@JsonIdentityInfo(generator = ObjectIdGenerators.StringIdGenerator::class)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 class Response(
     @JsonProperty("text", required = true)
@@ -25,16 +20,6 @@ class Response(
 ) {
 
     companion object {
-        const val NAME_PATH = "name"
-        const val TEXT_PATH = "text"
-        const val SUB_CONVERSATION_PATH = "conversations"
-        const val END_PATH = "end"
-
-        const val EXIT_RESPONSE_SER = "---\n" +
-                "text: \"End conversation\"\n" +
-                "name: \"Exit\"\n" +
-                "end: true"
-
         val exitResponse = listOf(Response("End conversation", "Exit"))
     }
 
