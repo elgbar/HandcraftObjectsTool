@@ -1,11 +1,9 @@
 package no.uib.inf219.api.serialization.storage
 
-import no.uib.inf219.api.serialization.Serializable
-
 /**
  * @author Elg
  */
-open class SerializableStorage<I, R : Serializable>(override val clazz: Class<I>) : RetrievableStorage<I, R> {
+open class SerializableStorage<I, R>(override val clazz: Class<I>) : RetrievableStorage<I, R> {
 
     companion object {
         const val ID_PATH = "id"
@@ -24,7 +22,7 @@ open class SerializableStorage<I, R : Serializable>(override val clazz: Class<I>
     }
 
     override fun store(store: R) {
-        val ser: Map<String, Any?> = store.serialize()
+        val ser: Map<String, Any?> = TODO("FIXME")
 
         val idObj: Any = ser[ID_PATH]
             ?: throw IllegalArgumentException("Failed to find an object at $ID_PATH when serializing given object '$store'")

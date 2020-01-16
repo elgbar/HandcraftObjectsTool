@@ -52,11 +52,13 @@ subprojects {
 project(":api") {
     version "0.1.0"
     dependencies {
-        api "org.yaml:snakeyaml:1.25"
+//        api "org.yaml:snakeyaml:1.25"
         api "org.slf4j:slf4j-api:$slf4j_version"
         implementation 'io.github.classgraph:classgraph:4.8.60'
         implementation 'commons-lang:commons-lang:2.6'
         implementation 'com.google.guava:guava:28.2-jre'
+        compile 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.10.1'
+        compile 'com.fasterxml.jackson.core:jackson-databind:2.10.2'
     }
 }
 
@@ -70,6 +72,7 @@ project(":example") {
         implementation project(":api")
         implementation "no.tornado:tornadofx:$tornadofx_version"
         implementation "org.slf4j:slf4j-simple:$slf4j_version"
+        compile "com.fasterxml.jackson.module:jackson-module-kotlin:2.10.+"
     }
 
     jar {

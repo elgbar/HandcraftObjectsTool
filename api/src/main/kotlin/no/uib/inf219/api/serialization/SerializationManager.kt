@@ -1,45 +1,54 @@
 package no.uib.inf219.api.serialization
 
-import io.github.classgraph.ClassGraph
-import no.kh498.util.ConfigUtil
-import org.bukkit.configuration.InvalidConfigurationException
-import org.bukkit.configuration.file.YamlConfiguration
-import org.bukkit.configuration.serialization.ConfigurationSerialization
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.SerializationFeature
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
+
 
 /**
  * @author Elg
  */
 object SerializationManager {
 
+    var mapper = ObjectMapper(YAMLFactory())
+//    var mapper = ObjectMapper()
 
-    /**
-     * Register a [Serializable] class so it can be used when serializing
-     *
-     * @see registerConfigurationSerializers to register multiple classes at once
-     */
-    @JvmStatic
-    fun registerClass(clazz: Class<out Serializable>) {
-        ConfigurationSerialization.registerClass(clazz)
+    init {
+        mapper.enable(SerializationFeature.INDENT_OUTPUT);
     }
 
     /**
-     * Register all classes that extend [Serializable]
-     *
-     * @see registerClass to register a specific class
+     * Register all classes that extend [HOTSerializable]
      */
     @JvmStatic
     fun registerConfigurationSerializers(packagePath: String) {
-        ClassGraph().whitelistPackages(packagePath).scan().use { scanResult ->
-
-            val subTypes: List<Class<out Serializable>> =
-                scanResult.getClassesImplementing(Serializable::class.java.name)
-                    .loadClasses(Serializable::class.java, false)
-
-            for (subType in subTypes) {
-                registerClass(subType)
-            }
-        }
+//        ClassGraph().whitelistPackages(packagePath).scan().use { scanResult ->
+//            registerInterface(HotSerializer::class.java, scanResult, ::registerRepresent)
+//            registerInterface(HotDeserializer::class.java, scanResult, ::registerConstruct)
+//        }
     }
+
+//    private inline fun <T> registerInterface(
+//        clazz: Class<T>,
+//        scanResult: ScanResult,
+//        regfun: (clazz: Class<*>, inst: T) -> Unit
+//    ) {
+//        val impls: List<Class<out T>> =
+//            scanResult.getClassesImplementing(clazz.name).loadClasses(clazz, false)
+//
+//        for (subClass in impls) {
+//            val serializableClazz: Class<*> =
+//                subClass.getAnnotation(SerializerOf::class.java)?.value?.java ?: subClass
+//            try {
+//                val ser: T = subClass.getConstructor().newInstance()
+//                regfun(subClass, ser)
+//            } catch (e: Exception) {
+//                throw SerializerException("Failed to register deserializer class ${serializableClazz.name} with ${subClass.name}")
+//            }
+//        }
+//
+//        println("deserImpl = ${impls.map { it.name }}")
+//    }
 
     /**
      * Convert the given object to YAML
@@ -48,7 +57,7 @@ object SerializationManager {
      */
     @JvmStatic
     fun dump(obj: Any): String {
-        return YamlConfiguration().yaml.dumpAsMap(obj)
+        return mapper.writeValueAsString(obj)
     }
 
     /**
@@ -57,18 +66,7 @@ object SerializationManager {
      * @return An instance of [T] with the properties of the given YAML
      */
     @JvmStatic
-    fun <T> load(str: String): T {
-        val conf = YamlConfiguration()
-
-        return try {
-            conf.yaml.load<T>(str)
-        } catch (e: InvalidConfigurationException) {
-
-            conf.load(str)
-            val map = ConfigUtil.getMapSection(conf.getKeys(true))
-
-            //then use its de
-            ConfigurationSerialization.deserializeObject(map) as T
-        }
+    inline fun <reified T> load(str: String): T {
+        return mapper.readValue(str, T::class.java)
     }
 }

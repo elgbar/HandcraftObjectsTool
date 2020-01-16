@@ -1,6 +1,5 @@
 package no.uib.inf219.api.serialization.storage
 
-import no.uib.inf219.api.serialization.Serializable
 import no.uib.inf219.api.serialization.storage.SerializableStorage.Companion.ID_PATH
 
 /**
@@ -9,7 +8,7 @@ import no.uib.inf219.api.serialization.storage.SerializableStorage.Companion.ID_
  *
  * @author Elg
  */
-interface RetrievableStorage<I, R : Serializable> {
+interface RetrievableStorage<I, R> {
 
     val clazz: Class<I>
 

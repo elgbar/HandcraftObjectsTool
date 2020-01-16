@@ -1,32 +1,39 @@
 package no.uib.inf219.example.data
 
-import no.uib.inf219.api.serialization.Serializable
-import no.uib.inf219.api.serialization.storage.SerializableStorage
-import no.uib.inf219.api.serialization.util.SerializationUtil
-import no.uib.inf219.example.gui.Main
-import java.util.*
-import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
+import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.annotation.JsonProperty
 
 /**
  * TODO allow for multiple pages of text
  *
  * @author Elg
  */
+//@JsonIdentityInfo(
+//    generator = ObjectIdGenerators.IntSequenceGenerator::class,
+//    scope = Conversation::class
+//)
+//@JsonIdentityInfo(generator = ObjectIdGenerators.StringIdGenerator::class)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 class Conversation(
+    @JsonProperty("text", required = true)
     val text: String,
-    val name: String = "Conversation #$convCount",
-    val responses: List<Response> = listOf(Response.exitResponse),
-    val uuid: UUID = UUID.randomUUID()
-) : Serializable {
 
-    init {
-        Main.conversations.store(this)
-    }
+//    @JsonManagedReference
+    @JsonProperty("name", defaultValue = "Conversation")
+    val name: String = "Conversation #?",
+
+    @JsonProperty("responses", defaultValue = "[]")
+    responses: List<Response> = ArrayList()
+) {
+
+    val responses = responses
+        get() = if (field.isEmpty()) Response.exitResponse else field
 
     /**
      * If this conversation have been held, setter always sets this to `true`
      */
+    @JsonIgnore
     var hasBeenRead: Boolean = false
         set(_) {
             field = true
@@ -37,55 +44,11 @@ class Conversation(
         const val TEXT_PATH = "text"
         const val RESPONSE_PATH = "responses"
 
-        private var convCount = 0
-
-        init {
-            convCount++
-        }
-
-        //TODO replace this with Constrcut! (see UUIDConstruct)
-        @JvmStatic
-        fun deserialize(map: Map<String, Any>): Conversation {
-            val uuidObj: Any = map[SerializableStorage.ID_PATH]
-                ?: throw IllegalArgumentException("Given map does not contain any identification at ${SerializableStorage.ID_PATH} : map = $map")
-            val uuid = SerializationUtil.toUUID(uuidObj)
-
-            val text = map[TEXT_PATH] as String
-            val name = map[NAME_PATH] as String? ?: "Conversation #${++convCount}"
-            val responses = ArrayList<Response>()
-            for (any in map[RESPONSE_PATH] as List<*>) {
-                when {
-                    any is Response -> {
-                        responses += any
-                    }
-                    any != null -> {
-                        throw IllegalArgumentException("One of the responses is not a response but a ${any::class.simpleName}")
-                    }
-                    else -> {
-                        throw IllegalArgumentException("One of the responses is null")
-                    }
-                }
-            }
-
-            return Conversation(text, name, responses, uuid)
-        }
-
         val endConversation = Conversation(
             "(Conversation ended)",
             "End of Conversation",
-            listOf(Response("End conversation", end = true, conv = Conversation("")))
+            Response.exitResponse
         )
-    }
-
-    override fun serialize(): Map<String, Any?> {
-        val map = HashMap<String, Any?>()
-        map[TEXT_PATH] = text
-        if (name.isNotEmpty())
-            map[NAME_PATH] = name
-        if (responses != listOf(Response.exitResponse))
-            map[RESPONSE_PATH] = responses
-        map[SerializableStorage.ID_PATH] = uuid
-        return map
     }
 
     override fun equals(other: Any?): Boolean {

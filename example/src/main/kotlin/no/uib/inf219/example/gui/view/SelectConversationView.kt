@@ -1,5 +1,6 @@
 package no.uib.inf219.example.gui.view
 
+import com.fasterxml.jackson.core.type.TypeReference
 import javafx.collections.FXCollections
 import javafx.collections.ObservableList
 import javafx.scene.control.TabPane
@@ -7,14 +8,13 @@ import javafx.scene.layout.BorderPane
 import javafx.stage.FileChooser
 import no.uib.inf219.api.serialization.SerializationManager
 import no.uib.inf219.example.data.Conversation
+import no.uib.inf219.example.data.Response
 import no.uib.inf219.example.data.prerequisite.AlwaysFalsePrerequisite
 import no.uib.inf219.example.data.prerequisite.AlwaysTruePrerequisite
 import no.uib.inf219.example.data.prerequisite.Prerequisite
 import no.uib.inf219.example.data.prerequisite.logical.AndPrerequisite
 import no.uib.inf219.example.gui.Main
 import no.uib.inf219.example.gui.Styles
-import org.bukkit.configuration.file.YamlConfiguration
-import org.yaml.snakeyaml.DumperOptions
 import org.yaml.snakeyaml.Yaml
 import tornadofx.*
 
@@ -77,24 +77,18 @@ class SelectConversationView(val tabPane: TabPane) : View("") {
             hBox += button("Test generic") {
                 setOnAction {
 
-                    val dumper = DumperOptions()
-                    dumper.indent = 2
-                    dumper.isPrettyFlow = true
-
                     val yaml = Yaml()
 
-                    val o = AndPrerequisite()
-                    val o2 = AndPrerequisite()
-                    o2.others = listOf(AlwaysTruePrerequisite(), AlwaysTruePrerequisite())
-                    o.others = listOf(AlwaysTruePrerequisite(), AlwaysFalsePrerequisite(), o2)
+                    val o = AndPrerequisite(listOf(AlwaysTruePrerequisite(), AlwaysTruePrerequisite()))
+                    val o2 = AndPrerequisite(listOf(AlwaysTruePrerequisite(), AlwaysFalsePrerequisite(), o))
 
-                    val dump = YamlConfiguration().yaml.dump(o)
+                    val dump = SerializationManager.dump(o2)
                     output.appendText(dump)
                     output.appendText("\n\n")
                     val oread: Prerequisite
 
                     try {
-                        oread = YamlConfiguration().yaml.load<Prerequisite>(dump)
+                        oread = SerializationManager.load(dump)
                     } catch (e: Exception) {
                         output.appendText("Failed to load object back\n$e")
                         e.printStackTrace()
@@ -121,6 +115,30 @@ class SelectConversationView(val tabPane: TabPane) : View("") {
                     output.appendText("eql test conv str? ${dump2 == dump}\n")
                     output.appendText("dump\n $dump\n")
                     output.appendText("dump2\n $dump2")
+                }
+            }
+            hBox += button("Dump End conv & exitResponse") {
+                setOnAction {
+
+                    val typeref: TypeReference<List<Response>> = object : TypeReference<List<Response>>() {}
+
+                    val exitRespDump = SerializationManager.dump(Response.exitResponse)
+                    output.appendText(exitRespDump)
+                    output.appendText(
+                        "\nEql when resp reload? " +
+                                "${SerializationManager.mapper.readValue<List<Response>>(
+                                    exitRespDump,
+                                    typeref
+                                ) == Response.exitResponse}\n"
+                    )
+
+                    output.appendText(SerializationManager.dump(SerializationManager.load<List<Response>>(exitRespDump)))
+
+                    output.appendText("\n\n")
+
+                    val endConvDump = SerializationManager.dump(Conversation.endConversation)
+                    output.appendText(endConvDump)
+                    output.appendText("\nEql when conv reload? ${SerializationManager.load<Conversation>(endConvDump) == Conversation.endConversation}\n")
                 }
             }
 

@@ -1,17 +1,28 @@
 package no.uib.inf219.example.data
 
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.annotation.JsonProperty
 import javafx.scene.control.Tooltip
-import no.uib.inf219.api.serialization.Serializable
 
 /**
  * @author Elg
  */
+//@JsonIdentityInfo(
+//    generator = ObjectIdGenerators.IntSequenceGenerator::class,
+//    scope = Conversation::class
+//)
+//@JsonIdentityInfo(generator = ObjectIdGenerators.StringIdGenerator::class)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 class Response(
+    @JsonProperty("text", required = true)
     val text: String,
-    val name: String = "",
-    val conv: Conversation = Conversation.endConversation,
-    val end: Boolean = false
-) : Serializable {
+
+    @JsonProperty("name")
+    val name: String? = null,
+
+    @JsonProperty("conv")
+    val conv: Conversation? = null
+) {
 
     companion object {
         const val NAME_PATH = "name"
@@ -19,40 +30,23 @@ class Response(
         const val SUB_CONVERSATION_PATH = "conversations"
         const val END_PATH = "end"
 
-        @Suppress("unused")
-        @JvmStatic
-        fun deserialize(map: Map<String, Any?>): Response {
-            val text = map[TEXT_PATH] as String
-            val name = map[NAME_PATH] as String? ?: ""
-            val conv = map[SUB_CONVERSATION_PATH] as Conversation? ?: Conversation.endConversation
-            val end = map[END_PATH] as Boolean? ?: false
-            return Response(text, name, conv, end)
-        }
+        const val EXIT_RESPONSE_SER = "---\n" +
+                "text: \"End conversation\"\n" +
+                "name: \"Exit\"\n" +
+                "end: true"
 
-        val exitResponse = Response("End conversation", "Exit", Conversation("", ""), true)
+        val exitResponse = listOf(Response("End conversation", "Exit"))
     }
 
     /**
      * @return If the conversation should close
      */
     fun shouldClose(): Boolean {
-        return end
+        return conv == null
     }
 
     fun tooltip(): Tooltip? {
-        return if (end) Tooltip("This will end the conversation") else null
-    }
-
-    override fun serialize(): Map<String, Any?> {
-        val map = HashMap<String, Any?>()
-        map[TEXT_PATH] = text
-        if (name.isNotEmpty())
-            map[NAME_PATH] = name
-        if (conv != Conversation.endConversation)
-            map[SUB_CONVERSATION_PATH] = conv
-        if (end)
-            map[END_PATH] = true
-        return map
+        return if (shouldClose()) Tooltip("This will end the conversation") else null
     }
 
     override fun equals(other: Any?): Boolean {
@@ -61,15 +55,15 @@ class Response(
 
         if (text != other.text) return false
         if (name != other.name) return false
-        if (end != other.end) return false
+        if (conv != other.conv) return false
 
         return true
     }
 
     override fun hashCode(): Int {
         var result = text.hashCode()
-        result = 31 * result + name.hashCode()
-        result = 31 * result + end.hashCode()
+        result = 31 * result + (name?.hashCode() ?: 0)
+        result = 31 * result + (conv?.hashCode() ?: 0)
         return result
     }
 

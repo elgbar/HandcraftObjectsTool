@@ -1,7 +1,7 @@
 package no.uib.inf219.example.gui
 
+import com.fasterxml.jackson.module.kotlin.KotlinModule
 import no.uib.inf219.api.serialization.SerializationManager
-import no.uib.inf219.api.serialization.storage.UUIDSerializableStorage
 import no.uib.inf219.example.data.Conversation
 import no.uib.inf219.example.data.Response
 import no.uib.inf219.example.gui.view.BackgroundView
@@ -15,9 +15,10 @@ class Main : App(BackgroundView::class, Styles::class) {
     companion object {
 
         private val recursionConv: Conversation
-        val conversations = UUIDSerializableStorage<Conversation>()
+//        val conversations = UUIDSerializableStorage<Conversation>()
 
         init {
+            SerializationManager.mapper.registerModule(KotlinModule())
             SerializationManager.registerConfigurationSerializers(
                 "no.uib.inf219.example"
             )
@@ -48,7 +49,7 @@ class Main : App(BackgroundView::class, Styles::class) {
                     conv = Conversation(
                         "Yes it is, this is just an example though. I do need to write something to fill this example.",
                         responses = listOf(
-                            Response("I suppose you do", end = true)
+                            Response("I suppose you do")
                         )
                     )
                 ),
@@ -68,8 +69,7 @@ class Main : App(BackgroundView::class, Styles::class) {
                                                 "Well, err no. This is just hardcoded in",
                                                 responses = listOf(
                                                     Response(
-                                                        "Oh well that is disappointing...",
-                                                        end = true
+                                                        "Oh well that is disappointing..."
                                                     )
                                                 )
                                             )

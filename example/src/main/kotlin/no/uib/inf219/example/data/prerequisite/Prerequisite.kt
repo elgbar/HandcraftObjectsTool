@@ -1,11 +1,12 @@
 package no.uib.inf219.example.data.prerequisite
 
-import no.uib.inf219.api.serialization.Serializable
+import com.fasterxml.jackson.annotation.JsonTypeInfo
 
 /**
  * @author Elg
  */
-interface Prerequisite : Serializable {
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "class")
+interface Prerequisite {
 
     /**
      * Check if this prerequisite is fulfilled

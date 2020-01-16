@@ -40,10 +40,10 @@ class ConversationView(val tab: Tab, var conv: Conversation) : View() {
                             tab.close()
                             return@setOnAction
                         }
-                        conv = response.conv
+                        conv = response.conv!!
                         conv.hasBeenRead = true
                         setText(root, conv.text)
-                        createButtons(response.conv.responses, parent)
+                        createButtons(conv.responses, parent)
                     }
                     tooltip = response.tooltip()
                     addClass(Styles.responseButton)

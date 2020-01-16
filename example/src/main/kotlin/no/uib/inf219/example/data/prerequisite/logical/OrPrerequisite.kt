@@ -1,16 +1,11 @@
 package no.uib.inf219.example.data.prerequisite.logical
 
+import no.uib.inf219.example.data.prerequisite.Prerequisite
+
 /**
  * @author Elg
  */
-class OrPrerequisite : LogicalPrerequisite() {
-
-    companion object {
-        @JvmStatic
-        fun deserialize(map: Map<String, Any?>): OrPrerequisite {
-            return deserializeOthers(OrPrerequisite(), map)
-        }
-    }
+class OrPrerequisite(others: List<Prerequisite>) : LogicalPrerequisite(others) {
 
     override fun check(): Boolean {
         return others.any {
