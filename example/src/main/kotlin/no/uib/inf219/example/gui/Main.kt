@@ -1,17 +1,28 @@
 package no.uib.inf219.example.gui
 
+import javafx.beans.property.StringProperty
+import javafx.scene.Scene
 import no.uib.inf219.api.serialization.SerializationManager
 import no.uib.inf219.example.data.Conversation
 import no.uib.inf219.example.data.Response
 import no.uib.inf219.example.gui.view.BackgroundView
 import tornadofx.App
+import tornadofx.UIComponent
 
 /**
  * @author Elg
  */
 class Main : App(BackgroundView::class, Styles::class) {
 
+    override fun createPrimaryScene(view: UIComponent): Scene {
+        Main.title = view.titleProperty
+        return super.createPrimaryScene(view)
+    }
+
     companion object {
+
+        lateinit var title: StringProperty
+            private set
 
         private val recursionConv: Conversation
 

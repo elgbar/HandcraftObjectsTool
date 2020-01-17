@@ -9,7 +9,6 @@ import tornadofx.*
  */
 class BackgroundView : View("HOT Conversation Example GUI") {
 
-
     override val root = gridpane() {
 
         tabpane {

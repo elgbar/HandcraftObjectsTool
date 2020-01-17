@@ -5,6 +5,7 @@ import javafx.scene.layout.BorderPane
 import javafx.scene.layout.HBox
 import no.uib.inf219.example.data.Conversation
 import no.uib.inf219.example.data.Response
+import no.uib.inf219.example.gui.Main
 import no.uib.inf219.example.gui.Styles
 import no.uib.inf219.example.gui.Styles.Companion.conversationBorderPane
 import no.uib.inf219.example.gui.Styles.Companion.responseHBox
@@ -16,7 +17,7 @@ import tornadofx.*
 class ConversationView(val tab: Tab, var conv: Conversation) : View() {
 
     override val root = borderpane {
-        title = "conversation"
+        Main.title.value = conv.name
         addClass(conversationBorderPane)
 
         setText(this, conv.text!!)
@@ -34,7 +35,7 @@ class ConversationView(val tab: Tab, var conv: Conversation) : View() {
             clear()
 
             for (response in resps) {
-                with(button(response.response!!)) {
+                with(button(response.response)) {
                     setOnAction {
                         if (response.shouldClose()) {
                             tab.close()
@@ -42,7 +43,7 @@ class ConversationView(val tab: Tab, var conv: Conversation) : View() {
                         }
                         conv = response.conv!!
                         conv.hasBeenRead = true
-                        setText(root, conv.text!!)
+                        setText(root, conv.text)
                         createButtons(conv.responses, parent)
                     }
                     tooltip = response.tooltip()
