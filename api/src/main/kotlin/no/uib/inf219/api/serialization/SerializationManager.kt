@@ -1,8 +1,9 @@
 package no.uib.inf219.api.serialization
 
+import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
+import com.fasterxml.jackson.module.kotlin.KotlinModule
 
 
 /**
@@ -10,16 +11,26 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
  */
 object SerializationManager {
 
-    var mapper = ObjectMapper(YAMLFactory())
-//    var mapper = ObjectMapper()
+    //    var mapper = ObjectMapper(YAMLFactory())
+    var mapper = ObjectMapper()
 
     init {
+        mapper.findAndRegisterModules()
         mapper.enable(SerializationFeature.INDENT_OUTPUT);
+        mapper.enable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+//        mapper.activateDefaultTyping(
+//            LaissezFaireSubTypeValidator.instance,
+//            ObjectMapper.DefaultTyping.EVERYTHING,
+//            JsonTypeInfo.As.WRAPPER_ARRAY
+//        )
+        mapper.registerModule(
+            KotlinModule(
+                nullisSameAsDefault = true,
+                nullToEmptyCollection = true
+            )
+        )
     }
 
-    /**
-     * Register all classes that extend [HOTSerializable]
-     */
     @JvmStatic
     fun registerConfigurationSerializers(packagePath: String) {
 //        ClassGraph().whitelistPackages(packagePath).scan().use { scanResult ->

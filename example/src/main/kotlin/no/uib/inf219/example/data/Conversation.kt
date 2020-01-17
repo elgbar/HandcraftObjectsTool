@@ -3,6 +3,9 @@ package no.uib.inf219.example.data
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
+import no.uib.inf219.api.serialization.Identifiable
+import no.uib.inf219.api.serialization.storage.RetrievableStorage
+import no.uib.inf219.api.serialization.storage.StoreHandler
 
 /**
  * TODO allow for multiple pages of text
@@ -10,19 +13,24 @@ import com.fasterxml.jackson.annotation.JsonProperty
  * @author Elg
  */
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-class Conversation(
-    @JsonProperty("text", required = true)
-    val text: String,
+open class Conversation : Identifiable<String> {
+
+    @JsonProperty("text", required = false)
+    lateinit var text: String
 
     @JsonProperty("name", defaultValue = "Conversation")
-    val name: String = "Conversation #?",
+    var name: String = "Conversation #${++createId}"
+
 
     @JsonProperty("responses", defaultValue = "[]")
-    responses: List<Response> = ArrayList()
-) {
-
-    val responses = responses
+    var responses: MutableList<Response> = ArrayList()
         get() = if (field.isEmpty()) Response.exitResponse else field
+
+    init {
+        val store: RetrievableStorage<String, Conversation> =
+            StoreHandler.getStore(Conversation::class.java) as RetrievableStorage<String, Conversation>
+        store.store(this)
+    }
 
     /**
      * If this conversation have been held, setter always sets this to `true`
@@ -35,11 +43,29 @@ class Conversation(
 
     companion object {
 
-        val endConversation = Conversation(
-            "(Conversation ended)",
-            "End of Conversation",
-            Response.exitResponse
-        )
+        @JvmStatic
+        var createId = 0
+        val endConversation: Conversation = Conversation()
+
+        init {
+            endConversation.text = "(Conversation ended)"
+            endConversation.name = "End of Conversation"
+            endConversation.responses = Response.exitResponse
+        }
+
+        @JvmStatic
+        fun create(text: String, name: String = "aaaa", responses: MutableList<Response> = ArrayList()): Conversation {
+            val conv = Conversation()
+            conv.text = text
+            conv.name = name
+            conv.responses = responses
+            return conv
+        }
+    }
+
+
+    override fun getId(): String {
+        return name
     }
 
     override fun equals(other: Any?): Boolean {
@@ -48,8 +74,6 @@ class Conversation(
 
         if (text != other.text) return false
         if (name != other.name) return false
-        if (responses != other.responses) return false
-
         return true
     }
 

@@ -19,7 +19,7 @@ class ConversationView(val tab: Tab, var conv: Conversation) : View() {
         title = "conversation"
         addClass(conversationBorderPane)
 
-        setText(this, conv.text)
+        setText(this, conv.text!!)
         bottom {
             hbox {
                 addClass(responseHBox)
@@ -34,7 +34,7 @@ class ConversationView(val tab: Tab, var conv: Conversation) : View() {
             clear()
 
             for (response in resps) {
-                with(button(response.text)) {
+                with(button(response.response!!)) {
                     setOnAction {
                         if (response.shouldClose()) {
                             tab.close()
@@ -42,7 +42,7 @@ class ConversationView(val tab: Tab, var conv: Conversation) : View() {
                         }
                         conv = response.conv!!
                         conv.hasBeenRead = true
-                        setText(root, conv.text)
+                        setText(root, conv.text!!)
                         createButtons(conv.responses, parent)
                     }
                     tooltip = response.tooltip()

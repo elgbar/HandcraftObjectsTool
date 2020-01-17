@@ -1,10 +1,10 @@
 package no.uib.inf219.api.serialization.storage
 
-import no.uib.inf219.api.serialization.storage.SerializableStorage.Companion.ID_PATH
+import no.uib.inf219.api.serialization.storage.IdentifiableStorage.Companion.ID_PATH
 
 /**
  *
- * [I] how to identify the object to retrive (ie a [R])
+ * [I] how to identify the object to retrieve (ie a [R])
  *
  * @author Elg
  */

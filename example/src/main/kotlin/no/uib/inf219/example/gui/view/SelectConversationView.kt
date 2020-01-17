@@ -170,7 +170,7 @@ class SelectConversationView(val tabPane: TabPane) : View("") {
         }
         convs.addAll(
             Main.TEST_CONV,
-            Conversation("test")
+            Conversation.create("test")
         )
     }
 

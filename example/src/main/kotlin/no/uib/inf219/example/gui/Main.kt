@@ -1,6 +1,5 @@
 package no.uib.inf219.example.gui
 
-import com.fasterxml.jackson.module.kotlin.KotlinModule
 import no.uib.inf219.api.serialization.SerializationManager
 import no.uib.inf219.example.data.Conversation
 import no.uib.inf219.example.data.Response
@@ -15,60 +14,57 @@ class Main : App(BackgroundView::class, Styles::class) {
     companion object {
 
         private val recursionConv: Conversation
-//        val conversations = UUIDSerializableStorage<Conversation>()
 
         init {
-            SerializationManager.mapper.registerModule(KotlinModule())
-            SerializationManager.registerConfigurationSerializers(
-                "no.uib.inf219.example"
-            )
+
+            SerializationManager.registerConfigurationSerializers("no.uib.inf219.example")
 
             val respList = ArrayList<Response>()
-            recursionConv = Conversation("Do you know what recursion is?", responses = respList)
-            respList += Response(
+            recursionConv = Conversation.create("Do you know what recursion is?", responses = respList)
+            respList += Response.create(
                 "No, I do not", conv =
-                Conversation(
-                    "Well I will teach you", responses = listOf(
-                        Response("Okay great!", conv = recursionConv)
+                Conversation.create(
+                    "Well I will teach you", responses = mutableListOf(
+                        Response.create("Okay great!", conv = recursionConv)
                     )
                 )
             )
-            respList += Response(
-                "Yes, I do", conv = Conversation(
+            respList += Response.create(
+                "Yes, I do", conv = Conversation.create(
                     "You now know all there is about recursion"
                 )
             )
         }
 
-        val TEST_CONV = Conversation(
+        val TEST_CONV = Conversation.create(
             "Welcome to this conversation!",
             "Hard coded conversation",
-            listOf(
-                Response(
+            mutableListOf(
+                Response.create(
                     "That's a weird thing to say",
-                    conv = Conversation(
+                    conv = Conversation.create(
                         "Yes it is, this is just an example though. I do need to write something to fill this example.",
-                        responses = listOf(
-                            Response("I suppose you do")
+                        responses = mutableListOf(
+                            Response.create("I suppose you do")
                         )
                     )
                 ),
-                Response(
+                Response.create(
                     "Wait, what is this?",
-                    conv = Conversation(
+                    conv = Conversation.create(
                         "This is an example application, it's just a way to show off what HOT can be used for",
-                        responses = listOf(
-                            Response(
+                        responses = mutableListOf(
+                            Response.create(
                                 "So whats HOT then?",
-                                conv = Conversation(
+                                conv = Conversation.create(
                                     "HOT (or Handcraft Objects Tool) is an interactive way to create JVM objects, like this conversation.",
-                                    responses = listOf(
-                                        Response(
+                                    responses = mutableListOf(
+                                        Response.create(
                                             "So this is made in HOT?",
-                                            conv = Conversation(
+                                            conv = Conversation.create(
                                                 "Well, err no. This is just hardcoded in",
-                                                responses = listOf(
-                                                    Response(
+                                                responses = mutableListOf(
+                                                    Response.create(
                                                         "Oh well that is disappointing..."
                                                     )
                                                 )
@@ -81,7 +77,7 @@ class Main : App(BackgroundView::class, Styles::class) {
                     )
                 )
                 //FIXME allow for recursion
-//                , Response("Can you teach me about recursion?", conv = recursionConv)
+                , Response.create("Can you teach me about recursion?", conv = recursionConv)
             )
         )
     }
