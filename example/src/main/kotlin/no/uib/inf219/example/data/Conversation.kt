@@ -54,11 +54,14 @@ open class Conversation : Identifiable<String> {
         }
 
         @JvmStatic
-        fun create(text: String, name: String = "aaaa", responses: MutableList<Response> = ArrayList()): Conversation {
+        fun create(text: String, name: String? = null, responses: MutableList<Response>? = null): Conversation {
             val conv = Conversation()
             conv.text = text
-            conv.name = name
-            conv.responses = responses
+
+            if (name != null)
+                conv.name = name
+            if (responses != null)
+                conv.responses = responses
             return conv
         }
     }

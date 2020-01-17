@@ -49,11 +49,13 @@ open class Response : Identifiable<String> {
         }
 
         @JvmStatic
-        fun create(text: String, name: String = "aaaa", conv: Conversation? = null): Response {
+        fun create(text: String, name: String? = null, conv: Conversation? = null): Response {
             val resp = Response()
             resp.response = text
-            resp.name = name
-            resp.conv = conv
+            if (name != null)
+                resp.name = name
+            if (conv != null)
+                resp.conv = conv
             return resp
         }
     }
