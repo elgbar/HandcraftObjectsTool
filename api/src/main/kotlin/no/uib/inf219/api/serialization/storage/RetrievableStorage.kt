@@ -54,4 +54,6 @@ interface RetrievableStorage<I, R> {
         return tryRetrieve(id) == null
     }
 
+    fun update(elem: R)
+
 }

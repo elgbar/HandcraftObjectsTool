@@ -36,4 +36,15 @@ open class IdentifiableStorage<I, R : Identifiable<I>>(override val clazz: Class
         return map[id]
     }
 
+    override fun update(elem: R) {
+        if (!map.containsValue(elem)) return
+        for ((k, v) in map.entries) {
+            if (v === elem) {
+                map.remove(k)
+                map[v.getId()] = v
+                return
+            }
+        }
+    }
+
 }

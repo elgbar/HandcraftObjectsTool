@@ -3,8 +3,10 @@ package no.uib.inf219.example.gui
 import javafx.beans.property.StringProperty
 import javafx.scene.Scene
 import no.uib.inf219.api.serialization.SerializationManager
+import no.uib.inf219.api.serialization.storage.StoreHandler
 import no.uib.inf219.example.data.Conversation
 import no.uib.inf219.example.data.Response
+import no.uib.inf219.example.data.prerequisite.ReadConversationPrerequisite
 import no.uib.inf219.example.gui.view.BackgroundView
 import tornadofx.App
 import tornadofx.UIComponent
@@ -26,6 +28,9 @@ class Main : App(BackgroundView::class, Styles::class) {
 
         private val recursionConv: Conversation
 
+        private const val aConvName = "What this?"
+        val TEST_CONV: Conversation
+
         init {
 
             SerializationManager.registerConfigurationSerializers("no.uib.inf219.example")
@@ -45,38 +50,39 @@ class Main : App(BackgroundView::class, Styles::class) {
                     "You now know all there is about recursion"
                 )
             )
-        }
 
-        val TEST_CONV = Conversation.create(
-            "Welcome to this conversation!",
-            "Hard coded conversation",
-            mutableListOf(
-                Response.create(
-                    "That's a weird thing to say",
-                    conv = Conversation.create(
-                        "Yes it is, this is just an example though. I do need to write something to fill this example.",
-                        responses = mutableListOf(
-                            Response.create("I suppose you do")
+            TEST_CONV = Conversation.create(
+                "Welcome to this conversation!",
+                "Hard coded conversation",
+                mutableListOf(
+                    Response.create(
+                        "That's a weird thing to say",
+                        conv = Conversation.create(
+                            "Yes it is, this is just an example though. I do need to write something to fill this example.",
+                            responses = mutableListOf(
+                                Response.create("I suppose you do")
+                            )
                         )
-                    )
-                ),
-                Response.create(
-                    "Wait, what is this?",
-                    conv = Conversation.create(
-                        "This is an example application, it's just a way to show off what HOT can be used for",
-                        responses = mutableListOf(
-                            Response.create(
-                                "So whats HOT then?",
-                                conv = Conversation.create(
-                                    "HOT (or Handcraft Objects Tool) is an interactive way to create JVM objects, like this conversation.",
-                                    responses = mutableListOf(
-                                        Response.create(
-                                            "So this is made in HOT?",
-                                            conv = Conversation.create(
-                                                "Well, err no. This is just hardcoded in",
-                                                responses = mutableListOf(
-                                                    Response.create(
-                                                        "Oh well that is disappointing..."
+                    ),
+                    Response.create(
+                        "Wait, what is this?",
+                        conv = Conversation.create(
+                            "This is an example application, it's just a way to show off what HOT can be used for",
+                            name = aConvName,
+                            responses = mutableListOf(
+                                Response.create(
+                                    "So whats HOT then?",
+                                    conv = Conversation.create(
+                                        "HOT (or Handcraft Objects Tool) is an interactive way to create JVM objects, like this conversation.",
+                                        responses = mutableListOf(
+                                            Response.create(
+                                                "So this is made in HOT?",
+                                                conv = Conversation.create(
+                                                    "Well, err no. This is just hardcoded in",
+                                                    responses = mutableListOf(
+                                                        Response.create(
+                                                            "Oh well that is disappointing..."
+                                                        )
                                                     )
                                                 )
                                             )
@@ -87,11 +93,16 @@ class Main : App(BackgroundView::class, Styles::class) {
                         )
                     )
                 )
-                //FIXME allow for recursion
-                , Response.create("Can you teach me about recursion?", conv = recursionConv)
             )
-        )
+            TEST_CONV.responses.add(
+                Response.create(
+                    "Can you teach me about recursion?",
+                    conv = recursionConv,
+                    prereq = ReadConversationPrerequisite(
+                        StoreHandler.getStore<String, Conversation>(Conversation::class.java).retrieve(aConvName)
+                    )
+                )
+            )
+        }
     }
-
-
 }

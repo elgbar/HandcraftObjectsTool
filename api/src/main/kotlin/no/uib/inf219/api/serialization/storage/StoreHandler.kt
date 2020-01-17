@@ -10,12 +10,12 @@ object StoreHandler {
     private val stores: MutableMap<Class<*>, RetrievableStorage<*, *>> = HashMap()
 
     @JvmStatic
-    fun getStore(clazz: Class<*>): RetrievableStorage<*, *> {
+    fun <I, R> getStore(clazz: Class<R>): RetrievableStorage<I, R> {
         tryCreateStore(clazz)
-        return stores[clazz] ?: throw IllegalArgumentException("Failed")
+        return stores[clazz] as RetrievableStorage<I, R>? ?: throw IllegalArgumentException("Failed")
     }
 
-    private fun tryCreateStore(clazz: Class<out Any>) {
+    private fun <R> tryCreateStore(clazz: Class<R>) {
         if (stores.containsKey(clazz)) return
         if (Identifiable::class.java.isAssignableFrom(clazz)) {
             this.stores[clazz] = IdentifiableStorage(clazz)

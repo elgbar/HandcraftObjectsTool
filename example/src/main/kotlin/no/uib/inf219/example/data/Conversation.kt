@@ -18,6 +18,12 @@ class Conversation : Identifiable<String> {
 
     @JsonProperty("name", defaultValue = "Conversation")
     var name: String = "Conversation #${++createId}"
+        set(value) {
+            field = value
+            val store: RetrievableStorage<String, Conversation> =
+                StoreHandler.getStore(Conversation::class.java)
+            store.update(this)
+        }
 
 
     @JsonProperty("responses", defaultValue = "[]")
@@ -25,9 +31,11 @@ class Conversation : Identifiable<String> {
         get() = if (field.isEmpty()) Response.exitResponse else field
 
     init {
+//        println("storing name = ${name} ($text)")
         val store: RetrievableStorage<String, Conversation> =
-            StoreHandler.getStore(Conversation::class.java) as RetrievableStorage<String, Conversation>
+            StoreHandler.getStore(Conversation::class.java)
         store.store(this)
+
     }
 
     /**

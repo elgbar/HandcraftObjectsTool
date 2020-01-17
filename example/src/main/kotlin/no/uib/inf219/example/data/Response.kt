@@ -5,6 +5,8 @@ import javafx.scene.control.Tooltip
 import no.uib.inf219.api.serialization.Identifiable
 import no.uib.inf219.api.serialization.storage.RetrievableStorage
 import no.uib.inf219.api.serialization.storage.StoreHandler
+import no.uib.inf219.example.data.prerequisite.AlwaysTruePrerequisite
+import no.uib.inf219.example.data.prerequisite.Prerequisite
 
 /**
  * @author Elg
@@ -16,9 +18,6 @@ class Response : Identifiable<String> {
 //    @JsonProperty("respId", required = true)
 //    val id: UUID? = UUID.randomUUID()
 
-//    ,
-//    @JsonProperty("prerequisites")
-//    val prereq: List<Prerequisite>? = null
 
     @JsonProperty("response", required = true)
     var response: String = "???"
@@ -26,10 +25,11 @@ class Response : Identifiable<String> {
     @JsonProperty("name")
     var name: String = "Response #${++createId}"
 
-    //    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, defaultImpl = Conversation::class)
     @JsonProperty("conv")
     var conv: Conversation? = null
 
+    @JsonProperty("prerequisites")
+    var prereq: Prerequisite = AlwaysTruePrerequisite()
 
     companion object {
         val exitResponse: MutableList<Response> = mutableListOf(create("End conversation", "Exit"))
@@ -38,20 +38,26 @@ class Response : Identifiable<String> {
         var createId = 0
 
         @JvmStatic
-        fun create(text: String, name: String? = null, conv: Conversation? = null): Response {
+        fun create(
+            text: String,
+            name: String? = null,
+            conv: Conversation? = null,
+            prereq: Prerequisite? = null
+        ): Response {
             val resp = Response()
             resp.response = text
             if (name != null)
                 resp.name = name
             if (conv != null)
                 resp.conv = conv
+            if (prereq != null)
+                resp.prereq = prereq
             return resp
         }
     }
 
     init {
-        val store: RetrievableStorage<String, Response> =
-            StoreHandler.getStore(Response::class.java) as RetrievableStorage<String, Response>
+        val store: RetrievableStorage<String, Response> = StoreHandler.getStore(Response::class.java)
         store.store(this)
     }
 

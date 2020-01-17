@@ -36,20 +36,22 @@ class ConversationView(val tab: Tab, var conv: Conversation) : View() {
 
             for (response in resps) {
                 with(button(response.response)) {
+                    this.disableProperty().set(!response.prereq.check())
                     setOnAction {
-                        if (response.shouldClose()) {
-                            tab.close()
-                            return@setOnAction
+                        if (response.prereq.check()) {
+                            if (response.shouldClose()) {
+                                tab.close()
+                                return@setOnAction
+                            }
+                            conv = response.conv!!
+                            conv.hasBeenRead = true
+                            setText(root, conv.text)
+                            createButtons(conv.responses, parent)
                         }
-                        conv = response.conv!!
-                        conv.hasBeenRead = true
-                        setText(root, conv.text)
-                        createButtons(conv.responses, parent)
                     }
                     tooltip = response.tooltip()
                     addClass(Styles.responseButton)
                 }
-
             }
         }
     }
