@@ -43,13 +43,7 @@ class Conversation : Identifiable<String> {
 
         @JvmStatic
         var createId = 0
-        val endConversation: Conversation = Conversation()
-
-        init {
-            endConversation.text = "(Conversation ended)"
-            endConversation.name = "End of Conversation"
-            endConversation.responses = Response.exitResponse
-        }
+        val endConversation: Conversation = create("(Conversation ended)", "End of Conversation", Response.exitResponse)
 
         @JvmStatic
         fun create(text: String, name: String? = null, responses: MutableList<Response>? = null): Conversation {

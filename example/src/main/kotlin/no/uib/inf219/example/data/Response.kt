@@ -32,17 +32,10 @@ class Response : Identifiable<String> {
 
 
     companion object {
-        val exitResponse: MutableList<Response>
+        val exitResponse: MutableList<Response> = mutableListOf(create("End conversation", "Exit"))
 
         @JvmStatic
         var createId = 0
-
-        init {
-            val resp = Response()
-            resp.response = "End conversation"
-            resp.name = "Exit"
-            exitResponse = mutableListOf(Response())
-        }
 
         @JvmStatic
         fun create(text: String, name: String? = null, conv: Conversation? = null): Response {
