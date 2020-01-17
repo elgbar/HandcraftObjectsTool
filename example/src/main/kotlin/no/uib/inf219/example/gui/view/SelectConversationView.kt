@@ -77,8 +77,6 @@ class SelectConversationView(val tabPane: TabPane) : View("") {
             hBox += button("Test generic") {
                 setOnAction {
 
-                    val yaml = Yaml()
-
                     val o = AndPrerequisite(listOf(AlwaysTruePrerequisite(), AlwaysTruePrerequisite()))
                     val o2 = AndPrerequisite(listOf(AlwaysTruePrerequisite(), AlwaysFalsePrerequisite(), o))
 
@@ -95,17 +93,18 @@ class SelectConversationView(val tabPane: TabPane) : View("") {
                         return@setOnAction
                     }
 
-                    output.appendText("\ntake 2: \n${yaml.dump(oread)}\n")
+                    output.appendText("\ntake 2: \n${SerializationManager.dump(oread)}\n")
                     output.appendText("Can use ${oread::class.simpleName}? ${oread.check()}${if (!oread.check()) " (due to '${oread.reason()}')" else ""}\n")
                 }
             }
 
             hBox += button("Dump TEST CONV") {
                 setOnAction {
-                    val dump = SerializationManager.dump(Main.TEST_CONV)
+                    val dump: String = SerializationManager.dump(Main.TEST_CONV)
                     val dump2: String
                     dump2 = try {
                         val conv = SerializationManager.load<Conversation>(dump)
+                        convs += conv
                         output.appendText("eql test conv obj? ${conv == Main.TEST_CONV}\n")
                         SerializationManager.dump(conv);
                     } catch (e: Exception) {
@@ -113,8 +112,8 @@ class SelectConversationView(val tabPane: TabPane) : View("") {
                         "failed to load it back in"
                     }
                     output.appendText("eql test conv str? ${dump2 == dump}\n")
-                    output.appendText("dump\n $dump\n")
-                    output.appendText("dump2\n $dump2")
+                    output.appendText("\ndump\n $dump\n\n")
+                    output.appendText("dump2\n\n $dump2")
                 }
             }
             hBox += button("Dump End conv & exitResponse") {

@@ -1,17 +1,15 @@
 package no.uib.inf219.api.serialization
 
-import com.fasterxml.jackson.annotation.*
+import com.fasterxml.jackson.annotation.JsonIdentityInfo
+import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.annotation.ObjectIdGenerators
 
 /**
  * @author Elg
  */
-@JsonIdentityInfo(
-    generator = ObjectIdGenerators.StringIdGenerator::class,
-    scope = Identifiable::class,
-    resolver = SimpleObjectIdResolver::class,
-    property = "id"
-)
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_ARRAY, property = "@class")
+@JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator::class)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 interface Identifiable<T> {
 
     /**

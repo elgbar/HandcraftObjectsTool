@@ -1,7 +1,6 @@
 package no.uib.inf219.example.data
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import no.uib.inf219.api.serialization.Identifiable
 import no.uib.inf219.api.serialization.storage.RetrievableStorage
@@ -12,8 +11,7 @@ import no.uib.inf219.api.serialization.storage.StoreHandler
  *
  * @author Elg
  */
-@JsonInclude(JsonInclude.Include.NON_EMPTY)
-open class Conversation : Identifiable<String> {
+class Conversation : Identifiable<String> {
 
     @JsonProperty("text", required = false)
     lateinit var text: String

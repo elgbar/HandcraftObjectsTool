@@ -60,6 +60,7 @@ project(":api") {
         implementation 'commons-lang:commons-lang:2.6'
         implementation 'com.google.guava:guava:28.2-jre'
         implementation "com.fasterxml.jackson.module:jackson-module-kotlin:2.10.2"
+        implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.10.2'
     }
 }
 

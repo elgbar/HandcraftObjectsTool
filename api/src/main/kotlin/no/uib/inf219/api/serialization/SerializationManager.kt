@@ -3,6 +3,7 @@ package no.uib.inf219.api.serialization
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 
 
@@ -11,18 +12,13 @@ import com.fasterxml.jackson.module.kotlin.KotlinModule
  */
 object SerializationManager {
 
-    //    var mapper = ObjectMapper(YAMLFactory())
-    var mapper = ObjectMapper()
+    var mapper = ObjectMapper(YAMLFactory())
+//    var mapper = ObjectMapper()
 
     init {
         mapper.findAndRegisterModules()
         mapper.enable(SerializationFeature.INDENT_OUTPUT);
         mapper.enable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
-//        mapper.activateDefaultTyping(
-//            LaissezFaireSubTypeValidator.instance,
-//            ObjectMapper.DefaultTyping.EVERYTHING,
-//            JsonTypeInfo.As.WRAPPER_ARRAY
-//        )
         mapper.registerModule(
             KotlinModule(
                 nullisSameAsDefault = true,

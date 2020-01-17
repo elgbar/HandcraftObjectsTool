@@ -1,93 +1,58 @@
-[ "no.uib.inf219.example.data.Conversation", {
-  "id": "559f2d70-7817-45e6-8194-c24240fbec96",
-  "text": "Welcome to this conversation!",
-  "name": "Hard coded conversation",
-  "responses": [ [ "no.uib.inf219.example.data.Response", {
-    "@id": "a9ed466c-f125-4a82-b715-4d5b3887c9fe",
-    "response": "That's a weird thing to say",
-    "name": "aaaa",
-    "conv": [ "no.uib.inf219.example.data.Conversation", {
-      "id": "ac96561a-aff4-44cc-b1d7-077aa624c05e",
-      "text": "Yes it is, this is just an example though. I do need to write something to fill this example.",
-      "name": "aaaa",
-      "responses": [ [ "no.uib.inf219.example.data.Response", {
-        "@id": "fe667f76-592c-4ac6-adb4-3088cd2ef3b7",
-        "response": "I suppose you do",
-        "name": "aaaa"
-      } ] ]
-    } ]
-  } ],           [ "no.uib.inf219.example.data.Response", {
-    "@id": "ee1ff965-bc00-4604-825a-4d16640e58e6",
-    "response": "Wait, what is this?",
-    "name": "aaaa",
-    "conv": [ "no.uib.inf219.example.data.Conversation", {
-      "id": "072f8372-521e-4fec-9081-89a2c3d00bd1",
-      "text": "This is an example application, it's just a way to show off what HOT can be used for",
-      "name": "aaaa",
-      "responses": [ [ "no.uib.inf219.example.data.Response", {
-        "@id": "8aadaa84-7514-4021-b9ff-bc89a50868c2",
-        "response": "So whats HOT then?",
-        "name": "aaaa",
-        "conv": [ "no.uib.inf219.example.data.Conversation", {
-          "id": "88d8d4dd-6dc2-4b07-9aff-46d7712857c0",
-          "text": "HOT (or Handcraft Objects Tool) is an interactive way to create JVM objects, like this conversation.",
-          "name": "aaaa",
-          "responses": [ [ "no.uib.inf219.example.data.Response", {
-            "@id": "76c44621-87db-40d5-b927-3e2ac050f8a7",
-            "response": "So this is made in HOT?",
-            "name": "aaaa",
-            "conv": [ "no.uib.inf219.example.data.Conversation", {
-              "id": "8f96a0a3-f007-4012-9912-afd57f67d0e2",
-              "text": "Well, err no. This is just hardcoded in",
-              "name": "aaaa",
-              "responses": [ [ "no.uib.inf219.example.data.Response", {
-                "@id": "6be55255-a80b-441b-b5ef-42b801f2da93",
-                "response": "Oh well that is disappointing...",
-                "name": "aaaa"
-              } ] ]
-            } ]
-          } ] ]
-        } ]
-      } ] ]
-    } ]
-  } ],           [ "no.uib.inf219.example.data.Response", {
-    "@id": "6730935e-0d8e-43fb-9142-c518e2940db1",
-    "response": "Can you teach me about recursion?",
-    "name": "aaaa",
-    "conv": [ "no.uib.inf219.example.data.Conversation", {
-      "id": "19140696-b370-4eca-9051-99537717aedf",
-      "text": "Do you know what recursion is?",
-      "name": "aaaa",
-      "responses": [ [ "no.uib.inf219.example.data.Response", {
-        "@id": "2e762a24-fe0f-4db1-8744-1078baa45d70",
-        "response": "No, I do not",
-        "name": "aaaa",
-        "conv": [ "no.uib.inf219.example.data.Conversation", {
-          "id": "8f755cfd-bd2e-4366-99f8-cf91236c1300",
-          "text": "Well I will teach you",
-          "name": "aaaa",
-          "responses": [ [ "no.uib.inf219.example.data.Response", {
-            "@id": "4708bd88-898b-4bbd-a930-2f6c32852e4a",
-            "response": "Okay great!",
-            "name": "aaaa",
-            "conv": "19140696-b370-4eca-9051-99537717aedf"
-          } ] ]
-        } ]
-      } ],           [ "no.uib.inf219.example.data.Response", {
-        "@id": "416ddaea-32ca-4c38-a3d1-49d3196e4c7c",
-        "response": "Yes, I do",
-        "name": "aaaa",
-        "conv": [ "no.uib.inf219.example.data.Conversation", {
-          "id": "bc7672dd-a142-455e-a7d1-8dcafeb8690d",
-          "text": "You now know all there is about recursion",
-          "name": "aaaa",
-          "responses": [ [ "no.uib.inf219.example.data.Response", {
-            "@id": "ed993cde-991a-43ac-9ca4-0b1e99367ed9",
-            "response": "!",
-            "name": "Response #2"
-          } ] ]
-        } ]
-      } ] ]
-    } ]
-  } ] ]
-} ]
+---
+&1 text: "Welcome to this conversation!"
+name: "Hard coded conversatio2"
+responses:
+- &2 response: "That's a weird thing to say"
+  name: "Response #7"
+  conv:
+    &3 text: "Yes it is, this is just an example though. I do need to write something\
+      \ to fill this example."
+    name: "Conversation #5"
+    responses:
+    - &4 response: "I suppose you do"
+      name: "Response #6"
+- &5 response: "Wait, what is this?"
+  name: "Response #11"
+  conv:
+    &6 text: "This is an example application, it's just a way to show off what HOT\
+      \ can be used for"
+    name: "Conversation #8"
+    responses:
+    - &7 response: "So whats HOT then?"
+      name: "Response #10"
+      conv:
+        &8 text: "HOT (or Handcraft Objects Tool) is an interactive way to create\
+          \ JVM objects, like this conversation."
+        name: "Conversation #7"
+        responses:
+        - &9 response: "So this is made in HOT?"
+          name: "Response #9"
+          conv:
+            &10 text: "Well, err no. This is just hardcoded in"
+            name: "Conversation #6"
+            responses:
+            - &11 response: "Oh well that is disappointing..."
+              name: "Response #8"
+- &12 response: "Can you teach me about recursion?"
+  name: "Response #12"
+  conv:
+    &13 text: "Do you know what recursion is?"
+    name: "Conversation #2"
+    responses:
+    - &14 response: "No, I do not"
+      name: "Response #4"
+      conv:
+        &15 text: "Well I will teach you"
+        name: "Conversation #3"
+        responses:
+        - &16 response: "Okay great!"
+          name: "Response #3"
+          conv: *13
+    - &17 response: "Yes, I do"
+      name: "Response #5"
+      conv:
+        &18 text: "You now know all there is about recursion"
+        name: "Conversation #4"
+        responses:
+        - &19 response: "???"
+          name: "Response #2"

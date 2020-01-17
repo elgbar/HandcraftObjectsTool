@@ -1,9 +1,6 @@
 package no.uib.inf219.example.data
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo
-import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.annotation.ObjectIdGenerators
 import javafx.scene.control.Tooltip
 import no.uib.inf219.api.serialization.Identifiable
 import no.uib.inf219.api.serialization.storage.RetrievableStorage
@@ -12,9 +9,8 @@ import no.uib.inf219.api.serialization.storage.StoreHandler
 /**
  * @author Elg
  */
-@JsonIdentityInfo(generator = ObjectIdGenerators.UUIDGenerator::class)
-@JsonInclude(JsonInclude.Include.NON_EMPTY)
-open class Response : Identifiable<String> {
+//@JsonIdentityInfo(generator = ObjectIdGenerators.UUIDGenerator::class)
+class Response : Identifiable<String> {
 
 //    ,
 //    @JsonProperty("respId", required = true)
@@ -24,8 +20,8 @@ open class Response : Identifiable<String> {
 //    @JsonProperty("prerequisites")
 //    val prereq: List<Prerequisite>? = null
 
-    @JsonProperty("response", required = true, defaultValue = "???")
-    var response: String = "!"
+    @JsonProperty("response", required = true)
+    var response: String = "???"
 
     @JsonProperty("name")
     var name: String = "Response #${++createId}"
