@@ -10,8 +10,6 @@ import no.uib.inf219.api.serialization.storage.IdentifiableStorage.Companion.ID_
  */
 interface RetrievableStorage<I, R> {
 
-    val clazz: Class<I>
-
     /**
      * Store parameter [store] using the id found at [ID_PATH] when it is serialized
      *

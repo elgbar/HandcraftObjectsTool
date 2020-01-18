@@ -5,7 +5,7 @@ import no.uib.inf219.api.serialization.Identifiable
 /**
  * @author Elg
  */
-open class IdentifiableStorage<I, R : Identifiable<I>>(override val clazz: Class<I>) : RetrievableStorage<I, R> {
+open class IdentifiableStorage<I, R : Identifiable<I>> : RetrievableStorage<I, R> {
 
     companion object {
         const val ID_PATH = "id"

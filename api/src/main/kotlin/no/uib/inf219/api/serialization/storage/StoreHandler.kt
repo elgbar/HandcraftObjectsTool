@@ -8,17 +8,40 @@ import no.uib.inf219.api.serialization.Identifiable
 object StoreHandler {
 
     private val stores: MutableMap<Class<*>, RetrievableStorage<*, *>> = HashMap()
+    private val impls: MutableMap<Class<*>, (clazz: Class<*>) -> RetrievableStorage<*, *>> = HashMap()
+
+    init {
+        addStoreType<Any, Identifiable<Any>>(Identifiable::class.java) {
+            return@addStoreType IdentifiableStorage<Any, Identifiable<Any>>()
+        }
+    }
+
+    /**
+     * Add a store type to allow
+     */
+    fun <I, R> addStoreType(
+        clazz: Class<out Any>,
+        rsCreator: (clazz: Class<out R>) -> RetrievableStorage<I, R>
+    ) {
+        @kotlin.Suppress("UNCHECKED_CAST")
+        impls[clazz] = rsCreator as (clazz: Class<*>) -> RetrievableStorage<*, *>
+    }
 
     @JvmStatic
     fun <I, R> getStore(clazz: Class<R>): RetrievableStorage<I, R> {
         tryCreateStore(clazz)
-        return stores[clazz] as RetrievableStorage<I, R>? ?: throw IllegalArgumentException("Failed")
+        @kotlin.Suppress("UNCHECKED_CAST")
+        return stores[clazz] as RetrievableStorage<I, R>? ?: throw NotImplementedError("Failed")
     }
 
     private fun <R> tryCreateStore(clazz: Class<R>) {
         if (stores.containsKey(clazz)) return
-        if (Identifiable::class.java.isAssignableFrom(clazz)) {
-            this.stores[clazz] = IdentifiableStorage(clazz)
+        for (impl in impls) {
+            if (impl.key.isAssignableFrom(clazz)) {
+                this.stores[clazz] = impl.value(clazz)
+                return
+            }
         }
+        throw NotImplementedError("Failed to find an implementation of RetrievableStorage to use for class ${clazz.name}")
     }
 }
