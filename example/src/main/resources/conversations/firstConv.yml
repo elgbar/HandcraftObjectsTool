@@ -1,58 +1,71 @@
 ---
-&1 text: "Welcome to this conversation!"
-name: "Hard coded conversatio2"
+  &0
+text: "Welcome to this conversation!"
+name: "Handwritten conversation"
 responses:
-- &2 response: "That's a weird thing to say"
-  name: "Response #7"
-  conv:
-    &3 text: "Yes it is, this is just an example though. I do need to write something\
-      \ to fill this example."
-    name: "Conversation #5"
-    responses:
-    - &4 response: "I suppose you do"
-      name: "Response #6"
-- &5 response: "Wait, what is this?"
-  name: "Response #11"
-  conv:
-    &6 text: "This is an example application, it's just a way to show off what HOT\
-      \ can be used for"
-    name: "Conversation #8"
-    responses:
-    - &7 response: "So whats HOT then?"
-      name: "Response #10"
-      conv:
-        &8 text: "HOT (or Handcraft Objects Tool) is an interactive way to create\
-          \ JVM objects, like this conversation."
-        name: "Conversation #7"
-        responses:
-        - &9 response: "So this is made in HOT?"
-          name: "Response #9"
+  - response: "That's a weird thing to say"
+    conv:
+      text: "Yes it is, this is just an example though. I do need to write something to fill this example."
+      responses:
+        - response: "I suppo... wait, I'm having a Déjà vu"
           conv:
-            &10 text: "Well, err no. This is just hardcoded in"
-            name: "Conversation #6"
+            text: "Have we maybe had this conversation with my brother, the hard coded conversation?"
             responses:
-            - &11 response: "Oh well that is disappointing..."
-              name: "Response #8"
-- &12 response: "Can you teach me about recursion?"
-  name: "Response #12"
-  conv:
-    &13 text: "Do you know what recursion is?"
-    name: "Conversation #2"
-    responses:
-    - &14 response: "No, I do not"
-      name: "Response #4"
-      conv:
-        &15 text: "Well I will teach you"
-        name: "Conversation #3"
-        responses:
-        - &16 response: "Okay great!"
-          name: "Response #3"
-          conv: *13
-    - &17 response: "Yes, I do"
-      name: "Response #5"
-      conv:
-        &18 text: "You now know all there is about recursion"
-        name: "Conversation #4"
-        responses:
-        - &19 response: "???"
-          name: "Response #2"
+              - response: "Yeah that must be it"
+  - response: "Wait, what is this?"
+    name: "Response #10"
+    conv:
+      text: "This is an example application, it's just a way to show off what HOT can be used for"
+      name: "What this?"
+      responses:
+        - response: "So whats HOT then?"
+          conv:
+            text: "HOT (or Handcraft Objects Tool) is an interactive way to create JVM objects, like this conversation."
+
+            responses:
+              - response: "So this is made in HOT?"
+                conv:
+                  text: "Well, err no. This is an adapted version of the hard coded version written in YAML"
+
+                  responses:
+                    - response: "Oh well, at least you can load in objects"
+  - response: "Can you teach me about recursion?"
+    name: "Response #11"
+    conv: &1
+      text: "Do you know what recursion is?"
+      responses:
+        - response: "No, I do not"
+          conv: &3
+            text: "Well I will teach you"
+            responses:
+              - response: "Okay great!"
+                conv: *1
+        - response: "Yes, I do"
+          conv: *0
+
+  - response: "Now that I know all about recursion..."
+    name: "Recursion masters"
+    prerequisites: !<no.uib.inf219.example.data.prerequisite.ReadConversationPrerequisite>
+      conversation: *1
+    conv:
+      text: "What do you want to know?"
+      responses:
+        - response: "Why was this option locked before?"
+          conv:
+            text: "You did not know what recursion was"
+            responses:
+              - response: "Oh I see"
+                conv: *0
+              - response: "I still don't understand"
+                conv: *3
+        - response: "I didn't think it would end this way."
+          conv:
+            text: "End? No, the journey doesn't end here. Death is just another path, one that we all must take. The grey rain-curtain of this world rolls back, and all turns to silver glass, and then you see it."
+            responses:
+              - response: "What? Gandalf? See what?"
+                conv:
+                  text: "White shores, and beyond, a far green country under a swift sunrise."
+                  responses:
+                    - response: "Well, that isn't so bad."
+                      conv:
+                        text: "No. No, it isn't."
