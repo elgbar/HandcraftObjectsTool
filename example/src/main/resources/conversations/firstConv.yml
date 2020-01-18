@@ -21,12 +21,10 @@ responses:
         - response: "So whats HOT then?"
           conv:
             text: "HOT (or Handcraft Objects Tool) is an interactive way to create JVM objects, like this conversation."
-
             responses:
               - response: "So this is made in HOT?"
                 conv:
                   text: "Well, err no. This is an adapted version of the hard coded version written in YAML"
-
                   responses:
                     - response: "Oh well, at least you can load in objects"
   - response: "Can you teach me about recursion?"
@@ -42,7 +40,6 @@ responses:
                 conv: *1
         - response: "Yes, I do"
           conv: *0
-
   - response: "Now that I know all about recursion..."
     name: "Recursion masters"
     prerequisites: !<no.uib.inf219.example.data.prerequisite.ReadConversationPrerequisite>
