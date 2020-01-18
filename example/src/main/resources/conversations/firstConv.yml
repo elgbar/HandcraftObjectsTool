@@ -12,6 +12,7 @@ responses:
             text: "Have we maybe had this conversation with my brother, the hard coded conversation?"
             responses:
               - response: "Yeah that must be it"
+                conv: *0
   - response: "Wait, what is this?"
     name: "Response #10"
     conv:
@@ -27,6 +28,7 @@ responses:
                   text: "Well, err no. This is an adapted version of the hard coded version written in YAML"
                   responses:
                     - response: "Oh well, at least you can load in objects"
+                      conv: *0
   - response: "Can you teach me about recursion?"
     name: "Response #11"
     conv: &1
