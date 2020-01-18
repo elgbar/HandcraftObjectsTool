@@ -1,4 +1,4 @@
-package no.elg.valentineRealms.core.parts.extract.data;
+package no.uib.inf219.extract.data;
 
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;

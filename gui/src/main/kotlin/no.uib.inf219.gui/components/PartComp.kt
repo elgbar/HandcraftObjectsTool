@@ -3,7 +3,7 @@ package no.uib.inf219.gui.components
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
 import javafx.collections.ObservableList
-import no.elg.valentineRealms.core.parts.extract.data.PartData
+import no.uib.inf219.extract.data.PartData
 import tornadofx.getValue
 import tornadofx.observable
 import tornadofx.setValue

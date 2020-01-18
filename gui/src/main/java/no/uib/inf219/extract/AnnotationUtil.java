@@ -1,4 +1,4 @@
-package no.elg.valentineRealms.core.parts.extract;
+package no.uib.inf219.extract;
 
 import no.uib.inf219.api.annontation.AttributeDoc;
 import no.uib.inf219.api.annontation.EnumValueDesc;

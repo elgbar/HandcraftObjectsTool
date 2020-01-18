@@ -1,8 +1,8 @@
-package no.elg.valentineRealms.core.parts.extract;
+package no.uib.inf219.extract;
 
-import no.elg.valentineRealms.core.parts.extract.data.AttributeData;
-import no.elg.valentineRealms.core.parts.extract.data.PartData;
 import no.uib.inf219.api.annontation.AttributeDoc;
+import no.uib.inf219.extract.data.AttributeData;
+import no.uib.inf219.extract.data.PartData;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;

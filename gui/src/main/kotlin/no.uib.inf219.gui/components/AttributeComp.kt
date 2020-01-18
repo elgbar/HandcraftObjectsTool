@@ -3,7 +3,7 @@ package no.uib.inf219.gui.components
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
-import no.elg.valentineRealms.core.parts.extract.data.AttributeData
+import no.uib.inf219.extract.data.AttributeData
 import tornadofx.getValue
 import tornadofx.setValue
 

@@ -1,9 +1,9 @@
-package no.elg.valentineRealms.core.parts.extract.data;
+package no.uib.inf219.extract.data;
 
-import no.elg.valentineRealms.core.parts.extract.AnnotationUtil;
-import no.elg.valentineRealms.core.parts.extract.PartsExtractor;
 import no.uib.inf219.api.annontation.AttributeDoc;
 import no.uib.inf219.api.annontation.EnumValueDesc;
+import no.uib.inf219.extract.AnnotationUtil;
+import no.uib.inf219.extract.PartsExtractor;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
