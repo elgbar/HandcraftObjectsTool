@@ -11,7 +11,7 @@ import tornadofx.setValue
 /**
  * @author Elg
  */
-class ViewController {
+class ObjectEditorController(val clazz: Class<Any>) {
 
     val partProperty = SimpleObjectProperty<PartComp>(
         DataManager.PARTS[GuiMain.MAIN_CLASS]

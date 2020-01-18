@@ -3,7 +3,6 @@ package no.uib.inf219.gui
 import no.uib.inf219.gui.components.AttributeComp
 import no.uib.inf219.gui.components.PartComp
 import org.slf4j.LoggerFactory
-import org.yaml.snakeyaml.Yaml
 import java.io.File
 
 

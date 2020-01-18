@@ -1,19 +1,24 @@
 package no.uib.inf219.gui.view
 
-import no.uib.inf219.gui.controllers.ViewController
-import tornadofx.View
-import tornadofx.borderpane
+import javafx.scene.layout.BorderPane
+import javafx.scene.layout.Priority
+import tornadofx.*
 
 /**
  * @author Elg
  */
-class BackgroundView : View() {
+class BackgroundView : View("hell yeah") {
 
-    val controller: ViewController = ViewController()
-
-    override val root = borderpane {
-        left = NodeExplorerView(controller).root
-        center = AttributeEditor(controller).root
+    override val root = gridpane {
+        tabpane {
+            gridpaneConstraints {
+                vhGrow = Priority.ALWAYS
+            }
+            tab("Select Conversation", BorderPane()) {
+                add(ControlPanelView)
+                this.isClosable = false
+            }
+        }
     }
 }
 

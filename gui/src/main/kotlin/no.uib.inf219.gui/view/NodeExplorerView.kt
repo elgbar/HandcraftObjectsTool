@@ -5,13 +5,13 @@ import no.uib.inf219.gui.DataManager
 import no.uib.inf219.gui.GuiMain
 import no.uib.inf219.gui.components.AttributeComp
 import no.uib.inf219.gui.components.PartComp
-import no.uib.inf219.gui.controllers.ViewController
+import no.uib.inf219.gui.controllers.ObjectEditorController
 import tornadofx.*
 
 /**
  * @author Elg
  */
-class NodeExplorerView(val controller: ViewController) : View("Tree Explorer") {
+class NodeExplorerView(val controller: ObjectEditorController) : View("Tree Explorer") {
     override val root =
         treeview<Pair<PartComp?, AttributeComp?>> {
             root = TreeItem(Pair(controller.part, controller.attr))
@@ -24,6 +24,8 @@ class NodeExplorerView(val controller: ViewController) : View("Tree Explorer") {
                     attr?.className ?: part?.className
                     ?: "Does your working directory contain the metadata? (currently the program is hard coded to only look at '${GuiMain.MAIN_CLASS}')"
                 )
+
+
                 onDoubleClick {
                     controller.attr = it.second
                     controller.part = it.first

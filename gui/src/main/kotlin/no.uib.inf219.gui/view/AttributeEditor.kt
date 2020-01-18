@@ -1,13 +1,13 @@
 package no.uib.inf219.gui.view
 
 import no.uib.inf219.gui.components.AttributeComp
-import no.uib.inf219.gui.controllers.ViewController
+import no.uib.inf219.gui.controllers.ObjectEditorController
 import tornadofx.*
 
 /**
  * @author Elg
  */
-class AttributeEditor(val controller: ViewController) : View("Attribute Editor") {
+class AttributeEditor(val controller: ObjectEditorController) : View("Attribute Editor") {
 
     override val root = borderpane {
         //        check(controller.attr == null && controller.attr!!.isList) { "Cannot edit a list of attribute with this view" }
