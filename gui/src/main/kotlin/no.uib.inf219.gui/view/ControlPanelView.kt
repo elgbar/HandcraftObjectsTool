@@ -1,6 +1,9 @@
 package no.uib.inf219.gui.view
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import javafx.application.Platform
+import javafx.beans.property.SimpleStringProperty
+import javafx.scene.text.Text
 import javafx.stage.FileChooser
 import no.uib.inf219.gui.Styles
 import no.uib.inf219.gui.loader.DynamicClassLoader
@@ -14,22 +17,29 @@ import tornadofx.*
  */
 object ControlPanelView : View("Control Panel") {
 
-    override val root = vbox {
+    override val root = borderpane {
         val buttons = hbox {
             addClass(Styles.parent)
         }
-        val output = scrollpane(fitToHeight = true, fitToWidth = true).textarea {
+        val classChooser = hbox {
+            addClass(Styles.parent)
+        }
+        val output = scrollpane(fitToHeight = true, fitToWidth = true).textarea() {
             editableProperty().set(false)
         }
+        top = borderpane {
+            top = buttons
+            center = classChooser
+        }
+        center = output
 
         buttons += button {
-            text = "Choose file to import class(es) from"
+            text = "import jar"
             setOnAction {
                 val files = chooseFile(
-                    "Choose conversations to load",
+                    "Choose jar to load",
                     arrayOf(
                         FileChooser.ExtensionFilter("Jvm zip files", "*.jar", "*.zip"),
-//                        FileChooser.ExtensionFilter("Jvm binary files", "*.class"),
                         FileChooser.ExtensionFilter("All files", "*")
                     ),
                     FileChooserMode.Multi
@@ -39,22 +49,59 @@ object ControlPanelView : View("Control Panel") {
                     try {
                         DynamicClassLoader.loadFile(file)
                     } catch (e: Exception) {
-                        output.appendText("Failed to load file ${file.absolutePath}\n$e")
+                        output.appendText("Failed to load jar file ${file.absolutePath}\n$e")
                         e.printStackTrace()
                         continue
                     }
 
-                    output.appendText("Successfully loaded file ${file.absolutePath}\n")
-                    output.appendText(
-                        "Found ${DynamicClassLoader.classesFromFile(file)?.size ?: 0} classes\n"
-                    )
-
+                    output.appendText("Successfully loaded jar file ${file.absolutePath}\n")
                 }
             }
         }
         buttons += button("Clear") {
             setOnAction {
                 output.clear()
+            }
+        }
+
+        val clazzProperty = SimpleStringProperty("")
+        classChooser += textfield("Enter full class name") {
+            bind(clazzProperty)
+            var initpref: Double = prefWidth
+            Platform.runLater {
+                initpref = prefWidth
+            }
+            output.appendText("no.uib.inf219.api.serialization.Identifiable\n")
+            setOnKeyTyped {
+                Platform.runLater {
+                    val text = Text(clazzProperty.value)
+                    text.font = font // Set the same font, so the size is the same
+                    val width: Double =
+                        (text.layoutBounds.width // This big is the Text in the TextField
+                                + padding.left + padding.right // Add the padding of the TextField
+                                + 2.0) // Add some spacing
+                    prefWidth = width // Set the width
+                    minWidth = initpref
+                    positionCaret(caretPosition) // If you remove this line, it flashes a little bit
+                }
+            }
+        }
+
+        classChooser += button("Load") {
+            setOnAction {
+                val className = clazzProperty.value
+                val clazz: Class<*>?
+                try {
+                    clazz = DynamicClassLoader.classForName(className)
+                } catch (e: IllegalStateException) {
+                    output.appendText("Failed to load class due to $e\n")
+                    return@setOnAction
+                }
+                if (clazz == null) {
+                    output.appendText("Failed to find a class with the name '${className}'\n")
+                    return@setOnAction
+                }
+                output.appendText("Found class '${clazz}'")
             }
         }
 
