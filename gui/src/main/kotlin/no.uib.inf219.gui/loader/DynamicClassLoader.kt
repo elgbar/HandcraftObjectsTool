@@ -1,86 +1,133 @@
 package no.uib.inf219.gui.loader
 
+import no.uib.inf219.gui.loader.DynamicClassLoader.getAllClasses
 import java.io.File
 import java.net.URLClassLoader
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
-import kotlin.collections.ArrayList
 
 
 /**
+ * A class to help load files from multiple different sources.
+ *
+ * No classes will be loaded unless specified by for example using the [getAllClasses] method
+ *
  * @author Elg
  */
 object DynamicClassLoader {
 
-    private val fileClassLoaders: MutableMap<File, ClassLoader> = ConcurrentHashMap()
-    private val fileClasses: MutableMap<File, List<Class<*>>> = ConcurrentHashMap()
-    private val classes: MutableMap<String, Class<*>> = ConcurrentHashMap()
-    private val allClasses: MutableList<Class<*>> = ArrayList()
+    private val FILES: MutableMap<File, JarClassLoader> = ConcurrentHashMap()
 
-    private var recalcSuperList: Boolean = true
+    /**
+     * @param file The file this classloader will control
+     * @param priority The priority of this file. Lower number is higher priority
+     */
+    private class JarClassLoader(val file: File, val priority: Int) : Comparable<JarClassLoader> {
+        private val classLoader: ClassLoader = URLClassLoader(arrayOf(file.toURI().toURL()))
+        private val classCache: MutableMap<String, Lazy<Class<*>>> = ConcurrentHashMap()
 
+        init {
+            val zipFile = ZipFile(file)
+            val entries: Enumeration<out ZipEntry> = zipFile.entries()
 
-    fun loadFile(file: File) {
-        check(!fileClassLoaders.containsKey(file)) { "The file ${file.name} has already been loaded" }
+            if (entries.hasMoreElements()) {
+                while (entries.hasMoreElements()) {
+                    val elem = entries.nextElement()
+                    val name = elem.name
+                    if (elem.isDirectory || !name.endsWith(".class")) {
+                        continue
+                    }
+                    val className = name.removeSuffix(".class").replace('/', '.')
+                    val clazz: Lazy<Class<*>>
 
-        val cl: ClassLoader = URLClassLoader(arrayOf(file.toURI().toURL()))
-        fileClassLoaders[file] = cl
-        val fileClasses = ArrayList<Class<*>>()
+                    //only load the class when needed
+                    clazz = lazy {
+                        try {
+                            return@lazy classLoader.loadClass(className)
+                        } catch (e: Throwable) {
+                            throw IllegalStateException("Failed to load class '$className'", e)
+                        }
+                    }
 
-        val zipFile = ZipFile(file)
-        val entries: Enumeration<out ZipEntry> = zipFile.entries()
+                    this.classCache[className] = clazz
 
-        if (entries.hasMoreElements()) {
-            while (entries.hasMoreElements()) {
-                val elem = entries.nextElement()
-                val name = elem.name
-                if (elem.isDirectory || !name.endsWith(".class")) {
-                    continue
                 }
-                val className = name.removeSuffix(".class").replace('/', '.')
-//                println("className = ${className}")
-                val clazz: Class<*>
-                try {
-                    clazz = cl.loadClass(className)
-                } catch (e: NoClassDefFoundError) {
-                    println("Failed to load class $className due to ${e.javaClass.name}")
-                    continue
-                } catch (e: IncompatibleClassChangeError) {
-                    println("Failed to load class $className due to ${e.javaClass.name}")
-                    continue
-                } catch (e: UnsupportedClassVersionError) {
-                    println("Failed to load class $className due to ${e.javaClass.name}")
-                    continue
-                }
-                fileClasses += clazz
-                classes[name] = clazz
-
+            } else {
+                throw IllegalArgumentException("Given file is not a zip file")
             }
-        } else {
-            throw IllegalArgumentException("Given file is not a zip file")
         }
-        recalcSuperList = true
-        this.fileClasses[file] = fileClasses
-    }
 
-    fun classForName(className: String): Class<*>? {
-        return classes[className]
-    }
+        fun classesFromFile(): Collection<Class<*>> {
+            return classCache.values.map { it.value }
+        }
 
-    fun classesFromFile(file: File): List<Class<*>>? {
-        return fileClasses[file]
+        fun classForName(className: String): Class<*>? {
+            return classCache[className]?.value
+        }
+
+        override fun compareTo(other: JarClassLoader): Int {
+            return priority.compareTo(other.priority)
+        }
     }
 
     /**
+     * Load all classes from the given [File], if file is already loaded nothing will be done
+     *
+     * @param file The file to load
+     * @param reload If all classes should be loaded again
+     * @param priority The priority of this file. Lower number is higher priority
+     */
+    fun loadFile(file: File, reload: Boolean = false, priority: Int = Integer.MAX_VALUE) {
+        if (reload && FILES.containsKey(file)) return
+        FILES[file] = JarClassLoader(file, priority)
+    }
+
+    /**
+     * This method searched through the supplied jar files in prioritized order.
+     * Internally a lazy class loader is used to allow for lower memory overhead
+     *
+     * @return The class at the given path, or `null` if no class was found
+     * @throws IllegalStateException If an exception was thrown if [ClassLoader.loadClass] throws.
+     */
+    fun classForName(className: String): Class<*>? {
+        for (jcl in FILES.values.sorted()) {
+            return jcl.classForName(className) ?: continue
+        }
+        return null
+    }
+
+
+    /**
+     * This class will load all classes in the loaded files, the memory usage will increase substantially.
+     *
+     * @return All classes loaded from the given [file]
+     *
+     */
+    fun classesFromFile(file: File): List<Class<*>> {
+        val jf: JarClassLoader =
+            FILES[file] ?: throw IllegalArgumentException("The file ${file.name} has not been loaded")
+        return jf.classesFromFile().toList()
+    }
+
+
+    /**
+     * This class will load all classes in the loaded files, the memory usage will increase substantially.
+     *
+     * No caching will be done, this is the same as calling [classesFromFile] for every file loaded
+     *
+     * @return All classes loaded from external jar files
+     *
      */
     fun getAllClasses(): List<Class<*>> {
-        if (recalcSuperList) {
-            recalcSuperList = false
-            allClasses.clear()
-            allClasses += fileClasses.flatMap { it.value }.toList()
-        }
-        return allClasses
+        return FILES.values.flatMap { it.classesFromFile() }.toList()
+    }
+
+    /**
+     * List of all files loaded
+     */
+    fun getLoadedFiles(): Set<File> {
+        return FILES.keys
     }
 }
