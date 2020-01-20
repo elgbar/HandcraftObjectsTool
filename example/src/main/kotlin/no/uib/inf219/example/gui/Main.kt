@@ -2,7 +2,6 @@ package no.uib.inf219.example.gui
 
 import javafx.beans.property.StringProperty
 import javafx.scene.Scene
-import no.uib.inf219.api.serialization.SerializationManager
 import no.uib.inf219.api.serialization.storage.StoreHandler
 import no.uib.inf219.example.data.Conversation
 import no.uib.inf219.example.data.Response
@@ -32,8 +31,6 @@ class Main : App(BackgroundView::class, Styles::class) {
         val TEST_CONV: Conversation
 
         init {
-
-            SerializationManager.registerConfigurationSerializers("no.uib.inf219.example")
 
             val respList = ArrayList<Response>()
             recursionConv = Conversation.create("Do you know what recursion is?", responses = respList)
