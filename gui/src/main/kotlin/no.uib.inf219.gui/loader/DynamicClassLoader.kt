@@ -25,7 +25,7 @@ object DynamicClassLoader {
      * @param priority The priority of this file. Lower number is higher priority
      */
     private class JarClassLoader(val file: File, val priority: Int) : Comparable<JarClassLoader> {
-        private val classLoader: ClassLoader = URLClassLoader(arrayOf(file.toURI().toURL()))
+        val classLoader: ClassLoader = URLClassLoader(arrayOf(file.toURI().toURL()))
         private val classCache: MutableMap<String, Lazy<Class<*>>> = ConcurrentHashMap()
 
         init {
@@ -36,7 +36,7 @@ object DynamicClassLoader {
                 while (entries.hasMoreElements()) {
                     val elem = entries.nextElement()
                     val name = elem.name
-                    if (elem.isDirectory || !name.endsWith(".class")) {
+                    if (elem.isDirectory || !name.endsWith(".class") || name.endsWith("module-info.class")) {
                         continue
                     }
                     val className = name.removeSuffix(".class").replace('/', '.')
@@ -91,9 +91,23 @@ object DynamicClassLoader {
      * @return The class at the given path, or `null` if no class was found
      * @throws IllegalStateException If an exception was thrown if [ClassLoader.loadClass] throws.
      */
-    fun classForName(className: String): Class<*>? {
+    fun classFromName(className: String): Class<*>? {
+        return classWithLoaderFromName(className)?.first
+    }
+
+    /**
+     * This method searched through the supplied jar files in prioritized order.
+     * Internally a lazy class loader is used to allow for lower memory overhead
+     *
+     * @return The class at the given path, or `null` if no class was found
+     * @throws IllegalStateException If an exception was thrown if [ClassLoader.loadClass] throws.
+     */
+    fun classWithLoaderFromName(className: String): Pair<Class<*>, ClassLoader>? {
         for (jcl in FILES.values.sorted()) {
-            return jcl.classForName(className) ?: continue
+            val clazz = jcl.classForName(className)
+            if (clazz != null) {
+                return Pair(clazz, jcl.classLoader)
+            }
         }
         return null
     }
@@ -129,5 +143,10 @@ object DynamicClassLoader {
      */
     fun getLoadedFiles(): Set<File> {
         return FILES.keys
+    }
+
+    fun getClassloader(file: File): ClassLoader {
+        val jcl = FILES[file] ?: throw java.lang.IllegalArgumentException("Given file not loaded")
+        return jcl.classLoader
     }
 }

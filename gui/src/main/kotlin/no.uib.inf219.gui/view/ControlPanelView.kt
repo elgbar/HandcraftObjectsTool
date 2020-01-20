@@ -1,10 +1,19 @@
 package no.uib.inf219.gui.view
 
+import com.fasterxml.jackson.core.JsonFactory
+import com.fasterxml.jackson.core.JsonGenerator
+import com.fasterxml.jackson.core.io.SegmentedStringWriter
+import com.fasterxml.jackson.databind.JavaType
+import com.fasterxml.jackson.databind.JsonSerializer
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.SerializationConfig
+import com.fasterxml.jackson.databind.ser.DefaultSerializerProvider
+import com.fasterxml.jackson.databind.type.TypeFactory
 import javafx.application.Platform
 import javafx.beans.property.SimpleStringProperty
 import javafx.scene.text.Text
 import javafx.stage.FileChooser
+import no.uib.inf219.api.serialization.SerializationManager.mapper
 import no.uib.inf219.gui.Styles
 import no.uib.inf219.gui.loader.DynamicClassLoader
 import tornadofx.*
@@ -70,18 +79,45 @@ object ControlPanelView : View("Control Panel") {
         val loadButton = button("Load class") {
             setOnAction {
                 val className = clazzProperty.value
-                val clazz: Class<*>?
+                val clazz: Class<*>
+                val cl: ClassLoader
                 try {
-                    clazz = DynamicClassLoader.classForName(className)
+                    val pair = DynamicClassLoader.classWithLoaderFromName(className)
+                    if (pair == null) {
+                        output.appendText("Failed to find a class with the name '${className}'\n")
+                        return@setOnAction
+                    }
+                    clazz = pair.first
+                    cl = pair.second
                 } catch (e: IllegalStateException) {
                     output.appendText("Failed to load class due to $e\n")
                     return@setOnAction
                 }
-                if (clazz == null) {
-                    output.appendText("Failed to find a class with the name '${className}'\n")
-                    return@setOnAction
-                }
                 output.appendText("Found $clazz\n")
+
+                val tfac: TypeFactory = TypeFactory.defaultInstance().withClassLoader(cl)
+                val jt: JavaType = tfac.constructType(clazz)
+                val jfac = JsonFactory.builder().build()
+                val gen: JsonGenerator = jfac.createGenerator(SegmentedStringWriter(jfac._getBufferRecycler()))
+
+                val cfg: SerializationConfig = mapper.serializationConfig
+                cfg.initialize(gen)
+
+                val ser: DefaultSerializerProvider =
+                    DefaultSerializerProvider.Impl().createInstance(cfg, mapper.serializerFactory)
+                val jser: JsonSerializer<*> = ser.findTypedValueSerializer(clazz, true, null)
+
+                output.appendText("java type: $jt\n")
+                output.appendText("props:\n")
+
+                for ((i, prop) in jser.properties().withIndex()) {
+                    output.appendText("$i: ${prop.name}\n")
+                }
+//                val reader: ObjectReader = SerializationManager.mapper.readerFor(clazz)
+//                output.appendText("ObjectReader: $reader\n")
+
+
+//                val jparser: JsonParser = MappingJsonFactory().createParser()
             }
         }
 
