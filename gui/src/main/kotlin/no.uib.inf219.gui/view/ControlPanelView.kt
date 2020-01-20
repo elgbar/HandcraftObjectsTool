@@ -106,7 +106,9 @@ object ControlPanelView : View("Control Panel") {
 
                 val ser: DefaultSerializerProvider =
                     DefaultSerializerProvider.Impl().createInstance(cfg, mapper.serializerFactory)
-                printStructure(jt, ser, "", output)
+                seen.clear()
+                printStructure(jt, ser, output)
+
 
                 output.appendText("java type: $jt\n")
                 output.appendText("props:\n")
@@ -141,11 +143,24 @@ object ControlPanelView : View("Control Panel") {
 
     }
 
-    fun printStructure(clazz: JavaType, ser: DefaultSerializerProvider, tab: String = "", output: TextArea) {
+    private val seen: MutableSet<JavaType> = HashSet()
+
+    fun printStructure(
+        clazz: JavaType,
+        ser: DefaultSerializerProvider,
+        output: TextArea,
+        tab: String = ""
+    ) {
+        if (seen.contains(clazz)) return
+        seen += clazz
         val jser: JsonSerializer<Any> = ser.findTypedValueSerializer(clazz, true, null)
+
         for ((i, prop) in jser.properties().withIndex()) {
+//            println("prop.type.javaClass.name = ${prop.type.javaClass.name}")
+
             output.appendText("$tab$i: name: ${prop.name} type: ${prop.type} required? ${prop.isRequired}\n")
-            printStructure(prop.type, ser, "$tab\t", output)
+            val nclazz = if (prop.type.contentType != null) prop.type.contentType else prop.type
+            printStructure(nclazz, ser, output, "$tab\t")
         }
     }
 }
