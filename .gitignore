@@ -3,3 +3,5 @@ build
 out
 gradle/wrapper/gradle-wrapper.jar
 *.iml
+
+.idea/jarRepositories.xml
