@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.ser.DefaultSerializerProvider
 import com.fasterxml.jackson.databind.type.TypeFactory
 import javafx.application.Platform
 import javafx.beans.property.SimpleStringProperty
+import javafx.scene.control.TextArea
 import javafx.scene.text.Text
 import javafx.stage.FileChooser
 import no.uib.inf219.api.serialization.SerializationManager.mapper
@@ -105,19 +106,11 @@ object ControlPanelView : View("Control Panel") {
 
                 val ser: DefaultSerializerProvider =
                     DefaultSerializerProvider.Impl().createInstance(cfg, mapper.serializerFactory)
-                val jser: JsonSerializer<*> = ser.findTypedValueSerializer(clazz, true, null)
+                printStructure(jt, ser, "", output)
 
                 output.appendText("java type: $jt\n")
                 output.appendText("props:\n")
 
-                for ((i, prop) in jser.properties().withIndex()) {
-                    output.appendText("$i: ${prop.name}\n")
-                }
-//                val reader: ObjectReader = SerializationManager.mapper.readerFor(clazz)
-//                output.appendText("ObjectReader: $reader\n")
-
-
-//                val jparser: JsonParser = MappingJsonFactory().createParser()
             }
         }
 
@@ -146,5 +139,13 @@ object ControlPanelView : View("Control Panel") {
         }
         classChooser += loadButton
 
+    }
+
+    fun printStructure(clazz: JavaType, ser: DefaultSerializerProvider, tab: String = "", output: TextArea) {
+        val jser: JsonSerializer<Any> = ser.findTypedValueSerializer(clazz, true, null)
+        for ((i, prop) in jser.properties().withIndex()) {
+            output.appendText("$tab$i: name: ${prop.name} type: ${prop.type} required? ${prop.isRequired}\n")
+            printStructure(prop.type, ser, "$tab\t", output)
+        }
     }
 }
