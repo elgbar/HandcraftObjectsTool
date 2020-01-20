@@ -20,7 +20,7 @@ class ConversationView(val tab: Tab, var conv: Conversation) : View() {
         Main.title.value = conv.name
         addClass(conversationBorderPane)
 
-        setText(this, conv.text!!)
+        setText(this, conv.text)
         bottom {
             hbox {
                 addClass(responseHBox)

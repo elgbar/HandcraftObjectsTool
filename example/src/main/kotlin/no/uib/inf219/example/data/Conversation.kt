@@ -24,8 +24,7 @@ class Conversation : Identifiable<String> {
                 StoreHandler.getStore(Conversation::class.java)
             store.update(this)
         }
-
-
+    
     @JsonProperty("responses", defaultValue = "[]")
     var responses: MutableList<Response> = ArrayList()
         get() = if (field.isEmpty()) Response.exitResponse else field

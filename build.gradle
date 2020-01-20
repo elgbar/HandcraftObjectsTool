@@ -56,7 +56,6 @@ project(":api") {
         api "org.slf4j:slf4j-api:$slf4j_version"
         api 'com.fasterxml.jackson.core:jackson-databind:2.10.2'
         api 'com.fasterxml.jackson.core:jackson-annotations:2.10.2'
-        implementation 'io.github.classgraph:classgraph:4.8.60'
         implementation 'commons-lang:commons-lang:2.6'
         implementation 'com.google.guava:guava:28.2-jre'
         implementation "com.fasterxml.jackson.module:jackson-module-kotlin:2.10.2"
@@ -105,6 +104,7 @@ project(":gui") {
         implementation "no.tornado:tornadofx:$tornadofx_version"
         implementation "org.slf4j:slf4j-simple:$slf4j_version"
         implementation "org.apache.commons:commons-text:1.8"
+        implementation 'io.github.classgraph:classgraph:4.8.60'
     }
 
     jar {
