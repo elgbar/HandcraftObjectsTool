@@ -7,10 +7,11 @@ import tornadofx.*
 /**
  * @author Elg
  */
-class BackgroundView : View("hell yeah") {
+class BackgroundView : View("HOT") {
 
     override val root = gridpane {
         tabpane {
+            ControlPanelView.tabPane = this
             gridpaneConstraints {
                 vhGrow = Priority.ALWAYS
             }

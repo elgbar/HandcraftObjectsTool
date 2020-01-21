@@ -1,14 +1,38 @@
 package no.uib.inf219.gui.view
 
+import com.fasterxml.jackson.databind.BeanProperty
+import com.fasterxml.jackson.databind.JsonSerializer
+import javafx.scene.control.TreeItem
 import no.uib.inf219.gui.controllers.ObjectEditorController
-import tornadofx.View
-import tornadofx.hbox
+import tornadofx.*
 
 /**
  * @author Elg
  */
 class NodeExplorerView(val controller: ObjectEditorController) : View("Tree Explorer") {
-    override val root = hbox()
+    override val root = treeview<Any> {
+        root = TreeItem(controller.serializer)
+        root.isExpanded = true
+        cellFormat {
+            text = when (it) {
+                is JsonSerializer<*> -> it.handledType().simpleName
+                is BeanProperty -> it.name
+                else -> "Unknown: $it"
+            }
+            onDoubleClick {
+                //create edit view for simple
+                //add elem to collection for collection
+            }
+        }
+        populate { parent ->
+
+            when (parent.value) {
+                is JsonSerializer<*> -> Iterable { (parent.value as JsonSerializer<*>).properties() }
+                is BeanProperty -> null
+                else -> throw IllegalStateException("Unknown value: ${parent.value.javaClass}")
+            }
+        }
+    }
 //        treeview<Pair<PartComp?, AttributeComp?>> {
 //            root = TreeItem(Pair(controller.part, controller.attr))
 //            root.isExpanded = true
@@ -25,8 +49,6 @@ class NodeExplorerView(val controller: ObjectEditorController) : View("Tree Expl
 //                onDoubleClick {
 //                    controller.attr = it.second
 //                    controller.part = it.first
-////                        throw IllegalStateException(it.second.toString() + "" + controller.attr)
-////                        controller.attr = it.second
 //
 //                }
 //
@@ -48,6 +70,5 @@ class NodeExplorerView(val controller: ObjectEditorController) : View("Tree Expl
 //                }
 //            }
 //        }
-
 
 }

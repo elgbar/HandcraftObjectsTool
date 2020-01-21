@@ -1,21 +1,18 @@
 package no.uib.inf219.gui.view
 
-import com.fasterxml.jackson.core.JsonFactory
-import com.fasterxml.jackson.core.JsonGenerator
-import com.fasterxml.jackson.core.io.SegmentedStringWriter
 import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.JsonSerializer
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.SerializationConfig
 import com.fasterxml.jackson.databind.ser.DefaultSerializerProvider
-import com.fasterxml.jackson.databind.type.TypeFactory
 import javafx.application.Platform
 import javafx.beans.property.SimpleStringProperty
-import javafx.scene.control.TextArea
+import javafx.scene.control.TabPane
+import javafx.scene.control.TextInputControl
+import javafx.scene.layout.BorderPane
 import javafx.scene.text.Text
 import javafx.stage.FileChooser
-import no.uib.inf219.api.serialization.SerializationManager.mapper
 import no.uib.inf219.gui.Styles
+import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.loader.DynamicClassLoader
 import tornadofx.*
 
@@ -27,6 +24,12 @@ import tornadofx.*
  */
 object ControlPanelView : View("Control Panel") {
 
+    lateinit var tabPane: TabPane
+        internal set
+
+    lateinit var output: TextInputControl
+        private set
+
     override val root = borderpane {
         val buttons = hbox {
             addClass(Styles.parent)
@@ -34,7 +37,7 @@ object ControlPanelView : View("Control Panel") {
         val classChooser = hbox {
             addClass(Styles.parent)
         }
-        val output = scrollpane(fitToHeight = true, fitToWidth = true).textarea() {
+        output = scrollpane(fitToHeight = true, fitToWidth = true).textarea() {
             editableProperty().set(false)
         }
         top = borderpane {
@@ -92,27 +95,24 @@ object ControlPanelView : View("Control Panel") {
                     cl = pair.second
                 } catch (e: IllegalStateException) {
                     output.appendText("Failed to load class due to $e\n")
+                    e.printStackTrace()
                     return@setOnAction
                 }
                 output.appendText("Found $clazz\n")
+                createTab(clazz)
 
-                val tfac: TypeFactory = TypeFactory.defaultInstance().withClassLoader(cl)
-                val jt: JavaType = tfac.constructType(clazz)
-                val jfac = JsonFactory.builder().build()
-                val gen: JsonGenerator = jfac.createGenerator(SegmentedStringWriter(jfac._getBufferRecycler()))
-
-                val cfg: SerializationConfig = mapper.serializationConfig
-                cfg.initialize(gen)
-
-                val ser: DefaultSerializerProvider =
-                    DefaultSerializerProvider.Impl().createInstance(cfg, mapper.serializerFactory)
-                seen.clear()
-                printStructure(jt, ser, output)
-
-
-                output.appendText("java type: $jt\n")
-                output.appendText("props:\n")
-
+//                val tfac: TypeFactory = TypeFactory.defaultInstance().withClassLoader(cl)
+//                val jt: JavaType = tfac.constructType(clazz)
+//                val jfac = JsonFactory.builder().build()
+//                val gen: JsonGenerator = jfac.createGenerator(SegmentedStringWriter(jfac._getBufferRecycler()))
+//
+//                val cfg: SerializationConfig = mapper.serializationConfig
+//                cfg.initialize(gen)
+//
+//                val ser: DefaultSerializerProvider =
+//                    DefaultSerializerProvider.Impl().createInstance(cfg, mapper.serializerFactory)
+//                seen.clear()
+//                printStructure(jt, ser)
             }
         }
 
@@ -148,7 +148,6 @@ object ControlPanelView : View("Control Panel") {
     fun printStructure(
         clazz: JavaType,
         ser: DefaultSerializerProvider,
-        output: TextArea,
         tab: String = ""
     ) {
         if (seen.contains(clazz)) return
@@ -156,11 +155,17 @@ object ControlPanelView : View("Control Panel") {
         val jser: JsonSerializer<Any> = ser.findTypedValueSerializer(clazz, true, null)
 
         for ((i, prop) in jser.properties().withIndex()) {
-//            println("prop.type.javaClass.name = ${prop.type.javaClass.name}")
 
-            output.appendText("$tab$i: name: ${prop.name} type: ${prop.type} required? ${prop.isRequired}\n")
+            output.appendText("$tab$i: '${prop.name}' type: ${prop.type} required? ${prop.isRequired}\n")
             val nclazz = if (prop.type.contentType != null) prop.type.contentType else prop.type
-            printStructure(nclazz, ser, output, "$tab\t")
+            printStructure(nclazz, ser, "$tab\t")
+        }
+    }
+
+    fun createTab(clazz: Class<*>) {
+        tabPane.tab("Edit ${clazz.simpleName}", BorderPane()) {
+            add(ObjectEditor(ObjectEditorController(clazz)).root)
+            tabPane.selectionModel.select(this)
         }
     }
 }

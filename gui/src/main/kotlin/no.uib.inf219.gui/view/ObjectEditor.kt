@@ -12,9 +12,7 @@ import tornadofx.borderpane
  * @param clazz The class we are editing
  * @author Elg
  */
-class ObjectEditor(val clazz: Class<Any>) : View() {
-
-    val controller = ObjectEditorController(clazz)
+class ObjectEditor(val controller: ObjectEditorController) : View() {
 
     override val root = borderpane {
         left = NodeExplorerView(controller).root
