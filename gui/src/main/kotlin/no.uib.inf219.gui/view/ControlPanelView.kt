@@ -15,6 +15,8 @@ import no.uib.inf219.gui.Styles
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.loader.DynamicClassLoader
 import tornadofx.*
+import java.io.File
+import java.io.InputStream
 
 
 /**
@@ -58,22 +60,32 @@ object ControlPanelView : View("Control Panel") {
                     FileChooserMode.Multi
                 )
                 for (file in files) {
-                    output.appendText("Loading file ${file.absolutePath}\n")
-                    try {
-                        DynamicClassLoader.loadFile(file)
-                    } catch (e: Exception) {
-                        output.appendText("Failed to load jar file ${file.absolutePath}\n$e")
-                        e.printStackTrace()
-                        continue
-                    }
-
-                    output.appendText("Successfully loaded jar file ${file.absolutePath}\n")
+                    loadFileSafely(file)
                 }
             }
         }
         buttons += button("Clear") {
             setOnAction {
                 output.clear()
+            }
+        }
+        buttons += button("Load Example") {
+            setOnAction {
+                val inp = ControlPanelView::class.java.getResourceAsStream("/example.jar")
+                if (inp == null) {
+                    output.appendText("Failed to find example jar\n")
+                    return@setOnAction
+                }
+
+                val file = createTempFile()
+                file.copyInputStreamToFile(inp)
+                loadFileSafely(file)
+
+                output.appendText(
+                    "Example classes to load:\n" +
+                            "no.uib.inf219.example.data.Conversation\n" +
+                            "no.uib.inf219.example.data.Response\n"
+                )
             }
         }
 
@@ -120,10 +132,6 @@ object ControlPanelView : View("Control Panel") {
             bind(clazzProperty)
             promptText = "Full class name"
 
-            //TODO remove me, just make easier to load a class
-            output.appendText("no.uib.inf219.example.data.Conversation\n")
-            output.appendText("no.uib.inf219.example.data.Response\n")
-
             setOnKeyTyped {
                 Platform.runLater {
                     val text = Text(clazzProperty.value)
@@ -166,6 +174,24 @@ object ControlPanelView : View("Control Panel") {
         tabPane.tab("Edit ${clazz.simpleName}", BorderPane()) {
             add(ObjectEditor(ObjectEditorController(clazz)).root)
             tabPane.selectionModel.select(this)
+        }
+    }
+
+    fun loadFileSafely(file: File) {
+
+        output.appendText("Loading file ${file.absolutePath}\n")
+        try {
+            DynamicClassLoader.loadFile(file)
+        } catch (e: Exception) {
+            output.appendText("Failed to load jar file ${file.absolutePath}\n$e")
+            e.printStackTrace()
+        }
+        output.appendText("Successfully loaded jar file ${file.absolutePath}\n")
+    }
+
+    fun File.copyInputStreamToFile(inputStream: InputStream) {
+        this.outputStream().use { fileOut ->
+            inputStream.copyTo(fileOut)
         }
     }
 }
