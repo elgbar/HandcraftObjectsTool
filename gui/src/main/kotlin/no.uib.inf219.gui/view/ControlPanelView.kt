@@ -92,7 +92,7 @@ object ControlPanelView : View("Control Panel") {
         val clazzProperty = SimpleStringProperty("")
 
 
-        val loadButton = button("Load class") {
+        classChooser += button("Load class") {
             setOnAction {
                 val className = clazzProperty.value
                 val clazz: Class<*>
@@ -147,7 +147,6 @@ object ControlPanelView : View("Control Panel") {
             }
 
         }
-        classChooser += loadButton
 
     }
 
