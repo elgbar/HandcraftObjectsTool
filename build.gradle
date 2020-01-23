@@ -3,6 +3,7 @@ buildscript {
     ext.tornadofx_version = "1.7.19"
     ext.slf4j_version = "1.7.30"
     ext.junit_version = "5.1.0"
+    ext.jackson_version = "2.10.2"
 
     repositories {
         mavenLocal()
@@ -54,12 +55,14 @@ project(":api") {
     dependencies {
 //        api "org.yaml:snakeyaml:1.25"
         api "org.slf4j:slf4j-api:$slf4j_version"
-        api 'com.fasterxml.jackson.core:jackson-databind:2.10.2'
-        api 'com.fasterxml.jackson.core:jackson-annotations:2.10.2'
-        implementation 'commons-lang:commons-lang:2.6'
-        implementation 'com.google.guava:guava:28.2-jre'
-        implementation "com.fasterxml.jackson.module:jackson-module-kotlin:2.10.2"
-        implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.10.2'
+        api "com.fasterxml.jackson.core:jackson-databind:$jackson_version"
+        api "com.fasterxml.jackson.core:jackson-annotations:$jackson_version"
+        api "com.fasterxml.jackson.module:jackson-module-jsonSchema:$jackson_version"
+
+        implementation "commons-lang:commons-lang:2.6"
+        implementation "com.google.guava:guava:28.2-jre"
+        implementation "com.fasterxml.jackson.module:jackson-module-kotlin:$jackson_version"
+        implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:$jackson_version"
     }
 }
 
@@ -73,8 +76,8 @@ project(":example") {
         implementation project(":api")
         implementation "no.tornado:tornadofx:$tornadofx_version"
         implementation "org.slf4j:slf4j-simple:$slf4j_version"
-        implementation "com.fasterxml.jackson.module:jackson-module-kotlin:2.10.2"
-        implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.10.2'
+        implementation "com.fasterxml.jackson.module:jackson-module-kotlin:$jackson_version"
+        implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:$jackson_version"
     }
 
     jar {
@@ -104,7 +107,7 @@ project(":gui") {
         implementation "no.tornado:tornadofx:$tornadofx_version"
         implementation "org.slf4j:slf4j-simple:$slf4j_version"
         implementation "org.apache.commons:commons-text:1.8"
-        implementation 'io.github.classgraph:classgraph:4.8.60'
+        implementation "io.github.classgraph:classgraph:4.8.60"
     }
 
     jar {
