@@ -9,17 +9,20 @@ import com.fasterxml.jackson.databind.JsonSerializer
 import com.fasterxml.jackson.databind.SerializationConfig
 import com.fasterxml.jackson.databind.ser.DefaultSerializerProvider
 import com.fasterxml.jackson.databind.type.TypeFactory
-import no.uib.inf219.api.serialization.SerializationManager
+import no.uib.inf219.gui.view.types.TypeResolver
+import tornadofx.Controller
+import no.uib.inf219.api.serialization.SerializationManager as SerMan
 
 
 /**
  * @author Elg
  */
-class ObjectEditorController(var clazz: Class<*>) {
+class ObjectEditorController(var clazz: Class<*>) : Controller() {
 
     lateinit var javaType: JavaType
     lateinit var serializer: JsonSerializer<Any>
     var bean: BeanProperty? = null
+    val props: MutableMap<String, Any> = HashMap()
 
     init {
         set(clazz)
@@ -32,11 +35,36 @@ class ObjectEditorController(var clazz: Class<*>) {
         val jfac = JsonFactory.builder().build()
         val gen: JsonGenerator = jfac.createGenerator(SegmentedStringWriter(jfac._getBufferRecycler()))
 
-        val cfg: SerializationConfig = SerializationManager.mapper.serializationConfig
+        val cfg: SerializationConfig = SerMan.mapper.serializationConfig
+
         cfg.initialize(gen)
 
         val ser: DefaultSerializerProvider =
-            DefaultSerializerProvider.Impl().createInstance(cfg, SerializationManager.mapper.serializerFactory)
+            DefaultSerializerProvider.Impl().createInstance(cfg, SerMan.mapper.serializerFactory)
         serializer = ser.findTypedValueSerializer(javaType, true, null)
+
+//        val schema = JsonSchemaGenerator(SerMan.mapper).generateSchema(clazz)
+//        println(
+//            "JsonSchemaGenerator(SerializationManager.mapper).generateSchema(clazz) = ${SerMan.dump(schema)}"
+//        )
+
+//        ob.props["response"] = "test"
+//        ob.props["name"] = "test"
+//
+//        println("ob.props = ${ob.props}")
+//
+//        val o = ob.toObject()
+//        println(SerMan.dumpMap<GuiMain>(ob.props))
+////        ob.props["conv"] = "test"
+////        ob.props["prerequisites"] =
+
+        val tr = TypeResolver.resolve(String::class.java)
+        println("tr = ${tr}")
+
+
+    }
+
+    fun serialize(): Any {
+        return SerMan.dump(SerMan.loadFromMap(props, clazz))
     }
 }
