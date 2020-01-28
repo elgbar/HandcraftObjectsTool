@@ -19,6 +19,7 @@ object ClassInformation {
     private val tfac = TypeFactory.defaultInstance()
     val ser: DefaultSerializerProvider
     private val cache: MutableMap<JavaType, Map<String, JavaType>> = HashMap()
+    private val typeCache: MutableMap<Class<*>, JavaType> = HashMap()
 
     init {
         val jfac = JsonFactory.builder().build()
@@ -54,6 +55,8 @@ object ClassInformation {
     }
 
     fun toJavaType(clazz: Class<*>): JavaType {
-        return tfac.constructType(clazz)
+        return typeCache.computeIfAbsent(clazz) {
+            tfac.constructType(it)
+        }
     }
 }
