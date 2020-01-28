@@ -9,7 +9,6 @@ import com.fasterxml.jackson.databind.JsonSerializer
 import com.fasterxml.jackson.databind.SerializationConfig
 import com.fasterxml.jackson.databind.ser.DefaultSerializerProvider
 import com.fasterxml.jackson.databind.type.TypeFactory
-import no.uib.inf219.gui.view.types.TypeResolver
 import tornadofx.Controller
 import no.uib.inf219.api.serialization.SerializationManager as SerMan
 
@@ -43,23 +42,9 @@ class ObjectEditorController(var clazz: Class<*>) : Controller() {
             DefaultSerializerProvider.Impl().createInstance(cfg, SerMan.mapper.serializerFactory)
         serializer = ser.findTypedValueSerializer(javaType, true, null)
 
-//        val schema = JsonSchemaGenerator(SerMan.mapper).generateSchema(clazz)
-//        println(
-//            "JsonSchemaGenerator(SerializationManager.mapper).generateSchema(clazz) = ${SerMan.dump(schema)}"
-//        )
-
-//        ob.props["response"] = "test"
-//        ob.props["name"] = "test"
 //
-//        println("ob.props = ${ob.props}")
-//
-//        val o = ob.toObject()
-//        println(SerMan.dumpMap<GuiMain>(ob.props))
-////        ob.props["conv"] = "test"
-////        ob.props["prerequisites"] =
-
-        val tr = TypeResolver.resolve(String::class.java)
-        println("tr = ${tr}")
+//        val tr = TypeResolver.resolve(String::class.java)
+//        println("tr = ${tr}")
 
 
     }

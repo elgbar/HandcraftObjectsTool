@@ -42,13 +42,9 @@ object SerializationManager {
         return mapper.writeValueAsString(obj)
     }
 
-    /**
-     * Shorthand for `dump(loadFromMap(map))`
-     *
-     * @return An instance of [T] with the properties of the given map
-     */
+
     @JvmStatic
-    inline fun <reified T> dumpMap(map: Map<String, Any?>): String {
+    fun dumpMap(map: Map<String, Any?>): String {
         return dump(loadFromMap(map))
     }
 

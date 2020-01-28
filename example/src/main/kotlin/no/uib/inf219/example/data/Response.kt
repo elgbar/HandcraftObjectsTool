@@ -5,31 +5,25 @@ import javafx.scene.control.Tooltip
 import no.uib.inf219.api.serialization.Identifiable
 import no.uib.inf219.api.serialization.storage.RetrievableStorage
 import no.uib.inf219.api.serialization.storage.StoreHandler
-import no.uib.inf219.example.data.prerequisite.AlwaysTruePrerequisite
 import no.uib.inf219.example.data.prerequisite.Prerequisite
 
 /**
  * @author Elg
  */
-//@JsonIdentityInfo(generator = ObjectIdGenerators.UUIDGenerator::class)
 class Response : Identifiable<String> {
-
-//    ,
-//    @JsonProperty("respId", required = true)
-//    val id: UUID? = UUID.randomUUID()
-
-
+    
     @JsonProperty("response", required = true)
     var response: String = "???"
 
-    @JsonProperty("name")
+    @JsonProperty("name", required = false, defaultValue = "Response")
     var name: String = "Response #${++createId}"
 
-    @JsonProperty("conv")
+    @JsonProperty("conv", required = false)
     var conv: Conversation? = null
 
-    @JsonProperty("prerequisites")
-    var prereq: Prerequisite = AlwaysTruePrerequisite()
+    @JsonProperty("prerequisites", required = false)
+    var prereq: Prerequisite? = null
+
 
     companion object {
         val exitResponse: MutableList<Response> = mutableListOf(create("End conversation", "Exit"))

@@ -12,6 +12,7 @@ import javafx.scene.layout.BorderPane
 import javafx.scene.text.Text
 import javafx.stage.FileChooser
 import no.uib.inf219.gui.Styles
+import no.uib.inf219.gui.backend.MapClassBuilder
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.loader.DynamicClassLoader
 import tornadofx.*
@@ -86,6 +87,23 @@ object ControlPanelView : View("Control Panel") {
                             "no.uib.inf219.example.data.Conversation\n" +
                             "no.uib.inf219.example.data.Response\n"
                 )
+
+                val respC = DynamicClassLoader.classFromName("no.uib.inf219.example.data.Response")!!
+                val convC = DynamicClassLoader.classFromName("no.uib.inf219.example.data.Conversation")!!
+
+
+                val respob: MapClassBuilder<Any> = MapClassBuilder(respC)
+                val convob: MapClassBuilder<Any> = MapClassBuilder(convC)
+
+                convob["name"] = "bname"
+                convob["text"] = "blah blah"
+
+                respob["response"] = "test response"
+                convob["responses"] = listOf(respob)
+
+                respob["conv"] = convob.toObject()
+
+                println("ob.toObject() = ${convob.toObject()}")
             }
         }
 

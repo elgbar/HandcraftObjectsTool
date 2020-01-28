@@ -36,9 +36,9 @@ class ConversationView(val tab: Tab, var conv: Conversation) : View() {
 
             for (response in resps) {
                 with(button(response.response)) {
-                    this.disableProperty().set(!response.prereq.check())
+                    this.disableProperty().set(!(response.prereq?.check() ?: true))
                     setOnAction {
-                        if (response.prereq.check()) {
+                        if (response.prereq?.check() != false) {
                             if (response.shouldClose()) {
                                 tab.close()
                                 return@setOnAction

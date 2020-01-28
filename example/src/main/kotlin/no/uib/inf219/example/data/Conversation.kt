@@ -13,10 +13,10 @@ import no.uib.inf219.api.serialization.storage.StoreHandler
  */
 class Conversation : Identifiable<String> {
 
-    @JsonProperty("text", required = false)
-    lateinit var text: String
+    @JsonProperty("text", required = true, defaultValue = "")
+    var text: String = ""
 
-    @JsonProperty("name", defaultValue = "Conversation")
+    @JsonProperty("name", defaultValue = "Conversation", required = false)
     var name: String = "Conversation #${++createId}"
         set(value) {
             field = value
@@ -24,8 +24,8 @@ class Conversation : Identifiable<String> {
                 StoreHandler.getStore(Conversation::class.java)
             store.update(this)
         }
-    
-    @JsonProperty("responses", defaultValue = "[]")
+
+    @JsonProperty("responses", defaultValue = "[]", required = false)
     var responses: MutableList<Response> = ArrayList()
         get() = if (field.isEmpty()) Response.exitResponse else field
 
