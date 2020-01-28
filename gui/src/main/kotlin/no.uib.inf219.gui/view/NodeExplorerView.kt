@@ -30,7 +30,6 @@ class NodeExplorerView(val controller: ObjectEditorController) : View("Tree Expl
                 //create edit view for simple
                 //add elem to collection for collection
 
-//                controller.set()
                 when (it) {
                     is JsonSerializer<*> -> controller.set(it.handledType())
                     is BeanProperty -> controller.set(it.type.rawClass)
