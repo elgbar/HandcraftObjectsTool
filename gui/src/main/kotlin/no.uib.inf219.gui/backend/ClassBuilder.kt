@@ -3,7 +3,6 @@ package no.uib.inf219.gui.backend
 import com.fasterxml.jackson.databind.JavaType
 import javafx.event.EventTarget
 import javafx.scene.Node
-import no.uib.inf219.gui.loader.ClassInformation
 
 /**
  * An interface that is the super class of all object builder, the aim of this interface is to manage how to build a given type.
@@ -89,31 +88,31 @@ interface ClassBuilder<out T> {
                 require(value.clazz == type) { "The value given is a already a class builder, but its type (${value.clazz}) does not match with the given java type $type" }
                 return value
 
-            } else if (type == ClassInformation.toJavaType(Byte::class.java)) {
+            } else if (type.isTypeOrSuperTypeOf(Byte::class.java)) {
                 return if (value == null) ByteClassBuilder() else ByteClassBuilder(value as Byte)
 
-            } else if (type == ClassInformation.toJavaType(Short::class.java)) {
+            } else if (type.isTypeOrSuperTypeOf(Short::class.java)) {
                 return if (value == null) ShortClassBuilder() else ShortClassBuilder(value as Short)
 
-            } else if (type == ClassInformation.toJavaType(Int::class.java)) {
+            } else if (type.isTypeOrSuperTypeOf(Int::class.java)) {
                 return if (value == null) IntClassBuilder() else IntClassBuilder(value as Int)
 
-            } else if (type == ClassInformation.toJavaType(Long::class.java)) {
+            } else if (type.isTypeOrSuperTypeOf(Long::class.java)) {
                 return if (value == null) LongClassBuilder() else LongClassBuilder(value as Long)
 
-            } else if (type == ClassInformation.toJavaType(Float::class.java)) {
+            } else if (type.isTypeOrSuperTypeOf(Float::class.java)) {
                 return if (value == null) FloatClassBuilder() else FloatClassBuilder(value as Float)
 
-            } else if (type == ClassInformation.toJavaType(Double::class.java)) {
+            } else if (type.isTypeOrSuperTypeOf(Double::class.java)) {
                 return if (value == null) DoubleClassBuilder() else DoubleClassBuilder(value as Double)
 
-            } else if (type == ClassInformation.toJavaType(Char::class.java)) {
+            } else if (type.isTypeOrSuperTypeOf(Char::class.java)) {
                 return if (value == null) CharClassBuilder() else CharClassBuilder(value as Char)
 
-            } else if (type == ClassInformation.toJavaType(String::class.java)) {
+            } else if (type.isTypeOrSuperTypeOf(String::class.java)) {
                 return if (value == null) StringClassBuilder() else StringClassBuilder(value as String)
 
-            } else if (type == ClassInformation.toJavaType(Boolean::class.java)) {
+            } else if (type.isTypeOrSuperTypeOf(Boolean::class.java)) {
                 return if (value == null) BooleanClassBuilder() else BooleanClassBuilder(value as Boolean)
 
             } else {
