@@ -2,7 +2,7 @@ package no.uib.inf219.gui.controllers
 
 import javafx.beans.property.ObjectProperty
 import no.uib.inf219.gui.backend.ClassBuilder
-import no.uib.inf219.gui.backend.MapClassBuilder
+import no.uib.inf219.gui.backend.ComplexClassBuilder
 import no.uib.inf219.gui.loader.ClassInformation
 import tornadofx.Controller
 import tornadofx.getProperty
@@ -14,7 +14,7 @@ import tornadofx.property
  */
 class ObjectEditorController(val root: Class<*>) : Controller() {
 
-    val rootBuilder: ClassBuilder<Any> = MapClassBuilder(ClassInformation.toJavaType(root))
+    val rootBuilder: ClassBuilder<Any> = ComplexClassBuilder(ClassInformation.toJavaType(root))
 
     /**
      * Left type is name of selected
