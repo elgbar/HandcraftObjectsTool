@@ -1,55 +1,32 @@
 package no.uib.inf219.gui.controllers
 
-import com.fasterxml.jackson.core.JsonFactory
-import com.fasterxml.jackson.core.JsonGenerator
-import com.fasterxml.jackson.core.io.SegmentedStringWriter
-import com.fasterxml.jackson.databind.BeanProperty
-import com.fasterxml.jackson.databind.JavaType
-import com.fasterxml.jackson.databind.JsonSerializer
-import com.fasterxml.jackson.databind.SerializationConfig
-import com.fasterxml.jackson.databind.ser.DefaultSerializerProvider
-import com.fasterxml.jackson.databind.type.TypeFactory
+import javafx.beans.property.ObjectProperty
+import no.uib.inf219.gui.backend.ClassBuilder
+import no.uib.inf219.gui.backend.MapClassBuilder
+import no.uib.inf219.gui.loader.ClassInformation
 import tornadofx.Controller
-import no.uib.inf219.api.serialization.SerializationManager as SerMan
+import tornadofx.getProperty
+import tornadofx.property
 
 
 /**
  * @author Elg
  */
-class ObjectEditorController(var clazz: Class<*>) : Controller() {
+class ObjectEditorController(val root: Class<*>) : Controller() {
 
-    lateinit var javaType: JavaType
-    lateinit var serializer: JsonSerializer<Any>
-    var bean: BeanProperty? = null
-    val props: MutableMap<String, Any> = HashMap()
+    val rootBuilder: ClassBuilder<Any> = MapClassBuilder(ClassInformation.toJavaType(root))
+
+    /**
+     * Left type is name of selected
+     *
+     * Right is type
+     */
+    var currSel: Pair<String, ClassBuilder<*>> by property<Pair<String, ClassBuilder<*>>>()
+    var currProp: ObjectProperty<Pair<String, ClassBuilder<*>>> = getProperty(ObjectEditorController::currSel)
 
     init {
-        set(clazz)
+        currSel = Pair(root.simpleName, rootBuilder)
     }
 
-    fun set(x: Class<*>) {
-        clazz = x
-        val tfac: TypeFactory = TypeFactory.defaultInstance()//.withClassLoader(cl)
-        javaType = tfac.constructType(clazz)
-        val jfac = JsonFactory.builder().build()
-        val gen: JsonGenerator = jfac.createGenerator(SegmentedStringWriter(jfac._getBufferRecycler()))
 
-        val cfg: SerializationConfig = SerMan.mapper.serializationConfig
-
-        cfg.initialize(gen)
-
-        val ser: DefaultSerializerProvider =
-            DefaultSerializerProvider.Impl().createInstance(cfg, SerMan.mapper.serializerFactory)
-        serializer = ser.findTypedValueSerializer(javaType, true, null)
-
-//
-//        val tr = TypeResolver.resolve(String::class.java)
-//        println("tr = ${tr}")
-
-
-    }
-
-    fun serialize(): Any {
-        return SerMan.dump(SerMan.loadFromMap(props, clazz))
-    }
 }

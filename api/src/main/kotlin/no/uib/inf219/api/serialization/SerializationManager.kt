@@ -68,7 +68,7 @@ object SerializationManager {
         return mapper.convertValue(map, T::class.java)
     }
 
-    fun loadFromMap(map: Map<String, Any?>, clazz: Class<*>): Any {
+    fun <T> loadFromMap(map: Map<String, Any?>, clazz: Class<T>): T {
         return mapper.convertValue(map, clazz)
     }
 }

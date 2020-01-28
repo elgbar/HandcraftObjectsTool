@@ -16,7 +16,7 @@ class ObjectEditor(val controller: ObjectEditorController) : View() {
 
     override val root = borderpane {
         left = NodeExplorerView(controller).root
-        center = AttributeEditor(controller).root
+        center = PropertyEditor(controller).root
     }
 
 }

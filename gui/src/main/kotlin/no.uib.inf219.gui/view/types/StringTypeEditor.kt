@@ -11,7 +11,7 @@ import tornadofx.textarea
  */
 object StringTypeEditor : TypeEditor<String>() {
 
-    private val value = SimpleStringProperty()
+    val value = SimpleStringProperty()
 
     override val root = textarea {
         bind(value)
