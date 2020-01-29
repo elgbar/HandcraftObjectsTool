@@ -55,21 +55,11 @@ interface ClassBuilder<out T> {
     /**
      * reset the given property for the [name] provided. If it has a default value this value will be restored
      *
+     * @return If all referenced should be nulled out
+     *
      * @throws IllegalArgumentException If the given [name] is not valid
      */
-    fun reset(name: String)
-
-//    /**
-//     * Add a property to the builder with the given key.
-//     *
-//     * If the [key] is `null` it is up to the implementation to specify how they are handled
-//     *
-//     * @throws IllegalArgumentException If `null` keys are not supported
-//     */
-//    operator fun set(key: String, value: Any?)
-//
-//    operator fun get(key: String): Any?
-
+    fun reset(name: String): Boolean
 
     /////////////////////////////////////
     //   JVM primitives (inc String)   //

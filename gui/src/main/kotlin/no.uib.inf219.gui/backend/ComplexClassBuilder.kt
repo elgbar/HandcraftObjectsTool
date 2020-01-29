@@ -61,11 +61,11 @@ class ComplexClassBuilder<out T>(
         return cb
     }
 
-    override fun reset(name: String) {
+    override fun reset(name: String): Boolean {
         require(propInfo.contains(name)) { "The class $javaType does not have a property with the name '$name'. Expected one of the following: $propInfo" }
         props[name] = null
+        return true
     }
-    
 
     override fun toView(par: EventTarget): Node {
         propList.clear()

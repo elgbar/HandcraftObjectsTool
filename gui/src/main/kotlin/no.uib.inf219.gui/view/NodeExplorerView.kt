@@ -56,8 +56,9 @@ class NodeExplorerView(val controller: ObjectEditorController) : View("Tree Expl
                 if (selectedValue == root.value) return@action
 
                 //clear the backend values
-                item.right.reset(item.left)
-                item.middle = null
+                val rem = item.right.reset(item.left)
+                if (rem)
+                    item.middle = null
 
                 //remove the visual items
                 this@treeview.selectionModel.selectedItem.children.clear()

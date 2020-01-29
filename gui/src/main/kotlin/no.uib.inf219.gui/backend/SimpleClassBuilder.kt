@@ -70,8 +70,9 @@ abstract class SimpleClassBuilder<T : Any> internal constructor(
     /**
      * Reset the value this holds to the [initialValue] provided in the constructor
      */
-    override fun reset(name: String) {
+    override fun reset(name: String): Boolean {
         value = initialValue
+        return false
     }
 
     override fun equals(other: Any?): Boolean {
