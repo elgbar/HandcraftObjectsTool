@@ -1,6 +1,7 @@
 package no.uib.inf219.gui.backend
 
 import com.fasterxml.jackson.databind.JavaType
+import javafx.beans.Observable
 import javafx.event.EventTarget
 import javafx.scene.Node
 
@@ -11,9 +12,14 @@ import javafx.scene.Node
  *
  * @author Elg
  */
-interface ClassBuilder<out T> {
+interface ClassBuilder<out T> : Observable {
 
-    val clazz: JavaType
+    val javaType: JavaType
+
+    /**
+     * The parent class builder, `null` if this is the root class builder or unknown parent
+     */
+    val parent: ClassBuilder<Any>?
 
     /**
      * Convert this object to an instance of [T]
@@ -30,26 +36,36 @@ interface ClassBuilder<out T> {
      *
      * Empty if [isLeaf] is true
      */
-    fun getSubClassBuilders(): Map<String, ClassBuilder<*>>
+    fun getSubClassBuilders(): Map<String, ClassBuilder<*>?>?
 
     /**
-     * If this implementation is a final value
+     * If this implementation does not have any sub class builders
      */
     fun isLeaf(): Boolean
 
+    /**
+     * Visual representation (and possibly modification) of this class builder
+     */
     fun toView(par: EventTarget): Node
 
-
     /**
-     * Add a property to the builder with the given key.
+     * Note that this will a
      *
-     * If the [key] is `null` it is up to the implementation to specify how they are handled
-     *
-     * @throws IllegalArgumentException If `null` keys are not supported
+     * @return A class builder for the given property, or `null` for if [isLeaf] is `true`
      */
-    operator fun set(key: String, value: Any)
+    fun createClassBuilderFor(name: String): ClassBuilder<*>?
 
-    operator fun get(key: String): Any
+//    /**
+//     * Add a property to the builder with the given key.
+//     *
+//     * If the [key] is `null` it is up to the implementation to specify how they are handled
+//     *
+//     * @throws IllegalArgumentException If `null` keys are not supported
+//     */
+//    operator fun set(key: String, value: Any?)
+//
+//    operator fun get(key: String): Any?
+
 
     /////////////////////////////////////
     //   JVM primitives (inc String)   //
@@ -85,7 +101,7 @@ interface ClassBuilder<out T> {
         fun getClassBuilder(type: JavaType, value: Any? = null): ClassBuilder<*> {
             if (value != null && value is ClassBuilder<*>) {
                 //it would be very weird if this happened
-                require(value.clazz == type) { "The value given is a already a class builder, but its type (${value.clazz}) does not match with the given java type $type" }
+                require(value.javaType == type) { "The value given is a already a class builder, but its type (${value.javaType}) does not match with the given java type $type" }
                 return value
 
             } else if (type.isTypeOrSuperTypeOf(Byte::class.java)) {

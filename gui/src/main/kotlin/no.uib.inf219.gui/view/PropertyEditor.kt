@@ -12,7 +12,7 @@ class PropertyEditor(val controller: ObjectEditorController) : View("Attribute E
 
     override val root = borderpane {
         controller.currProp.onChange {
-            center = it!!.second.toView(this)
+            center = it?.middle?.toView(this)
         }
 
         //        check(controller.attr == null && controller.attr!!.isList) { "Cannot edit a list of attribute with this view" }
