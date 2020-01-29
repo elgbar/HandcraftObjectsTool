@@ -52,16 +52,20 @@ class NodeExplorerView(val controller: ObjectEditorController) : View("Tree Expl
 
         contextmenu {
             item("Remove").action {
-                val item = selectedValue ?: return@action
-                if (selectedValue == root.value) return@action
+                val item = this@treeview.selectionModel.selectedItem ?: return@action
+                val value = item.value
+                if (item == root) return@action
 
                 //clear the backend values
-                val rem = item.right.reset(item.left)
+                val rem = value.right.reset(value.left)
                 if (rem)
-                    item.middle = null
+                    value.middle = null
 
                 //remove the visual items
-                this@treeview.selectionModel.selectedItem.children.clear()
+                item.children.clear()
+                if (value == controller.currSel)
+                    controller.currSel = root.value
+                this@treeview.parent
             }
         }
 
