@@ -53,6 +53,12 @@ class ObjectEditor(private val controller: ObjectEditorController) : View() {
                     }
                 }
             }
+
+            buttons += button("Clear") {
+                setOnAction {
+                    output.clear()
+                }
+            }
         }
     }
 }
