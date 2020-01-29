@@ -1,7 +1,6 @@
 package no.uib.inf219.gui.backend
 
 import com.fasterxml.jackson.databind.JavaType
-import javafx.beans.InvalidationListener
 import javafx.beans.property.Property
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.StringProperty
@@ -10,7 +9,6 @@ import javafx.event.EventTarget
 import javafx.scene.Node
 import javafx.util.StringConverter
 import javafx.util.converter.*
-import no.uib.inf219.gui.backend.SimpleClassBuilder.Companion.VALUE_KEY
 import no.uib.inf219.gui.converter.UUIDStringConverter
 import no.uib.inf219.gui.loader.ClassInformation
 import tornadofx.ViewModel
@@ -24,7 +22,6 @@ import java.util.*
 
 /**
  * A class builder intended for primitive classes to be used as leaf nodes in the class builder tree.
- * It only accept a single key called [VALUE_KEY] which will return the single value stored here.
  *
  * Every sub-class probably want to override
  *
@@ -32,7 +29,7 @@ import java.util.*
  */
 abstract class SimpleClassBuilder<T : Any> internal constructor(
     primClass: Class<T>,
-    initialValue: T,
+    private val initialValue: T,
     override val parent: ClassBuilder<Any>? = null,
     private val converter: StringConverter<T>? = null
 ) :
@@ -50,49 +47,10 @@ abstract class SimpleClassBuilder<T : Any> internal constructor(
         value = initialValue
     }
 
-    companion object {
-        const val VALUE_KEY = "value"
-        val VALUE_KEY_SET = setOf(VALUE_KEY)
-    }
-
-    override fun getValidKeys(): Set<String> = VALUE_KEY_SET
-
     override fun toObject(): T = value
 
-    override fun isLeaf(): Boolean {
-        return true
-    }
-
-    override fun getSubClassBuilders(): Map<String, ClassBuilder<*>>? {
-        return null
-    }
-
-//    override fun get(key: String): Any {
-//        return value
-//    }
-
-//    override fun set(key: String, value: Any?) {
-//        require(key == VALUE_KEY) { "The key cannot be anything other than $VALUE_KEY" }
-//        requireNotNull(value) { "Value cannot be null" }
-//        require(javaType.isTypeOrSuperTypeOf(value.javaClass)) { "Given value is not equal to or a subtype of ${javaType.typeName}" }
-//        @Suppress("UNCHECKED_CAST") //checked above
-//        this.value = value as T
-//    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is SimpleClassBuilder<*>) return false
-
-        if (value != other.value) return false
-        if (javaType != other.javaType) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = value.hashCode()
-        result = 31 * result + javaType.hashCode()
-        return result
+    override fun getSubClassBuilders(): Map<String, ClassBuilder<*>> {
+        return emptyMap()
     }
 
     override fun toString(): String {
@@ -109,12 +67,27 @@ abstract class SimpleClassBuilder<T : Any> internal constructor(
         return null
     }
 
-    override fun addListener(listener: InvalidationListener?) {
-        valueProperty.addListener(listener)
+    /**
+     * Reset the value this holds to the [initialValue] provided in the constructor
+     */
+    override fun reset(name: String) {
+        value = initialValue
     }
 
-    override fun removeListener(listener: InvalidationListener?) {
-        valueProperty.removeListener(listener)
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is SimpleClassBuilder<*>) return false
+
+        if (value != other.value) return false
+        if (javaType != other.javaType) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = value.hashCode()
+        result = 31 * result + javaType.hashCode()
+        return result
     }
 
     @Suppress("UNCHECKED_CAST")

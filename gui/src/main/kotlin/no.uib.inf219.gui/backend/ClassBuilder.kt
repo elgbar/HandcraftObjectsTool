@@ -1,7 +1,6 @@
 package no.uib.inf219.gui.backend
 
 import com.fasterxml.jackson.databind.JavaType
-import javafx.beans.Observable
 import javafx.event.EventTarget
 import javafx.scene.Node
 
@@ -12,7 +11,7 @@ import javafx.scene.Node
  *
  * @author Elg
  */
-interface ClassBuilder<out T> : Observable {
+interface ClassBuilder<out T> {
 
     val javaType: JavaType
 
@@ -27,21 +26,18 @@ interface ClassBuilder<out T> : Observable {
     fun toObject(): T?
 
     /**
-     * A set of all valid keys this class builder can have. If empty all keys are allowed
-     */
-    fun getValidKeys(): Set<String>
-
-    /**
-     * return all sub values this class can hold
+     * return all sub values this class can hold. The [Map.keys] must exactly return all valid keys. If any of them have a default value they must reflect so
      *
      * Empty if [isLeaf] is true
      */
-    fun getSubClassBuilders(): Map<String, ClassBuilder<*>?>?
+    fun getSubClassBuilders(): Map<String, ClassBuilder<*>?>
 
     /**
      * If this implementation does not have any sub class builders
      */
-    fun isLeaf(): Boolean
+    fun isLeaf(): Boolean {
+        return getSubClassBuilders().isEmpty()
+    }
 
     /**
      * Visual representation (and possibly modification) of this class builder
@@ -52,8 +48,16 @@ interface ClassBuilder<out T> : Observable {
      * Note that this will a
      *
      * @return A class builder for the given property, or `null` for if [isLeaf] is `true`
+     * @throws IllegalArgumentException If the given [name] is not valid
      */
     fun createClassBuilderFor(name: String): ClassBuilder<*>?
+
+    /**
+     * reset the given property for the [name] provided. If it has a default value this value will be restored
+     *
+     * @throws IllegalArgumentException If the given [name] is not valid
+     */
+    fun reset(name: String)
 
 //    /**
 //     * Add a property to the builder with the given key.

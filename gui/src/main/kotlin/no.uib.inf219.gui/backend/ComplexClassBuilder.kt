@@ -1,7 +1,6 @@
 package no.uib.inf219.gui.backend
 
 import com.fasterxml.jackson.databind.JavaType
-import javafx.beans.InvalidationListener
 import javafx.beans.Observable
 import javafx.collections.ObservableList
 import javafx.collections.ObservableMap
@@ -43,31 +42,13 @@ class ComplexClassBuilder<out T>(
             println("propInfo = $propInfo")
             propList.clear()
             propList.addAll(props.toList())
-            
+
         }
     }
 
     override fun toObject(): T? {
         val objProp = props.mapValues { it.value?.toObject() }
         return SerializationManager.mapper.convertValue(objProp, javaType)
-    }
-
-    override fun getValidKeys(): Set<String> = propInfo.keys
-
-//    override fun set(name: String, value: Any?) {
-//        require(propInfo.contains(name)) { "The class $javaType does not have a property with the name '$name'. Expected one of the following: $propInfo" }
-//
-//        props[name] =
-//            if (value == null) null
-//            else ClassBuilder.getClassBuilder(propInfo[name]!!, value)
-//    }
-//
-//    override fun get(key: String): Any? {
-//        return props[key]
-//    }
-
-    override fun isLeaf(): Boolean {
-        return false
     }
 
     override fun getSubClassBuilders(): Map<String, ClassBuilder<*>?> = props
@@ -80,18 +61,30 @@ class ComplexClassBuilder<out T>(
         return cb
     }
 
-    override fun addListener(listener: InvalidationListener?) {
-        obProp.addListener(listener)
+    override fun reset(name: String) {
+        require(propInfo.contains(name)) { "The class $javaType does not have a property with the name '$name'. Expected one of the following: $propInfo" }
+        props[name] = null
     }
+    
 
-    override fun removeListener(listener: InvalidationListener?) {
-        obProp.removeListener(listener)
+    override fun toView(par: EventTarget): Node {
+        propList.clear()
+        propList.addAll(props.toList())
+        return par.vbox {
+            tableview(obPropList) {
+                column("Name") { it: TableColumn.CellDataFeatures<Pair<String, ClassBuilder<*>?>, String> ->
+                    it.value.first.toProperty()
+                }
+                column("Value") { it: TableColumn.CellDataFeatures<Pair<String, ClassBuilder<*>?>, String> ->
+                    it.value.second.toString().toProperty()
+                }
+            }
+        }
     }
 
     override fun toString(): String {
         return "MapClassBuilder(clazz=$javaType, props=${props.filter { it.value !== this }})"
     }
-
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -109,20 +102,4 @@ class ComplexClassBuilder<out T>(
         result = 31 * result + props.filter { it !== this }.hashCode()
         return result
     }
-
-    override fun toView(par: EventTarget): Node {
-        propList.clear()
-        propList.addAll(props.toList())
-        return par.vbox {
-            tableview(obPropList) {
-                column("Name") { it: TableColumn.CellDataFeatures<Pair<String, ClassBuilder<*>?>, String> ->
-                    it.value.first.toProperty()
-                }
-                column("Value") { it: TableColumn.CellDataFeatures<Pair<String, ClassBuilder<*>?>, String> ->
-                    it.value.second.toString().toProperty()
-                }
-            }
-        }
-    }
-
 }
