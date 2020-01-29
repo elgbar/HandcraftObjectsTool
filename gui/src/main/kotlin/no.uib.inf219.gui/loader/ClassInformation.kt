@@ -18,7 +18,7 @@ object ClassInformation {
 
     private val tfac = TypeFactory.defaultInstance()
     val ser: DefaultSerializerProvider
-    private val cache: MutableMap<JavaType, Map<String, JavaType>> = HashMap()
+    private val cache: MutableMap<JavaType, Map<String, PropertyWriter>> = HashMap()
     private val typeCache: MutableMap<Class<*>, JavaType> = HashMap()
 
     init {
@@ -39,16 +39,16 @@ object ClassInformation {
         return HashSet<String>(serializableProperties(clazz).keys)
     }
 
-    fun serializableProperties(clazz: Class<*>): Map<String, JavaType> {
+    fun serializableProperties(clazz: Class<*>): Map<String, PropertyWriter> {
         return serializableProperties(toJavaType(clazz))
     }
 
-    fun serializableProperties(clazz: JavaType): Map<String, JavaType> {
+    fun serializableProperties(clazz: JavaType): Map<String, PropertyWriter> {
         return cache.computeIfAbsent(clazz) {
             val props = ser.findTypedValueSerializer(it, true, null).properties()
-            val map = HashMap<String, JavaType>()
+            val map = HashMap<String, PropertyWriter>()
             props.forEach { prop: PropertyWriter ->
-                map[prop.name] = prop.type
+                map[prop.name] = prop
             }
             map
         }

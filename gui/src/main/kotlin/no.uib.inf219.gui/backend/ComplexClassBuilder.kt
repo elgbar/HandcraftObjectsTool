@@ -1,5 +1,6 @@
 package no.uib.inf219.gui.backend
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.JavaType
 import javafx.beans.Observable
 import javafx.collections.ObservableList
@@ -23,6 +24,7 @@ class ComplexClassBuilder<out T>(
 ) : ClassBuilder<T> {
 
     private val propInfo = ClassInformation.serializableProperties(type)
+    private val propDefaults: MutableMap<String, ClassBuilder<*>?> = HashMap()
 
     private val props: MutableMap<String, ClassBuilder<*>?> = HashMap()
     private val obProp: ObservableMap<String, ClassBuilder<*>?> = props.toObservable()
@@ -33,8 +35,25 @@ class ComplexClassBuilder<out T>(
     init {
         //initiate all valid values to null
         // to allow for iteration when populating Node explorer
-        for ((k, _) in propInfo) {
-            props[k] = null
+        for ((k, v) in propInfo) {
+            val propAn = v.getAnnotation(JsonProperty::class.java)
+            val default: ClassBuilder<*>? =
+                if (propAn != null) {
+                    val defaultStr = propAn.defaultValue
+                    if (defaultStr.isEmpty()) {
+                        null
+                    } else {
+                        try {
+                            val raw: Any = SerializationManager.mapper.readValue(defaultStr, v.type)
+                            getClassBuilder(v.type, raw)
+                        } catch (e: Throwable) {
+                            println("Failed to load default value for property $k of $type. Given string is: '$defaultStr'")
+                            null
+                        }
+                    }
+                } else null
+            propDefaults[k] = default
+            props[k] = default
         }
 
         obProp.addListener { ob: Observable ->
@@ -62,9 +81,9 @@ class ComplexClassBuilder<out T>(
         }!!
     }
 
-    override fun reset(name: String): Boolean {
-        require(propInfo.contains(name)) { "The class $javaType does not have a property with the name '$name'. Expected one of the following: $propInfo" }
-        props[name] = null
+    override fun reset(property: String): Boolean {
+        require(propInfo.contains(property)) { "The class $type does not have a property with the name '$property'. Expected one of the following: $propInfo" }
+        props[property] = propDefaults[property]
         return true
     }
 
