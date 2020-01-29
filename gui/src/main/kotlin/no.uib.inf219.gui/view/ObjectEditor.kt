@@ -14,7 +14,7 @@ import tornadofx.*
  * @param clazz The class we are editing
  * @author Elg
  */
-class ObjectEditor(val controller: ObjectEditorController) : View() {
+class ObjectEditor(private val controller: ObjectEditorController) : View() {
 
 
     override val root = borderpane {
@@ -23,12 +23,11 @@ class ObjectEditor(val controller: ObjectEditorController) : View() {
         left = NodeExplorerView(controller).root
         center = PropertyEditor(controller).root
         bottom = vbox {
-            val output: TextArea
             val buttons = hbox {
                 addClass(Styles.parent)
             }
 
-            output = scrollpane(fitToHeight = true, fitToWidth = true).textarea() {
+            val output: TextArea = scrollpane(fitToHeight = true, fitToWidth = true).textarea() {
                 editableProperty().set(false)
             }
             buttons += button("Validate") {
@@ -39,12 +38,11 @@ class ObjectEditor(val controller: ObjectEditorController) : View() {
                             val obj = controller.rootBuilder.toObject()
                             ui {
                                 if (obj == null) {
-                                    output.appendText("Created without error, but it is null")
+                                    output.appendText("Object created without error, but it is null")
                                 } else
                                     output.appendText(
-                                        "Successfully created object!\nobj=$obj\nAs json:\n${SerializationManager.dump(
-                                            obj
-                                        )}"
+                                        "Successfully created object!\nobj=$obj\nAs json:\n" +
+                                                SerializationManager.dump(obj)
                                     )
                             }
                         } catch (e: Throwable) {

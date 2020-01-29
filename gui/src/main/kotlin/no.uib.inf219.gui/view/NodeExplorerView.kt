@@ -10,7 +10,7 @@ import tornadofx.*
 /**
  * @author Elg
  */
-class NodeExplorerView(val controller: ObjectEditorController) : View("Tree Explorer") {
+class NodeExplorerView(private val controller: ObjectEditorController) : View("Tree Explorer") {
 
 
     override val root = treeview<MutableTriple<String, ClassBuilder<*>?, ClassBuilder<*>>> {
@@ -25,7 +25,7 @@ class NodeExplorerView(val controller: ObjectEditorController) : View("Tree Expl
                 if (event.clickCount == 2 && event.button == MouseButton.PRIMARY) {
                     //double left click on an item
 
-                    println("left = ${it.left} | middle = ${it.middle?.javaType} | right = ${it.right?.javaType}")
+                    println("left = ${it.left} | middle = ${it.middle?.type} | right = ${it.right?.type}")
                     //first time we click it we want to create it
                     if (it.middle == null && !it.right.isLeaf()) {
 
@@ -33,6 +33,8 @@ class NodeExplorerView(val controller: ObjectEditorController) : View("Tree Expl
                         it.middle = cb
                         if (cb != null) {
 
+                            //when creating a sub class builder for the first time we need to find all possible
+                            // properties that can be edited
                             this.treeItem.children.addAll(
                                 cb.getSubClassBuilders().map { elem ->
                                     TreeItem(
@@ -63,6 +65,9 @@ class NodeExplorerView(val controller: ObjectEditorController) : View("Tree Expl
 
                 //remove the visual items
                 item.children.clear()
+
+                //when viewing the item that is being reset change the current viewed item to root
+                // as otherwise the user is editing a stale object
                 if (value == controller.currSel)
                     controller.currSel = root.value
                 this@treeview.parent

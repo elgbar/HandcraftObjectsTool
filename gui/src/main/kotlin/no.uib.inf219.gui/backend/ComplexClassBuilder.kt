@@ -18,11 +18,11 @@ import kotlin.collections.set
  * @author Elg
  */
 class ComplexClassBuilder<out T>(
-    override val javaType: JavaType,
-    override val parent: ClassBuilder<Any>? = null
+    override val type: JavaType,
+    override val parent: ClassBuilder<*>? = null
 ) : ClassBuilder<T> {
 
-    private val propInfo = ClassInformation.serializableProperties(javaType)
+    private val propInfo = ClassInformation.serializableProperties(type)
 
     private val props: MutableMap<String, ClassBuilder<*>?> = HashMap()
     private val obProp: ObservableMap<String, ClassBuilder<*>?> = props.toObservable()
@@ -48,17 +48,18 @@ class ComplexClassBuilder<out T>(
 
     override fun toObject(): T? {
         val objProp = props.mapValues { it.value?.toObject() }
-        return SerializationManager.mapper.convertValue(objProp, javaType)
+        return SerializationManager.mapper.convertValue(objProp, type)
     }
 
     override fun getSubClassBuilders(): Map<String, ClassBuilder<*>?> = props
 
-    override fun createClassBuilderFor(name: String): ClassBuilder<*> {
-        require(propInfo.contains(name)) { "The class $javaType does not have a property with the name '$name'. Expected one of the following: $propInfo" }
+    override fun createClassBuilderFor(property: String): ClassBuilder<*> {
+        require(propInfo.contains(property)) { "The class $type does not have a property with the name '$property'. Expected one of the following: $propInfo" }
 
-        val cb = ClassBuilder.getClassBuilder(propInfo[name]!!, null)
-        props[name] = cb
-        return cb
+        return props.computeIfAbsent(property) {
+            @Suppress("MapGetWithNotNullAssertionOperator") //checked above
+            getClassBuilder(propInfo[it]!!.type)
+        }!!
     }
 
     override fun reset(name: String): Boolean {
@@ -67,10 +68,10 @@ class ComplexClassBuilder<out T>(
         return true
     }
 
-    override fun toView(par: EventTarget): Node {
+    override fun toView(parent: EventTarget): Node {
         propList.clear()
         propList.addAll(props.toList())
-        return par.vbox {
+        return parent.vbox {
             tableview(obPropList) {
                 column("Name") { it: TableColumn.CellDataFeatures<Pair<String, ClassBuilder<*>?>, String> ->
                     it.value.first.toProperty()
@@ -83,14 +84,14 @@ class ComplexClassBuilder<out T>(
     }
 
     override fun toString(): String {
-        return "MapClassBuilder(clazz=$javaType, props=${props.filter { it.value !== this }})"
+        return "MapClassBuilder(clazz=$type, props=${props.filter { it.value !== this }})"
     }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is ComplexClassBuilder<*>) return false
 
-        if (javaType != other.javaType) return false
+        if (type != other.type) return false
         if (props.filter { it.value !== this } != other.props.filter { it.value !== this }) return false
 
         return true
@@ -98,8 +99,12 @@ class ComplexClassBuilder<out T>(
 
 
     override fun hashCode(): Int {
-        var result = javaType.hashCode()
+        var result = type.hashCode()
         result = 31 * result + props.filter { it !== this }.hashCode()
         return result
+    }
+
+    override fun defaultValue(property: String): Any? {
+        TODO("not implemented")
     }
 }

@@ -30,12 +30,11 @@ import java.util.*
 abstract class SimpleClassBuilder<T : Any> internal constructor(
     primClass: Class<T>,
     private val initialValue: T,
-    override val parent: ClassBuilder<Any>? = null,
+    override val parent: ClassBuilder<*>,
     private val converter: StringConverter<T>? = null
-) :
-    ClassBuilder<T> {
+) : ClassBuilder<T> {
 
-    override val javaType: JavaType = ClassInformation.toJavaType(primClass)
+    override val type: JavaType = ClassInformation.toJavaType(primClass)
 
     private val valueProperty: SimpleObjectProperty<T> by lazy { SimpleObjectProperty<T>() }
     fun valueProperty(): ObservableValue<T> = valueProperty
@@ -53,46 +52,31 @@ abstract class SimpleClassBuilder<T : Any> internal constructor(
         return emptyMap()
     }
 
-    override fun toString(): String {
-        return "SimpleClassBuilder(value=$value, clazz=$javaType)"
+    override fun defaultValue(property: String): T {
+        return initialValue
     }
 
-    override fun toView(par: EventTarget): Node {
-        return par.textarea {
+    override fun toView(parent: EventTarget): Node {
+        return parent.textarea {
             bindStringProperty(textProperty(), converter, valueProperty)
         }
     }
 
-    override fun createClassBuilderFor(name: String): ClassBuilder<Any>? {
+    override fun createClassBuilderFor(property: String): ClassBuilder<Any>? {
         return null
     }
 
     /**
      * Reset the value this holds to the [initialValue] provided in the constructor
      */
-    override fun reset(name: String): Boolean {
+    override fun reset(property: String): Boolean {
         value = initialValue
         return false
     }
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is SimpleClassBuilder<*>) return false
-
-        if (value != other.value) return false
-        if (javaType != other.javaType) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = value.hashCode()
-        result = 31 * result + javaType.hashCode()
-        return result
-    }
 
     @Suppress("UNCHECKED_CAST")
-    private fun <T : Any> getDefaultConverter(): StringConverter<T>? = when (javaType.rawClass) {
+    private fun <T : Any> getDefaultConverter(): StringConverter<T>? = when (type.rawClass) {
         Int::class.javaPrimitiveType -> IntegerStringConverter()
         Long::class.javaPrimitiveType -> LongStringConverter()
         Double::class.javaPrimitiveType -> DoubleStringConverter()
@@ -120,7 +104,7 @@ abstract class SimpleClassBuilder<T : Any> internal constructor(
         ViewModel.register(stringProperty, property)
 
         @Suppress("UNCHECKED_CAST")
-        if (javaType.isTypeOrSuperTypeOf(String::class.java)) when {
+        if (type.isTypeOrSuperTypeOf(String::class.java)) when {
             else -> stringProperty.bindBidirectional(property as Property<String>)
         } else {
             val effectiveConverter = converter ?: getDefaultConverter<T>()
@@ -129,8 +113,30 @@ abstract class SimpleClassBuilder<T : Any> internal constructor(
                     property as Property<T>,
                     effectiveConverter
                 )
-                else -> throw IllegalArgumentException("Cannot convert from $javaType to String without an explicit converter")
+                else -> throw IllegalArgumentException("Cannot convert from $type to String without an explicit converter")
             }
         }
+    }
+
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is SimpleClassBuilder<*>) return false
+
+        if (value != other.value) return false
+        if (type != other.type) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = value.hashCode()
+        result = 31 * result + type.hashCode()
+        return result
+    }
+
+
+    override fun toString(): String {
+        return "SimpleClassBuilder(value=$value, clazz=$type)"
     }
 }
