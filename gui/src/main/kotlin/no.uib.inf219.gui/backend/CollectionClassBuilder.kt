@@ -3,12 +3,13 @@ package no.uib.inf219.gui.backend
 import com.fasterxml.jackson.databind.type.CollectionLikeType
 import javafx.event.EventTarget
 import javafx.scene.Node
+import javafx.scene.control.TreeView
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.view.NodeExplorerView
 import no.uib.inf219.gui.view.PropertyEditor
-import tornadofx.action
-import tornadofx.borderpane
-import tornadofx.button
+import org.apache.commons.lang3.tuple.MutableTriple
+import tornadofx.*
+
 
 /**
  *
@@ -51,14 +52,23 @@ class CollectionClassBuilder<out T>(
 
     override fun toView(parent: EventTarget): Node {
         return parent.borderpane {
-            val con = ObjectEditorController(type)
-            left = NodeExplorerView(con).root
-            center = PropertyEditor(con).root
-            top = button("Add element") {
-                action {
-                    collection.add(getClassBuilder(type.contentType, collection.size.toString()))
+            val con = ObjectEditorController(type, this@CollectionClassBuilder)
+            left = vbox {
+                val nev = NodeExplorerView(con)
+                val tv: TreeView<MutableTriple<String, ClassBuilder<*>?, ClassBuilder<*>>> = nev.root
+                tv.showRootProperty().set(false)
+
+                button("Add element") {
+                    action {
+                        collection.add(getClassBuilder(type.contentType, collection.size.toString()))
+                    }
                 }
+                this.add(tv)
             }
+
+
+            center = PropertyEditor(con).root
+
         }
     }
 
@@ -78,5 +88,9 @@ class CollectionClassBuilder<out T>(
     override fun previewValue(): String {
         return collection.filter { !this.isParent(it) }.mapIndexed { i, cb -> "- $i: ${cb.previewValue()}" }
             .joinToString("\n")
+    }
+
+    override fun toString(): String {
+        return "Collection CB; value=${previewValue()}, contained type=${type.contentType})"
     }
 }

@@ -12,9 +12,8 @@ import tornadofx.property
 /**
  * @author Elg
  */
-class ObjectEditorController(root: JavaType) {
+class ObjectEditorController(root: JavaType, val rootBuilder: ClassBuilder<Any> = ComplexClassBuilder(root)) {
 
-    val rootBuilder: ClassBuilder<Any> = ComplexClassBuilder(root)
 
     /**
      * Left type is name of selected
@@ -30,6 +29,4 @@ class ObjectEditorController(root: JavaType) {
     init {
         currSel = MutableTriple(root.rawClass?.simpleName ?: root.typeName, rootBuilder, rootBuilder)
     }
-
-
 }
