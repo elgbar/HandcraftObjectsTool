@@ -19,38 +19,31 @@ import tornadofx.*
 class ObjectEditor(private val controller: ObjectEditorController) : View() {
 
 
-    override val root = gridpane {
+    override val root = borderpane {
         addClass(Styles.parent)
 
-        gridpaneConstraints {
-            vhGrow = Priority.ALWAYS
-        }
-
-        borderpane {
+        center = borderpane {
             addClass(Styles.parent)
 
+            vgrow = Priority.ALWAYS
+            hgrow = Priority.ALWAYS
 
             gridpaneConstraints {
                 columnRowIndex(0, 0)
             }
             left = NodeExplorerView(controller).root
-
             center = PropertyEditor(controller).root
         }
 
-        vbox {
+        bottom = vbox {
             addClass(Styles.parent)
-//            useMaxWidth = true
-            gridpaneConstraints {
-                columnRowIndex(0, 1)
-            }
 
-            val buttons = hbox {
-                addClass(Styles.parent)
-            }
+            val buttons = hbox()
 
-            val output: TextArea = scrollpane(fitToHeight = true, fitToWidth = true).textarea() {
+            val output: TextArea = scrollpane(fitToWidth = true).textarea() {
                 editableProperty().set(false)
+                prefRowCount = 3
+                vgrow = Priority.NEVER
             }
 
             buttons += button("Validate") {
