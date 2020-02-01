@@ -87,6 +87,10 @@ class ComplexClassBuilder<out T>(
         return true
     }
 
+    override fun isLeaf(): Boolean {
+        return false
+    }
+
     override fun toView(parent: EventTarget): Node {
         obPropList.clear()
         obPropList.addAll(props.toList().sortedBy { it.first })

@@ -76,6 +76,10 @@ abstract class SimpleClassBuilder<T : Any> internal constructor(
         return false
     }
 
+    override fun isLeaf(): Boolean {
+        return true
+    }
+
 
     @Suppress("UNCHECKED_CAST")
     private fun <T : Any> getDefaultConverter(): StringConverter<T>? = when (type.rawClass) {
@@ -139,7 +143,7 @@ abstract class SimpleClassBuilder<T : Any> internal constructor(
 
 
     override fun toString(): String {
-        return "SimpleClassBuilder(value=$value, clazz=$type)"
+        return "Simple CB; value=$value, clazz=$type)"
     }
 
     override fun previewValue(): String {

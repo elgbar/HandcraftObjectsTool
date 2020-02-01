@@ -66,6 +66,10 @@ class CollectionClassBuilder<out T>(
         return null
     }
 
+    override fun isLeaf(): Boolean {
+        return false
+    }
+
     override fun reset(property: String): Boolean {
         collection.clear()
         return true
