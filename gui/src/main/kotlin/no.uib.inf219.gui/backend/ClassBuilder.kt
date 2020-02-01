@@ -41,9 +41,7 @@ interface ClassBuilder<out T> {
     /**
      * If this implementation does not have any sub class builders
      */
-    fun isLeaf(): Boolean {
-        return getSubClassBuilders().isEmpty()
-    }
+    fun isLeaf(): Boolean
 
     /**
      * Visual representation (and possibly modification) of this class builder
@@ -92,35 +90,35 @@ interface ClassBuilder<out T> {
     //   JVM primitives (inc String)   //
     /////////////////////////////////////
 
-    class ByteClassBuilder(initial: Byte = 0, parent: ClassBuilder<*>) :
-        SimpleClassBuilder<Byte>(Byte::class.java, initial, parent) {}
+    class ByteClassBuilder(initial: Byte = 0, parent: ClassBuilder<*>, name: String? = null) :
+        SimpleClassBuilder<Byte>(Byte::class.java, initial, parent, name = name) {}
 
-    class ShortClassBuilder(initial: Short = 0, parent: ClassBuilder<*>) :
-        SimpleClassBuilder<Short>(Short::class.java, initial, parent) {}
+    class ShortClassBuilder(initial: Short = 0, parent: ClassBuilder<*>, name: String? = null) :
+        SimpleClassBuilder<Short>(Short::class.java, initial, parent, name = name) {}
 
-    class IntClassBuilder(initial: Int = 0, parent: ClassBuilder<*>) :
-        SimpleClassBuilder<Int>(Int::class.java, initial, parent) {}
+    class IntClassBuilder(initial: Int = 0, parent: ClassBuilder<*>, name: String? = null) :
+        SimpleClassBuilder<Int>(Int::class.java, initial, parent, name = name) {}
 
-    class LongClassBuilder(initial: Long = 0, parent: ClassBuilder<*>) :
-        SimpleClassBuilder<Long>(Long::class.java, initial, parent) {}
+    class LongClassBuilder(initial: Long = 0, parent: ClassBuilder<*>, name: String? = null) :
+        SimpleClassBuilder<Long>(Long::class.java, initial, parent, name = name) {}
 
-    class FloatClassBuilder(initial: Float = 0.0f, parent: ClassBuilder<*>) :
-        SimpleClassBuilder<Float>(Float::class.java, initial, parent) {}
+    class FloatClassBuilder(initial: Float = 0.0f, parent: ClassBuilder<*>, name: String? = null) :
+        SimpleClassBuilder<Float>(Float::class.java, initial, parent, name = name) {}
 
-    class DoubleClassBuilder(initial: Double = 0.0, parent: ClassBuilder<*>) :
-        SimpleClassBuilder<Double>(Double::class.java, initial, parent) {}
+    class DoubleClassBuilder(initial: Double = 0.0, parent: ClassBuilder<*>, name: String? = null) :
+        SimpleClassBuilder<Double>(Double::class.java, initial, parent, name = name) {}
 
-    class CharClassBuilder(initial: Char = '\u0000', parent: ClassBuilder<*>) :
-        SimpleClassBuilder<Char>(Char::class.java, initial, parent) {}
+    class CharClassBuilder(initial: Char = '\u0000', parent: ClassBuilder<*>, name: String? = null) :
+        SimpleClassBuilder<Char>(Char::class.java, initial, parent, name = name) {}
 
     /**
      * Note that the default value is the empty String `""` and not the default value `null`
      */
-    class StringClassBuilder(initial: String = "", parent: ClassBuilder<*>) :
-        SimpleClassBuilder<String>(String::class.java, initial, parent) {}
+    class StringClassBuilder(initial: String = "", parent: ClassBuilder<*>, name: String? = null) :
+        SimpleClassBuilder<String>(String::class.java, initial, parent, name = name) {}
 
-    class BooleanClassBuilder(initial: Boolean = false, parent: ClassBuilder<*>) :
-        SimpleClassBuilder<Boolean>(Boolean::class.java, initial, parent) {}
+    class BooleanClassBuilder(initial: Boolean = false, parent: ClassBuilder<*>, name: String? = null) :
+        SimpleClassBuilder<Boolean>(Boolean::class.java, initial, parent, name = name) {}
 
 
     companion object {
@@ -142,50 +140,50 @@ interface ClassBuilder<out T> {
                 when {
                     type.isTypeOrSuperTypeOf(Byte::class.java) -> {
                         if (value == null) ByteClassBuilder(parent = parent) else
-                            ByteClassBuilder(value as Byte, parent)
+                            ByteClassBuilder(value as Byte, parent, name)
                     }
                     type.isTypeOrSuperTypeOf(Short::class.java) -> {
                         if (value == null) ShortClassBuilder(parent = parent) else
-                            ShortClassBuilder(value as Short, parent)
+                            ShortClassBuilder(value as Short, parent, name)
                     }
                     type.isTypeOrSuperTypeOf(Int::class.java) -> {
                         if (value == null) IntClassBuilder(parent = parent) else
-                            IntClassBuilder(value as Int, parent)
+                            IntClassBuilder(value as Int, parent, name)
                     }
                     type.isTypeOrSuperTypeOf(Long::class.java) -> {
                         if (value == null) LongClassBuilder(parent = parent) else
-                            LongClassBuilder(value as Long, parent)
+                            LongClassBuilder(value as Long, parent, name)
                     }
                     type.isTypeOrSuperTypeOf(Float::class.java) -> {
                         if (value == null) FloatClassBuilder(parent = parent) else
-                            FloatClassBuilder(value as Float, parent)
+                            FloatClassBuilder(value as Float, parent, name)
                     }
                     type.isTypeOrSuperTypeOf(Double::class.java) -> {
                         if (value == null) DoubleClassBuilder(parent = parent) else
-                            DoubleClassBuilder(value as Double, parent)
+                            DoubleClassBuilder(value as Double, parent, name)
                     }
                     type.isTypeOrSuperTypeOf(Char::class.java) -> {
                         if (value == null) CharClassBuilder(parent = parent) else
-                            CharClassBuilder(value as Char, parent)
+                            CharClassBuilder(value as Char, parent, name)
                     }
                     type.isTypeOrSuperTypeOf(Boolean::class.java) -> {
                         if (value == null) BooleanClassBuilder(parent = parent) else
-                            BooleanClassBuilder(value as Boolean, parent)
+                            BooleanClassBuilder(value as Boolean, parent, name)
                     }
                     else -> throw IllegalStateException("Unknown primitive $type")
                 }
             } else if (type.isTypeOrSuperTypeOf(String::class.java)) {
                 if (value == null) StringClassBuilder(parent = parent) else
-                    StringClassBuilder(value as String, parent)
+                    StringClassBuilder(value as String, parent, name)
             } else if (type.isCollectionLikeType) {
-                CollectionClassBuilder<Any>(type as CollectionLikeType, parent)
+                CollectionClassBuilder<Any>(type as CollectionLikeType, parent, name)
             } else if (type.isMapLikeType) {
                 TODO("Maps are not yet supported: $type")
 //            } else if (!type.isConcrete) {
 //                TODO("Selection of concrete subclasses are not yet supported: $type")
             } else {
                 //it's not a primitive type so let's just make a complex type for it
-                ComplexClassBuilder<Any>(type, parent)
+                ComplexClassBuilder<Any>(type, parent, name)
             }
         }
     }
