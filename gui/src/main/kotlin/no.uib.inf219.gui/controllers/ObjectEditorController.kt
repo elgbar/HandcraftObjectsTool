@@ -1,11 +1,10 @@
 package no.uib.inf219.gui.controllers
 
+import com.fasterxml.jackson.databind.JavaType
 import javafx.beans.property.ObjectProperty
 import no.uib.inf219.gui.backend.ClassBuilder
 import no.uib.inf219.gui.backend.ComplexClassBuilder
-import no.uib.inf219.gui.loader.ClassInformation
 import org.apache.commons.lang3.tuple.MutableTriple
-import tornadofx.Controller
 import tornadofx.getProperty
 import tornadofx.property
 
@@ -13,9 +12,9 @@ import tornadofx.property
 /**
  * @author Elg
  */
-class ObjectEditorController(root: Class<*>) : Controller() {
+class ObjectEditorController(root: JavaType) {
 
-    val rootBuilder: ClassBuilder<Any> = ComplexClassBuilder(ClassInformation.toJavaType(root))
+    val rootBuilder: ClassBuilder<Any> = ComplexClassBuilder(root)
 
     /**
      * Left type is name of selected
@@ -29,7 +28,7 @@ class ObjectEditorController(root: Class<*>) : Controller() {
         getProperty(ObjectEditorController::currSel)
 
     init {
-        currSel = MutableTriple(root.simpleName, rootBuilder, rootBuilder)
+        currSel = MutableTriple(root.rawClass?.simpleName ?: root.typeName, rootBuilder, rootBuilder)
     }
 
 

@@ -10,7 +10,7 @@ import tornadofx.*
 /**
  * @author Elg
  */
-class NodeExplorerView(private val controller: ObjectEditorController) : View("Tree Explorer") {
+class NodeExplorerView(private val controller: ObjectEditorController) : Fragment("Tree Explorer") {
 
 
     override val root = treeview<MutableTriple<String, ClassBuilder<*>?, ClassBuilder<*>>> {
@@ -22,10 +22,10 @@ class NodeExplorerView(private val controller: ObjectEditorController) : View("T
 
             setOnMouseClicked { event ->
                 //note that "isPrimaryButtonDown" and "isSecondaryButtonDown" is not used as it does not work
-                if (event.clickCount == 2 && event.button == MouseButton.PRIMARY) {
+                if (event.clickCount == 1 && event.button == MouseButton.PRIMARY) {
                     //double left click on an item
 
-                    println("left = ${it.left} | middle = ${it.middle?.type} | right = ${it.right?.type}")
+                    println("name = ${it.left} | middle = ${it.middle?.type} | right = ${it.right?.type}")
                     //first time we click it we want to create it
                     if (it.middle == null && !it.right.isLeaf()) {
 
@@ -58,6 +58,12 @@ class NodeExplorerView(private val controller: ObjectEditorController) : View("T
                 val value = item.value
                 if (item == root) return@action
 
+
+                //when viewing the item that is being reset change the current viewed item to root
+                // as otherwise the user is editing a stale object
+//                if (isSuper(controller.currSel.middle, value.middle)) {
+                controller.currSel = root.value
+//                }
                 //clear the backend values
                 val rem = value.right.reset(value.left)
                 if (rem)
@@ -66,10 +72,6 @@ class NodeExplorerView(private val controller: ObjectEditorController) : View("T
                 //remove the visual items
                 item.children.clear()
 
-                //when viewing the item that is being reset change the current viewed item to root
-                // as otherwise the user is editing a stale object
-                if (value == controller.currSel)
-                    controller.currSel = root.value
                 this@treeview.parent
             }
         }

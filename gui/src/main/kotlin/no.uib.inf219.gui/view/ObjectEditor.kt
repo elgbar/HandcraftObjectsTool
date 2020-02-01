@@ -1,10 +1,12 @@
 package no.uib.inf219.gui.view
 
 import javafx.scene.control.TextArea
+import javafx.scene.layout.Priority
 import no.uib.inf219.api.serialization.SerializationManager
 import no.uib.inf219.gui.Styles
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import tornadofx.*
+
 
 /**
  * The view of the main editor
@@ -17,12 +19,32 @@ import tornadofx.*
 class ObjectEditor(private val controller: ObjectEditorController) : View() {
 
 
-    override val root = borderpane {
+    override val root = gridpane {
+        addClass(Styles.parent)
+
+        gridpaneConstraints {
+            vhGrow = Priority.ALWAYS
+        }
+
+        borderpane {
+            addClass(Styles.parent)
 
 
-        left = NodeExplorerView(controller).root
-        center = PropertyEditor(controller).root
-        bottom = vbox {
+            gridpaneConstraints {
+                columnRowIndex(0, 0)
+            }
+            left = NodeExplorerView(controller).root
+
+            center = PropertyEditor(controller).root
+        }
+
+        vbox {
+            addClass(Styles.parent)
+//            useMaxWidth = true
+            gridpaneConstraints {
+                columnRowIndex(0, 1)
+            }
+
             val buttons = hbox {
                 addClass(Styles.parent)
             }
@@ -30,6 +52,7 @@ class ObjectEditor(private val controller: ObjectEditorController) : View() {
             val output: TextArea = scrollpane(fitToHeight = true, fitToWidth = true).textarea() {
                 editableProperty().set(false)
             }
+
             buttons += button("Validate") {
                 setOnAction {
                     output.appendText("Validating...\n")
@@ -62,3 +85,4 @@ class ObjectEditor(private val controller: ObjectEditorController) : View() {
         }
     }
 }
+

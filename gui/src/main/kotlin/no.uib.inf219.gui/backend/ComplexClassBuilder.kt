@@ -20,11 +20,12 @@ import kotlin.collections.set
  */
 class ComplexClassBuilder<out T>(
     override val type: JavaType,
-    override val parent: ClassBuilder<*>? = null
+    override val parent: ClassBuilder<*>? = null,
+    override val name: String? = null
 ) : ClassBuilder<T> {
 
     private val propInfo = ClassInformation.serializableProperties(type)
-    private val propDefaults: MutableMap<String, ClassBuilder<*>?> = HashMap()
+    private val propDefaults: MutableMap<String, Any?> = HashMap()
 
     private val props: MutableMap<String, ClassBuilder<*>?> = HashMap()
     private val obProp: ObservableMap<String, ClassBuilder<*>?> = props.toObservable()
@@ -37,15 +38,14 @@ class ComplexClassBuilder<out T>(
         // to allow for iteration when populating Node explorer
         for ((k, v) in propInfo) {
             val propAn = v.getAnnotation(JsonProperty::class.java)
-            val default: ClassBuilder<*>? =
+            val default: Any? =
                 if (propAn != null) {
                     val defaultStr = propAn.defaultValue
                     if (defaultStr.isEmpty()) {
                         null
                     } else {
                         try {
-                            val raw: Any = SerializationManager.mapper.readValue(defaultStr, v.type)
-                            getClassBuilder(v.type, raw)
+                            SerializationManager.mapper.readValue(defaultStr, v.type) as Any?
                         } catch (e: Throwable) {
                             println("Failed to load default value for property $k of $type. Given string is: '$defaultStr'")
                             null
@@ -53,7 +53,7 @@ class ComplexClassBuilder<out T>(
                     }
                 } else null
             propDefaults[k] = default
-            props[k] = default
+            reset(k)
         }
 
         obProp.addListener { ob: Observable ->
@@ -77,29 +77,37 @@ class ComplexClassBuilder<out T>(
 
         return props.computeIfAbsent(property) {
             @Suppress("MapGetWithNotNullAssertionOperator") //checked above
-            getClassBuilder(propInfo[it]!!.type)
+            getClassBuilder(propInfo[property]!!.type, property, propDefaults[property]!!)
         }!!
     }
 
     override fun reset(property: String): Boolean {
-        require(propInfo.contains(property)) { "The class $type does not have a property with the name '$property'. Expected one of the following: $propInfo" }
-        props[property] = propDefaults[property]
+        props[property] = null
+        createClassBuilderFor(property)
         return true
     }
 
     override fun toView(parent: EventTarget): Node {
-        propList.clear()
-        propList.addAll(props.toList())
+        obPropList.clear()
+        obPropList.addAll(props.toList().sortedBy { it.first })
         return parent.vbox {
             tableview(obPropList) {
                 column("Name") { it: TableColumn.CellDataFeatures<Pair<String, ClassBuilder<*>?>, String> ->
                     it.value.first.toProperty()
                 }
                 column("Value") { it: TableColumn.CellDataFeatures<Pair<String, ClassBuilder<*>?>, String> ->
-                    it.value.second.toString().toProperty()
+                    it.value.second?.previewValue().toProperty()
+                }
+                column("Type") { it: TableColumn.CellDataFeatures<Pair<String, ClassBuilder<*>?>, String> ->
+                    it.value.second?.type?.rawClass?.simpleName.toProperty()
                 }
             }
         }
+    }
+
+    override fun previewValue(): String {
+        return props.filter { !this.isParent(it.value) }.map { "${it.key}: ${it.value?.previewValue()}" }
+            .joinToString("\n")
     }
 
     override fun toString(): String {
@@ -116,14 +124,9 @@ class ComplexClassBuilder<out T>(
         return true
     }
 
-
     override fun hashCode(): Int {
         var result = type.hashCode()
         result = 31 * result + props.filter { it !== this }.hashCode()
         return result
-    }
-
-    override fun defaultValue(property: String): Any? {
-        TODO("not implemented")
     }
 }

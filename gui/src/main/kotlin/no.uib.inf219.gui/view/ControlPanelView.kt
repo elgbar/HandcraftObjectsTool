@@ -1,15 +1,16 @@
 package no.uib.inf219.gui.view
 
+import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.ObjectMapper
-import javafx.application.Platform
 import javafx.beans.property.SimpleStringProperty
 import javafx.scene.control.TabPane
 import javafx.scene.control.TextInputControl
 import javafx.scene.layout.BorderPane
-import javafx.scene.text.Text
+import javafx.scene.layout.Priority
 import javafx.stage.FileChooser
 import no.uib.inf219.gui.Styles
 import no.uib.inf219.gui.controllers.ObjectEditorController
+import no.uib.inf219.gui.loader.ClassInformation
 import no.uib.inf219.gui.loader.DynamicClassLoader
 import tornadofx.*
 import java.io.File
@@ -120,7 +121,7 @@ object ControlPanelView : View("Control Panel") {
 
                     ui {
                         output.appendText("Found $clazz\n")
-                        createTab(clazz)
+                        createTab(ClassInformation.toJavaType(clazz))
                     }
                 }
             }
@@ -129,28 +130,15 @@ object ControlPanelView : View("Control Panel") {
         classChooser += textfield {
             bind(clazzProperty)
             promptText = "Full class name"
-            setOnKeyTyped {
-                Platform.runLater {
-
-                    val text = Text(clazzProperty.value)
-                    text.font = font // Set the same font, so the size is the same
-                    val width: Double =
-                        (text.layoutBounds.width // This big is the Text in the TextField
-                                + padding.left + padding.right // Add the padding of the TextField
-                                + 2.0) // Add some spacing
-                    prefWidth = width
-                    positionCaret(caretPosition)
-//                    loadButton.fire()
-                }
-            }
-
+            text = "no.uib.inf219.example.data.Conversation"
+            hgrow = Priority.ALWAYS
         }
 
     }
 
-    fun createTab(clazz: Class<*>) {
-        tabPane.tab("Edit ${clazz.simpleName}", BorderPane()) {
-            add(ObjectEditor(ObjectEditorController(clazz)).root)
+    fun createTab(type: JavaType) {
+        tabPane.tab("Edit ${type.rawClass.simpleName}", BorderPane()) {
+            add(ObjectEditor(ObjectEditorController(type)).root)
             tabPane.selectionModel.select(this)
         }
     }

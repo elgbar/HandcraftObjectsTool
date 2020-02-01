@@ -31,7 +31,8 @@ abstract class SimpleClassBuilder<T : Any> internal constructor(
     primClass: Class<T>,
     private val initialValue: T,
     override val parent: ClassBuilder<*>,
-    private val converter: StringConverter<T>? = null
+    private val converter: StringConverter<T>? = null,
+    override val name: String? = null
 ) : ClassBuilder<T> {
 
     override val type: JavaType = ClassInformation.toJavaType(primClass)
@@ -52,9 +53,9 @@ abstract class SimpleClassBuilder<T : Any> internal constructor(
         return emptyMap()
     }
 
-    override fun defaultValue(property: String): T {
-        return initialValue
-    }
+//    override fun defaultValue(property: String): T {
+//        return initialValue
+//    }
 
     override fun toView(parent: EventTarget): Node {
         return parent.textarea {
@@ -65,6 +66,7 @@ abstract class SimpleClassBuilder<T : Any> internal constructor(
     override fun createClassBuilderFor(property: String): ClassBuilder<Any>? {
         return null
     }
+
 
     /**
      * Reset the value this holds to the [initialValue] provided in the constructor
@@ -138,5 +140,9 @@ abstract class SimpleClassBuilder<T : Any> internal constructor(
 
     override fun toString(): String {
         return "SimpleClassBuilder(value=$value, clazz=$type)"
+    }
+
+    override fun previewValue(): String {
+        return value.toString()
     }
 }
