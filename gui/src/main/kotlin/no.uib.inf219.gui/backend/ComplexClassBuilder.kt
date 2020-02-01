@@ -53,7 +53,7 @@ class ComplexClassBuilder<out T>(
                     }
                 } else null
             propDefaults[k] = default
-            reset(k)
+            createClassBuilderFor(k)
         }
 
         obProp.addListener { ob: Observable ->
@@ -77,7 +77,7 @@ class ComplexClassBuilder<out T>(
 
         return props.computeIfAbsent(property) {
             @Suppress("MapGetWithNotNullAssertionOperator") //checked above
-            getClassBuilder(propInfo[property]!!.type, property, propDefaults[property]!!)
+            getClassBuilder(propInfo[it]!!.type, it, propDefaults[it])
         }!!
     }
 
@@ -103,7 +103,7 @@ class ComplexClassBuilder<out T>(
                     it.value.second?.previewValue().toProperty()
                 }
                 column("Type") { it: TableColumn.CellDataFeatures<Pair<String, ClassBuilder<*>?>, String> ->
-                    it.value.second?.type?.rawClass?.simpleName.toProperty()
+                    it.value.second?.type?.typeName.toProperty()
                 }
             }
         }
