@@ -12,6 +12,8 @@ import no.uib.inf219.api.serialization.SerializationManager
 
 
 /**
+ * Retrieve information about java classes using Jackson
+ *
  * @author Elg
  */
 object ClassInformation {
@@ -31,14 +33,6 @@ object ClassInformation {
         ser = DefaultSerializerProvider.Impl().createInstance(cfg, SerializationManager.mapper.serializerFactory)
     }
 
-    fun serializablePropertyNames(clazz: Class<*>): Set<String> {
-        return serializablePropertyNames(toJavaType(clazz))
-    }
-
-    fun serializablePropertyNames(clazz: JavaType): Set<String> {
-        return HashSet<String>(serializableProperties(clazz).keys)
-    }
-
     fun serializableProperties(clazz: Class<*>): Map<String, PropertyWriter> {
         return serializableProperties(toJavaType(clazz))
     }
@@ -54,6 +48,11 @@ object ClassInformation {
         }
     }
 
+    /**
+     * Convert a java class into [JavaType]
+     *
+     * Results are cached
+     */
     fun toJavaType(clazz: Class<*>): JavaType {
         return typeCache.computeIfAbsent(clazz) {
             tfac.constructType(it)
