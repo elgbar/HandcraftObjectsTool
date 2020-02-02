@@ -52,7 +52,10 @@ class CollectionClassBuilder<out T>(
         return collection.mapIndexed { i, cb -> Pair(i.toString(), cb) }.toMap()
     }
 
-    override fun toView(parent: EventTarget): Node {
+    override fun toView(
+        parent: EventTarget,
+        controller: ObjectEditorController
+    ): Node {
         return parent.borderpane {
             val con = ObjectEditorController(type, this@CollectionClassBuilder)
             left = vbox {
@@ -62,15 +65,20 @@ class CollectionClassBuilder<out T>(
 
                 button("Add element") {
                     action {
-                        collection.add(getClassBuilder(type.contentType, collection.size.toString()))
+                        val cb = getClassBuilder(type.contentType, collection.size.toString()) ?: return@action
+                        collection.add(cb)
+
+                        //To visually display the newly created element we need to rebuild the TreeView in NodeExplorerView
+                        // It is rebuilt when controller.currSel, so we change the currently viewed to the root then back to this view
+                        // In other words we turn it off then on again
+                        val curr = controller.currSel
+                        controller.currSel = controller.rootSel
+                        controller.currSel = curr
                     }
                 }
                 this.add(tv)
             }
-
-
             center = PropertyEditor(con).root
-
         }
     }
 

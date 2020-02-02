@@ -10,6 +10,7 @@ import javafx.event.EventTarget
 import javafx.scene.Node
 import javafx.scene.control.TableColumn
 import no.uib.inf219.api.serialization.SerializationManager
+import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.loader.ClassInformation
 import tornadofx.*
 import kotlin.collections.set
@@ -94,7 +95,10 @@ class ComplexClassBuilder<out T>(
         return false
     }
 
-    override fun toView(parent: EventTarget): Node {
+    override fun toView(
+        parent: EventTarget,
+        controller: ObjectEditorController
+    ): Node {
         obPropList.clear()
         obPropList.addAll(props.toList().sortedBy { it.first })
         return parent.vbox {

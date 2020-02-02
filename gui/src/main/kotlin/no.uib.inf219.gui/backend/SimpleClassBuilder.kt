@@ -11,6 +11,7 @@ import javafx.scene.Node
 import javafx.util.StringConverter
 import javafx.util.converter.*
 import no.uib.inf219.gui.Styles
+import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.converter.UUIDStringConverter
 import no.uib.inf219.gui.loader.ClassInformation
 import tornadofx.*
@@ -55,7 +56,10 @@ abstract class SimpleClassBuilder<T : Any> internal constructor(
         return emptyMap()
     }
 
-    override fun toView(parent: EventTarget): Node {
+    override fun toView(
+        parent: EventTarget,
+        controller: ObjectEditorController
+    ): Node {
         return parent.vbox {
             addClass(Styles.parent)
             vbox {

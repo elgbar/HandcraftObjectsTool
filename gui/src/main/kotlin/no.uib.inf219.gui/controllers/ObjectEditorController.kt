@@ -26,7 +26,10 @@ class ObjectEditorController(root: JavaType, val rootBuilder: ClassBuilder<Any> 
     var currProp: ObjectProperty<MutableTriple<String, ClassBuilder<*>?, ClassBuilder<*>>> =
         getProperty(ObjectEditorController::currSel)
 
+    val rootSel: MutableTriple<String, ClassBuilder<*>?, ClassBuilder<*>>
+
     init {
-        currSel = MutableTriple(root.rawClass?.simpleName ?: root.typeName, rootBuilder, rootBuilder)
+        rootSel = MutableTriple(root.rawClass?.simpleName ?: root.typeName, rootBuilder, rootBuilder)
+        currSel = rootSel
     }
 }

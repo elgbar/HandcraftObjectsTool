@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ser.PropertyWriter
 import com.fasterxml.jackson.databind.type.CollectionLikeType
 import javafx.event.EventTarget
 import javafx.scene.Node
+import no.uib.inf219.gui.controllers.ObjectEditorController
 
 /**
  * An interface that is the super class of all object builder, the aim of this interface is to manage how to build a given type.
@@ -52,7 +53,7 @@ interface ClassBuilder<out T> {
     /**
      * Visual representation (and possibly modification) of this class builder
      */
-    fun toView(parent: EventTarget): Node
+    fun toView(parent: EventTarget, controller: ObjectEditorController): Node
 
     /**
      * Note that this will a
