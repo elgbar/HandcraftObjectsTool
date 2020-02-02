@@ -2,7 +2,6 @@ package no.uib.inf219.gui.view
 
 import javafx.geometry.Orientation
 import javafx.scene.control.TextArea
-import javafx.scene.layout.Priority
 import no.uib.inf219.api.serialization.SerializationManager
 import no.uib.inf219.gui.Styles
 import no.uib.inf219.gui.controllers.ObjectEditorController
@@ -21,24 +20,25 @@ class ObjectEditor(private val controller: ObjectEditorController) : View() {
 
 
     override val root = splitpane(Orientation.VERTICAL) {
-        addClass(Styles.parent)
 
+        setDividerPositions(0.75)
         splitpane {
+            addClass(Styles.parent)
             setDividerPositions(0.25)
 
             this += NodeExplorerView(controller).root
             this += PropertyEditor(controller).root
         }
 
-        vbox {
+        borderpane {
             addClass(Styles.parent)
 
-            val buttons = hbox()
+            val buttons = hbox {
+                addClass(Styles.parent)
+            }
 
-            val output: TextArea = scrollpane(fitToWidth = true).textarea() {
+            val output: TextArea = scrollpane(fitToWidth = true, fitToHeight = true).textarea() {
                 editableProperty().set(false)
-//                prefRowCount = 3
-                vgrow = Priority.ALWAYS
             }
 
             buttons += button("Validate") {
@@ -70,6 +70,9 @@ class ObjectEditor(private val controller: ObjectEditorController) : View() {
                     output.clear()
                 }
             }
+
+            top = buttons
+            center = output
         }
     }
 }

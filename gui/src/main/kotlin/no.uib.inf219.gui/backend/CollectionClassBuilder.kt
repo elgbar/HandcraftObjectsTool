@@ -14,8 +14,6 @@ import tornadofx.*
 
 /**
  *
- * @param E The super type to create
- * @param T The collection to use with [E]
  *
  * @author Elg
  */
@@ -57,6 +55,7 @@ class CollectionClassBuilder<out T>(
         controller: ObjectEditorController
     ): Node {
         return parent.splitpane {
+            setDividerPositions(0.25)
             val con = ObjectEditorController(type, this@CollectionClassBuilder)
             this += vbox {
                 val nev = NodeExplorerView(con)

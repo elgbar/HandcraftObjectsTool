@@ -13,8 +13,11 @@ import tornadofx.*
 class NodeExplorerView(private val controller: ObjectEditorController) : Fragment("Tree Explorer") {
 
 
-    override val root = treeview<MutableTriple<String, ClassBuilder<*>?, ClassBuilder<*>>> {
-        root = TreeItem(controller.currSel)
+    override val root = scrollpane(
+        fitToWidth = true,
+        fitToHeight = true
+    ).treeview<MutableTriple<String, ClassBuilder<*>?, ClassBuilder<*>>> {
+        root = TreeItem(controller.rootSel)
         root.isExpanded = true
 
         cellFormat {
@@ -71,8 +74,6 @@ class NodeExplorerView(private val controller: ObjectEditorController) : Fragmen
 
                 //remove the visual items
                 item.children.clear()
-
-                this@treeview.parent
             }
         }
 
@@ -89,3 +90,4 @@ class NodeExplorerView(private val controller: ObjectEditorController) : Fragmen
         }
     }
 }
+
