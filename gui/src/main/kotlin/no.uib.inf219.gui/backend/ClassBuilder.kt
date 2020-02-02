@@ -1,6 +1,7 @@
 package no.uib.inf219.gui.backend
 
 import com.fasterxml.jackson.databind.JavaType
+import com.fasterxml.jackson.databind.ser.PropertyWriter
 import com.fasterxml.jackson.databind.type.CollectionLikeType
 import javafx.event.EventTarget
 import javafx.scene.Node
@@ -25,6 +26,11 @@ interface ClassBuilder<out T> {
      * Key of the property to access this from the parent (if any)
      */
     val name: String?
+
+    /**
+     * The property this class builder is creating, used for gaining additional metadata about what we're creating.
+     */
+    val property: PropertyWriter?
 
     /**
      * Convert this object to an instance of [T]
@@ -71,8 +77,13 @@ interface ClassBuilder<out T> {
      */
     fun previewValue(): String
 
-    fun getClassBuilder(type: JavaType, name: String, value: Any? = null): ClassBuilder<*> {
-        return getClassBuilder(type, this, name, value)
+    fun getClassBuilder(
+        type: JavaType,
+        name: String,
+        value: Any? = null,
+        prop: PropertyWriter? = null
+    ): ClassBuilder<*>? {
+        return getClassBuilder(type, this, name, value, prop)
     }
 
     /**
@@ -86,39 +97,91 @@ interface ClassBuilder<out T> {
         }
     }
 
+    /**
+     * If this class builder is required to be valid. If [property] is `null` this is assumed to be required.
+     */
+    fun isRequired(): Boolean {
+        return property?.isRequired ?: true
+    }
+
     /////////////////////////////////////
     //   JVM primitives (inc String)   //
     /////////////////////////////////////
 
-    class ByteClassBuilder(initial: Byte = 0, parent: ClassBuilder<*>, name: String? = null) :
-        SimpleClassBuilder<Byte>(Byte::class.java, initial, parent, name = name) {}
+    class ByteClassBuilder(
+        initial: Byte = 0,
+        parent: ClassBuilder<*>,
+        name: String? = null,
+        prop: PropertyWriter? = null
+    ) :
+        SimpleClassBuilder<Byte>(Byte::class.java, initial, parent, name, prop) {}
 
-    class ShortClassBuilder(initial: Short = 0, parent: ClassBuilder<*>, name: String? = null) :
-        SimpleClassBuilder<Short>(Short::class.java, initial, parent, name = name) {}
+    class ShortClassBuilder(
+        initial: Short = 0,
+        parent: ClassBuilder<*>,
+        name: String? = null,
+        prop: PropertyWriter? = null
+    ) :
+        SimpleClassBuilder<Short>(Short::class.java, initial, parent, name, prop) {}
 
-    class IntClassBuilder(initial: Int = 0, parent: ClassBuilder<*>, name: String? = null) :
-        SimpleClassBuilder<Int>(Int::class.java, initial, parent, name = name) {}
+    class IntClassBuilder(
+        initial: Int = 0,
+        parent: ClassBuilder<*>,
+        name: String? = null,
+        prop: PropertyWriter? = null
+    ) :
+        SimpleClassBuilder<Int>(Int::class.java, initial, parent, name, prop) {}
 
-    class LongClassBuilder(initial: Long = 0, parent: ClassBuilder<*>, name: String? = null) :
-        SimpleClassBuilder<Long>(Long::class.java, initial, parent, name = name) {}
+    class LongClassBuilder(
+        initial: Long = 0,
+        parent: ClassBuilder<*>,
+        name: String? = null,
+        prop: PropertyWriter? = null
+    ) :
+        SimpleClassBuilder<Long>(Long::class.java, initial, parent, name, prop) {}
 
-    class FloatClassBuilder(initial: Float = 0.0f, parent: ClassBuilder<*>, name: String? = null) :
-        SimpleClassBuilder<Float>(Float::class.java, initial, parent, name = name) {}
+    class FloatClassBuilder(
+        initial: Float = 0.0f,
+        parent: ClassBuilder<*>,
+        name: String? = null,
+        prop: PropertyWriter? = null
+    ) :
+        SimpleClassBuilder<Float>(Float::class.java, initial, parent, name, prop) {}
 
-    class DoubleClassBuilder(initial: Double = 0.0, parent: ClassBuilder<*>, name: String? = null) :
-        SimpleClassBuilder<Double>(Double::class.java, initial, parent, name = name) {}
+    class DoubleClassBuilder(
+        initial: Double = 0.0,
+        parent: ClassBuilder<*>,
+        name: String? = null,
+        prop: PropertyWriter? = null
+    ) :
+        SimpleClassBuilder<Double>(Double::class.java, initial, parent, name, prop) {}
 
-    class CharClassBuilder(initial: Char = '\u0000', parent: ClassBuilder<*>, name: String? = null) :
-        SimpleClassBuilder<Char>(Char::class.java, initial, parent, name = name) {}
+    class CharClassBuilder(
+        initial: Char = '\u0000',
+        parent: ClassBuilder<*>,
+        name: String? = null,
+        prop: PropertyWriter? = null
+    ) :
+        SimpleClassBuilder<Char>(Char::class.java, initial, parent, name, prop) {}
 
     /**
      * Note that the default value is the empty String `""` and not the default value `null`
      */
-    class StringClassBuilder(initial: String = "", parent: ClassBuilder<*>, name: String? = null) :
-        SimpleClassBuilder<String>(String::class.java, initial, parent, name = name) {}
+    class StringClassBuilder(
+        initial: String = "",
+        parent: ClassBuilder<*>,
+        name: String? = null,
+        prop: PropertyWriter? = null
+    ) :
+        SimpleClassBuilder<String>(String::class.java, initial, parent, name, prop) {}
 
-    class BooleanClassBuilder(initial: Boolean = false, parent: ClassBuilder<*>, name: String? = null) :
-        SimpleClassBuilder<Boolean>(Boolean::class.java, initial, parent, name = name) {}
+    class BooleanClassBuilder(
+        initial: Boolean = false,
+        parent: ClassBuilder<*>,
+        name: String? = null,
+        prop: PropertyWriter? = null
+    ) :
+        SimpleClassBuilder<Boolean>(Boolean::class.java, initial, parent, name, prop) {}
 
 
     companion object {
@@ -130,8 +193,9 @@ interface ClassBuilder<out T> {
             type: JavaType,
             parent: ClassBuilder<*>,
             name: String?,
-            value: Any? = null
-        ): ClassBuilder<*> {
+            value: Any? = null,
+            prop: PropertyWriter? = null
+        ): ClassBuilder<*>? {
             return if (value != null && value is ClassBuilder<*>) {
                 //it would be very weird if this happened
                 require(value.type == type) { "The value given is a already a class builder, but its type (${value.type}) does not match with the given java type $type" }
@@ -140,50 +204,51 @@ interface ClassBuilder<out T> {
                 when {
                     type.isTypeOrSuperTypeOf(Byte::class.java) -> {
                         if (value == null) ByteClassBuilder(parent = parent) else
-                            ByteClassBuilder(value as Byte, parent, name)
+                            ByteClassBuilder(value as Byte, parent, name, prop)
                     }
                     type.isTypeOrSuperTypeOf(Short::class.java) -> {
                         if (value == null) ShortClassBuilder(parent = parent) else
-                            ShortClassBuilder(value as Short, parent, name)
+                            ShortClassBuilder(value as Short, parent, name, prop)
                     }
                     type.isTypeOrSuperTypeOf(Int::class.java) -> {
                         if (value == null) IntClassBuilder(parent = parent) else
-                            IntClassBuilder(value as Int, parent, name)
+                            IntClassBuilder(value as Int, parent, name, prop)
                     }
                     type.isTypeOrSuperTypeOf(Long::class.java) -> {
                         if (value == null) LongClassBuilder(parent = parent) else
-                            LongClassBuilder(value as Long, parent, name)
+                            LongClassBuilder(value as Long, parent, name, prop)
                     }
                     type.isTypeOrSuperTypeOf(Float::class.java) -> {
                         if (value == null) FloatClassBuilder(parent = parent) else
-                            FloatClassBuilder(value as Float, parent, name)
+                            FloatClassBuilder(value as Float, parent, name, prop)
                     }
                     type.isTypeOrSuperTypeOf(Double::class.java) -> {
                         if (value == null) DoubleClassBuilder(parent = parent) else
-                            DoubleClassBuilder(value as Double, parent, name)
+                            DoubleClassBuilder(value as Double, parent, name, prop)
                     }
                     type.isTypeOrSuperTypeOf(Char::class.java) -> {
                         if (value == null) CharClassBuilder(parent = parent) else
-                            CharClassBuilder(value as Char, parent, name)
+                            CharClassBuilder(value as Char, parent, name, prop)
                     }
                     type.isTypeOrSuperTypeOf(Boolean::class.java) -> {
                         if (value == null) BooleanClassBuilder(parent = parent) else
-                            BooleanClassBuilder(value as Boolean, parent, name)
+                            BooleanClassBuilder(value as Boolean, parent, name, prop)
                     }
                     else -> throw IllegalStateException("Unknown primitive $type")
                 }
             } else if (type.isTypeOrSuperTypeOf(String::class.java)) {
                 if (value == null) StringClassBuilder(parent = parent) else
-                    StringClassBuilder(value as String, parent, name)
+                    StringClassBuilder(value as String, parent, name, prop)
             } else if (type.isCollectionLikeType) {
-                CollectionClassBuilder<Any>(type as CollectionLikeType, parent, name)
+                CollectionClassBuilder<Any>(type as CollectionLikeType, parent, name, prop)
             } else if (type.isMapLikeType) {
                 TODO("Maps are not yet supported: $type")
-//            } else if (!type.isConcrete) {
+            } else if (!type.isConcrete) {
+                return null
 //                TODO("Selection of concrete subclasses are not yet supported: $type")
             } else {
                 //it's not a primitive type so let's just make a complex type for it
-                ComplexClassBuilder<Any>(type, parent, name)
+                ComplexClassBuilder<Any>(type, parent, name, prop)
             }
         }
     }

@@ -1,5 +1,6 @@
 package no.uib.inf219.gui.backend
 
+import com.fasterxml.jackson.databind.ser.PropertyWriter
 import com.fasterxml.jackson.databind.type.CollectionLikeType
 import javafx.event.EventTarget
 import javafx.scene.Node
@@ -21,7 +22,8 @@ import tornadofx.*
 class CollectionClassBuilder<out T>(
     override val type: CollectionLikeType,
     override val parent: ClassBuilder<*>? = null,
-    override val name: String? = null
+    override val name: String? = null,
+    override val property: PropertyWriter?
 ) : ClassBuilder<Collection<T>> {
 
     init {

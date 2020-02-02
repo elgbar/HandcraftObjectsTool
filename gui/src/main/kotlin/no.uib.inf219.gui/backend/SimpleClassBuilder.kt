@@ -1,6 +1,7 @@
 package no.uib.inf219.gui.backend
 
 import com.fasterxml.jackson.databind.JavaType
+import com.fasterxml.jackson.databind.ser.PropertyWriter
 import javafx.beans.property.Property
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.StringProperty
@@ -9,10 +10,10 @@ import javafx.event.EventTarget
 import javafx.scene.Node
 import javafx.util.StringConverter
 import javafx.util.converter.*
+import no.uib.inf219.gui.Styles
 import no.uib.inf219.gui.converter.UUIDStringConverter
 import no.uib.inf219.gui.loader.ClassInformation
-import tornadofx.ViewModel
-import tornadofx.textarea
+import tornadofx.*
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.time.LocalDate
@@ -31,8 +32,9 @@ abstract class SimpleClassBuilder<T : Any> internal constructor(
     primClass: Class<T>,
     private val initialValue: T,
     override val parent: ClassBuilder<*>,
-    private val converter: StringConverter<T>? = null,
-    override val name: String? = null
+    override val name: String? = null,
+    override val property: PropertyWriter?,
+    private val converter: StringConverter<T>? = null
 ) : ClassBuilder<T> {
 
     override val type: JavaType = ClassInformation.toJavaType(primClass)
@@ -53,13 +55,17 @@ abstract class SimpleClassBuilder<T : Any> internal constructor(
         return emptyMap()
     }
 
-//    override fun defaultValue(property: String): T {
-//        return initialValue
-//    }
-
     override fun toView(parent: EventTarget): Node {
-        return parent.textarea {
-            bindStringProperty(textProperty(), converter, valueProperty)
+        return parent.vbox {
+            addClass(Styles.parent)
+            vbox {
+                addClass(Styles.parent)
+                label("Required? ${isRequired()}")
+                label("Type: ${type.rawClass}")
+            }
+            textarea {
+                bindStringProperty(textProperty(), converter, valueProperty)
+            }
         }
     }
 

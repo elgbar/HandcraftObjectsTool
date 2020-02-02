@@ -2,6 +2,7 @@ package no.uib.inf219.gui.backend
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.JavaType
+import com.fasterxml.jackson.databind.ser.PropertyWriter
 import javafx.beans.Observable
 import javafx.collections.ObservableList
 import javafx.collections.ObservableMap
@@ -21,7 +22,8 @@ import kotlin.collections.set
 class ComplexClassBuilder<out T>(
     override val type: JavaType,
     override val parent: ClassBuilder<*>? = null,
-    override val name: String? = null
+    override val name: String? = null,
+    override val property: PropertyWriter? = null
 ) : ClassBuilder<T> {
 
     private val propInfo = ClassInformation.serializableProperties(type)
@@ -72,13 +74,14 @@ class ComplexClassBuilder<out T>(
 
     override fun getSubClassBuilders(): Map<String, ClassBuilder<*>?> = props
 
-    override fun createClassBuilderFor(property: String): ClassBuilder<*> {
-        require(propInfo.contains(property)) { "The class $type does not have a property with the name '$property'. Expected one of the following: $propInfo" }
+    override fun createClassBuilderFor(property: String): ClassBuilder<*>? {
+        val prop = propInfo[property]
+        require(prop != null) { "The class $type does not have a property with the name '$property'. Expected one of the following: $propInfo" }
 
         return props.computeIfAbsent(property) {
             @Suppress("MapGetWithNotNullAssertionOperator") //checked above
-            getClassBuilder(propInfo[it]!!.type, it, propDefaults[it])
-        }!!
+            getClassBuilder(prop.type, it, propDefaults[it], prop)
+        }
     }
 
     override fun reset(property: String): Boolean {
