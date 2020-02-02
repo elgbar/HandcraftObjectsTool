@@ -12,7 +12,6 @@ class PropertyEditor(val controller: ObjectEditorController) : Fragment("Attribu
 
     override val root = borderpane {
         controller.currProp.onChange {
-            //            println("change! viewing -> $it")
             center = it?.middle?.toView(this, controller)
         }
     }

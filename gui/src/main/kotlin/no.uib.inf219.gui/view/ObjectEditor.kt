@@ -1,5 +1,6 @@
 package no.uib.inf219.gui.view
 
+import javafx.geometry.Orientation
 import javafx.scene.control.TextArea
 import javafx.scene.layout.Priority
 import no.uib.inf219.api.serialization.SerializationManager
@@ -19,31 +20,25 @@ import tornadofx.*
 class ObjectEditor(private val controller: ObjectEditorController) : View() {
 
 
-    override val root = borderpane {
+    override val root = splitpane(Orientation.VERTICAL) {
         addClass(Styles.parent)
 
-        center = borderpane {
-            addClass(Styles.parent)
+        splitpane {
+            setDividerPositions(0.25)
 
-            vgrow = Priority.ALWAYS
-            hgrow = Priority.ALWAYS
-
-            gridpaneConstraints {
-                columnRowIndex(0, 0)
-            }
-            left = NodeExplorerView(controller).root
-            center = PropertyEditor(controller).root
+            this += NodeExplorerView(controller).root
+            this += PropertyEditor(controller).root
         }
 
-        bottom = vbox {
+        vbox {
             addClass(Styles.parent)
 
             val buttons = hbox()
 
             val output: TextArea = scrollpane(fitToWidth = true).textarea() {
                 editableProperty().set(false)
-                prefRowCount = 3
-                vgrow = Priority.NEVER
+//                prefRowCount = 3
+                vgrow = Priority.ALWAYS
             }
 
             buttons += button("Validate") {

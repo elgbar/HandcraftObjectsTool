@@ -103,6 +103,7 @@ class ComplexClassBuilder<out T>(
         obPropList.addAll(props.toList().sortedBy { it.first })
         return parent.vbox {
             tableview(obPropList) {
+                columnResizePolicy = SmartResize.POLICY
                 column("Name") { it: TableColumn.CellDataFeatures<Pair<String, ClassBuilder<*>?>, String> ->
                     it.value.first.toProperty()
                 }

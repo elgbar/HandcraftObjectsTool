@@ -77,5 +77,9 @@ class Styles : Stylesheet() {
             textOverrun = OverrunStyle.CLIP
             padding = box(1.0.ems)
         }
+
+        splitPaneDivider {
+            padding = box(0.005.ems)
+        }
     }
 }

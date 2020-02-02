@@ -56,9 +56,9 @@ class CollectionClassBuilder<out T>(
         parent: EventTarget,
         controller: ObjectEditorController
     ): Node {
-        return parent.borderpane {
+        return parent.splitpane {
             val con = ObjectEditorController(type, this@CollectionClassBuilder)
-            left = vbox {
+            this += vbox {
                 val nev = NodeExplorerView(con)
                 val tv: TreeView<MutableTriple<String, ClassBuilder<*>?, ClassBuilder<*>>> = nev.root
                 tv.showRootProperty().set(false)
@@ -78,7 +78,7 @@ class CollectionClassBuilder<out T>(
                 }
                 this.add(tv)
             }
-            center = PropertyEditor(con).root
+            this += PropertyEditor(con).root
         }
     }
 
