@@ -56,7 +56,7 @@ class CollectionClassBuilder<out T>(
     ): Node {
         return parent.splitpane {
             setDividerPositions(0.25)
-            val con = ObjectEditorController(type, this@CollectionClassBuilder)
+            val con = ObjectEditorController(type, this@CollectionClassBuilder, controller)
             this += vbox {
                 val nev = NodeExplorerView(con)
                 val tv: TreeView<MutableTriple<String, ClassBuilder<*>?, ClassBuilder<*>>> = nev.root
@@ -66,13 +66,7 @@ class CollectionClassBuilder<out T>(
                     action {
                         val cb = getClassBuilder(type.contentType, collection.size.toString()) ?: return@action
                         collection.add(cb)
-
-                        //To visually display the newly created element we need to rebuild the TreeView in NodeExplorerView
-                        // It is rebuilt when controller.currSel, so we change the currently viewed to the root then back to this view
-                        // In other words we turn it off then on again
-                        val curr = controller.currSel
-                        controller.currSel = controller.rootSel
-                        controller.currSel = curr
+                        controller.reloadView()
                     }
                 }
                 this.add(tv)
@@ -89,9 +83,15 @@ class CollectionClassBuilder<out T>(
         return false
     }
 
-    override fun reset(property: String): Boolean {
-        collection.clear()
-        return true
+    @Deprecated("Collection elements cannot be null", ReplaceWith("reset(property: String, element: ClassBuilder<*>)"))
+    override fun reset(property: String): ClassBuilder<*>? {
+        return super.reset(property)
+    }
+
+    override fun reset(property: String, element: ClassBuilder<*>?): ClassBuilder<*>? {
+        require(element != null) { "Element cannot be null when removing from collection" }
+        collection.remove(element)
+        return null
     }
 
     override fun previewValue(): String {

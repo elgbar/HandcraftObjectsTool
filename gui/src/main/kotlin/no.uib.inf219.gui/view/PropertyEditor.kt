@@ -8,7 +8,7 @@ import tornadofx.onChange
 /**
  * @author Elg
  */
-class PropertyEditor(val controller: ObjectEditorController) : Fragment("Attribute Editor") {
+class PropertyEditor(private val controller: ObjectEditorController) : Fragment("Attribute Editor") {
 
     override val root = borderpane {
         controller.currProp.onChange {

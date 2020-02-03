@@ -11,8 +11,7 @@ import tornadofx.*
  * @author Elg
  */
 class NodeExplorerView(private val controller: ObjectEditorController) : Fragment("Tree Explorer") {
-
-
+    
     override val root = scrollpane(
         fitToWidth = true,
         fitToHeight = true
@@ -64,16 +63,15 @@ class NodeExplorerView(private val controller: ObjectEditorController) : Fragmen
 
                 //when viewing the item that is being reset change the current viewed item to root
                 // as otherwise the user is editing a stale object
-//                if (isSuper(controller.currSel.middle, value.middle)) {
-                controller.currSel = root.value
-//                }
+                controller.currSel = null
                 //clear the backend values
-                val rem = value.right.reset(value.left)
-                if (rem)
-                    value.middle = null
+                value.middle = value.right.reset(value.left, value.middle)
 
                 //remove the visual items
                 item.children.clear()
+
+                //reload parent view (or this view if root controller)
+                (controller.parent ?: controller).reloadView()
             }
         }
 

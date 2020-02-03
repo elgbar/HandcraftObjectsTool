@@ -12,7 +12,14 @@ import tornadofx.property
 /**
  * @author Elg
  */
-class ObjectEditorController(root: JavaType, val rootBuilder: ClassBuilder<Any> = ComplexClassBuilder(root)) {
+class ObjectEditorController(
+    root: JavaType,
+    val rootBuilder: ClassBuilder<Any> = ComplexClassBuilder(root),
+    /**
+     * Parent controller, if any
+     */
+    val parent: ObjectEditorController? = null
+) {
 
 
     /**
@@ -22,14 +29,28 @@ class ObjectEditorController(root: JavaType, val rootBuilder: ClassBuilder<Any> 
      *
      * Right is parent type
      */
-    var currSel: MutableTriple<String, ClassBuilder<*>?, ClassBuilder<*>> by property<MutableTriple<String, ClassBuilder<*>?, ClassBuilder<*>>>()
-    var currProp: ObjectProperty<MutableTriple<String, ClassBuilder<*>?, ClassBuilder<*>>> =
+    var currSel: MutableTriple<String, ClassBuilder<*>?, ClassBuilder<*>>? by property<MutableTriple<String, ClassBuilder<*>?, ClassBuilder<*>>>()
+
+    var currProp: ObjectProperty<MutableTriple<String, ClassBuilder<*>?, ClassBuilder<*>>?> =
         getProperty(ObjectEditorController::currSel)
 
-    val rootSel: MutableTriple<String, ClassBuilder<*>?, ClassBuilder<*>>
+    val rootSel: MutableTriple<String, ClassBuilder<*>?, ClassBuilder<*>> =
+        MutableTriple(root.rawClass?.simpleName ?: root.typeName, rootBuilder, rootBuilder)
 
     init {
-        rootSel = MutableTriple(root.rawClass?.simpleName ?: root.typeName, rootBuilder, rootBuilder)
         currSel = rootSel
+    }
+
+
+    fun reloadView() {
+
+        println("reloading for $this (parent $parent)")
+
+        //To visually display the newly created element we need to rebuild the TreeView in NodeExplorerView
+        // It is rebuilt when controller.currSel, so we change the currently viewed to the root then back to this view
+        // In other words we turn it off then on again
+        val curr = currSel
+        currSel = rootSel
+        currSel = curr
     }
 }

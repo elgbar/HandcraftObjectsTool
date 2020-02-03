@@ -13,6 +13,8 @@ import no.uib.inf219.api.serialization.SerializationManager
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.loader.ClassInformation
 import tornadofx.*
+import kotlin.collections.component1
+import kotlin.collections.component2
 import kotlin.collections.set
 
 /**
@@ -85,10 +87,11 @@ class ComplexClassBuilder<out T>(
         }
     }
 
-    override fun reset(property: String): Boolean {
+    override fun reset(property: String, element: ClassBuilder<*>?): ClassBuilder<*>? {
+        require(propInfo.contains(property)) { "The class $type does not have a property with the name '$property'. Expected one of the following: $propInfo" }
+
         props[property] = null
-        createClassBuilderFor(property)
-        return true
+        return createClassBuilderFor(property)
     }
 
     override fun isLeaf(): Boolean {

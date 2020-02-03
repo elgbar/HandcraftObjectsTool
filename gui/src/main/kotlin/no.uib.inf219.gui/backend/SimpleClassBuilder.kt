@@ -81,9 +81,10 @@ abstract class SimpleClassBuilder<T : Any> internal constructor(
     /**
      * Reset the value this holds to the [initialValue] provided in the constructor
      */
-    override fun reset(property: String): Boolean {
+    override fun reset(property: String, element: ClassBuilder<*>?): ClassBuilder<*>? {
+        require(element == null || element == this) { "Given element is not null or this" }
         value = initialValue
-        return false
+        return null
     }
 
     override fun isLeaf(): Boolean {

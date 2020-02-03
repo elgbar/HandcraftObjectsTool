@@ -63,15 +63,25 @@ interface ClassBuilder<out T> {
      */
     fun createClassBuilderFor(property: String): ClassBuilder<*>?
 
+
     /**
-     * reset the given property for the [property] provided. If it has a default value this value will be restored
+     * Reset the given property for the [property] provided. If it has a default value this value will be restored
      *
      * @return If all referenced should be null-ed out
-     *
-     * @throws IllegalArgumentException If the given [property] is not valid
      */
-    //TODO maybe pass another ClassBuilder for  cbs without indexed access (ie sets)
-    fun reset(property: String): Boolean
+    fun reset(property: String): ClassBuilder<*>? {
+        return reset(property, null)
+    }
+
+    /**
+     * Reset the given property for the [property] provided. If it has a default value this value will be restored
+     *
+     *
+     * @return The new (potentially null) classbuilder, might be equal to [element]
+     *
+     * @throws IllegalArgumentException If both [property] and [element] are `null`
+     */
+    fun reset(property: String, element: ClassBuilder<*>?): ClassBuilder<*>?
 
     /**
      * Preview of this class
