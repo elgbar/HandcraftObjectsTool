@@ -12,6 +12,7 @@ import javafx.scene.control.TableColumn
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.loader.ClassInformation
 import no.uib.inf219.gui.view.ControlPanelView
+import no.uib.inf219.gui.view.OutputArea
 import tornadofx.*
 import kotlin.collections.component1
 import kotlin.collections.component2
@@ -52,7 +53,7 @@ class ComplexClassBuilder<out T>(
                         try {
                             ControlPanelView.mapper.readValue(defaultStr, v.type) as Any?
                         } catch (e: Throwable) {
-                            println("Failed to load default value for property $k of $type. Given string is: '$defaultStr'")
+                            OutputArea.logln("Failed to load default value for property $k of $type. Given string is: '$defaultStr'")
                             null
                         }
                     }
@@ -63,7 +64,7 @@ class ComplexClassBuilder<out T>(
 
         obProp.addListener { ob: Observable ->
             check(ob is ObservableMap<*, *>)
-            println("propInfo = $propInfo")
+            OutputArea.logln("propInfo = $propInfo")
             propList.clear()
             propList.addAll(props.toList())
 

@@ -1,7 +1,5 @@
 package no.uib.inf219.gui.view
 
-import javafx.geometry.Orientation
-import javafx.scene.control.TextArea
 import no.uib.inf219.gui.Styles
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import tornadofx.*
@@ -18,10 +16,9 @@ import tornadofx.*
 class ObjectEditor(private val controller: ObjectEditorController) : View() {
 
 
-    override val root = splitpane(Orientation.VERTICAL) {
+    override val root = borderpane() {
 
-        setDividerPositions(0.75)
-        splitpane {
+        center = splitpane {
             addClass(Styles.parent)
             setDividerPositions(0.25)
 
@@ -29,49 +26,35 @@ class ObjectEditor(private val controller: ObjectEditorController) : View() {
             this += PropertyEditor(controller).root
         }
 
-        borderpane {
+        bottom = hbox {
             addClass(Styles.parent)
 
-            val buttons = hbox {
-                addClass(Styles.parent)
-            }
-
-            val output: TextArea = scrollpane(fitToWidth = true, fitToHeight = true).textarea() {
-                editableProperty().set(false)
-            }
-
-            buttons += button("Validate") {
+            button("Validate") {
                 setOnAction {
-                    output.appendText("Validating...\n")
+                    OutputArea.logln("Validating...")
                     runAsync {
                         try {
                             val obj = controller.rootBuilder.toObject()
                             ui {
                                 if (obj == null) {
-                                    output.appendText("Object created without error, but it is null")
-                                } else
-                                    output.appendText(
-                                        "Successfully created object!\nobj=$obj\nAs json:\n" +
-                                                ControlPanelView.mapper.writeValueAsString(obj)
-                                    )
+                                    OutputArea.logln("Object created without error, but it is null")
+                                } else {
+                                    OutputArea.logln("Successfully created object!")
+                                    OutputArea.logln("obj=$obj")
+                                    OutputArea.logln("json=${ControlPanelView.mapper.writeValueAsString(obj)}")
+                                }
                             }
                         } catch (e: Throwable) {
                             ui {
-                                output.appendText("Failed to create object due to \n$e\n")
+                                OutputArea.logln("Failed to create object due to")
+                                OutputArea.logln(e.toString())
                             }
                         }
                     }
                 }
             }
 
-            buttons += button("Clear") {
-                setOnAction {
-                    output.clear()
-                }
-            }
-
-            top = buttons
-            center = output
+            this += OutputArea.clearButton()
         }
     }
 }

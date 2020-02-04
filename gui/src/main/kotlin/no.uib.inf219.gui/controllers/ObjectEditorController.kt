@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JavaType
 import javafx.beans.property.ObjectProperty
 import no.uib.inf219.gui.backend.ClassBuilder
 import no.uib.inf219.gui.backend.ComplexClassBuilder
+import no.uib.inf219.gui.view.OutputArea
 import org.apache.commons.lang3.tuple.MutableTriple
 import tornadofx.getProperty
 import tornadofx.property
@@ -44,7 +45,7 @@ class ObjectEditorController(
 
     fun reloadView() {
 
-        println("reloading for $this (parent $parent)")
+        OutputArea.logln("reloading for $this (parent $parent)")
 
         //To visually display the newly created element we need to rebuild the TreeView in NodeExplorerView
         // It is rebuilt when controller.currSel, so we change the currently viewed to the root then back to this view

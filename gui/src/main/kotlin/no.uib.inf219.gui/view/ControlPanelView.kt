@@ -2,8 +2,8 @@ package no.uib.inf219.gui.view
 
 import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.ObjectMapper
+import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
-import javafx.scene.control.TextInputControl
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.Priority
 import javafx.stage.FileChooser
@@ -27,17 +27,18 @@ object ControlPanelView : View("Control Panel") {
 
     val tabPane: BackgroundView by inject()
 
-    lateinit var output: TextInputControl
-        private set
+    private val mapperProperty by lazy { SimpleObjectProperty<ObjectMapper>(SerializationManager.stdMapper) }
 
     /**
      * What object mapper to use for serialization
      */
-    var mapper: ObjectMapper = SerializationManager.stdMapper
+    var mapper: ObjectMapper
+        get() = mapperProperty.get()
         set(value) {
-            field = value
+            mapperProperty.set(value)
             ClassInformation.updateMapper()
-            FX.find<BackgroundView>().root.closeAllTabs()
+            FX.find<BackgroundView>().tabpane.closeAllTabs()
+            OutputArea.logln { "Closing all tabs" }
         }
 
     override val root = borderpane {
@@ -48,14 +49,11 @@ object ControlPanelView : View("Control Panel") {
             addClass(Styles.parent)
             fitToParentWidth()
         }
-        output = scrollpane(fitToHeight = true, fitToWidth = true).textarea() {
-            editableProperty().set(false)
-        }
-        top = borderpane {
+
+        center = borderpane {
             top = buttons
             center = classChooser
         }
-        center = output
 
         buttons += button {
             text = "import jar"
@@ -75,16 +73,13 @@ object ControlPanelView : View("Control Panel") {
                 }
             }
         }
-        buttons += button("Clear") {
-            setOnAction {
-                output.clear()
-            }
-        }
+        buttons += OutputArea.clearButton()
+
         buttons += button("Load Example") {
             setOnAction {
                 val inp = ControlPanelView::class.java.getResourceAsStream("/example.jar")
                 if (inp == null) {
-                    output.appendText("Failed to find example jar\n")
+                    OutputArea.logln("Failed to find example jar")
                     return@setOnAction
                 }
                 runAsync {
@@ -93,11 +88,9 @@ object ControlPanelView : View("Control Panel") {
                     file.copyInputStreamToFile(inp)
                     loadFileSafely(file)
                 } ui {
-                    output.appendText(
-                        "Example classes to load:\n" +
-                                "no.uib.inf219.example.data.Conversation\n" +
-                                "no.uib.inf219.example.data.Response\n"
-                    )
+                    OutputArea.logln("Example classes to load:")
+                    OutputArea.logln("no.uib.inf219.example.data.Conversation")
+                    OutputArea.logln("no.uib.inf219.example.data.Response")
                 }
 
 
@@ -105,7 +98,6 @@ object ControlPanelView : View("Control Panel") {
         }
 
         val clazzProperty = SimpleStringProperty("")
-
 
         classChooser += button("Load class") {
             setOnAction {
@@ -116,21 +108,21 @@ object ControlPanelView : View("Control Panel") {
                         val pair = DynamicClassLoader.classWithLoaderFromName(className)
                         if (pair == null) {
                             ui {
-                                output.appendText("Failed to find a class with the name '${className}'\n")
+                                OutputArea.logln("Failed to find a class with the name '${className}'")
                             }
                             return@runAsync
                         }
                         clazz = pair.first
                     } catch (e: IllegalStateException) {
                         ui {
-                            output.appendText("Failed to load class due to $e\n")
+                            OutputArea.logln("Failed to load class due to $e")
                             e.printStackTrace()
                         }
                         return@runAsync
                     }
 
                     ui {
-                        output.appendText("Found $clazz\n")
+                        OutputArea.logln("Found $clazz")
                         createTab(ClassInformation.toJavaType(clazz))
                     }
                 }
@@ -144,10 +136,21 @@ object ControlPanelView : View("Control Panel") {
             hgrow = Priority.ALWAYS
         }
 
+        label("Settings") {
+            addClass(Styles.headLineLabel)
+        }
+
+        vbox {
+            hbox {
+                label("Object Mapper Type")
+                combobox(values = SerializationManager.StdObjectMapper.values().toList())
+            }
+        }
+
     }
 
     fun createTab(type: JavaType) {
-        tabPane.root.tab("Edit ${type.rawClass.simpleName}", BorderPane()) {
+        tabPane.tabpane.tab("Edit ${type.rawClass.simpleName}", BorderPane()) {
             add(ObjectEditor(ObjectEditorController(type)).root)
             tabPane.selectionModel.select(this)
         }
@@ -155,14 +158,15 @@ object ControlPanelView : View("Control Panel") {
 
     fun loadFileSafely(file: File) {
 
-        output.appendText("Loading file ${file.absolutePath}\n")
+        OutputArea.logln("Loading file ${file.absolutePath}")
         try {
             DynamicClassLoader.loadFile(file)
         } catch (e: Exception) {
-            output.appendText("Failed to load jar file ${file.absolutePath}\n$e")
+            OutputArea.logln("Failed to load jar file ${file.absolutePath}")
+            OutputArea.logln("$e")
             e.printStackTrace()
         }
-        output.appendText("Successfully loaded jar file ${file.absolutePath}\n")
+        OutputArea.logln("Successfully loaded jar file ${file.absolutePath}")
     }
 
     fun File.copyInputStreamToFile(inputStream: InputStream) {

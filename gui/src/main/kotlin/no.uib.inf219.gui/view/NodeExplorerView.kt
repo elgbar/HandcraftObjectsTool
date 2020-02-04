@@ -11,7 +11,7 @@ import tornadofx.*
  * @author Elg
  */
 class NodeExplorerView(private val controller: ObjectEditorController) : Fragment("Tree Explorer") {
-    
+
     override val root = scrollpane(
         fitToWidth = true,
         fitToHeight = true
@@ -27,7 +27,7 @@ class NodeExplorerView(private val controller: ObjectEditorController) : Fragmen
                 if (event.clickCount == 1 && event.button == MouseButton.PRIMARY) {
                     //double left click on an item
 
-                    println("name = ${it.left} | middle = ${it.middle?.type} | right = ${it.right?.type}")
+                    OutputArea.logln("name = ${it.left} | middle = ${it.middle?.type} | right = ${it.right?.type}")
                     //first time we click it we want to create it
                     if (it.middle == null && !it.right.isLeaf()) {
 

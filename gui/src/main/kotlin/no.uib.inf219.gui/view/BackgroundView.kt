@@ -1,27 +1,29 @@
 package no.uib.inf219.gui.view
 
+import javafx.geometry.Orientation
 import javafx.scene.control.TabPane
 import javafx.scene.layout.BorderPane
-import javafx.scene.layout.Priority
-import tornadofx.View
-import tornadofx.gridpaneConstraints
-import tornadofx.tab
-import tornadofx.tabpane
+import tornadofx.*
 
 /**
  * @author Elg
  */
 class BackgroundView : View("HOT") {
 
-    override val root: TabPane = tabpane {
-        
-        gridpaneConstraints {
-            vhGrow = Priority.ALWAYS
-        }
-        tab("Select Conversation", BorderPane()) {
-            add(ControlPanelView)
-            this.isClosable = false
-        }
+    val tabpane: TabPane
 
+    override val root = splitpane(orientation = Orientation.VERTICAL)
+
+    init {
+        with(root) {
+            setDividerPositions(0.75)
+            tabpane = tabpane {
+                tab("Select Conversation", BorderPane()) {
+                    add(ControlPanelView)
+                    this.isClosable = false
+                }
+            }
+            this += OutputArea
+        }
     }
 }
