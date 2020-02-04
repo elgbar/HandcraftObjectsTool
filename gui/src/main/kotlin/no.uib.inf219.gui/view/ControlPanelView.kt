@@ -3,12 +3,13 @@ package no.uib.inf219.gui.view
 import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.ObjectMapper
 import javafx.beans.property.SimpleStringProperty
-import javafx.scene.control.TabPane
 import javafx.scene.control.TextInputControl
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.Priority
 import javafx.stage.FileChooser
+import no.uib.inf219.api.serialization.SerializationManager
 import no.uib.inf219.gui.Styles
+import no.uib.inf219.gui.closeAllTabs
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.loader.ClassInformation
 import no.uib.inf219.gui.loader.DynamicClassLoader
@@ -24,8 +25,7 @@ import java.io.InputStream
  */
 object ControlPanelView : View("Control Panel") {
 
-    lateinit var tabPane: TabPane
-        internal set
+    val tabPane: BackgroundView by inject()
 
     lateinit var output: TextInputControl
         private set
@@ -37,6 +37,7 @@ object ControlPanelView : View("Control Panel") {
         set(value) {
             field = value
             ClassInformation.updateMapper()
+            FX.find<BackgroundView>().root.closeAllTabs()
         }
 
     override val root = borderpane {
@@ -146,7 +147,7 @@ object ControlPanelView : View("Control Panel") {
     }
 
     fun createTab(type: JavaType) {
-        tabPane.tab("Edit ${type.rawClass.simpleName}", BorderPane()) {
+        tabPane.root.tab("Edit ${type.rawClass.simpleName}", BorderPane()) {
             add(ObjectEditor(ObjectEditorController(type)).root)
             tabPane.selectionModel.select(this)
         }

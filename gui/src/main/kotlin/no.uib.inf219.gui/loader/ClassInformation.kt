@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.SerializationConfig
 import com.fasterxml.jackson.databind.ser.DefaultSerializerProvider
 import com.fasterxml.jackson.databind.ser.PropertyWriter
 import com.fasterxml.jackson.databind.type.TypeFactory
-import no.uib.inf219.api.serialization.SerializationManager
+import no.uib.inf219.gui.view.ControlPanelView
 
 
 /**
@@ -19,18 +19,27 @@ import no.uib.inf219.api.serialization.SerializationManager
 object ClassInformation {
 
     private val tfac = TypeFactory.defaultInstance()
-    val ser: DefaultSerializerProvider
+
+    private var ser: DefaultSerializerProvider = createDSP()
+
     private val cache: MutableMap<JavaType, Map<String, PropertyWriter>> = HashMap()
     private val typeCache: MutableMap<Class<*>, JavaType> = HashMap()
 
-    init {
+
+    private fun createDSP(): DefaultSerializerProvider {
         val jfac = JsonFactory.builder().build()
         val gen: JsonGenerator = jfac.createGenerator(SegmentedStringWriter(jfac._getBufferRecycler()))
-
-        val cfg: SerializationConfig = SerializationManager.mapper.serializationConfig
+        val cfg: SerializationConfig = ControlPanelView.mapper.serializationConfig
         cfg.initialize(gen)
 
-        ser = DefaultSerializerProvider.Impl().createInstance(cfg, SerializationManager.mapper.serializerFactory)
+        return DefaultSerializerProvider.Impl().createInstance(cfg, ControlPanelView.mapper.serializerFactory)
+    }
+
+    /**
+     * Update the current serializable with the new mapper from [ControlPanelView.mapper]
+     */
+    fun updateMapper() {
+        ser = createDSP()
     }
 
     fun serializableProperties(clazz: Class<*>): Map<String, PropertyWriter> {
