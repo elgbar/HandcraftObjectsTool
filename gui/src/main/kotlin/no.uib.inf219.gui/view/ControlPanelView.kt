@@ -30,6 +30,15 @@ object ControlPanelView : View("Control Panel") {
     lateinit var output: TextInputControl
         private set
 
+    /**
+     * What object mapper to use for serialization
+     */
+    var mapper: ObjectMapper = SerializationManager.stdMapper
+        set(value) {
+            field = value
+            ClassInformation.updateMapper()
+        }
+
     override val root = borderpane {
         val buttons = hbox {
             addClass(Styles.parent)

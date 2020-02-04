@@ -2,7 +2,6 @@ package no.uib.inf219.gui.view
 
 import javafx.geometry.Orientation
 import javafx.scene.control.TextArea
-import no.uib.inf219.api.serialization.SerializationManager
 import no.uib.inf219.gui.Styles
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import tornadofx.*
@@ -53,7 +52,7 @@ class ObjectEditor(private val controller: ObjectEditorController) : View() {
                                 } else
                                     output.appendText(
                                         "Successfully created object!\nobj=$obj\nAs json:\n" +
-                                                SerializationManager.dump(obj)
+                                                ControlPanelView.mapper.writeValueAsString(obj)
                                     )
                             }
                         } catch (e: Throwable) {

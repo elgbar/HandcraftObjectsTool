@@ -9,9 +9,9 @@ import javafx.collections.ObservableMap
 import javafx.event.EventTarget
 import javafx.scene.Node
 import javafx.scene.control.TableColumn
-import no.uib.inf219.api.serialization.SerializationManager
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.loader.ClassInformation
+import no.uib.inf219.gui.view.ControlPanelView
 import tornadofx.*
 import kotlin.collections.component1
 import kotlin.collections.component2
@@ -50,7 +50,7 @@ class ComplexClassBuilder<out T>(
                         null
                     } else {
                         try {
-                            SerializationManager.mapper.readValue(defaultStr, v.type) as Any?
+                            ControlPanelView.mapper.readValue(defaultStr, v.type) as Any?
                         } catch (e: Throwable) {
                             println("Failed to load default value for property $k of $type. Given string is: '$defaultStr'")
                             null
@@ -72,7 +72,7 @@ class ComplexClassBuilder<out T>(
 
     override fun toObject(): T? {
         val objProp = props.mapValues { it.value?.toObject() }
-        return SerializationManager.mapper.convertValue(objProp, type)
+        return ControlPanelView.mapper.convertValue(objProp, type)
     }
 
     override fun getSubClassBuilders(): Map<String, ClassBuilder<*>?> = props

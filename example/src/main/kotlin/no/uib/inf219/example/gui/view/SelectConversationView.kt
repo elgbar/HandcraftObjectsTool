@@ -7,6 +7,8 @@ import javafx.scene.control.TabPane
 import javafx.scene.layout.BorderPane
 import javafx.stage.FileChooser
 import no.uib.inf219.api.serialization.SerializationManager
+import no.uib.inf219.api.serialization.SerializationManager.kotlinStd
+import no.uib.inf219.api.serialization.SerializationManager.readValue
 import no.uib.inf219.example.data.Conversation
 import no.uib.inf219.example.data.Response
 import no.uib.inf219.example.data.prerequisite.AlwaysFalsePrerequisite
@@ -58,7 +60,7 @@ class SelectConversationView(val tabPane: TabPane) : View("") {
                         output.appendText("\n")
 
                         try {
-                            val conv = SerializationManager.load<Conversation>(file.readText())
+                            val conv: Conversation = kotlinStd.readValue(file.readText())
                             convs += conv
                             output.appendText("Successfully loaded conversation!")
                         } catch (e: Exception) {
@@ -80,33 +82,37 @@ class SelectConversationView(val tabPane: TabPane) : View("") {
                     val o = AndPrerequisite(listOf(AlwaysTruePrerequisite(), AlwaysTruePrerequisite()))
                     val o2 = AndPrerequisite(listOf(AlwaysTruePrerequisite(), AlwaysFalsePrerequisite(), o))
 
-                    val dump = SerializationManager.dump(o2)
+                    val dump = kotlinStd.writeValueAsString(o2)
                     output.appendText(dump)
                     output.appendText("\n\n")
                     val oread: Prerequisite
 
                     try {
-                        oread = SerializationManager.load(dump)
+                        oread = kotlinStd.readValue(dump)
                     } catch (e: Exception) {
                         output.appendText("Failed to load object back\n$e")
                         e.printStackTrace()
                         return@setOnAction
                     }
 
-                    output.appendText("\ntake 2: \n${SerializationManager.dump(oread)}\n")
+                    output.appendText(
+                        "\ntake 2: \n${kotlinStd.writeValueAsString(oread)}\n"
+                    )
                     output.appendText("Can use ${oread::class.simpleName}? ${oread.check()}${if (!oread.check()) " (due to '${oread.reason()}')" else ""}\n")
                 }
             }
 
             hBox += button("Dump TEST CONV") {
                 setOnAction {
-                    val dump: String = SerializationManager.dump(Main.TEST_CONV)
+                    val dump: String = kotlinStd.writeValueAsString(Main.TEST_CONV)
                     val dump2: String
                     dump2 = try {
-                        val conv = SerializationManager.load<Conversation>(dump)
+                        val conv: Conversation = kotlinStd.readValue(dump)
                         convs += conv
                         output.appendText("eql test conv obj? ${conv == Main.TEST_CONV}\n")
-                        SerializationManager.dump(conv);
+                        kotlinStd.writeValueAsString(
+                            conv
+                        );
                     } catch (e: Exception) {
                         e.printStackTrace()
                         "failed to load it back in"
@@ -121,23 +127,31 @@ class SelectConversationView(val tabPane: TabPane) : View("") {
 
                     val typeref: TypeReference<List<Response>> = object : TypeReference<List<Response>>() {}
 
-                    val exitRespDump = SerializationManager.dump(Response.exitResponse)
+                    val exitRespDump = kotlinStd.writeValueAsString(
+                        Response.exitResponse
+                    )
                     output.appendText(exitRespDump)
                     output.appendText(
                         "\nEql when resp reload? " +
-                                "${SerializationManager.mapper.readValue<List<Response>>(
+                                "${SerializationManager.yamlMapper.readValue<List<Response>>(
                                     exitRespDump,
                                     typeref
                                 ) == Response.exitResponse}\n"
                     )
 
-                    output.appendText(SerializationManager.dump(SerializationManager.load<List<Response>>(exitRespDump)))
+                    output.appendText(
+                        kotlinStd.writeValueAsString(
+                            kotlinStd.readValue<List<Response>>(exitRespDump)
+                        )
+                    )
 
                     output.appendText("\n\n")
 
-                    val endConvDump = SerializationManager.dump(Conversation.endConversation)
+                    val endConvDump = kotlinStd.writeValueAsString(
+                        Conversation.endConversation
+                    )
                     output.appendText(endConvDump)
-                    output.appendText("\nEql when conv reload? ${SerializationManager.load<Conversation>(endConvDump) == Conversation.endConversation}\n")
+                    output.appendText("\nEql when conv reload? ${kotlinStd.readValue<Conversation>(endConvDump) == Conversation.endConversation}\n")
                 }
             }
 

@@ -1,74 +1,91 @@
 package no.uib.inf219.api.serialization
 
-import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
-import com.fasterxml.jackson.module.jsonSchema.JsonSchema
-import com.fasterxml.jackson.module.jsonSchema.JsonSchemaGenerator
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 
 
 /**
+ * A series of different [ObjectMapper] considered to be default in the HOT system
+ *
  * @author Elg
  */
 object SerializationManager {
 
-    var mapper = ObjectMapper(YAMLFactory())
+    /**
+     * Class to simplify getting the available object mappers
+     */
+    enum class StdObjectMappers {
+        YAML {
+            override fun getObjectMapper(): ObjectMapper {
+                return yamlMapper
+            }
+        },
+        KOTLIN_YAML {
+            override fun getObjectMapper(): ObjectMapper {
+                return kotlinYamlMapper
+            }
+        },
+        STD {
+            override fun getObjectMapper(): ObjectMapper {
+                return stdMapper
+            }
+        },
+        KOTLIN_STD {
+            override fun getObjectMapper(): ObjectMapper {
+                return kotlinStd
+            }
+        };
 
-    init {
-        mapper.findAndRegisterModules()
-        mapper.enable(SerializationFeature.INDENT_OUTPUT);
-        mapper.enable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+        abstract fun getObjectMapper(): ObjectMapper
+
+        override fun toString(): String {
+            return name.replace("_", " ").toLowerCase()
+        }
+    }
+
+    /**
+     * An instance of object mapper working with YAML and kotlin
+     */
+    val yamlMapper = ObjectMapper(YAMLFactory())
+
+    /**
+     * An instance of object mapper working with YAML and kotlin
+     */
+    val kotlinYamlMapper by lazy {
+        val om = ObjectMapper(YAMLFactory())
+        om.registerModule(
+            KotlinModule(
+                nullisSameAsDefault = true,
+                nullToEmptyCollection = true
+            )
+        )
+        return@lazy om
+    }
+
+    /**
+     * An instance of object mapper with no configuration
+     */
+    val stdMapper by lazy { ObjectMapper() }
+
+    /**
+     * An instance of object mapper with no configuration, but kotlin module registered
+     */
+    val kotlinStd by lazy {
+        val mapper = ObjectMapper()
+
         mapper.registerModule(
             KotlinModule(
                 nullisSameAsDefault = true,
                 nullToEmptyCollection = true
             )
         )
+        return@lazy mapper
     }
-
-    fun generateSchema(clazz: Class<*>): JsonSchema {
-        return JsonSchemaGenerator(mapper).generateSchema(clazz)
-    }
-
-    /**
-     * Convert the given object to YAML
-     *
-     * @return The given object as represented by YAML
-     */
-    @JvmStatic
-    fun dump(obj: Any): String {
-        return mapper.writeValueAsString(obj)
-    }
-
 
     @JvmStatic
-    fun dumpMap(map: Map<String, Any?>): String {
-        return dump(loadFromMap(map))
+    inline fun <reified T> ObjectMapper.readValue(str: String): T {
+        return this.readValue(str, T::class.java)
     }
 
-    /**
-     * Load an object from string
-     *
-     * @return An instance of [T] with the properties of the given string
-     */
-    @JvmStatic
-    inline fun <reified T> load(str: String): T {
-        return mapper.readValue(str, T::class.java)
-    }
-
-    /**
-     * Load an object from map
-     *
-     * @return An instance of [T] with the properties of the given map
-     */
-    @JvmStatic
-    inline fun <reified T> loadFromMap(map: Map<String, Any?>): T {
-        return mapper.convertValue(map, T::class.java)
-    }
-
-    fun <T> loadFromMap(map: Map<String, Any?>, clazz: Class<T>): T {
-        return mapper.convertValue(map, clazz)
-    }
 }
