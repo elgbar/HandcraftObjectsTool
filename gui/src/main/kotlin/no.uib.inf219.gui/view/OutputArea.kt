@@ -1,5 +1,6 @@
 package no.uib.inf219.gui.view
 
+import javafx.application.Platform
 import javafx.scene.control.Button
 import no.uib.inf219.gui.Styles
 import tornadofx.*
@@ -28,7 +29,9 @@ object OutputArea : View() {
      * Log a message
      */
     fun log(msg: String) {
-        root.appendText(msg)
+        Platform.runLater {
+            root.appendText(msg)
+        }
     }
 
     /**
