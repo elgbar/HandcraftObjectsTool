@@ -38,102 +38,91 @@ object ControlPanelView : View("Control Panel") {
             mapperProperty.set(value)
             ClassInformation.updateMapper()
             FX.find<BackgroundView>().tabpane.closeAll()
-            OutputArea.logln { "Closing all tabs" }
         }
 
-    override val root = borderpane {
-        val buttons = hbox {
+    override val root = vbox {
+        hbox {
             addClass(Styles.parent)
-        }
-        val classChooser = hbox {
-            addClass(Styles.parent)
-            fitToParentWidth()
-        }
-
-        center = borderpane {
-            top = buttons
-            center = classChooser
-        }
-
-        buttons += button {
-            text = "import jar"
-            setOnAction {
-                val files = chooseFile(
-                    "Choose jar to load",
-                    arrayOf(
-                        FileChooser.ExtensionFilter("Jvm zip files", "*.jar", "*.zip"),
-                        FileChooser.ExtensionFilter("All files", "*")
-                    ),
-                    FileChooserMode.Multi
-                )
-                runAsync {
-                    for (file in files) {
-                        loadFileSafely(file)
+            button {
+                text = "import jar"
+                setOnAction {
+                    val files = chooseFile(
+                        "Choose jar to load",
+                        arrayOf(
+                            FileChooser.ExtensionFilter("Jvm zip files", "*.jar", "*.zip"),
+                            FileChooser.ExtensionFilter("All files", "*")
+                        ),
+                        FileChooserMode.Multi
+                    )
+                    runAsync {
+                        for (file in files) {
+                            loadFileSafely(file)
+                        }
                     }
                 }
             }
-        }
-        buttons += OutputArea.clearButton()
+            this += OutputArea.clearButton()
+            button("Load Example") {
+                setOnAction {
+                    val inp = ControlPanelView::class.java.getResourceAsStream("/example.jar")
+                    if (inp == null) {
+                        OutputArea.logln("Failed to find example jar")
+                        return@setOnAction
+                    }
+                    runAsync {
 
-        buttons += button("Load Example") {
-            setOnAction {
-                val inp = ControlPanelView::class.java.getResourceAsStream("/example.jar")
-                if (inp == null) {
-                    OutputArea.logln("Failed to find example jar")
-                    return@setOnAction
+                        val file = createTempFile()
+                        file.copyInputStreamToFile(inp)
+                        loadFileSafely(file)
+                    } ui {
+                        OutputArea.logln("Example classes to load:")
+                        OutputArea.logln("no.uib.inf219.example.data.Conversation")
+                        OutputArea.logln("no.uib.inf219.example.data.Response")
+                    }
+
+
                 }
-                runAsync {
-
-                    val file = createTempFile()
-                    file.copyInputStreamToFile(inp)
-                    loadFileSafely(file)
-                } ui {
-                    OutputArea.logln("Example classes to load:")
-                    OutputArea.logln("no.uib.inf219.example.data.Conversation")
-                    OutputArea.logln("no.uib.inf219.example.data.Response")
-                }
-
-
             }
         }
+        hbox {
+            addClass(Styles.parent)
+            val clazzProperty = SimpleStringProperty("")
 
-        val clazzProperty = SimpleStringProperty("")
-
-        classChooser += button("Load class") {
-            setOnAction {
-                runAsync {
-                    val className = clazzProperty.value
-                    val clazz: Class<*>
-                    try {
-                        val pair = DynamicClassLoader.classWithLoaderFromName(className)
-                        if (pair == null) {
+            button("Load class") {
+                setOnAction {
+                    runAsync {
+                        val className = clazzProperty.value
+                        val clazz: Class<*>
+                        try {
+                            val pair = DynamicClassLoader.classWithLoaderFromName(className)
+                            if (pair == null) {
+                                ui {
+                                    OutputArea.logln("Failed to find a class with the name '${className}'")
+                                }
+                                return@runAsync
+                            }
+                            clazz = pair.first
+                        } catch (e: IllegalStateException) {
                             ui {
-                                OutputArea.logln("Failed to find a class with the name '${className}'")
+                                OutputArea.logln("Failed to load class due to $e")
+                                e.printStackTrace()
                             }
                             return@runAsync
                         }
-                        clazz = pair.first
-                    } catch (e: IllegalStateException) {
-                        ui {
-                            OutputArea.logln("Failed to load class due to $e")
-                            e.printStackTrace()
-                        }
-                        return@runAsync
-                    }
 
-                    ui {
-                        OutputArea.logln("Found $clazz")
-                        createTab(ClassInformation.toJavaType(clazz))
+                        ui {
+                            OutputArea.logln("Found $clazz")
+                            createTab(ClassInformation.toJavaType(clazz))
+                        }
                     }
                 }
             }
-        }
-
-        classChooser += textfield {
-            bind(clazzProperty)
-            promptText = "Full class name"
-            text = "no.uib.inf219.example.data.Conversation"
-            hgrow = Priority.ALWAYS
+            textfield {
+                bind(clazzProperty)
+                promptText = "Full class name"
+                text = "no.uib.inf219.example.data.Conversation"
+                hgrow = Priority.ALWAYS
+            }
         }
 
         label("Settings") {
@@ -142,8 +131,20 @@ object ControlPanelView : View("Control Panel") {
 
         vbox {
             hbox {
-                label("Object Mapper Type")
-                combobox(values = SerializationManager.StdObjectMapper.values().toList())
+                tooltip("Change what object mapper to use.\nWarning: Changing this will close all opened tabs.")
+                addClass(Styles.parent)
+
+                label("Object Mapper Type ")
+
+                combobox(
+                    property = SerializationManager.StdObjectMapper.fromObjectMapper(mapper).toProperty(),
+                    values = SerializationManager.StdObjectMapper.values().asList()
+                ) {
+                    selectionModel.selectedItemProperty().onChange {
+                        OutputArea.logln("Changing object mapper to ${it?.toString()}")
+                        if (it != null) mapper = it.getObjectMapper()
+                    }
+                }
             }
         }
 

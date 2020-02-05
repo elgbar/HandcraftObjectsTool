@@ -3,6 +3,7 @@ package no.uib.inf219.api.serialization
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.KotlinModule
+import org.apache.commons.lang.WordUtils
 
 
 /**
@@ -41,7 +42,17 @@ object SerializationManager {
         abstract fun getObjectMapper(): ObjectMapper
 
         override fun toString(): String {
-            return name.replace("_", " ").toLowerCase()
+            return WordUtils.capitalizeFully(name.replace("_", " "))
+        }
+
+        companion object {
+
+            fun fromObjectMapper(om: ObjectMapper): StdObjectMapper {
+                for (value in values()) {
+                    if (value.getObjectMapper() === om) return value
+                }
+                throw IllegalArgumentException("Given object mapper is not a standard object mapper")
+            }
         }
     }
 
