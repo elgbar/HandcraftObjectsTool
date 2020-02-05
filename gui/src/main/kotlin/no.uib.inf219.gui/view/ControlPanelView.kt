@@ -9,7 +9,7 @@ import javafx.scene.layout.Priority
 import javafx.stage.FileChooser
 import no.uib.inf219.api.serialization.SerializationManager
 import no.uib.inf219.gui.Styles
-import no.uib.inf219.gui.closeAllTabs
+import no.uib.inf219.gui.closeAll
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.loader.ClassInformation
 import no.uib.inf219.gui.loader.DynamicClassLoader
@@ -37,7 +37,7 @@ object ControlPanelView : View("Control Panel") {
         set(value) {
             mapperProperty.set(value)
             ClassInformation.updateMapper()
-            FX.find<BackgroundView>().tabpane.closeAllTabs()
+            FX.find<BackgroundView>().tabpane.closeAll()
             OutputArea.logln { "Closing all tabs" }
         }
 

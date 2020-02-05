@@ -1,14 +1,20 @@
 package no.uib.inf219.gui
 
+import javafx.scene.control.Tab
 import javafx.scene.control.TabPane
-import tornadofx.close
 
 /**
+ * Close all closable tabs
+ *
+ * @param force If tabs with [Tab.isClosable] set to `false` should also be closed
+ *
  * @author Elg
  */
-fun TabPane.closeAllTabs() {
-    for (tab in tabs) {
-        if (tab.isClosable)
-            tab.close()
+fun TabPane.closeAll(force: Boolean = false) {
+    val iter = this.tabs.iterator()
+    while (iter.hasNext()) {
+        val tab = iter.next()
+        if (force || tab.isClosable)
+            iter.remove() // same as 'tab.close()'
     }
 }
