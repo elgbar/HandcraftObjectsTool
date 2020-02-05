@@ -15,7 +15,6 @@ object OutputArea : View() {
         isEditable = false
     }
 
-
     fun clearButton(): Button {
         return button("Clear") {
             action {
@@ -23,7 +22,6 @@ object OutputArea : View() {
             }
         }
     }
-
 
     /**
      * Log a message

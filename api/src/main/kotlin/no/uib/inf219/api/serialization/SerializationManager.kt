@@ -15,25 +15,26 @@ object SerializationManager {
     /**
      * Class to simplify getting the available object mappers
      */
-    enum class StdObjectMappers {
-        YAML {
-            override fun getObjectMapper(): ObjectMapper {
-                return yamlMapper
-            }
-        },
-        KOTLIN_YAML {
-            override fun getObjectMapper(): ObjectMapper {
-                return kotlinYamlMapper
-            }
-        },
+    enum class StdObjectMapper {
+
         STD {
             override fun getObjectMapper(): ObjectMapper {
                 return stdMapper
             }
         },
+        YAML {
+            override fun getObjectMapper(): ObjectMapper {
+                return yamlMapper
+            }
+        },
         KOTLIN_STD {
             override fun getObjectMapper(): ObjectMapper {
                 return kotlinStd
+            }
+        },
+        KOTLIN_YAML {
+            override fun getObjectMapper(): ObjectMapper {
+                return kotlinYamlMapper
             }
         };
 
