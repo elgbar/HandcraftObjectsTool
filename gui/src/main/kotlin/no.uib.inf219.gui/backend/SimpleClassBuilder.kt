@@ -29,7 +29,7 @@ import java.util.*
  *
  * @author Elg
  */
-abstract class SimpleClassBuilder<T : Any> internal constructor(
+abstract class SimpleClassBuilder<T : Any>(
     primClass: Class<T>,
     private val initialValue: T,
     override val parent: ClassBuilder<*>,
