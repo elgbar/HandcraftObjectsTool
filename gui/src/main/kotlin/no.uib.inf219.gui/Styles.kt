@@ -1,10 +1,11 @@
 package no.uib.inf219.gui
 
-import javafx.geometry.Pos
-import javafx.scene.control.OverrunStyle
 import javafx.scene.text.FontWeight
 import javafx.stage.Screen
-import tornadofx.*
+import tornadofx.Dimension
+import tornadofx.Stylesheet
+import tornadofx.box
+import tornadofx.cssclass
 
 /**
  * @author Elg
@@ -16,10 +17,6 @@ class Styles : Stylesheet() {
         val scale = Screen.getPrimary().dpi / X1_DPI
 
         val headLineLabel by cssclass()
-        val responseButton by cssclass()
-        val conversationLabel by cssclass()
-        val conversationBorderPane by cssclass()
-        val responseHBox by cssclass()
         val parent by cssclass()
 
         //em scaled
@@ -51,31 +48,6 @@ class Styles : Stylesheet() {
         parent {
             padding = box(0.333.ems)
             spacing = 0.333.ems
-        }
-
-        //conversation
-
-        conversationBorderPane {
-            padding = box(0.333.ems)
-
-            backgroundColor += c("#cecece")
-        }
-
-        conversationLabel {
-            padding = box(0.5.ems, 0.25.ems)
-            fontSize = 2.ems
-        }
-
-        //response
-
-        responseHBox {
-            alignment = Pos.BASELINE_LEFT
-            spacing = 0.333.ems
-        }
-        responseButton {
-            fontSize = 1.25.ems
-            textOverrun = OverrunStyle.CLIP
-            padding = box(1.0.ems)
         }
 
         splitPaneDivider {
