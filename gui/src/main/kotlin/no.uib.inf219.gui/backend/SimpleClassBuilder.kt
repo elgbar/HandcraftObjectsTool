@@ -32,9 +32,9 @@ import java.util.*
 abstract class SimpleClassBuilder<T : Any>(
     primClass: Class<T>,
     private val initialValue: T,
-    override val parent: ClassBuilder<*>,
+    override val parent: ClassBuilder<*>? = null,
     override val name: String? = null,
-    override val property: PropertyWriter?,
+    override val property: PropertyWriter? = null,
     private val converter: StringConverter<T>? = null
 ) : ClassBuilder<T> {
 

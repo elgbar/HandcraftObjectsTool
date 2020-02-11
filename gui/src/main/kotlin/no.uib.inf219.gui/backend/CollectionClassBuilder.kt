@@ -21,7 +21,7 @@ class CollectionClassBuilder<out T>(
     override val type: CollectionLikeType,
     override val parent: ClassBuilder<*>? = null,
     override val name: String? = null,
-    override val property: PropertyWriter?
+    override val property: PropertyWriter? = null
 ) : ClassBuilder<Collection<T>> {
 
     init {

@@ -121,7 +121,7 @@ interface ClassBuilder<out T> {
 
     class ByteClassBuilder(
         initial: Byte = 0,
-        parent: ClassBuilder<*>,
+        parent: ClassBuilder<*>? = null,
         name: String? = null,
         prop: PropertyWriter? = null
     ) :
@@ -129,7 +129,7 @@ interface ClassBuilder<out T> {
 
     class ShortClassBuilder(
         initial: Short = 0,
-        parent: ClassBuilder<*>,
+        parent: ClassBuilder<*>? = null,
         name: String? = null,
         prop: PropertyWriter? = null
     ) :
@@ -137,7 +137,7 @@ interface ClassBuilder<out T> {
 
     class IntClassBuilder(
         initial: Int = 0,
-        parent: ClassBuilder<*>,
+        parent: ClassBuilder<*>? = null,
         name: String? = null,
         prop: PropertyWriter? = null
     ) :
@@ -145,7 +145,7 @@ interface ClassBuilder<out T> {
 
     class LongClassBuilder(
         initial: Long = 0,
-        parent: ClassBuilder<*>,
+        parent: ClassBuilder<*>? = null,
         name: String? = null,
         prop: PropertyWriter? = null
     ) :
@@ -153,7 +153,7 @@ interface ClassBuilder<out T> {
 
     class FloatClassBuilder(
         initial: Float = 0.0f,
-        parent: ClassBuilder<*>,
+        parent: ClassBuilder<*>? = null,
         name: String? = null,
         prop: PropertyWriter? = null
     ) :
@@ -161,7 +161,7 @@ interface ClassBuilder<out T> {
 
     class DoubleClassBuilder(
         initial: Double = 0.0,
-        parent: ClassBuilder<*>,
+        parent: ClassBuilder<*>? = null,
         name: String? = null,
         prop: PropertyWriter? = null
     ) :
@@ -169,7 +169,7 @@ interface ClassBuilder<out T> {
 
     class CharClassBuilder(
         initial: Char = '\u0000',
-        parent: ClassBuilder<*>,
+        parent: ClassBuilder<*>? = null,
         name: String? = null,
         prop: PropertyWriter? = null
     ) :
@@ -180,7 +180,7 @@ interface ClassBuilder<out T> {
      */
     class StringClassBuilder(
         initial: String = "",
-        parent: ClassBuilder<*>,
+        parent: ClassBuilder<*>? = null,
         name: String? = null,
         prop: PropertyWriter? = null
     ) :
@@ -188,7 +188,7 @@ interface ClassBuilder<out T> {
 
     class BooleanClassBuilder(
         initial: Boolean = false,
-        parent: ClassBuilder<*>,
+        parent: ClassBuilder<*>? = null,
         name: String? = null,
         prop: PropertyWriter? = null
     ) :
@@ -202,7 +202,7 @@ interface ClassBuilder<out T> {
          */
         fun getClassBuilder(
             type: JavaType,
-            parent: ClassBuilder<*>,
+            parent: ClassBuilder<*>? = null,
             name: String?,
             value: Any? = null,
             prop: PropertyWriter? = null
