@@ -41,7 +41,6 @@ class PaneKtTest {
                 "TabPane does not contain all the expected tabs "
             }
 
-
             closeAll(true)
             assertTrue(tabs.isEmpty()) {
                 "TabPane still contains tabs when force closing all | tabs = $tabs"
