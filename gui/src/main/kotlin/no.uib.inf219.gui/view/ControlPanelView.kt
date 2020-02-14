@@ -27,7 +27,7 @@ object ControlPanelView : View("Control Panel") {
 
     val tabPane: BackgroundView by inject()
 
-    private val mapperProperty by lazy { SimpleObjectProperty<ObjectMapper>(SerializationManager.stdMapper) }
+    private val mapperProperty by lazy { SimpleObjectProperty<ObjectMapper>(SerializationManager.jsonMapper) }
 
     /**
      * What object mapper to use for serialization

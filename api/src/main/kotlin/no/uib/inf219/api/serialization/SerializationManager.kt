@@ -18,9 +18,9 @@ object SerializationManager {
      */
     enum class StdObjectMapper {
 
-        STD {
+        JSON {
             override fun getObjectMapper(): ObjectMapper {
-                return stdMapper
+                return jsonMapper
             }
         },
         YAML {
@@ -28,9 +28,9 @@ object SerializationManager {
                 return yamlMapper
             }
         },
-        KOTLIN_STD {
+        KOTLIN_JSON {
             override fun getObjectMapper(): ObjectMapper {
-                return kotlinStd
+                return kotlinJson
             }
         },
         KOTLIN_YAML {
@@ -78,12 +78,12 @@ object SerializationManager {
     /**
      * An instance of object mapper with no configuration
      */
-    val stdMapper by lazy { ObjectMapper() }
+    val jsonMapper by lazy { ObjectMapper() }
 
     /**
      * An instance of object mapper with no configuration, but kotlin module registered
      */
-    val kotlinStd by lazy {
+    val kotlinJson by lazy {
         val mapper = ObjectMapper()
 
         mapper.registerModule(

@@ -7,7 +7,7 @@ import javafx.scene.control.TabPane
 import javafx.scene.layout.BorderPane
 import javafx.stage.FileChooser
 import no.uib.inf219.api.serialization.SerializationManager
-import no.uib.inf219.api.serialization.SerializationManager.kotlinStd
+import no.uib.inf219.api.serialization.SerializationManager.kotlinJson
 import no.uib.inf219.api.serialization.SerializationManager.readValue
 import no.uib.inf219.example.data.Conversation
 import no.uib.inf219.example.data.Response
@@ -60,7 +60,7 @@ class SelectConversationView(val tabPane: TabPane) : View("") {
                         output.appendText("\n")
 
                         try {
-                            val conv: Conversation = kotlinStd.readValue(file.readText())
+                            val conv: Conversation = kotlinJson.readValue(file.readText())
                             convs += conv
                             output.appendText("Successfully loaded conversation!")
                         } catch (e: Exception) {
@@ -82,13 +82,13 @@ class SelectConversationView(val tabPane: TabPane) : View("") {
                     val o = AndPrerequisite(listOf(AlwaysTruePrerequisite(), AlwaysTruePrerequisite()))
                     val o2 = AndPrerequisite(listOf(AlwaysTruePrerequisite(), AlwaysFalsePrerequisite(), o))
 
-                    val dump = kotlinStd.writeValueAsString(o2)
+                    val dump = kotlinJson.writeValueAsString(o2)
                     output.appendText(dump)
                     output.appendText("\n\n")
                     val oread: Prerequisite
 
                     try {
-                        oread = kotlinStd.readValue(dump)
+                        oread = kotlinJson.readValue(dump)
                     } catch (e: Exception) {
                         output.appendText("Failed to load object back\n$e")
                         e.printStackTrace()
@@ -96,7 +96,7 @@ class SelectConversationView(val tabPane: TabPane) : View("") {
                     }
 
                     output.appendText(
-                        "\ntake 2: \n${kotlinStd.writeValueAsString(oread)}\n"
+                        "\ntake 2: \n${kotlinJson.writeValueAsString(oread)}\n"
                     )
                     output.appendText("Can use ${oread::class.simpleName}? ${oread.check()}${if (!oread.check()) " (due to '${oread.reason()}')" else ""}\n")
                 }
@@ -104,13 +104,13 @@ class SelectConversationView(val tabPane: TabPane) : View("") {
 
             hBox += button("Dump TEST CONV") {
                 setOnAction {
-                    val dump: String = kotlinStd.writeValueAsString(Main.TEST_CONV)
+                    val dump: String = kotlinJson.writeValueAsString(Main.TEST_CONV)
                     val dump2: String
                     dump2 = try {
-                        val conv: Conversation = kotlinStd.readValue(dump)
+                        val conv: Conversation = kotlinJson.readValue(dump)
                         convs += conv
                         output.appendText("eql test conv obj? ${conv == Main.TEST_CONV}\n")
-                        kotlinStd.writeValueAsString(
+                        kotlinJson.writeValueAsString(
                             conv
                         );
                     } catch (e: Exception) {
@@ -127,7 +127,7 @@ class SelectConversationView(val tabPane: TabPane) : View("") {
 
                     val typeref: TypeReference<List<Response>> = object : TypeReference<List<Response>>() {}
 
-                    val exitRespDump = kotlinStd.writeValueAsString(
+                    val exitRespDump = kotlinJson.writeValueAsString(
                         Response.exitResponse
                     )
                     output.appendText(exitRespDump)
@@ -140,18 +140,18 @@ class SelectConversationView(val tabPane: TabPane) : View("") {
                     )
 
                     output.appendText(
-                        kotlinStd.writeValueAsString(
-                            kotlinStd.readValue<List<Response>>(exitRespDump)
+                        kotlinJson.writeValueAsString(
+                            kotlinJson.readValue<List<Response>>(exitRespDump)
                         )
                     )
 
                     output.appendText("\n\n")
 
-                    val endConvDump = kotlinStd.writeValueAsString(
+                    val endConvDump = kotlinJson.writeValueAsString(
                         Conversation.endConversation
                     )
                     output.appendText(endConvDump)
-                    output.appendText("\nEql when conv reload? ${kotlinStd.readValue<Conversation>(endConvDump) == Conversation.endConversation}\n")
+                    output.appendText("\nEql when conv reload? ${kotlinJson.readValue<Conversation>(endConvDump) == Conversation.endConversation}\n")
                 }
             }
 
