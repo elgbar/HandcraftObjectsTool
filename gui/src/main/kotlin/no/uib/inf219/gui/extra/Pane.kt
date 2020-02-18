@@ -1,4 +1,4 @@
-package no.uib.inf219.gui
+package no.uib.inf219.gui.extra
 
 import javafx.scene.control.Tab
 import javafx.scene.control.TabPane
@@ -18,3 +18,4 @@ fun TabPane.closeAll(force: Boolean = false) {
             iter.remove() // same as 'tab.close()'
     }
 }
+

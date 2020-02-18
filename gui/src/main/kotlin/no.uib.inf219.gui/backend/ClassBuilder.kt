@@ -5,7 +5,14 @@ import com.fasterxml.jackson.databind.ser.PropertyWriter
 import com.fasterxml.jackson.databind.type.CollectionLikeType
 import javafx.event.EventTarget
 import javafx.scene.Node
+import javafx.scene.layout.Pane
+import javafx.util.converter.*
 import no.uib.inf219.gui.controllers.ObjectEditorController
+import no.uib.inf219.gui.converter.StringStringConverter
+import tornadofx.bind
+import tornadofx.checkbox
+import tornadofx.textarea
+
 
 /**
  * An interface that is the super class of all object builder, the aim of this interface is to manage how to build a given type.
@@ -125,7 +132,8 @@ interface ClassBuilder<out T> {
         name: String? = null,
         prop: PropertyWriter? = null
     ) :
-        SimpleClassBuilder<Byte>(Byte::class.java, initial, parent, name, prop) {}
+        SimpleNumberClassBuilder<Byte>(Byte::class.java, initial, parent, name, prop, ByteStringConverter()) {
+    }
 
     class ShortClassBuilder(
         initial: Short = 0,
@@ -133,7 +141,9 @@ interface ClassBuilder<out T> {
         name: String? = null,
         prop: PropertyWriter? = null
     ) :
-        SimpleClassBuilder<Short>(Short::class.java, initial, parent, name, prop) {}
+        SimpleNumberClassBuilder<Short>(Short::class.java, initial, parent, name, prop, ShortStringConverter()) {
+
+    }
 
     class IntClassBuilder(
         initial: Int = 0,
@@ -141,7 +151,7 @@ interface ClassBuilder<out T> {
         name: String? = null,
         prop: PropertyWriter? = null
     ) :
-        SimpleClassBuilder<Int>(Int::class.java, initial, parent, name, prop) {}
+        SimpleNumberClassBuilder<Int>(Int::class.java, initial, parent, name, prop, IntegerStringConverter()) {}
 
     class LongClassBuilder(
         initial: Long = 0,
@@ -149,7 +159,7 @@ interface ClassBuilder<out T> {
         name: String? = null,
         prop: PropertyWriter? = null
     ) :
-        SimpleClassBuilder<Long>(Long::class.java, initial, parent, name, prop) {}
+        SimpleNumberClassBuilder<Long>(Long::class.java, initial, parent, name, prop, LongStringConverter()) {}
 
     class FloatClassBuilder(
         initial: Float = 0.0f,
@@ -157,7 +167,7 @@ interface ClassBuilder<out T> {
         name: String? = null,
         prop: PropertyWriter? = null
     ) :
-        SimpleClassBuilder<Float>(Float::class.java, initial, parent, name, prop) {}
+        SimpleNumberClassBuilder<Float>(Float::class.java, initial, parent, name, prop, FloatStringConverter()) {}
 
     class DoubleClassBuilder(
         initial: Double = 0.0,
@@ -165,7 +175,7 @@ interface ClassBuilder<out T> {
         name: String? = null,
         prop: PropertyWriter? = null
     ) :
-        SimpleClassBuilder<Double>(Double::class.java, initial, parent, name, prop) {}
+        SimpleNumberClassBuilder<Double>(Double::class.java, initial, parent, name, prop, DoubleStringConverter()) {}
 
     class CharClassBuilder(
         initial: Char = '\u0000',
@@ -173,7 +183,12 @@ interface ClassBuilder<out T> {
         name: String? = null,
         prop: PropertyWriter? = null
     ) :
-        SimpleClassBuilder<Char>(Char::class.java, initial, parent, name, prop) {}
+        SimpleClassBuilder<Char>(Char::class.java, initial, parent, name, prop, CharacterStringConverter()) {
+
+        override fun validate(text: String): Boolean {
+            return text.length <= 1
+        }
+    }
 
     /**
      * Note that the default value is the empty String `""` and not the default value `null`
@@ -184,7 +199,18 @@ interface ClassBuilder<out T> {
         name: String? = null,
         prop: PropertyWriter? = null
     ) :
-        SimpleClassBuilder<String>(String::class.java, initial, parent, name, prop) {}
+        SimpleClassBuilder<String>(String::class.java, initial, parent, name, prop, StringStringConverter) {
+
+        override fun editView(parent: Pane): Node {
+            return parent.textarea {
+                bindStringProperty(textProperty(), converter, valueProperty)
+            }
+        }
+
+        override fun validate(text: String): Boolean {
+            return true
+        }
+    }
 
     class BooleanClassBuilder(
         initial: Boolean = false,
@@ -192,7 +218,13 @@ interface ClassBuilder<out T> {
         name: String? = null,
         prop: PropertyWriter? = null
     ) :
-        SimpleClassBuilder<Boolean>(Boolean::class.java, initial, parent, name, prop) {}
+        SimpleClassBuilder<Boolean>(Boolean::class.java, initial, parent, name, prop, BooleanStringConverter()) {
+        override fun editView(parent: Pane): Node {
+            return parent.checkbox {
+                bind(valueProperty)
+            }
+        }
+    }
 
 
     companion object {
@@ -264,3 +296,4 @@ interface ClassBuilder<out T> {
         }
     }
 }
+

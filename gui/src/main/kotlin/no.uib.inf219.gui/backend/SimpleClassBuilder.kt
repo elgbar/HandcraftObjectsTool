@@ -8,12 +8,16 @@ import javafx.beans.property.StringProperty
 import javafx.beans.value.ObservableValue
 import javafx.event.EventTarget
 import javafx.scene.Node
+import javafx.scene.control.TextFormatter
+import javafx.scene.layout.Pane
 import javafx.util.StringConverter
 import javafx.util.converter.*
 import no.uib.inf219.gui.Styles
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.converter.UUIDStringConverter
+import no.uib.inf219.gui.extra.removeNl
 import no.uib.inf219.gui.loader.ClassInformation
+import no.uib.inf219.gui.view.OutputArea
 import tornadofx.*
 import java.math.BigDecimal
 import java.math.BigInteger
@@ -35,19 +39,35 @@ abstract class SimpleClassBuilder<T : Any>(
     override val parent: ClassBuilder<*>? = null,
     override val name: String? = null,
     override val property: PropertyWriter? = null,
-    private val converter: StringConverter<T>? = null
+    val converter: StringConverter<T>
 ) : ClassBuilder<T> {
 
     override val type: JavaType = ClassInformation.toJavaType(primClass)
 
-    private val valueProperty: SimpleObjectProperty<T> by lazy { SimpleObjectProperty<T>() }
+    val valueProperty: Property<T> by lazy {
+        val p = when (type.rawClass) {
+            Int::class.javaPrimitiveType -> intProperty(initialValue as Int)
+//            Short::class.javaPrimitiveType -> shortProperty(initialValue as Short)
+//            Byte::class.javaPrimitiveType -> byteProperty(initialValue as Byte)
+            Long::class.javaPrimitiveType -> longProperty(initialValue as Long)
+            Double::class.javaPrimitiveType -> doubleProperty(initialValue as Double)
+            Float::class.javaPrimitiveType -> floatProperty(initialValue as Float)
+            Boolean::class.javaPrimitiveType -> booleanProperty(initialValue as Boolean)
+            String::class.javaPrimitiveType -> stringProperty(initialValue as String)
+//            Char::class.javaPrimitiveType -> charProperty(initialValue as Boolean)
+            else -> SimpleObjectProperty<T>()
+        }
+        @Suppress("UNCHECKED_CAST")
+        return@lazy p as Property<T>
+    }
+
     fun valueProperty(): ObservableValue<T> = valueProperty
     var value: T
-        get() = valueProperty.get()
-        set(value) = valueProperty.set(value)
+        get() = valueProperty.value
+        set(value) = valueProperty.setValue(value)
 
     init {
-        value = initialValue
+        valueProperty.value = initialValue
     }
 
     override fun toObject(): T = value
@@ -67,9 +87,38 @@ abstract class SimpleClassBuilder<T : Any>(
                 label("Required? ${isRequired()}")
                 label("Type: ${type.rawClass}")
             }
-            textarea {
-                bindStringProperty(textProperty(), converter, valueProperty)
+            this += editView(this)
+        }
+    }
+
+    /**
+     * How to view the edit the value
+     */
+    open fun editView(parent: Pane): Node {
+        return parent.textfield {
+            textFormatter = TextFormatter<T>() {
+
+                val text = it.controlNewText.removeNl().trim()
+
+                if (it.isContentChange && text.isNotEmpty() && !validate(text)) {
+                    OutputArea.logln { "Failed to parse '$text' to ${this@SimpleClassBuilder.initialValue::class.simpleName}" }
+                    return@TextFormatter null
+                }
+                return@TextFormatter it
             }
+            bindStringProperty(textProperty(), converter, valueProperty)
+        }
+    }
+
+    /**
+     * Validate if a given string is a correctly formatted.
+     * An empty string will never be given
+     */
+    open fun validate(text: String): Boolean {
+        return try {
+            converter.fromString(text) != null
+        } catch (e: Throwable) {
+            false
         }
     }
 
@@ -98,6 +147,10 @@ abstract class SimpleClassBuilder<T : Any>(
         return true
     }
 
+    override fun previewValue(): String {
+        return value.toString()
+    }
+
 
     @Suppress("UNCHECKED_CAST")
     private fun <T : Any> getDefaultConverter(): StringConverter<T>? = when (type.rawClass) {
@@ -105,6 +158,10 @@ abstract class SimpleClassBuilder<T : Any>(
         Long::class.javaPrimitiveType -> LongStringConverter()
         Double::class.javaPrimitiveType -> DoubleStringConverter()
         Float::class.javaPrimitiveType -> FloatStringConverter()
+        Boolean::class.javaPrimitiveType -> BooleanStringConverter()
+        Short::class.javaPrimitiveType -> ShortStringConverter()
+        Byte::class.javaPrimitiveType -> ByteStringConverter()
+        Char::class.javaPrimitiveType -> CharacterStringConverter()
         Date::class -> DateStringConverter()
         BigDecimal::class -> BigDecimalStringConverter()
         BigInteger::class -> BigIntegerStringConverter()
@@ -112,13 +169,12 @@ abstract class SimpleClassBuilder<T : Any>(
         LocalDate::class -> LocalDateStringConverter()
         LocalTime::class -> LocalTimeStringConverter()
         LocalDateTime::class -> LocalDateTimeStringConverter()
-        Boolean::class.javaPrimitiveType -> BooleanStringConverter()
         //non-default converts
         UUID::class -> UUIDStringConverter
         else -> null
     } as StringConverter<T>?
 
-    private fun bindStringProperty(
+    fun bindStringProperty(
         stringProperty: StringProperty,
         converter: StringConverter<T>?,
         property: ObservableValue<T>
@@ -162,9 +218,5 @@ abstract class SimpleClassBuilder<T : Any>(
 
     override fun toString(): String {
         return "Simple CB; value=$value, clazz=$type)"
-    }
-
-    override fun previewValue(): String {
-        return value.toString()
     }
 }
