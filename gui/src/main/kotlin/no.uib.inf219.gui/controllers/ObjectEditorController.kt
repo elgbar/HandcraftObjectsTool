@@ -3,7 +3,6 @@ package no.uib.inf219.gui.controllers
 import com.fasterxml.jackson.databind.JavaType
 import javafx.beans.property.ObjectProperty
 import no.uib.inf219.gui.backend.ClassBuilder
-import no.uib.inf219.gui.backend.ComplexClassBuilder
 import no.uib.inf219.gui.view.OutputArea
 import org.apache.commons.lang3.tuple.MutableTriple
 import tornadofx.getProperty
@@ -15,7 +14,7 @@ import tornadofx.property
  */
 class ObjectEditorController(
     root: JavaType,
-    val rootBuilder: ClassBuilder<Any> = ComplexClassBuilder(root),
+    val rootBuilder: ClassBuilder<*> = ClassBuilder.getClassBuilder(root, null, "root")!!,
     /**
      * Parent controller, if any
      */
@@ -41,7 +40,6 @@ class ObjectEditorController(
     init {
         currSel = rootSel
     }
-
 
     fun reloadView() {
 
