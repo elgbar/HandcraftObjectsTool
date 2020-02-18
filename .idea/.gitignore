@@ -1,6 +1,4 @@
 # Default ignored files
-/workspace.xml
-
 *
 !.gitignore
 !/runConfigurations/*

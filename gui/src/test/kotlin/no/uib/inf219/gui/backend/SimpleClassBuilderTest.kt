@@ -33,7 +33,7 @@ internal class SimpleClassBuilderTest {
         assertEquals(cb.value, INIT_VAL)
         cb.value = INIT_VAL + "test"
         assertNotEquals(cb.value, INIT_VAL)
-        cb.reset()
+        assertEquals(cb, cb.reset())
         assertEquals(cb.value, INIT_VAL)
     }
 

@@ -44,7 +44,7 @@ object ControlPanelView : View("Control Panel") {
         hbox {
             addClass(Styles.parent)
             button {
-                text = "import jar"
+                text = "Import jar"
                 setOnAction {
                     val files = chooseFile(
                         "Choose jar to load",
@@ -120,13 +120,14 @@ object ControlPanelView : View("Control Panel") {
             textfield {
                 bind(clazzProperty)
                 promptText = "Full class name"
-                text = "no.uib.inf219.example.data.Conversation"
+                text = "no.uib.inf219.example.data.PrimitiveConvertsShowcase"
                 hgrow = Priority.ALWAYS
             }
         }
 
         label("Settings") {
             addClass(Styles.headLineLabel)
+            addClass(Styles.parent)
         }
 
         vbox {
