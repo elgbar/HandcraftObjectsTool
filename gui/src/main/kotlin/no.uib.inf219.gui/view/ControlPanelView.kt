@@ -16,6 +16,7 @@ import no.uib.inf219.gui.loader.DynamicClassLoader
 import tornadofx.*
 import java.io.File
 import java.io.InputStream
+import java.lang.invoke.MethodHandles
 
 
 /**
@@ -64,7 +65,7 @@ object ControlPanelView : View("Control Panel") {
             this += OutputArea.clearButton()
             button("Load Example") {
                 setOnAction {
-                    val inp = ControlPanelView::class.java.getResourceAsStream("/example.jar")
+                    val inp = MethodHandles.lookup().lookupClass().getResourceAsStream("/example.jar")
                     if (inp == null) {
                         OutputArea.logln("Failed to find example jar")
                         return@setOnAction
@@ -78,9 +79,9 @@ object ControlPanelView : View("Control Panel") {
                         OutputArea.logln("Example classes to load:")
                         OutputArea.logln("no.uib.inf219.example.data.Conversation")
                         OutputArea.logln("no.uib.inf219.example.data.Response")
+                        OutputArea.logln("no.uib.inf219.example.data.showcase.PrimitiveConvertsShowcase")
+                        OutputArea.logln("no.uib.inf219.example.data.showcase.PrimitiveDefaultValueShowcase")
                     }
-
-
                 }
             }
         }
@@ -120,7 +121,7 @@ object ControlPanelView : View("Control Panel") {
             textfield {
                 bind(clazzProperty)
                 promptText = "Full class name"
-                text = "no.uib.inf219.example.data.PrimitiveConvertsShowcase"
+                text = "no.uib.inf219.example.data.showcase.PrimitiveDefaultValueShowcase"
                 hgrow = Priority.ALWAYS
             }
         }
