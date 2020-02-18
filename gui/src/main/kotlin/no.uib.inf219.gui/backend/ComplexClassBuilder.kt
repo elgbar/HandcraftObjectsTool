@@ -117,6 +117,10 @@ class ComplexClassBuilder<out T>(
                 column("Type") { it: TableColumn.CellDataFeatures<Pair<String, ClassBuilder<*>?>, String> ->
                     it.value.second?.type?.typeName.toProperty()
                 }
+                onDoubleClick {
+                    val clicked = this.selectedItem ?: return@onDoubleClick
+                    controller.select(clicked)
+                }
             }
         }
     }
