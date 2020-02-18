@@ -23,7 +23,12 @@ class ObjectEditor(private val controller: ObjectEditorController) : View() {
             setDividerPositions(0.25)
 
             this += NodeExplorerView(controller).root
-            this += PropertyEditor(controller).root
+
+            val editor = PropertyEditor(controller)
+            editor.root.center = controller.rootBuilder.toView(this, controller)
+
+            this += editor.root
+
         }
 
         bottom = hbox {
