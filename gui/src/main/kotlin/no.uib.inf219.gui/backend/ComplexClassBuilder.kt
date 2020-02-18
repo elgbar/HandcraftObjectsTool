@@ -53,7 +53,8 @@ class ComplexClassBuilder<out T>(
                         try {
                             ControlPanelView.mapper.readValue(defaultStr, v.type) as Any?
                         } catch (e: Throwable) {
-                            OutputArea.logln("Failed to load default value for property $k of $type. Given string is: '$defaultStr'")
+                            OutputArea.logln("Failed to parse default value for property $k of $type. Given string '$defaultStr'")
+                            OutputArea.logln(e.localizedMessage)
                             null
                         }
                     }
@@ -64,7 +65,6 @@ class ComplexClassBuilder<out T>(
 
         obProp.addListener { ob: Observable ->
             check(ob is ObservableMap<*, *>)
-            OutputArea.logln("propInfo = $propInfo")
             propList.clear()
             propList.addAll(props.toList())
 
