@@ -17,12 +17,6 @@ class Styles : Stylesheet() {
         val parent by cssclass()
         val numberChanger by cssclass()
 
-        //em scaled
-        val Number.ems: Dimension<Dimension.LinearUnits>
-            get() = Dimension(
-                this.toDouble() * scale,
-                Dimension.LinearUnits.em
-            )
         val monospaceFont = loadFont("/fonts/ubuntu/UbuntuMono-R.ttf", -1)!!
     }
 
@@ -56,5 +50,14 @@ class Styles : Stylesheet() {
             font = monospaceFont
             fontSize = 0.1.ems
             padding = box(0.ems, 0.333.ems)
+        }
     }
 }
+
+
+//em scaled
+val Number.ems: Dimension<Dimension.LinearUnits>
+    get() = Dimension(
+        this.toDouble() * Styles.scale,
+        Dimension.LinearUnits.em
+    )
