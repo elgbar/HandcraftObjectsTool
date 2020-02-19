@@ -3,6 +3,7 @@ package no.uib.inf219.gui.backend
 import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.ser.PropertyWriter
 import com.fasterxml.jackson.databind.type.CollectionLikeType
+import com.fasterxml.jackson.databind.type.MapLikeType
 import javafx.event.EventTarget
 import javafx.scene.Node
 import javafx.scene.layout.Pane
@@ -33,7 +34,7 @@ interface ClassBuilder<out T> {
     /**
      * Key of the property to access this from the parent (if any)
      */
-    val name: String?
+    val name: String
 
     /**
      * The property this class builder is creating, used for gaining additional metadata about what we're creating.
@@ -101,7 +102,7 @@ interface ClassBuilder<out T> {
         value: Any? = null,
         prop: PropertyWriter? = null
     ): ClassBuilder<*>? {
-        return getClassBuilder(type, this, name, value, prop)
+        return getClassBuilder(type, name, this, value, prop)
     }
 
     /**
@@ -128,62 +129,62 @@ interface ClassBuilder<out T> {
 
     class ByteClassBuilder(
         initial: Byte = 0,
+        name: String,
         parent: ClassBuilder<*>? = null,
-        name: String? = null,
         prop: PropertyWriter? = null
     ) :
-        SimpleNumberClassBuilder<Byte>(Byte::class.java, initial, parent, name, prop, ByteStringConverter()) {
+        SimpleNumberClassBuilder<Byte>(Byte::class.java, initial, name, parent, prop, ByteStringConverter()) {
     }
 
     class ShortClassBuilder(
         initial: Short = 0,
+        name: String,
         parent: ClassBuilder<*>? = null,
-        name: String? = null,
         prop: PropertyWriter? = null
     ) :
-        SimpleNumberClassBuilder<Short>(Short::class.java, initial, parent, name, prop, ShortStringConverter()) {
+        SimpleNumberClassBuilder<Short>(Short::class.java, initial, name, parent, prop, ShortStringConverter()) {
 
     }
 
     class IntClassBuilder(
         initial: Int = 0,
+        name: String,
         parent: ClassBuilder<*>? = null,
-        name: String? = null,
         prop: PropertyWriter? = null
     ) :
-        SimpleNumberClassBuilder<Int>(Int::class.java, initial, parent, name, prop, IntegerStringConverter()) {}
+        SimpleNumberClassBuilder<Int>(Int::class.java, initial, name, parent, prop, IntegerStringConverter()) {}
 
     class LongClassBuilder(
         initial: Long = 0,
+        name: String,
         parent: ClassBuilder<*>? = null,
-        name: String? = null,
         prop: PropertyWriter? = null
     ) :
-        SimpleNumberClassBuilder<Long>(Long::class.java, initial, parent, name, prop, LongStringConverter()) {}
+        SimpleNumberClassBuilder<Long>(Long::class.java, initial, name, parent, prop, LongStringConverter()) {}
 
     class FloatClassBuilder(
         initial: Float = 0.0f,
+        name: String,
         parent: ClassBuilder<*>? = null,
-        name: String? = null,
         prop: PropertyWriter? = null
     ) :
-        SimpleNumberClassBuilder<Float>(Float::class.java, initial, parent, name, prop, FloatStringConverter()) {}
+        SimpleNumberClassBuilder<Float>(Float::class.java, initial, name, parent, prop, FloatStringConverter()) {}
 
     class DoubleClassBuilder(
         initial: Double = 0.0,
+        name: String,
         parent: ClassBuilder<*>? = null,
-        name: String? = null,
         prop: PropertyWriter? = null
     ) :
-        SimpleNumberClassBuilder<Double>(Double::class.java, initial, parent, name, prop, DoubleStringConverter()) {}
+        SimpleNumberClassBuilder<Double>(Double::class.java, initial, name, parent, prop, DoubleStringConverter()) {}
 
     class CharClassBuilder(
         initial: Char = '\u0000',
+        name: String,
         parent: ClassBuilder<*>? = null,
-        name: String? = null,
         prop: PropertyWriter? = null
     ) :
-        SimpleClassBuilder<Char>(Char::class.java, initial, parent, name, prop, CharacterStringConverter()) {
+        SimpleClassBuilder<Char>(Char::class.java, initial, name, parent, prop, CharacterStringConverter()) {
 
         override fun validate(text: String): Boolean {
             return text.length <= 1
@@ -195,11 +196,11 @@ interface ClassBuilder<out T> {
      */
     class StringClassBuilder(
         initial: String = "",
+        name: String,
         parent: ClassBuilder<*>? = null,
-        name: String? = null,
         prop: PropertyWriter? = null
     ) :
-        SimpleClassBuilder<String>(String::class.java, initial, parent, name, prop, StringStringConverter) {
+        SimpleClassBuilder<String>(String::class.java, initial, name, parent, prop, StringStringConverter) {
 
         override fun editView(parent: Pane): Node {
             return parent.textarea {
@@ -214,11 +215,11 @@ interface ClassBuilder<out T> {
 
     class BooleanClassBuilder(
         initial: Boolean = false,
+        name: String,
         parent: ClassBuilder<*>? = null,
-        name: String? = null,
         prop: PropertyWriter? = null
     ) :
-        SimpleClassBuilder<Boolean>(Boolean::class.java, initial, parent, name, prop, BooleanStringConverter()) {
+        SimpleClassBuilder<Boolean>(Boolean::class.java, initial, name, parent, prop, BooleanStringConverter()) {
         override fun editView(parent: Pane): Node {
             return parent.checkbox {
                 bind(valueProperty)
@@ -234,8 +235,8 @@ interface ClassBuilder<out T> {
          */
         fun getClassBuilder(
             type: JavaType,
+            name: String,
             parent: ClassBuilder<*>? = null,
-            name: String?,
             value: Any? = null,
             prop: PropertyWriter? = null
         ): ClassBuilder<*>? {
@@ -246,44 +247,44 @@ interface ClassBuilder<out T> {
             } else if (type.isPrimitive) {
                 when {
                     type.isTypeOrSuperTypeOf(Byte::class.java) -> {
-                        if (value == null) ByteClassBuilder(parent = parent) else
-                            ByteClassBuilder(value as Byte, parent, name, prop)
+                        if (value == null) ByteClassBuilder(name = name, parent = parent, prop = prop) else
+                            ByteClassBuilder(value as Byte, name, parent, prop)
                     }
                     type.isTypeOrSuperTypeOf(Short::class.java) -> {
-                        if (value == null) ShortClassBuilder(parent = parent) else
-                            ShortClassBuilder(value as Short, parent, name, prop)
+                        if (value == null) ShortClassBuilder(name = name, parent = parent, prop = prop) else
+                            ShortClassBuilder(value as Short, name, parent, prop)
                     }
                     type.isTypeOrSuperTypeOf(Int::class.java) -> {
-                        if (value == null) IntClassBuilder(parent = parent) else
-                            IntClassBuilder(value as Int, parent, name, prop)
+                        if (value == null) IntClassBuilder(name = name, parent = parent, prop = prop) else
+                            IntClassBuilder(value as Int, name, parent, prop)
                     }
                     type.isTypeOrSuperTypeOf(Long::class.java) -> {
-                        if (value == null) LongClassBuilder(parent = parent) else
-                            LongClassBuilder(value as Long, parent, name, prop)
+                        if (value == null) LongClassBuilder(name = name, parent = parent, prop = prop) else
+                            LongClassBuilder(value as Long, name, parent, prop)
                     }
                     type.isTypeOrSuperTypeOf(Float::class.java) -> {
-                        if (value == null) FloatClassBuilder(parent = parent) else
-                            FloatClassBuilder(value as Float, parent, name, prop)
+                        if (value == null) FloatClassBuilder(name = name, parent = parent, prop = prop) else
+                            FloatClassBuilder(value as Float, name, parent, prop)
                     }
                     type.isTypeOrSuperTypeOf(Double::class.java) -> {
-                        if (value == null) DoubleClassBuilder(parent = parent) else
-                            DoubleClassBuilder(value as Double, parent, name, prop)
+                        if (value == null) DoubleClassBuilder(name = name, parent = parent, prop = prop) else
+                            DoubleClassBuilder(value as Double, name, parent, prop)
                     }
                     type.isTypeOrSuperTypeOf(Char::class.java) -> {
-                        if (value == null) CharClassBuilder(parent = parent) else
-                            CharClassBuilder(value as Char, parent, name, prop)
+                        if (value == null) CharClassBuilder(name = name, parent = parent, prop = prop) else
+                            CharClassBuilder(value as Char, name, parent, prop)
                     }
                     type.isTypeOrSuperTypeOf(Boolean::class.java) -> {
-                        if (value == null) BooleanClassBuilder(parent = parent) else
-                            BooleanClassBuilder(value as Boolean, parent, name, prop)
+                        if (value == null) BooleanClassBuilder(name = name, parent = parent, prop = prop) else
+                            BooleanClassBuilder(value as Boolean, name, parent, prop)
                     }
                     else -> throw IllegalStateException("Unknown primitive $type")
                 }
             } else if (type.isTypeOrSuperTypeOf(String::class.java)) {
-                if (value == null) StringClassBuilder(parent = parent) else
-                    StringClassBuilder(value as String, parent, name, prop)
+                if (value == null) StringClassBuilder(name = name, parent = parent, prop = prop) else
+                    StringClassBuilder(value as String, name, parent, prop)
             } else if (type.isCollectionLikeType) {
-                CollectionClassBuilder<Any>(type as CollectionLikeType, parent, name, prop)
+                CollectionClassBuilder<Any>(type as CollectionLikeType, name, parent, prop)
             } else if (type.isMapLikeType) {
                 TODO("Maps are not yet supported: $type")
             } else if (!type.isConcrete) {
@@ -291,9 +292,11 @@ interface ClassBuilder<out T> {
 //                TODO("Selection of concrete subclasses are not yet supported: $type")
             } else {
                 //it's not a primitive type so let's just make a complex type for it
-                ComplexClassBuilder<Any>(type, parent, name, prop)
+                ComplexClassBuilder<Any>(type, name, parent, prop)
             }
         }
     }
+
+
 }
 

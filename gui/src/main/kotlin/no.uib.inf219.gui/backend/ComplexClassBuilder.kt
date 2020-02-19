@@ -8,12 +8,14 @@ import javafx.collections.ObservableList
 import javafx.collections.ObservableMap
 import javafx.event.EventTarget
 import javafx.scene.Node
-import javafx.scene.control.TableColumn
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.loader.ClassInformation
 import no.uib.inf219.gui.view.ControlPanelView
 import no.uib.inf219.gui.view.OutputArea
-import tornadofx.*
+import tornadofx.fold
+import tornadofx.scrollpane
+import tornadofx.squeezebox
+import tornadofx.toObservable
 import kotlin.collections.component1
 import kotlin.collections.component2
 import kotlin.collections.set
@@ -25,8 +27,8 @@ import kotlin.collections.set
  */
 class ComplexClassBuilder<out T>(
     override val type: JavaType,
+    override val name: String,
     override val parent: ClassBuilder<*>? = null,
-    override val name: String? = null,
     override val property: PropertyWriter? = null
 ) : ClassBuilder<T> {
 
@@ -105,23 +107,29 @@ class ComplexClassBuilder<out T>(
     ): Node {
         obPropList.clear()
         obPropList.addAll(props.toList().sortedBy { it.first })
-        return parent.vbox {
-            tableview(obPropList) {
-                columnResizePolicy = SmartResize.POLICY
-                column("Name") { it: TableColumn.CellDataFeatures<Pair<String, ClassBuilder<*>?>, String> ->
-                    it.value.first.toProperty()
-                }
-                column("Value") { it: TableColumn.CellDataFeatures<Pair<String, ClassBuilder<*>?>, String> ->
-                    it.value.second?.previewValue().toProperty()
-                }
-                column("Type") { it: TableColumn.CellDataFeatures<Pair<String, ClassBuilder<*>?>, String> ->
-                    it.value.second?.type?.typeName.toProperty()
-                }
-                onDoubleClick {
-                    val clicked = this.selectedItem ?: return@onDoubleClick
-                    controller.select(clicked)
-                }
+        return parent.scrollpane(fitToWidth = true, fitToHeight = true).squeezebox {
+            for ((name, cb) in obPropList) {
+                if (cb != null && cb.isLeaf())
+                    fold("$name ${cb.previewValue()}") {
+                        cb.toView(this, controller)
+                    }
             }
+            //            tableview(obPropList) {
+//                columnResizePolicy = SmartResize.POLICY
+//                column("Name") { it: TableColumn.CellDataFeatures<Pair<String, ClassBuilder<*>?>, String> ->
+//                    it.value.first.toProperty()
+//                }
+//                column("Value") { it: TableColumn.CellDataFeatures<Pair<String, ClassBuilder<*>?>, String> ->
+//                    it.value.second?.previewValue().toProperty()
+//                }
+//                column("Type") { it: TableColumn.CellDataFeatures<Pair<String, ClassBuilder<*>?>, String> ->
+//                    it.value.second?.type?.typeName.toProperty()
+//                }
+//                onDoubleClick {
+//                    val clicked = this.selectedItem ?: return@onDoubleClick
+//                    controller.select(clicked)
+//                }
+//            }
         }
     }
 
@@ -139,14 +147,20 @@ class ComplexClassBuilder<out T>(
         if (other !is ComplexClassBuilder<*>) return false
 
         if (type != other.type) return false
-        if (props.filter { it.value !== this } != other.props.filter { it.value !== this }) return false
+        if (name != other.name) return false
+        if (parent != other.parent) return false
+        if (property != other.property) return false
 
         return true
     }
 
     override fun hashCode(): Int {
         var result = type.hashCode()
-        result = 31 * result + props.filter { it !== this }.hashCode()
+        result = 31 * result + name.hashCode()
+        result = 31 * result + (parent?.hashCode() ?: 0)
+        result = 31 * result + (property?.hashCode() ?: 0)
         return result
     }
+
+
 }

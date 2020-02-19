@@ -18,11 +18,11 @@ import tornadofx.*
 abstract class SimpleNumberClassBuilder<T : Number>(
     primClass: Class<T>,
     initialValue: T,
+    name: String,
     parent: ClassBuilder<*>? = null,
-    name: String? = null,
     property: PropertyWriter? = null,
     converter: StringConverter<T>
-) : SimpleClassBuilder<T>(primClass, initialValue, parent, name, property, converter) {
+) : SimpleClassBuilder<T>(primClass, initialValue, name, parent, property, converter) {
 
     override fun editView(parent: Pane): Node {
         return parent.hbox {

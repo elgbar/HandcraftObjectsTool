@@ -19,8 +19,8 @@ import tornadofx.*
  */
 class CollectionClassBuilder<out T>(
     override val type: CollectionLikeType,
+    override val name: String,
     override val parent: ClassBuilder<*>? = null,
-    override val name: String? = null,
     override val property: PropertyWriter? = null
 ) : ClassBuilder<Collection<T>> {
 
@@ -28,7 +28,6 @@ class CollectionClassBuilder<out T>(
         require(type.isTrueCollectionType) { "Given type $type is not a _true_ collection like type" }
     }
 
-    //TODO figure out how to get the correct type of collection to use
     private val collection: MutableCollection<ClassBuilder<*>> = ArrayList()
 
     override fun toObject(): Collection<T>? {
@@ -102,4 +101,27 @@ class CollectionClassBuilder<out T>(
     override fun toString(): String {
         return "Collection CB; value=${previewValue()}, contained type=${type.contentType})"
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is CollectionClassBuilder<*>) return false
+
+        if (type != other.type) return false
+        if (parent != other.parent) return false
+        if (name != other.name) return false
+        if (property != other.property) return false
+        if (collection != other.collection) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = type.hashCode()
+        result = 31 * result + (parent?.hashCode() ?: 0)
+        result = 31 * result + name.hashCode()
+        result = 31 * result + (property?.hashCode() ?: 0)
+        return result
+    }
+
+
 }

@@ -36,8 +36,8 @@ import java.util.*
 abstract class SimpleClassBuilder<T : Any>(
     primClass: Class<T>,
     private val initialValue: T,
+    override val name: String,
     override val parent: ClassBuilder<*>? = null,
-    override val name: String? = null,
     override val property: PropertyWriter? = null,
     val converter: StringConverter<T>
 ) : ClassBuilder<T> {
@@ -199,24 +199,31 @@ abstract class SimpleClassBuilder<T : Any>(
     }
 
 
+    override fun toString(): String {
+        return "Simple CB; value=$value, clazz=$type)"
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is SimpleClassBuilder<*>) return false
 
-        if (value != other.value) return false
+        if (initialValue != other.initialValue) return false
+        if (parent != other.parent) return false
+        if (name != other.name) return false
+        if (property != other.property) return false
+        if (converter != other.converter) return false
         if (type != other.type) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        var result = value.hashCode()
+        var result = initialValue.hashCode()
+        result = 31 * result + (parent?.hashCode() ?: 0)
+        result = 31 * result + (name?.hashCode() ?: 0)
+        result = 31 * result + (property?.hashCode() ?: 0)
+        result = 31 * result + converter.hashCode()
         result = 31 * result + type.hashCode()
         return result
-    }
-
-
-    override fun toString(): String {
-        return "Simple CB; value=$value, clazz=$type)"
     }
 }
