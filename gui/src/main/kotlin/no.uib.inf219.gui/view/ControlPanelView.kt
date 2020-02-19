@@ -115,7 +115,7 @@ object ControlPanelView : View("Control Panel") {
             textfield {
                 bind(clazzProperty)
                 promptText = "Full class name"
-                text = "no.uib.inf219.example.data.showcase.PrimitiveDefaultValueShowcase"
+                text = "no.uib.inf219.example.data.showcase.MapExample"
                 hgrow = Priority.ALWAYS
             }
         }

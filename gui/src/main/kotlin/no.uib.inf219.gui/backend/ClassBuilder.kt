@@ -286,7 +286,7 @@ interface ClassBuilder<out T> {
             } else if (type.isCollectionLikeType) {
                 CollectionClassBuilder<Any>(type as CollectionLikeType, name, parent, prop)
             } else if (type.isMapLikeType) {
-                TODO("Maps are not yet supported: $type")
+                MapClassBuilder<Any, Any>(type as MapLikeType, name, parent, prop)
             } else if (!type.isConcrete) {
                 return null
 //                TODO("Selection of concrete subclasses are not yet supported: $type")
