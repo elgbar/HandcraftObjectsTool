@@ -2,10 +2,7 @@ package no.uib.inf219.gui
 
 import javafx.scene.text.FontWeight
 import javafx.stage.Screen
-import tornadofx.Dimension
-import tornadofx.Stylesheet
-import tornadofx.box
-import tornadofx.cssclass
+import tornadofx.*
 
 /**
  * @author Elg
@@ -25,6 +22,7 @@ class Styles : Stylesheet() {
                 this.toDouble() * scale,
                 Dimension.LinearUnits.em
             )
+        val monospaceFont = loadFont("/fonts/ubuntu/UbuntuMono-R.ttf", -1)!!
     }
 
     init {
