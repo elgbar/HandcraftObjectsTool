@@ -75,12 +75,6 @@ object ControlPanelView : View("Control Panel") {
                         val file = createTempFile()
                         file.copyInputStreamToFile(inp)
                         loadFileSafely(file)
-                    } ui {
-                        OutputArea.logln("Example classes to load:")
-                        OutputArea.logln("no.uib.inf219.example.data.Conversation")
-                        OutputArea.logln("no.uib.inf219.example.data.Response")
-                        OutputArea.logln("no.uib.inf219.example.data.showcase.PrimitiveConvertsShowcase")
-                        OutputArea.logln("no.uib.inf219.example.data.showcase.PrimitiveDefaultValueShowcase")
                     }
                 }
             }
@@ -150,6 +144,12 @@ object ControlPanelView : View("Control Panel") {
             }
         }
 
+        OutputArea.logln("Example classes to load:")
+        OutputArea.logln("no.uib.inf219.example.data.Conversation")
+        OutputArea.logln("no.uib.inf219.example.data.Response")
+        OutputArea.logln("no.uib.inf219.example.data.showcase.PrimitiveConvertsShowcase")
+        OutputArea.logln("no.uib.inf219.example.data.showcase.PrimitiveDefaultValueShowcase")
+        OutputArea.logln("no.uib.inf219.example.data.showcase.MapExample")
     }
 
     fun createTab(type: JavaType) {

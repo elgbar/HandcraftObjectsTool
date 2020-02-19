@@ -15,6 +15,7 @@ class Styles : Stylesheet() {
 
         val headLineLabel by cssclass()
         val parent by cssclass()
+        val numberChanger by cssclass()
 
         //em scaled
         val Number.ems: Dimension<Dimension.LinearUnits>
@@ -51,5 +52,9 @@ class Styles : Stylesheet() {
         splitPaneDivider {
             padding = box(0.005.ems)
         }
+        numberChanger {
+            font = monospaceFont
+            fontSize = 0.1.ems
+            padding = box(0.ems, 0.333.ems)
     }
 }

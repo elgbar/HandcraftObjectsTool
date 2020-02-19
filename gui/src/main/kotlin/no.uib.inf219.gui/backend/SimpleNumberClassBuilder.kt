@@ -6,7 +6,7 @@ import javafx.scene.control.TextFormatter
 import javafx.scene.input.MouseButton
 import javafx.scene.layout.Pane
 import javafx.util.StringConverter
-import no.uib.inf219.gui.Styles.Companion.monospaceFont
+import no.uib.inf219.gui.Styles.Companion.numberChanger
 import no.uib.inf219.gui.extra.removeNl
 import no.uib.inf219.gui.view.OutputArea
 import tornadofx.*
@@ -33,7 +33,7 @@ abstract class SimpleNumberClassBuilder<T : Number>(
                 }
                 button("+") {
                     style {
-                        font = monospaceFont
+                        addClass(numberChanger)
                     }
                     setOnMouseClicked { event ->
                         if (event.button == MouseButton.PRIMARY) {
@@ -57,7 +57,7 @@ abstract class SimpleNumberClassBuilder<T : Number>(
                 }
                 button("-") {
                     style {
-                        font = monospaceFont
+                        addClass(numberChanger)
                     }
                     setOnMouseClicked { event ->
                         if (event.button == MouseButton.PRIMARY) {
