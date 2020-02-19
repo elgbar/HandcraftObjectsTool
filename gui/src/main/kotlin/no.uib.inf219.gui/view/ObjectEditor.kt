@@ -52,14 +52,27 @@ class ObjectEditor(private val controller: ObjectEditorController) : View() {
                         "Choose where to save",
                         arrayOf(
                             FileChooser.ExtensionFilter(
-                                "Common types",
-                                "*.json",
+                                "JSON",
+                                "*.json"
+                            ), FileChooser.ExtensionFilter(
+                                "YAML",
                                 "*.yaml",
-                                "*.yml",
-                                "*.txt",
-                                "*.csv",
-                                "*.properties",
+                                "*.yml"
+                            ), FileChooser.ExtensionFilter(
+                                "Properties",
+                                "*.properties"
+                            ),
+                            FileChooser.ExtensionFilter(
+                                "XML",
                                 "*.xml"
+                            ),
+                            FileChooser.ExtensionFilter(
+                                "Comma Separated Values",
+                                "*.csv"
+                            ),
+                            FileChooser.ExtensionFilter(
+                                "Plain text",
+                                "*.txt"
                             ),
                             FileChooser.ExtensionFilter("All files", "*")
                         ),
