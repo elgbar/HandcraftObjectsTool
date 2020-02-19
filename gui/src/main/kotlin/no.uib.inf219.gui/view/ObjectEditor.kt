@@ -1,5 +1,6 @@
 package no.uib.inf219.gui.view
 
+import javafx.scene.layout.BorderPane
 import javafx.stage.FileChooser
 import no.uib.inf219.gui.Styles
 import no.uib.inf219.gui.controllers.ObjectEditorController
@@ -18,6 +19,12 @@ import tornadofx.*
 class ObjectEditor(private val controller: ObjectEditorController) : View() {
 
 
+    private fun createPropEditor(): BorderPane {
+        val editor = PropertyEditor(controller)
+        editor.root.center = controller.rootBuilder.toView(this, controller)
+        return editor.root
+    }
+
     override val root = borderpane() {
 
         center = splitpane {
@@ -25,11 +32,7 @@ class ObjectEditor(private val controller: ObjectEditorController) : View() {
             setDividerPositions(0.25)
 
             this += NodeExplorerView(controller).root
-
-            val editor = PropertyEditor(controller)
-            editor.root.center = controller.rootBuilder.toView(this, controller)
-
-            this += editor.root
+            this += createPropEditor()
 
         }
 
