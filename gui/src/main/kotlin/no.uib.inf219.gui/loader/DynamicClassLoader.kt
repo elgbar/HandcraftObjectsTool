@@ -149,4 +149,8 @@ object DynamicClassLoader {
         val jcl = FILES[file] ?: throw java.lang.IllegalArgumentException("Given file not loaded")
         return jcl.classLoader
     }
+
+    fun getClassLoaders(): List<ClassLoader> {
+        return FILES.values.map { it.classLoader }
+    }
 }

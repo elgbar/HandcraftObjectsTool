@@ -16,7 +16,7 @@ import tornadofx.UIComponent
 class Main : App(BackgroundView::class, Styles::class) {
 
     override fun createPrimaryScene(view: UIComponent): Scene {
-        Main.title = view.titleProperty
+        title = view.titleProperty
         return super.createPrimaryScene(view)
     }
 

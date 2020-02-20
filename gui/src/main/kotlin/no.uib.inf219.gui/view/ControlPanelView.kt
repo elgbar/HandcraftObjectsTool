@@ -115,7 +115,7 @@ object ControlPanelView : View("Control Panel") {
             textfield {
                 bind(clazzProperty)
                 promptText = "Full class name"
-                text = "no.uib.inf219.example.data.showcase.MapExample"
+                text = "no.uib.inf219.example.data.showcase.GenericExample"
                 hgrow = Priority.ALWAYS
             }
         }
@@ -150,6 +150,7 @@ object ControlPanelView : View("Control Panel") {
         OutputArea.logln("no.uib.inf219.example.data.showcase.PrimitiveConvertsShowcase")
         OutputArea.logln("no.uib.inf219.example.data.showcase.PrimitiveDefaultValueShowcase")
         OutputArea.logln("no.uib.inf219.example.data.showcase.MapExample")
+        OutputArea.logln("no.uib.inf219.example.data.showcase.GenericExample")
     }
 
     fun createTab(type: JavaType) {

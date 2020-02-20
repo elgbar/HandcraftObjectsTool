@@ -10,9 +10,9 @@ import javafx.scene.layout.Pane
 import javafx.util.converter.*
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.converter.StringStringConverter
-import tornadofx.bind
-import tornadofx.checkbox
-import tornadofx.textarea
+import no.uib.inf219.gui.loader.ClassInformation
+import no.uib.inf219.gui.view.ClassSelectorView
+import tornadofx.*
 
 
 /**
@@ -283,12 +283,20 @@ interface ClassBuilder<out T> {
             } else if (type.isTypeOrSuperTypeOf(String::class.java)) {
                 if (value == null) StringClassBuilder(name = name, parent = parent, prop = prop) else
                     StringClassBuilder(value as String, name, parent, prop)
-            } else if (type.isCollectionLikeType) {
-                CollectionClassBuilder<Any>(type as CollectionLikeType, name, parent, prop)
-            } else if (type.isMapLikeType) {
-                MapClassBuilder<Any, Any>(type as MapLikeType, name, parent, prop)
+            } else if (type.isCollectionLikeType && (type as CollectionLikeType).isTrueCollectionType) {
+                CollectionClassBuilder<Any>(type, name, parent, prop)
+            } else if (type.isMapLikeType && (type as MapLikeType).isTrueMapType) {
+                MapClassBuilder<Any, Any>(type, name, parent, prop)
             } else if (!type.isConcrete) {
-                return null
+                val csv = find<ClassSelectorView>()
+                runAsync {
+                    csv.searchForSubtypes(type)
+                }
+                csv.openModal(block = true)
+
+                val result = csv.result ?: return null
+                return getClassBuilder(ClassInformation.toJavaType(result), name, parent, value, prop)
+
 //                TODO("Selection of concrete subclasses are not yet supported: $type")
             } else {
                 //it's not a primitive type so let's just make a complex type for it
@@ -296,7 +304,5 @@ interface ClassBuilder<out T> {
             }
         }
     }
-
-
 }
 
