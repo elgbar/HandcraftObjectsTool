@@ -43,6 +43,7 @@ class ClassSelectorView : View("Select implementation") {
 
 
         val resultList = vbox {
+            hide() //initially hide
             addClass(Styles.parent)
 
             textfield {
@@ -83,7 +84,9 @@ class ClassSelectorView : View("Select implementation") {
                     }
                 }
 
-
+                cellFormat {
+                    text = it.canonicalName
+                }
             }
         }
 
