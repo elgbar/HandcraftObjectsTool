@@ -8,10 +8,10 @@ import javafx.scene.layout.BorderPane
 import javafx.scene.layout.Priority
 import javafx.stage.FileChooser
 import no.uib.inf219.api.serialization.SerializationManager
+import no.uib.inf219.extra.Persistent
+import no.uib.inf219.extra.closeAll
 import no.uib.inf219.gui.Styles
 import no.uib.inf219.gui.controllers.ObjectEditorController
-import no.uib.inf219.gui.extra.Persistent
-import no.uib.inf219.gui.extra.closeAll
 import no.uib.inf219.gui.loader.ClassInformation
 import no.uib.inf219.gui.loader.DynamicClassLoader
 import tornadofx.*

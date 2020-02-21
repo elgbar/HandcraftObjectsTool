@@ -6,8 +6,8 @@ import javafx.scene.control.TextFormatter
 import javafx.scene.input.MouseButton
 import javafx.scene.layout.Pane
 import javafx.util.StringConverter
+import no.uib.inf219.extra.removeNl
 import no.uib.inf219.gui.Styles.Companion.numberChanger
-import no.uib.inf219.gui.extra.removeNl
 import no.uib.inf219.gui.view.OutputArea
 import tornadofx.*
 

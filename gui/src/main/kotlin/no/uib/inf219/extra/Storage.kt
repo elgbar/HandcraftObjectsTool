@@ -1,4 +1,4 @@
-package no.uib.inf219.gui.extra
+package no.uib.inf219.extra
 
 import tornadofx.FX
 import java.io.File

@@ -1,4 +1,4 @@
-package no.uib.inf219.gui.extra
+package no.uib.inf219.extra
 
 /**
  * Remove the given substring from this string

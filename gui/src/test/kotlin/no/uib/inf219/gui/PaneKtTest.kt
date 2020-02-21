@@ -2,7 +2,7 @@ package no.uib.inf219.gui
 
 import javafx.scene.control.Tab
 import javafx.scene.control.TabPane
-import no.uib.inf219.gui.extra.closeAll
+import no.uib.inf219.extra.closeAll
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith

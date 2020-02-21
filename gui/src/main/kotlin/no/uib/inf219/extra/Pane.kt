@@ -1,4 +1,4 @@
-package no.uib.inf219.gui.extra
+package no.uib.inf219.extra
 
 import javafx.scene.control.Tab
 import javafx.scene.control.TabPane
