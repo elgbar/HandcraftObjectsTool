@@ -21,8 +21,7 @@ import tornadofx.*
 class ClassSelectorView : View("Select implementation") {
 
     private val searchResult: ObservableList<Class<*>> = ArrayList<Class<Any>>().asObservable()
-
-    private var filteredData = FilteredList(searchResult)
+    private val filteredData = FilteredList(searchResult)
 
     var result: Class<*>? = null
 
@@ -30,7 +29,6 @@ class ClassSelectorView : View("Select implementation") {
     private var searching by searchingProperty
 
     override val root = vbox {
-        //TODO search filtering
 
         val label = label(SEARCHING) {
 
@@ -112,7 +110,6 @@ class ClassSelectorView : View("Select implementation") {
         clean()
         close()
     }
-
 
     fun searchForSubtypes(superType: JavaType) {
 
