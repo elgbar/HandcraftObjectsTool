@@ -8,7 +8,6 @@ import no.uib.inf219.example.data.prerequisite.Prerequisite
  */
 abstract class LogicalPrerequisite(
     @JsonProperty("others", required = true)
-//    @JsonSerialize(`as` = Prerequisite::class, typing = JsonSerialize.Typing.STATIC)
     val others: List<Prerequisite>
 ) : Prerequisite {
 

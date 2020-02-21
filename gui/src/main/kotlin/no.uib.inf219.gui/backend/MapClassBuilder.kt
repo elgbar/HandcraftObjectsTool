@@ -59,8 +59,8 @@ class MapClassBuilder<K, out V>(
                 for ((key, value) in map) {
                     hbox {
                         style { addClass(Styles.parent) }
-                        val kname = key.name!!
-                        val vname = value.name!!
+                        val kname = key.name
+                        val vname = value.name
                         button(kname) { action { con.select(kname, key) } }
                         button(vname) { action { con.select(vname, value) } }
                     }

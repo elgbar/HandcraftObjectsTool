@@ -34,7 +34,9 @@ class ObjectEditor : View() {
 
             this += NodeExplorerView(controller).root
             this += createPropEditor()
-
+//            openInternalBuilderWindow("test", owner = FX.primaryStage.borderpane()) {
+//
+//            }
         }
 
         bottom = hbox {
@@ -115,8 +117,11 @@ class ObjectEditor : View() {
         try {
             return controller.rootBuilder.toObject()!!
         } catch (e: Throwable) {
-            OutputArea.logln("Failed to create object due to")
-            OutputArea.logln(e.toString())
+            //As we load classes from external jars, we do not know what class loader the created object will be in
+            //We can only use one type factory at once, maybe find a way to do this better?
+
+            OutputArea.logln("Failed to create object.\n$e")
+            e.printStackTrace()
         }
         return null
     }
