@@ -8,7 +8,9 @@ import javafx.collections.ObservableList
 import javafx.collections.transformation.FilteredList
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
+import javafx.util.Duration
 import no.uib.inf219.gui.Styles
+import no.uib.inf219.gui.ems
 import no.uib.inf219.gui.loader.DynamicClassLoader
 import tornadofx.*
 
@@ -31,6 +33,9 @@ class ClassSelectorView : View("Select implementation") {
         //TODO search filtering
 
         val label = label(SEARCHING) {
+
+            addClass(Styles.headLineLabel)
+
             searchingProperty.onChange {
                 runLater {
                     text = if (searching) SEARCHING else NO_SUBCLASSES_FOUND
@@ -45,7 +50,6 @@ class ClassSelectorView : View("Select implementation") {
             textfield {
                 promptText = "Full class name"
                 textProperty().onChange {
-                    println("a")
                     if (text.isNullOrBlank()) {
                         filteredData.predicate = null
                     } else {
@@ -53,7 +57,6 @@ class ClassSelectorView : View("Select implementation") {
                             it.canonicalName.contains(text, ignoreCase = true)
                         }
                     }
-
                 }
             }
 
@@ -61,6 +64,10 @@ class ClassSelectorView : View("Select implementation") {
             listview(filteredData) {
 
                 fitToParentSize()
+                style {
+                    minWidth = 45.ems
+                    minHeight = 25.ems
+                }
 
                 onUserSelect {
                     result = it
@@ -69,19 +76,21 @@ class ClassSelectorView : View("Select implementation") {
                 //close when pressing enter and something is selected or double clicking
                 onUserSelect(2) {
                     result = it
-                    close()
+                    cleanAndClose()
                 }
-                addEventFilter(KeyEvent.ANY) { event ->
+
+                addEventHandler(KeyEvent.ANY) { event ->
                     if (event.code == KeyCode.ENTER && result != null) {
-                        close()
+                        cleanAndClose()
                     }
                 }
+
+
             }
         }
 
-        //Make sure it looks Nice
         searchResult.onChange {
-            runLater {
+            runLater(Duration.millis(10.0)) {
                 if (searchResult.isEmpty()) {
                     resultList.hide()
                     label.show()
@@ -92,6 +101,16 @@ class ClassSelectorView : View("Select implementation") {
                 scene.window.sizeToScene()
             }
         }
+    }
+
+    private fun clean() {
+        searching = true
+        searchResult.clear()
+    }
+
+    private fun cleanAndClose() {
+        clean()
+        close()
     }
 
 
@@ -105,7 +124,7 @@ class ClassSelectorView : View("Select implementation") {
 
         synchronized(this) {
 
-            searching = true
+            clean()
             val superClass: Class<*> = superType.rawClass
 
             ClassGraph()
@@ -113,14 +132,15 @@ class ClassSelectorView : View("Select implementation") {
                 .enableExternalClasses()
                 .addClassLoaders(DynamicClassLoader.getClassLoaders())
                 .scan().use { scanResult ->
-                    val classes: ClassInfoList = if (superClass.isInterface) {
+                    val cil: ClassInfoList = if (superClass.isInterface) {
                         scanResult.getClassesImplementing(superClass.name)
                     } else {
                         scanResult.getSubclasses(superClass.canonicalName)
                     }
-                    searchResult.clear()
-                    for (clazz in classes.loadClasses()) {
-                        searchResult.add(clazz as Class<*>)
+                    val classes = cil.loadClasses()
+                    runLater {
+                        ControlPanelView.mapper.registerSubtypes(classes)
+                        searchResult.addAll(classes)
                     }
                 }
             searching = false
