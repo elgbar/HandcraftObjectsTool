@@ -7,8 +7,6 @@ import java.io.ObjectOutputStream
 /**
  * @author Elg
  */
-
-
 fun File.child(child: String): File {
     return File(this, child)
 }

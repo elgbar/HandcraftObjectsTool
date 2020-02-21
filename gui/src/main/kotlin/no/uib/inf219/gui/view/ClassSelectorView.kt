@@ -31,7 +31,6 @@ class ClassSelectorView : View("Select implementation") {
     override val root = vbox {
 
         val label = label(SEARCHING) {
-
             addClass(Styles.headLineLabel)
 
             searchingProperty.onChange {
@@ -58,7 +57,6 @@ class ClassSelectorView : View("Select implementation") {
                     }
                 }
             }
-
 
             listview(filteredData) {
 
@@ -132,14 +130,20 @@ class ClassSelectorView : View("Select implementation") {
                 .enableExternalClasses()
                 .addClassLoaders(DynamicClassLoader.getClassLoaders())
                 .scan().use { scanResult ->
-                    val cil: ClassInfoList = if (superClass.isInterface) {
-                        scanResult.getClassesImplementing(superClass.name)
-                    } else {
-                        scanResult.getSubclasses(superClass.canonicalName)
+                    val cil: ClassInfoList =
+                        when {
+                            superClass == Any::class.java -> scanResult.allStandardClasses
+                            superClass.isInterface -> scanResult.getClassesImplementing(superClass.name)
+                            else -> scanResult.getSubclasses(superClass.canonicalName)
+                        }
+                    val classes = cil.loadClasses(true).filter {
+                        try {
+                            it.canonicalName != null
+                        } catch (e: Throwable) {
+                            false
+                        }
                     }
-                    val classes = cil.loadClasses()
                     runLater {
-                        ControlPanelView.mapper.registerSubtypes(classes)
                         searchResult.addAll(classes)
                     }
                 }

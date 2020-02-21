@@ -10,6 +10,7 @@ import javafx.stage.FileChooser
 import no.uib.inf219.api.serialization.SerializationManager
 import no.uib.inf219.extra.Persistent
 import no.uib.inf219.extra.closeAll
+import no.uib.inf219.extra.type
 import no.uib.inf219.gui.Styles
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.loader.ClassInformation
@@ -45,6 +46,7 @@ object ControlPanelView : View("Control Panel") {
         }
 
     override val root = vbox {
+        val classNameProperty = SimpleStringProperty("")
         hbox {
             addClass(Styles.parent)
 
@@ -113,12 +115,25 @@ object ControlPanelView : View("Control Panel") {
         }
         hbox {
             addClass(Styles.parent)
-            val clazzProperty = SimpleStringProperty("")
+            button("Choose class") {
+                action {
+                    val csv = tornadofx.find<ClassSelectorView>()
+                    tornadofx.runAsync {
+                        csv.searchForSubtypes(Any::class.type())
+                    }
+                    csv.openModal(block = true)
+
+                    classNameProperty.set(csv.result?.canonicalName ?: "")
+                }
+            }
+        }
+        hbox {
+            addClass(Styles.parent)
 
             button("Load class") {
                 setOnAction {
                     runAsync {
-                        val className = clazzProperty.value
+                        val className = classNameProperty.value
                         val clazz: Class<*>
                         try {
                             val pair = DynamicClassLoader.classWithLoaderFromName(className)
@@ -145,7 +160,7 @@ object ControlPanelView : View("Control Panel") {
                 }
             }
             textfield {
-                bind(clazzProperty)
+                bind(classNameProperty)
                 promptText = "Full class name"
                 text = "no.uib.inf219.example.data.showcase.GenericExample"
                 hgrow = Priority.ALWAYS
