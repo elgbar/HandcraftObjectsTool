@@ -9,7 +9,7 @@ import tornadofx.*
 /**
  * @author Elg
  */
-class BackgroundView : View("HOT") {
+class BackgroundView : View("Handcrafted Objects Tool") {
 
     val tabpane: TabPane
 
