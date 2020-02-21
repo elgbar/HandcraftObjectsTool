@@ -10,11 +10,13 @@ import javafx.stage.FileChooser
 import no.uib.inf219.api.serialization.SerializationManager
 import no.uib.inf219.gui.Styles
 import no.uib.inf219.gui.controllers.ObjectEditorController
+import no.uib.inf219.gui.extra.Persistent
 import no.uib.inf219.gui.extra.closeAll
 import no.uib.inf219.gui.loader.ClassInformation
 import no.uib.inf219.gui.loader.DynamicClassLoader
 import tornadofx.*
 import java.io.File
+import java.io.FileFilter
 import java.io.InputStream
 import java.lang.invoke.MethodHandles
 
@@ -26,9 +28,10 @@ import java.lang.invoke.MethodHandles
  */
 object ControlPanelView : View("Control Panel") {
 
-    val tabPane: BackgroundView by inject()
-
     private val mapperProperty by lazy { SimpleObjectProperty<ObjectMapper>(SerializationManager.jsonMapper) }
+
+
+    var lastFile: File? by Persistent()
 
     /**
      * What object mapper to use for serialization
@@ -44,8 +47,10 @@ object ControlPanelView : View("Control Panel") {
     override val root = vbox {
         hbox {
             addClass(Styles.parent)
+
             button {
                 text = "Import jar"
+                tooltip("Import all selected files")
                 setOnAction {
                     val files = chooseFile(
                         "Choose jar to load",
@@ -54,8 +59,35 @@ object ControlPanelView : View("Control Panel") {
                             FileChooser.ExtensionFilter("All files", "*")
                         ),
                         FileChooserMode.Multi
-                    )
+                    ) {
+                        initialDirectory = lastFile
+                    }
+                    if (files.isNotEmpty()) {
+                        lastFile = files[0].parentFile
+                    }
                     runAsync {
+                        for (file in files) {
+                            loadFileSafely(file)
+                        }
+                    }
+                }
+            }
+            button {
+                text = "Import jars"
+                tooltip("Import all jar files from a directory")
+                setOnAction {
+                    val folder = chooseDirectory("Choose jar to load", lastFile)
+                    if (folder != null) {
+                        lastFile = folder
+                    }
+                    runAsync {
+                        val files = folder?.listFiles(FileFilter { it.extension == "jar" })
+                        if (files.isNullOrEmpty()) {
+                            if (files != null) {
+                                OutputArea.logln("No jar files found in ${folder.path}")
+                            }
+                            return@runAsync
+                        }
                         for (file in files) {
                             loadFileSafely(file)
                         }
@@ -154,7 +186,7 @@ object ControlPanelView : View("Control Panel") {
     }
 
     fun createTab(type: JavaType) {
-        tabPane.tabpane.tab("Edit ${type.rawClass.simpleName}", BorderPane()) {
+        FX.find<BackgroundView>().tabpane.tab("Edit ${type.rawClass.simpleName}", BorderPane()) {
             add(find<ObjectEditor>(params = *arrayOf("controller" to ObjectEditorController(type))).root)
             tabPane.selectionModel.select(this)
         }
