@@ -134,30 +134,28 @@ class ComplexClassBuilder<out T>(
         controller: ObjectEditorController
     ): Node {
         obPropList.clear()
-        obPropList.addAll(props.toList().sortedBy { it.first })
-        return parent.scrollpane(fitToWidth = true, fitToHeight = true).squeezebox {
-            for ((name, cb) in obPropList) {
-                if (cb != null && cb.isLeaf())
-                    fold("$name ${cb.previewValue()}") {
-                        cb.toView(this, controller)
+        obPropList.addAll(props.filterValues { it?.isLeaf() ?: true }.toList().sortedBy { it.first })
+        return parent.scrollpane(fitToWidth = true, fitToHeight = true) {
+
+            if (obPropList.isEmpty()) {
+                hbox {
+                    alignment = Pos.CENTER
+
+                    text("Class ")
+                    text(type.rawClass.canonicalName) { font = Styles.monospaceFont }
+                    text(" have no simple serializable properties")
+                }
+            } else {
+                squeezebox {
+                    for ((name, cb) in obPropList) {
+                        if (cb != null) {
+                            fold("$name ${cb.previewValue()}") {
+                                cb.toView(this, controller)
+                            }
+                        }
                     }
+                }
             }
-            //            tableview(obPropList) {
-//                columnResizePolicy = SmartResize.POLICY
-//                column("Name") { it: TableColumn.CellDataFeatures<Pair<String, ClassBuilder<*>?>, String> ->
-//                    it.value.first.toProperty()
-//                }
-//                column("Value") { it: TableColumn.CellDataFeatures<Pair<String, ClassBuilder<*>?>, String> ->
-//                    it.value.second?.previewValue().toProperty()
-//                }
-//                column("Type") { it: TableColumn.CellDataFeatures<Pair<String, ClassBuilder<*>?>, String> ->
-//                    it.value.second?.type?.typeName.toProperty()
-//                }
-//                onDoubleClick {
-//                    val clicked = this.selectedItem ?: return@onDoubleClick
-//                    controller.select(clicked)
-//                }
-//            }
         }
     }
 
