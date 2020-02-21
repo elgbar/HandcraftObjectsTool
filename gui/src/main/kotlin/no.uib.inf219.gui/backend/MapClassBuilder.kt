@@ -66,7 +66,7 @@ class MapClassBuilder<K, out V>(
                     }
                 }
             }
-            this += PropertyEditor(con).root
+            this += find<PropertyEditor>(params = *arrayOf("controller" to con)).root
         }
     }
 

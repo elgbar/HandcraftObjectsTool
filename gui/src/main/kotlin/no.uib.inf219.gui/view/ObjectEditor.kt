@@ -16,11 +16,12 @@ import tornadofx.*
  * @param clazz The class we are editing
  * @author Elg
  */
-class ObjectEditor(private val controller: ObjectEditorController) : View() {
+class ObjectEditor : View() {
 
+    val controller: ObjectEditorController by param()
 
     private fun createPropEditor(): BorderPane {
-        val editor = PropertyEditor(controller)
+        val editor: PropertyEditor = find("controller" to controller)
         editor.root.center = controller.rootBuilder.toView(this, controller)
         return editor.root
     }

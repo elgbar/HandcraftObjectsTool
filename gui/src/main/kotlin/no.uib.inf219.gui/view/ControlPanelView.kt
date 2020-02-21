@@ -155,7 +155,7 @@ object ControlPanelView : View("Control Panel") {
 
     fun createTab(type: JavaType) {
         tabPane.tabpane.tab("Edit ${type.rawClass.simpleName}", BorderPane()) {
-            add(ObjectEditor(ObjectEditorController(type)).root)
+            add(find<ObjectEditor>(params = *arrayOf("controller" to ObjectEditorController(type))).root)
             tabPane.selectionModel.select(this)
         }
     }

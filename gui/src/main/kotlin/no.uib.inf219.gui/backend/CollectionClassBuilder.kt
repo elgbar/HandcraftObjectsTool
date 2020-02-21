@@ -70,7 +70,7 @@ class CollectionClassBuilder<out T>(
                 }
                 this.add(tv)
             }
-            this += PropertyEditor(con).root
+            this += find<PropertyEditor>(params = *arrayOf("controller" to con)).root
         }
     }
 
