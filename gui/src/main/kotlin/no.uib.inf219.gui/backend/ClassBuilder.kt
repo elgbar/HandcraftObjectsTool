@@ -238,7 +238,8 @@ interface ClassBuilder<out T> {
             name: String,
             parent: ClassBuilder<*>? = null,
             value: Any? = null,
-            prop: PropertyWriter? = null
+            prop: PropertyWriter? = null,
+            superType: JavaType = type
         ): ClassBuilder<*>? {
             return if (value != null && value is ClassBuilder<*>) {
                 //it would be very weird if this happened
@@ -295,12 +296,12 @@ interface ClassBuilder<out T> {
                 csv.openModal(block = true)
 
                 val result = csv.result ?: return null
-                return getClassBuilder(ClassInformation.toJavaType(result), name, parent, value, prop)
+                return getClassBuilder(ClassInformation.toJavaType(result), name, parent, value, prop, superType)
 
 //                TODO("Selection of concrete subclasses are not yet supported: $type")
             } else {
                 //it's not a primitive type so let's just make a complex type for it
-                ComplexClassBuilder<Any>(type, name, parent, prop)
+                ComplexClassBuilder<Any>(type, name, parent, prop, superType)
             }
         }
     }

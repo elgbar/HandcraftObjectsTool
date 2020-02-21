@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.core.io.SegmentedStringWriter
 import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.SerializationConfig
+import com.fasterxml.jackson.databind.jsontype.TypeSerializer
 import com.fasterxml.jackson.databind.ser.DefaultSerializerProvider
 import com.fasterxml.jackson.databind.ser.PropertyWriter
 import com.fasterxml.jackson.databind.type.TypeFactory
@@ -22,7 +23,7 @@ object ClassInformation {
 
     private var ser: DefaultSerializerProvider = createDSP()
 
-    private val cache: MutableMap<JavaType, Map<String, PropertyWriter>> = HashMap()
+    private val cache: MutableMap<JavaType, Pair<TypeSerializer, Map<String, PropertyWriter>>> = HashMap()
     private val typeCache: MutableMap<Class<*>, JavaType> = HashMap()
 
 
@@ -42,18 +43,19 @@ object ClassInformation {
         ser = createDSP()
     }
 
-    fun serializableProperties(clazz: Class<*>): Map<String, PropertyWriter> {
+    fun serializableProperties(clazz: Class<*>): Pair<TypeSerializer?, Map<String, PropertyWriter>> {
         return serializableProperties(toJavaType(clazz))
     }
 
-    fun serializableProperties(clazz: JavaType): Map<String, PropertyWriter> {
-        return cache.computeIfAbsent(clazz) {
-            val props = ser.findTypedValueSerializer(it, true, null).properties()
+    fun serializableProperties(type: JavaType): Pair<TypeSerializer?, Map<String, PropertyWriter>> {
+        return cache.computeIfAbsent(type) {
+
+            val props = ser.findValueSerializer(it).properties()
             val map = HashMap<String, PropertyWriter>()
             props.forEach { prop: PropertyWriter ->
                 map[prop.name] = prop
             }
-            map
+            ser.findTypeSerializer(it) to map
         }
     }
 

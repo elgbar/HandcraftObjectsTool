@@ -2,20 +2,21 @@ package no.uib.inf219.gui.backend
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.JavaType
+import com.fasterxml.jackson.databind.jsontype.TypeSerializer
 import com.fasterxml.jackson.databind.ser.PropertyWriter
 import javafx.beans.Observable
 import javafx.collections.ObservableList
 import javafx.collections.ObservableMap
 import javafx.event.EventTarget
+import javafx.geometry.Pos
 import javafx.scene.Node
+import no.uib.inf219.gui.Styles
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.loader.ClassInformation
-import no.uib.inf219.gui.view.ControlPanelView
+import no.uib.inf219.gui.loader.DynamicClassLoader
+import no.uib.inf219.gui.view.ControlPanelView.mapper
 import no.uib.inf219.gui.view.OutputArea
-import tornadofx.fold
-import tornadofx.scrollpane
-import tornadofx.squeezebox
-import tornadofx.toObservable
+import tornadofx.*
 import kotlin.collections.component1
 import kotlin.collections.component2
 import kotlin.collections.set
@@ -29,11 +30,14 @@ class ComplexClassBuilder<out T>(
     override val type: JavaType,
     override val name: String,
     override val parent: ClassBuilder<*>? = null,
-    override val property: PropertyWriter? = null
+    override val property: PropertyWriter? = null,
+    val superType: JavaType = type
 ) : ClassBuilder<T> {
 
-    private val propInfo = ClassInformation.serializableProperties(type)
+    private val propInfo: Map<String, PropertyWriter>
     private val propDefaults: MutableMap<String, Any?> = HashMap()
+
+    private val typeSerializer: TypeSerializer?
 
     private val props: MutableMap<String, ClassBuilder<*>?> = HashMap()
     private val obProp: ObservableMap<String, ClassBuilder<*>?> = props.toObservable()
@@ -42,6 +46,11 @@ class ComplexClassBuilder<out T>(
     private val obPropList: ObservableList<Pair<String, ClassBuilder<*>?>> = propList.toObservable()
 
     init {
+
+        val (typeSer, pinfo) = ClassInformation.serializableProperties(type)
+        typeSerializer = typeSer
+        propInfo = pinfo
+
         //initiate all valid values to null
         // to allow for iteration when populating Node explorer
         for ((k, v) in propInfo) {
@@ -53,7 +62,7 @@ class ComplexClassBuilder<out T>(
                         null
                     } else {
                         try {
-                            ControlPanelView.mapper.readValue(defaultStr, v.type) as Any?
+                            mapper.readValue(defaultStr, v.type) as Any?
                         } catch (e: Throwable) {
                             OutputArea.logln("Failed to parse default value for property $k of $type. Given string '$defaultStr'")
                             OutputArea.logln(e.localizedMessage)
@@ -74,8 +83,27 @@ class ComplexClassBuilder<out T>(
     }
 
     override fun toObject(): T? {
-        val objProp = props.mapValues { it.value?.toObject() }
-        return ControlPanelView.mapper.convertValue(objProp, type)
+        val objProp: MutableMap<String, Any?> = props.mapValues { it.value?.toObject() } as MutableMap<String, Any?>
+        if (typeSerializer != null) {
+            checkNotNull(typeSerializer.propertyName) { "Don't know how to handle a type serializer of type '${typeSerializer::class.simpleName}' as the property name is null" }
+            objProp[typeSerializer.propertyName] = type.rawClass.canonicalName
+        }
+        val loaders = DynamicClassLoader.getClassLoaders()
+        var i = 0
+        var lastE: Throwable
+        do {
+            try {
+                println("mapper.writeValueAsString(objProp) = ${mapper.writeValueAsString(objProp)}")
+                return mapper.convertValue(objProp, superType)
+            } catch (e: Throwable) {
+                //As we load classes from external jars, we do not know what class loader the created object will be in
+                //We can only use one type factory at once, maybe find a way to do this better?
+                mapper.typeFactory = mapper.typeFactory.withClassLoader(loaders[i++])
+                lastE = e
+            }
+        } while (i < loaders.size)
+
+        throw IllegalStateException("Failed to convert complex class builder to $type", lastE)
     }
 
     override fun getSubClassBuilders(): Map<String, ClassBuilder<*>?> = props
