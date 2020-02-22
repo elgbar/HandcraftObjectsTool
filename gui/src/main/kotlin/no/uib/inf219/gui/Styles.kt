@@ -14,6 +14,7 @@ class Styles : Stylesheet() {
         val scale = Screen.getPrimary().dpi / X1_DPI
 
         val headLineLabel by cssclass()
+        val largefont by cssclass()
         val parent by cssclass()
         val numberChanger by cssclass()
 
@@ -33,6 +34,10 @@ class Styles : Stylesheet() {
         headLineLabel {
             fontSize = 2.ems
             fontWeight = FontWeight.BOLD
+        }
+
+        largefont {
+            fontSize = 2.ems
         }
 
         /**

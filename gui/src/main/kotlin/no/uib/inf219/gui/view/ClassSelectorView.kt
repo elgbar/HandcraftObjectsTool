@@ -6,9 +6,11 @@ import io.github.classgraph.ClassInfoList
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.collections.ObservableList
 import javafx.collections.transformation.FilteredList
+import javafx.geometry.Pos
+import javafx.scene.Node
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
-import javafx.util.Duration
+import no.uib.inf219.extra.addClassLoaders
 import no.uib.inf219.gui.Styles
 import no.uib.inf219.gui.ems
 import no.uib.inf219.gui.loader.DynamicClassLoader
@@ -28,83 +30,90 @@ class ClassSelectorView : View("Select implementation") {
     private val searchingProperty = SimpleBooleanProperty()
     private var searching by searchingProperty
 
-    override val root = vbox {
+    private val label: Node
+    private val resultList: Node
 
-        val label = label(SEARCHING) {
-            addClass(Styles.headLineLabel)
+    override val root = borderpane()
 
-            searchingProperty.onChange {
-                runLater {
-                    text = if (searching) SEARCHING else NO_SUBCLASSES_FOUND
-                }
+    init {
+        with(root) {
+
+            style {
+                minWidth = 45.ems
+                minHeight = 25.ems
             }
-        }
 
+            label = hbox {
+                alignment = Pos.CENTER
+                text(SEARCHING) {
+                    addClass(Styles.largefont)
 
-        val resultList = vbox {
-            hide() //initially hide
-            addClass(Styles.parent)
-
-            textfield {
-                promptText = "Full class name"
-                textProperty().onChange {
-                    if (text.isNullOrBlank()) {
-                        filteredData.predicate = null
-                    } else {
-                        filteredData.setPredicate {
-                            it.canonicalName.contains(text, ignoreCase = true)
+                    searchingProperty.onChange {
+                        runLater {
+                            text = if (searching) SEARCHING else NO_SUBCLASSES_FOUND
                         }
                     }
                 }
             }
 
-            listview(filteredData) {
+            resultList = vbox {
 
-                fitToParentSize()
-                style {
-                    minWidth = 45.ems
-                    minHeight = 25.ems
-                }
+                addClass(Styles.parent)
 
-                onUserSelect {
-                    result = it
-                }
-
-                //close when pressing enter and something is selected or double clicking
-                onUserSelect(2) {
-                    result = it
-                    cleanAndClose()
-                }
-
-                addEventHandler(KeyEvent.ANY) { event ->
-                    if (event.code == KeyCode.ENTER && result != null) {
-                        cleanAndClose()
+                textfield {
+                    promptText = "Full class name"
+                    textProperty().onChange {
+                        if (text.isNullOrBlank()) {
+                            filteredData.predicate = null
+                        } else {
+                            filteredData.setPredicate {
+                                it.canonicalName.contains(text, ignoreCase = true)
+                            }
+                        }
                     }
                 }
 
-                cellFormat {
-                    text = it.canonicalName
-                }
-            }
-        }
+                listview(filteredData) {
 
-        searchResult.onChange {
-            runLater(Duration.millis(10.0)) {
-                if (searchResult.isEmpty()) {
-                    resultList.hide()
-                    label.show()
-                } else {
-                    resultList.show()
-                    label.hide()
+                    onUserSelect {
+                        result = it
+                    }
+
+                    //close when pressing enter and something is selected or double clicking
+                    onUserSelect(2) {
+                        result = it
+                        cleanAndClose()
+                    }
+
+                    addEventHandler(KeyEvent.ANY) { event ->
+                        if (event.code == KeyCode.ENTER && result != null) {
+                            cleanAndClose()
+                        }
+                    }
+
+                    cellFormat {
+                        text = it.canonicalName
+                    }
                 }
-                scene.window.sizeToScene()
             }
+
+            searchingProperty.onChange {
+                runLater {
+                    if (searching) {
+                        center.replaceWith(label, sizeToScene = true, centerOnScreen = true)
+                    } else {
+                        center.replaceWith(resultList, sizeToScene = true, centerOnScreen = true)
+                    }
+                }
+            }
+            center = label
         }
     }
 
     private fun clean() {
         searching = true
         searchResult.clear()
+        root.center.replaceWith(label, centerOnScreen = true)
     }
 
     private fun cleanAndClose() {
@@ -121,12 +130,10 @@ class ClassSelectorView : View("Select implementation") {
 
 
         synchronized(this) {
-
-            clean()
+            searching = true
             val superClass: Class<*> = superType.rawClass
 
             ClassGraph()
-//                .verbose() // Log to stderr
                 .enableExternalClasses()
                 .addClassLoaders(DynamicClassLoader.getClassLoaders())
                 .scan().use { scanResult ->
@@ -144,18 +151,11 @@ class ClassSelectorView : View("Select implementation") {
                         }
                     }
                     runLater {
-                        searchResult.addAll(classes)
+                        searchResult.setAll(classes)
                     }
                 }
             searching = false
         }
-    }
-
-    fun ClassGraph.addClassLoaders(cls: Collection<ClassLoader>): ClassGraph {
-        for (it in cls) {
-            addClassLoader(it)
-        }
-        return this
     }
 
     companion object {
