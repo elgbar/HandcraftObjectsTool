@@ -281,14 +281,17 @@ interface ClassBuilder<out T> {
                     else -> throw IllegalStateException("Unknown primitive $type")
                 }
             } else if (type.isTypeOrSuperTypeOf(String::class.java)) {
+                //Strings is not a primitive, but its not far off
                 if (value == null) StringClassBuilder(name = name, parent = parent, prop = prop) else
                     StringClassBuilder(value as String, name, parent, prop)
             } else if (type.isCollectionLikeType && (type as CollectionLikeType).isTrueCollectionType) {
+                //TODO add support for non-true collection types
                 CollectionClassBuilder<Any>(type, name, parent, prop)
             } else if (type.isMapLikeType && (type as MapLikeType).isTrueMapType) {
+                //TODO add support for non-true map types
                 MapClassBuilder<Any, Any>(type, name, parent, prop)
             } else if (!type.isConcrete) {
-
+                //the type is abstract/interface we need a concrete type to
                 val subtype = find<ClassSelectorView>().subtypeOf(type, false) ?: return null
                 return getClassBuilder(subtype, name, parent, value, prop, superType)
             } else {

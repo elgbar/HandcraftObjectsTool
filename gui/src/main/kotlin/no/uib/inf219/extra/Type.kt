@@ -7,10 +7,17 @@ import kotlin.reflect.KClass
 /**
  * @author Elg
  */
+
+/**
+ * Convert a java class into a [JavaType] with [ClassInformation]
+ */
 fun Class<*>.type(): JavaType {
     return ClassInformation.toJavaType(this)
 }
 
+/**
+ * Convert a kotlin class into a [JavaType] with [ClassInformation]
+ */
 fun KClass<*>.type(): JavaType {
-    return ClassInformation.toJavaType(this.java)
+    return this.java.type()
 }
