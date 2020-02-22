@@ -21,7 +21,7 @@ internal class SimpleClassBuilderTest {
     }
 
     private fun createCB(): SimpleClassBuilder<String> {
-        return ClassBuilder.StringClassBuilder(INIT_VAL)
+        return ClassBuilder.StringClassBuilder(INIT_VAL, "test")
     }
 
     companion object {
