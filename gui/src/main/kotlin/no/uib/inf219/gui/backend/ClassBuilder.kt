@@ -289,10 +289,8 @@ interface ClassBuilder<out T> {
                 MapClassBuilder<Any, Any>(type, name, parent, prop)
             } else if (!type.isConcrete) {
 
-                val subtype = find<ClassSelectorView>().subtypeOf(type) ?: return null
+                val subtype = find<ClassSelectorView>().subtypeOf(type, false) ?: return null
                 return getClassBuilder(subtype, name, parent, value, prop, superType)
-
-//                TODO("Selection of concrete subclasses are not yet supported: $type")
             } else {
                 //it's not a primitive type so let's just make a complex type for it
                 ComplexClassBuilder<Any>(type, name, parent, prop, superType)
