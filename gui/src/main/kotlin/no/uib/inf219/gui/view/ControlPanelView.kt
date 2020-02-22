@@ -117,13 +117,9 @@ object ControlPanelView : View("Control Panel") {
             addClass(Styles.parent)
             button("Choose class") {
                 action {
-                    val csv = tornadofx.find<ClassSelectorView>()
-                    tornadofx.runAsync {
-                        csv.searchForSubtypes(Any::class.type())
-                    }
-                    csv.openModal(block = true)
+                    val subclass = tornadofx.find<ClassSelectorView>().subtypeOf(Any::class.type())
 
-                    classNameProperty.set(csv.result?.canonicalName ?: "")
+                    classNameProperty.set(subclass?.rawClass?.canonicalName ?: "")
                 }
             }
         }

@@ -10,7 +10,6 @@ import javafx.scene.layout.Pane
 import javafx.util.converter.*
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.converter.StringStringConverter
-import no.uib.inf219.gui.loader.ClassInformation
 import no.uib.inf219.gui.view.ClassSelectorView
 import tornadofx.*
 
@@ -289,14 +288,9 @@ interface ClassBuilder<out T> {
             } else if (type.isMapLikeType && (type as MapLikeType).isTrueMapType) {
                 MapClassBuilder<Any, Any>(type, name, parent, prop)
             } else if (!type.isConcrete) {
-                val csv = find<ClassSelectorView>()
-                runAsync {
-                    csv.searchForSubtypes(type)
-                }
-                csv.openModal(block = true)
 
-                val result = csv.result ?: return null
-                return getClassBuilder(ClassInformation.toJavaType(result), name, parent, value, prop, superType)
+                val subtype = find<ClassSelectorView>().subtypeOf(type) ?: return null
+                return getClassBuilder(subtype, name, parent, value, prop, superType)
 
 //                TODO("Selection of concrete subclasses are not yet supported: $type")
             } else {
