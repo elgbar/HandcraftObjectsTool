@@ -119,7 +119,8 @@ object ControlPanelView : View("Control Panel") {
                 action {
                     val subclass = tornadofx.find<ClassSelectorView>().subtypeOf(Any::class.type())
 
-                    classNameProperty.set(subclass?.rawClass?.canonicalName ?: "")
+                    val javaName = subclass?.rawClass?.canonicalName ?: return@action
+                    classNameProperty.set(javaName)
                 }
             }
         }
