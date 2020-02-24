@@ -117,8 +117,7 @@ object ControlPanelView : View("Control Panel") {
             addClass(Styles.parent)
             button("Choose class") {
                 action {
-                    val subclass = tornadofx.find<ClassSelectorView>().subtypeOf(Any::class.type())
-
+                    val subclass = tornadofx.find<ClassSelectorView>().subtypeOf(Any::class.type(), true)
                     val javaName = subclass?.rawClass?.canonicalName ?: return@action
                     classNameProperty.set(javaName)
                 }
