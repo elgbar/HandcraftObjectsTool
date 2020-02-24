@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JavaType
 import io.github.classgraph.ClassGraph
 import io.github.classgraph.ClassInfoList
 import javafx.beans.property.SimpleBooleanProperty
+import javafx.beans.property.StringProperty
 import javafx.collections.ObservableList
 import javafx.collections.transformation.FilteredList
 import javafx.geometry.Pos
@@ -46,6 +47,7 @@ class ClassSelectorView : View("Select implementation") {
     private var searching by searchingProperty
 
     private val label: Node
+    private lateinit var textLabelProperty: StringProperty
     private val resultList: Node
 
     override val root = borderpane()
@@ -77,6 +79,7 @@ class ClassSelectorView : View("Select implementation") {
 
                 textfield {
                     promptText = "Full class name"
+                    textLabelProperty = textProperty()
                     textProperty().onChange {
                         if (text.isNullOrBlank()) {
                             filteredData.predicate = null
@@ -104,10 +107,6 @@ class ClassSelectorView : View("Select implementation") {
                         if (event.code == KeyCode.ENTER && result != null) {
                             close()
                         }
-                    }
-
-                    cellFormat {
-                        text = it.canonicalName
                     }
                 }
             }
@@ -161,6 +160,7 @@ class ClassSelectorView : View("Select implementation") {
 
             searching = true
             result = null
+            textLabelProperty.set("")
             val superClass: Class<*> = superType.rawClass
 
             ClassGraph()
