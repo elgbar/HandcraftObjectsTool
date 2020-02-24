@@ -290,6 +290,14 @@ interface ClassBuilder<out T> {
             } else if (type.isMapLikeType && (type as MapLikeType).isTrueMapType) {
                 //TODO add support for non-true map types
                 MapClassBuilder<Any, Any>(type, name, parent, prop)
+
+            } else if (type.isArrayType) {
+                TODO("Arrays not yet supported")
+            } else if (type.isEnumType) {
+                TODO("Enums not yet supported")
+            } else if (type.rawClass.isAnnotation) {
+                TODO("Handle annotation")
+                
             } else if (!type.isConcrete) {
                 //the type is abstract/interface we need a concrete type to
                 val subtype = find<ClassSelectorView>().subtypeOf(type, false) ?: return null
