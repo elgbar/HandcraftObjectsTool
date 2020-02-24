@@ -19,6 +19,7 @@ import java.util.zip.ZipFile
 object DynamicClassLoader {
 
     private val FILES: MutableMap<File, JarClassLoader> = ConcurrentHashMap()
+    private val localClassLoader = DynamicClassLoader::class.java.classLoader!!
 
     /**
      * @param file The file this classloader will control
@@ -96,22 +97,27 @@ object DynamicClassLoader {
     }
 
     /**
-     * This method searched through the supplied jar files in prioritized order.
+     * This method searched through the supplied jar files in prioritized order. The classloader of the is object will always have the highest priority
      * Internally a lazy class loader is used to allow for lower memory overhead
      *
      * @return The class at the given path, or `null` if no class was found
      * @throws IllegalStateException If an exception was thrown if [ClassLoader.loadClass] throws.
      */
     fun classWithLoaderFromName(className: String): Pair<Class<*>, ClassLoader>? {
-        for (jcl in FILES.values.sorted()) {
-            val clazz = jcl.classForName(className)
-            if (clazz != null) {
-                return Pair(clazz, jcl.classLoader)
+        try {
+            //first try to load from the local classloader
+            val clazz = localClassLoader.loadClass(className)
+            return Pair(clazz, localClassLoader)
+        } catch (e: Throwable) {
+            for (jcl in FILES.values.sorted()) {
+                val clazz = jcl.classForName(className)
+                if (clazz != null) {
+                    return Pair(clazz, jcl.classLoader)
+                }
             }
         }
         return null
     }
-
 
     /**
      * This class will load all classes in the loaded files, the memory usage will increase substantially.
