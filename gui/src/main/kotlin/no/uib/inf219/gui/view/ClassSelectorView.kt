@@ -34,7 +34,7 @@ import java.lang.reflect.Modifier
  */
 class ClassSelectorView : View("Select implementation") {
 
-    private val searchResult: ObservableList<Class<*>> = ArrayList<Class<Any>>().asObservable()
+    private val searchResult: ObservableList<String> = ArrayList<String>().asObservable()
     private val filteredData = FilteredList(searchResult)
 
     /**
@@ -82,7 +82,7 @@ class ClassSelectorView : View("Select implementation") {
                             filteredData.predicate = null
                         } else {
                             filteredData.setPredicate {
-                                it.canonicalName.contains(text, ignoreCase = true)
+                                it.contains(text, ignoreCase = true)
                             }
                         }
                     }
@@ -91,12 +91,12 @@ class ClassSelectorView : View("Select implementation") {
                 listview(filteredData) {
 
                     onUserSelect {
-                        result = it
+                        result = DynamicClassLoader.classFromName(it)
                     }
 
                     //close when pressing enter and something is selected or double clicking
                     onUserSelect(2) {
-                        result = it
+                        result = DynamicClassLoader.classFromName(it)
                         close()
                     }
 
@@ -173,13 +173,10 @@ class ClassSelectorView : View("Select implementation") {
                             superClass.isInterface -> scanResult.getClassesImplementing(superClass.name)
                             else -> scanResult.getSubclasses(superClass.canonicalName)
                         }
-                    val classes = cil.loadClasses(true).filter {
-                        try {
-                            it.canonicalName != null && (showAbstract || !Modifier.isAbstract(it.modifiers))
-                        } catch (e: Throwable) {
-                            false
-                        }
-                    }
+                    val classes = cil.filter {
+                        (showAbstract || !Modifier.isAbstract(it.modifiers))
+                    }.names
+
                     runLater {
                         searchResult.setAll(classes)
                     }
