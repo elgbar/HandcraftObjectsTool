@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JavaType
 import io.github.classgraph.ClassGraph
 import io.github.classgraph.ClassInfoList
 import javafx.beans.property.SimpleBooleanProperty
+import javafx.beans.property.SimpleStringProperty
 import javafx.beans.property.StringProperty
 import javafx.collections.ObservableList
 import javafx.collections.transformation.FilteredList
@@ -45,6 +46,9 @@ class ClassSelectorView : View("Select implementation") {
     private val searchingProperty = SimpleBooleanProperty()
     private var searching by searchingProperty
 
+    private val superClassProperty = SimpleStringProperty()
+    private var superClass by superClassProperty
+
     private val label: Node
     private lateinit var textLabelProperty: StringProperty
     private val resultList: Node
@@ -58,6 +62,7 @@ class ClassSelectorView : View("Select implementation") {
                 minWidth = 45.ems
                 minHeight = 25.ems
             }
+
 
             label = hbox {
                 alignment = Pos.CENTER
@@ -75,6 +80,23 @@ class ClassSelectorView : View("Select implementation") {
             resultList = vbox {
 
                 addClass(Styles.parent)
+
+
+                fun updateText(): String {
+                    return "Choose subclass of $superClass (${searchResult.size} found)"
+                }
+
+                text(updateText()) {
+                    style {
+                        fontSize = 1.5.ems
+                    }
+                    superClassProperty.onChange {
+                        text = updateText()
+                    }
+                    searchResult.onChange {
+                        text = updateText()
+                    }
+                }
 
                 textfield {
                     promptText = "Full class name"
@@ -159,6 +181,7 @@ class ClassSelectorView : View("Select implementation") {
 
             searching = true
             result = null
+            superClass = superType.rawClass.name
             textLabelProperty.set("")
             val superClass: Class<*> = superType.rawClass
 
