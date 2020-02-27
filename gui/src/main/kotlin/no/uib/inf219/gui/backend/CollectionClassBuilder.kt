@@ -1,11 +1,13 @@
 package no.uib.inf219.gui.backend
 
+import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ser.PropertyWriter
 import com.fasterxml.jackson.databind.type.CollectionLikeType
 import javafx.event.EventTarget
 import javafx.scene.Node
 import javafx.scene.control.TreeView
 import no.uib.inf219.gui.controllers.ObjectEditorController
+import no.uib.inf219.gui.view.ControlPanelView
 import no.uib.inf219.gui.view.NodeExplorerView
 import no.uib.inf219.gui.view.PropertyEditor
 import org.apache.commons.lang3.tuple.MutableTriple
@@ -29,6 +31,10 @@ class CollectionClassBuilder<out T>(
     }
 
     private val collection: MutableCollection<ClassBuilder<*>> = ArrayList()
+
+    override fun toTree(): JsonNode {
+        return ControlPanelView.mapper.valueToTree(collection.map { it.toTree() })
+    }
 
     override fun toObject(): Collection<T>? {
         try {

@@ -2,6 +2,7 @@ package no.uib.inf219.gui.backend
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.JavaType
+import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer
 import com.fasterxml.jackson.databind.ser.PropertyWriter
 import javafx.beans.Observable
@@ -11,6 +12,7 @@ import javafx.event.EventTarget
 import javafx.geometry.Pos
 import javafx.scene.Node
 import no.uib.inf219.gui.Styles
+import no.uib.inf219.gui.backend.exceptions.MissingPropertyException
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.loader.ClassInformation
 import no.uib.inf219.gui.view.ControlPanelView.mapper
@@ -45,7 +47,6 @@ class ComplexClassBuilder<out T>(
     private val obPropList: ObservableList<Pair<String, ClassBuilder<*>?>> = propList.toObservable()
 
     init {
-
         val (typeSer, pinfo) = ClassInformation.serializableProperties(type)
         typeSerializer = typeSer
         propInfo = pinfo
@@ -70,24 +71,49 @@ class ComplexClassBuilder<out T>(
                     }
                 } else null
             propDefaults[k] = default
-            createClassBuilderFor(k)
+
+            if (default != null || v.type.isPrimitive) {
+                //only create a class builder for properties that has a default value
+                // or is primitive (which always have default values)
+                createClassBuilderFor(k)
+            } else {
+                props[k] = null
+            }
         }
 
         obProp.addListener { ob: Observable ->
             check(ob is ObservableMap<*, *>)
             propList.clear()
             propList.addAll(props.toList())
-
         }
     }
 
-    override fun toObject(): T? {
-        val objProp: MutableMap<String, Any?> = props.mapValues { it.value?.toObject() } as MutableMap<String, Any?>
+    override fun toTree(): JsonNode {
+        val objProp = props.mapValues {
+            val obj = it.value?.toObject()
+
+            if (obj == null) {
+                val info: PropertyWriter =
+                    propInfo[it.key] ?: kotlin.error("Failed to find information about property '${it.key}' in $type")
+                if (info.isRequired) {
+                    throw MissingPropertyException(it.key, info.type, type)
+                }
+            }
+
+            return@mapValues mapper.valueToTree<JsonNode>(obj)
+        } as MutableMap<String, JsonNode>
+
+
         if (typeSerializer != null) {
             checkNotNull(typeSerializer.propertyName) { "Don't know how to handle a type serializer of type '${typeSerializer::class.simpleName}' as the property name is null" }
-            objProp[typeSerializer.propertyName] = type.rawClass.canonicalName
+            objProp[typeSerializer.propertyName] = mapper.valueToTree<JsonNode>(type.rawClass.canonicalName)
         }
-        return mapper.convertValue(objProp, superType)
+
+        return mapper.valueToTree(objProp)
+    }
+
+    override fun toObject(): T? {
+        return mapper.convertValue(toTree(), superType)
     }
 
     override fun getSubClassBuilders(): Map<String, ClassBuilder<*>?> = props

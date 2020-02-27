@@ -1,11 +1,13 @@
 package no.uib.inf219.gui.backend
 
+import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ser.PropertyWriter
 import com.fasterxml.jackson.databind.type.MapLikeType
 import javafx.event.EventTarget
 import javafx.scene.Node
 import no.uib.inf219.gui.Styles
 import no.uib.inf219.gui.controllers.ObjectEditorController
+import no.uib.inf219.gui.view.ControlPanelView
 import no.uib.inf219.gui.view.PropertyEditor
 import tornadofx.*
 import kotlin.collections.set
@@ -22,6 +24,10 @@ class MapClassBuilder<K, out V>(
 
 
     val map: MutableMap<ClassBuilder<*>, ClassBuilder<*>> = HashMap()
+
+    override fun toTree(): JsonNode {
+        return ControlPanelView.mapper.valueToTree(map.mapValues { it.value.toTree() }.mapKeys { it.key.toTree() })
+    }
 
     override fun toObject(): Map<K?, V?> {
         val realMap = HashMap<K?, V?>()

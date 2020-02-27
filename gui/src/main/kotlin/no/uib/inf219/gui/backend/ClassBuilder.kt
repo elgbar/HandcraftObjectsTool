@@ -1,6 +1,7 @@
 package no.uib.inf219.gui.backend
 
 import com.fasterxml.jackson.databind.JavaType
+import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ser.PropertyWriter
 import com.fasterxml.jackson.databind.type.CollectionLikeType
 import com.fasterxml.jackson.databind.type.MapLikeType
@@ -39,6 +40,11 @@ interface ClassBuilder<out T> {
      * The property this class builder is creating, used for gaining additional metadata about what we're creating.
      */
     val property: PropertyWriter?
+
+    /**
+     * Convert this class builder to a json node
+     */
+    fun toTree(): JsonNode
 
     /**
      * Convert this object to an instance of [T]
@@ -297,7 +303,7 @@ interface ClassBuilder<out T> {
                 TODO("Enums not yet supported")
             } else if (type.rawClass.isAnnotation) {
                 TODO("Handle annotation")
-                
+
             } else if (!type.isConcrete) {
                 //the type is abstract/interface we need a concrete type to
                 val subtype = find<ClassSelectorView>().subtypeOf(type, false) ?: return null

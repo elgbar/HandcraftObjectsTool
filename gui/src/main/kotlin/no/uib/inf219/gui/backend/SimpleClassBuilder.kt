@@ -1,6 +1,7 @@
 package no.uib.inf219.gui.backend
 
 import com.fasterxml.jackson.databind.JavaType
+import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ser.PropertyWriter
 import javafx.beans.property.Property
 import javafx.beans.property.SimpleObjectProperty
@@ -17,6 +18,7 @@ import no.uib.inf219.gui.Styles
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.converter.UUIDStringConverter
 import no.uib.inf219.gui.loader.ClassInformation
+import no.uib.inf219.gui.view.ControlPanelView
 import no.uib.inf219.gui.view.OutputArea
 import tornadofx.*
 import java.math.BigDecimal
@@ -68,6 +70,10 @@ abstract class SimpleClassBuilder<T : Any>(
 
     init {
         valueProperty.value = initialValue
+    }
+
+    override fun toTree(): JsonNode {
+        return ControlPanelView.mapper.valueToTree(value)
     }
 
     override fun toObject(): T = value

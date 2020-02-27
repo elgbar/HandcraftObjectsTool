@@ -3,6 +3,7 @@ package no.uib.inf219.gui.view
 import javafx.scene.layout.BorderPane
 import javafx.stage.FileChooser
 import no.uib.inf219.gui.Styles
+import no.uib.inf219.gui.backend.exceptions.MissingPropertyException
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.view.ControlPanelView.mapper
 import tornadofx.*
@@ -98,14 +99,11 @@ class ObjectEditor : View() {
                     runAsync {
 
                         val obj = toObject()
-                        if (obj == null) {
-                            OutputArea.logln("Object created without error, but it is null")
-                        } else {
+                        if (obj != null) {
                             OutputArea.logln("Successfully created object!")
                             OutputArea.logln("obj=$obj")
                             OutputArea.logln("json=${mapper.writeValueAsString(obj)}")
                         }
-
                     }
                 }
             }
@@ -116,14 +114,16 @@ class ObjectEditor : View() {
     fun toObject(): Any? {
         try {
             return controller.rootBuilder.toObject()!!
+        } catch (e: MissingPropertyException) {
+            OutputArea.logln("Failed to create object.\n$e")
         } catch (e: Throwable) {
             //As we load classes from external jars, we do not know what class loader the created object will be in
             //We can only use one type factory at once, maybe find a way to do this better?
 
-            OutputArea.logln("Failed to create object.\n$e")
+            OutputArea.logln("Failed to create object due to an exception. Maybe you tried to create an object which require a non-null parameter is null.")
+            OutputArea.logln("${e.javaClass.simpleName}: ${e.message}")
             e.printStackTrace()
         }
         return null
     }
 }
-
