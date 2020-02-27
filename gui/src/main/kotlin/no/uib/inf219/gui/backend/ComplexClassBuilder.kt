@@ -13,7 +13,6 @@ import javafx.scene.Node
 import no.uib.inf219.gui.Styles
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.loader.ClassInformation
-import no.uib.inf219.gui.loader.DynamicClassLoader
 import no.uib.inf219.gui.view.ControlPanelView.mapper
 import no.uib.inf219.gui.view.OutputArea
 import tornadofx.*
@@ -88,22 +87,7 @@ class ComplexClassBuilder<out T>(
             checkNotNull(typeSerializer.propertyName) { "Don't know how to handle a type serializer of type '${typeSerializer::class.simpleName}' as the property name is null" }
             objProp[typeSerializer.propertyName] = type.rawClass.canonicalName
         }
-        val loaders = DynamicClassLoader.getClassLoaders()
-        var i = 0
-        var lastE: Throwable
-        do {
-            try {
-                println("mapper.writeValueAsString(objProp) = ${mapper.writeValueAsString(objProp)}")
-                return mapper.convertValue(objProp, superType)
-            } catch (e: Throwable) {
-                //As we load classes from external jars, we do not know what class loader the created object will be in
-                //We can only use one type factory at once, maybe find a way to do this better?
-                mapper.typeFactory = mapper.typeFactory.withClassLoader(loaders[i++])
-                lastE = e
-            }
-        } while (i < loaders.size)
-
-        throw IllegalStateException("Failed to convert complex class builder to $type", lastE)
+        return mapper.convertValue(objProp, superType)
     }
 
     override fun getSubClassBuilders(): Map<String, ClassBuilder<*>?> = props

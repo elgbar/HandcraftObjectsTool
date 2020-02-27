@@ -38,6 +38,7 @@ class Persistent<T : Serializable> {
                 @Suppress("UNCHECKED_CAST")
                 getFile(thisRef, property).objectInputStream().readObject() as T?
             } catch (e: Throwable) {
+                //well that didn't work lets burn everything
                 file.deleteRecursively()
                 null
             }

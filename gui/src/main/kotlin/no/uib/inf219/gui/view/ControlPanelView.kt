@@ -42,6 +42,7 @@ object ControlPanelView : View("Control Panel") {
         set(value) {
             mapperProperty.set(value)
             ClassInformation.updateMapper()
+
             FX.find<BackgroundView>().tabpane.closeAll()
         }
 
@@ -105,7 +106,6 @@ object ControlPanelView : View("Control Panel") {
                         return@setOnAction
                     }
                     runAsync {
-
                         val file = createTempFile()
                         file.copyInputStreamToFile(inp)
                         loadFileSafely(file)
@@ -132,14 +132,14 @@ object ControlPanelView : View("Control Panel") {
                         val className = classNameProperty.value
                         val clazz: Class<*>
                         try {
-                            val pair = DynamicClassLoader.classWithLoaderFromName(className)
-                            if (pair == null) {
+                            try {
+                                clazz = DynamicClassLoader.loadClass(className)
+                            } catch (e: Throwable) {
                                 ui {
                                     OutputArea.logln("Failed to find a class with the name '${className}'")
                                 }
                                 return@runAsync
                             }
-                            clazz = pair.first
                         } catch (e: IllegalStateException) {
                             ui {
                                 OutputArea.logln("Failed to load class due to $e")

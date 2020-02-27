@@ -6,4 +6,9 @@ import tornadofx.App
 /**
  * @author Elg
  */
-class GuiMain : App(BackgroundView::class, Styles::class) {}
+class GuiMain : App(BackgroundView::class, Styles::class) {
+
+    companion object {
+        const val FILES_FOLDER = "classes"
+    }
+}

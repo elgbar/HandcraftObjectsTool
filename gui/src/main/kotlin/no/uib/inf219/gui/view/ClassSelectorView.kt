@@ -11,7 +11,6 @@ import javafx.geometry.Pos
 import javafx.scene.Node
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
-import no.uib.inf219.extra.addClassLoaders
 import no.uib.inf219.extra.type
 import no.uib.inf219.gui.Styles
 import no.uib.inf219.gui.ems
@@ -94,12 +93,12 @@ class ClassSelectorView : View("Select implementation") {
                 listview(filteredData) {
 
                     onUserSelect {
-                        result = DynamicClassLoader.classFromName(it)
+                        result = DynamicClassLoader.loadClass(it)
                     }
 
                     //close when pressing enter and something is selected or double clicking
                     onUserSelect(2) {
-                        result = DynamicClassLoader.classFromName(it)
+                        result = DynamicClassLoader.loadClass(it)
                         close()
                     }
 
@@ -165,7 +164,7 @@ class ClassSelectorView : View("Select implementation") {
 
             ClassGraph()
                 .enableExternalClasses()
-                .addClassLoaders(DynamicClassLoader.getClassLoaders())
+                .addClassLoader(DynamicClassLoader)
                 .scan().use { scanResult ->
                     val cil: ClassInfoList =
                         when {

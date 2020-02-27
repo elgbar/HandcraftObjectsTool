@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.SerializationConfig
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer
 import com.fasterxml.jackson.databind.ser.DefaultSerializerProvider
 import com.fasterxml.jackson.databind.ser.PropertyWriter
-import com.fasterxml.jackson.databind.type.TypeFactory
 import no.uib.inf219.gui.view.ControlPanelView
 
 
@@ -18,8 +17,6 @@ import no.uib.inf219.gui.view.ControlPanelView
  * @author Elg
  */
 object ClassInformation {
-
-    private val tfac = TypeFactory.defaultInstance()
 
     private var ser: DefaultSerializerProvider = createDSP()
 
@@ -32,6 +29,8 @@ object ClassInformation {
         val gen: JsonGenerator = jfac.createGenerator(SegmentedStringWriter(jfac._getBufferRecycler()))
         val cfg: SerializationConfig = ControlPanelView.mapper.serializationConfig
         cfg.initialize(gen)
+
+        ControlPanelView.mapper.typeFactory = ControlPanelView.mapper.typeFactory.withClassLoader(DynamicClassLoader)
 
         return DefaultSerializerProvider.Impl().createInstance(cfg, ControlPanelView.mapper.serializerFactory)
     }
@@ -66,7 +65,7 @@ object ClassInformation {
      */
     fun toJavaType(clazz: Class<*>): JavaType {
         return typeCache.computeIfAbsent(clazz) {
-            tfac.constructType(it)
+            ControlPanelView.mapper.typeFactory.constructType(it)
         }
     }
 }
