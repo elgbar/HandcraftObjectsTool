@@ -1,6 +1,7 @@
 package no.uib.inf219.gui.backend
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.ser.PropertyWriter
 import javafx.beans.property.Property
@@ -40,6 +41,7 @@ abstract class SimpleClassBuilder<T : Any>(
     override val parent: ClassBuilder<*>?,
     override val property: PropertyWriter?,
     val immutable: Boolean,
+    @JsonIgnore
     val converter: StringConverter<T>
 ) : ReferencableClassBuilder<T>() {
 
@@ -66,8 +68,8 @@ abstract class SimpleClassBuilder<T : Any>(
         }
     }
 
+    @get:JsonIgnore
     internal val valueProperty: Property<T> by lazy { findProperty(type, initialValue) }
-
 
     fun valueProperty(): ObservableValue<T> = valueProperty
 

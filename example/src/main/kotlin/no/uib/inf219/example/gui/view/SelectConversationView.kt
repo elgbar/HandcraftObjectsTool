@@ -111,9 +111,7 @@ class SelectConversationView(val tabPane: TabPane) : View("") {
                         val conv: Conversation = kotlinJson.readValue(dump)
                         convs += conv
                         output.appendText("eql test conv obj? ${conv == Main.TEST_CONV}\n")
-                        kotlinJson.writeValueAsString(
-                            conv
-                        );
+                        kotlinJson.writeValueAsString(conv)
                     } catch (e: Exception) {
                         e.printStackTrace()
                         "failed to load it back in"

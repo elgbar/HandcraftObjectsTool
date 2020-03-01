@@ -10,7 +10,6 @@ import no.uib.inf219.gui.backend.primitive.StringClassBuilder
  *
  * @author Elg
  */
-
 fun String.toCb(
     name: String = this,
     parent: ClassBuilder<*>? = null,

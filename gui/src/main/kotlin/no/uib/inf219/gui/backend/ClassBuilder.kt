@@ -1,18 +1,21 @@
 package no.uib.inf219.gui.backend
 
-import com.fasterxml.jackson.annotation.*
+import com.fasterxml.jackson.annotation.JsonIdentityInfo
+import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.ObjectIdGenerators
 import com.fasterxml.jackson.databind.JavaType
+import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.fasterxml.jackson.databind.ser.PropertyWriter
 import com.fasterxml.jackson.databind.type.CollectionLikeType
 import com.fasterxml.jackson.databind.type.MapLikeType
 import javafx.event.EventTarget
 import javafx.scene.Node
 import no.uib.inf219.gui.backend.primitive.*
+import no.uib.inf219.gui.backend.serializers.ClassBuilderSerializer
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.view.ClassSelectorView
 import tornadofx.find
 import tornadofx.property
-
 
 /**
  * An interface that is the super class of all object builder, the aim of this interface is to manage how to build a given type.
@@ -21,34 +24,36 @@ import tornadofx.property
  *
  * @author Elg
  */
-@JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator::class)
-@JsonIdentityReference(alwaysAsId = true)
-@JsonInclude(JsonInclude.Include.NON_EMPTY)
+@JsonIdentityInfo(generator = ObjectIdGenerators.UUIDGenerator::class)
+@JsonSerialize(using = ClassBuilderSerializer::class)
 interface ClassBuilder<out T> {
 
+    /**
+     * The object to serialize
+     */
+    val serializationObject: Any
+
+    @get:JsonIgnore
     val type: JavaType
 
     /**
      * The parent class builder, `null` if this is the root class builder or unknown parent
      */
+    @get:JsonIgnore
     val parent: ClassBuilder<*>?
 
     /**
      * Key of the property to access this from the parent (if any)
      */
+    @get:JsonIgnore
     val name: String
 
     /**
      * The property this class builder is creating, used for gaining additional metadata about what we're creating.
      */
+    @get:JsonIgnore
     val property: PropertyWriter?
 
-
-    /**
-     * The object to serialize
-     */
-    @get:JsonValue
-    val serializationObject: Any
 
     /**
      * Convert this object to an instance of [T].
@@ -61,7 +66,7 @@ interface ClassBuilder<out T> {
      *
      * Empty if [isLeaf] is true
      */
-
+    @JsonIgnore
     fun getSubClassBuilders(): Map<ClassBuilder<*>, ClassBuilder<*>?>
 
     /**
@@ -69,7 +74,7 @@ interface ClassBuilder<out T> {
      *
      * @return all modifiable existing children
      */
-
+    @JsonIgnore
     fun getChildren(): List<ClassBuilder<*>> {
         val list = ArrayList<ClassBuilder<*>>()
         for ((k, v) in getSubClassBuilders()) {
@@ -82,7 +87,7 @@ interface ClassBuilder<out T> {
     /**
      * If this implementation does not have any sub class builders
      */
-
+    @JsonIgnore
     fun isLeaf(): Boolean
 
     /**
@@ -122,9 +127,8 @@ interface ClassBuilder<out T> {
     /**
      * Preview of this class
      */
-
+    @JsonIgnore
     fun getPreviewValue(): String
-
 
     fun getClassBuilder(
         type: JavaType,
@@ -138,7 +142,6 @@ interface ClassBuilder<out T> {
     /**
      * @return If we are a forefather of the given [ClassBuilder]
      */
-
     fun isParent(to: ClassBuilder<*>?): Boolean {
         return when (to) {
             null -> false
@@ -152,19 +155,18 @@ interface ClassBuilder<out T> {
      */
     fun recompile()
 
-
+    @JsonIgnore
     fun isDirty(): Boolean
 
     /**
      * @return The java type of of the given child
      */
-
     fun getChildType(cb: ClassBuilder<*>): JavaType?
 
     /**
      * If this class builder is required to be valid. If [property] is `null` this is assumed to be required.
      */
-
+    @JsonIgnore
     fun isRequired(): Boolean {
         return property?.isRequired ?: true
     }
@@ -172,7 +174,7 @@ interface ClassBuilder<out T> {
     /**
      * @return `true` if this class builder cannot change value
      */
-
+    @JsonIgnore
     fun isImmutable(): Boolean
 
     companion object {

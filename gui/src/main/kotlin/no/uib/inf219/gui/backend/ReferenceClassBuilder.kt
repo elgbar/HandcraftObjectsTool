@@ -15,23 +15,17 @@ import tornadofx.text
  *
  * @author Elg
  */
-
-//@JsonSerialize(using = ReferenceCBSerializer::class)
 class ReferenceClassBuilder(
     /**
      * The class builder this class builder is referencing
      */
     override val serializationObject: ClassBuilder<*>,
     override val parent: ClassBuilder<*>?
-) : ClassBuilder<Any> {
+) : ReferencableClassBuilder<Any>() {
 
     override val type: JavaType = serializationObject.type
     override val name: String = "ref " + serializationObject.name
     override val property: PropertyWriter? = serializationObject.property
-
-    override fun toObject(): Any? {
-        return serializationObject.toObject()
-    }
 
     override fun toView(parent: EventTarget, controller: ObjectEditorController): Node {
         return parent.hbox {
@@ -47,11 +41,6 @@ class ReferenceClassBuilder(
         }
     }
 
-    override fun recompile() {
-        serializationObject.recompile()
-        parent?.recompile()
-    }
-
     override fun getPreviewValue() = "Ref to " + serializationObject.getPreviewValue()
 
     override fun getSubClassBuilders(): Map<ClassBuilder<*>, ClassBuilder<*>?> = emptyMap()
@@ -65,8 +54,6 @@ class ReferenceClassBuilder(
     override fun getChildType(cb: ClassBuilder<*>): JavaType? = null
 
     override fun isImmutable() = true
-
-    override fun isDirty() = false
 
     override fun reset() = true
 

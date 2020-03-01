@@ -1,4 +1,4 @@
-package no.uib.inf219.test
+package no.uib.inf219.test.precondition
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 
@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo
  * @author Elg
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "class")
-interface Prerequisite {
+interface Precondition {
 
     /**
      * Check if this prerequisite is fulfilled
@@ -14,9 +14,4 @@ interface Prerequisite {
      * @return `true` if this prerequisite is fulfilled
      */
     fun check(): Boolean
-
-    /**
-     * @return the reason for why this prerequisite is/is not fulfilled.
-     */
-    fun reason(): String
 }

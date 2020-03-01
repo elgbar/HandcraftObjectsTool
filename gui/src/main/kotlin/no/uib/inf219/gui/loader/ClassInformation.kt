@@ -32,6 +32,8 @@ object ClassInformation {
 
         ControlPanelView.mapper.typeFactory = ControlPanelView.mapper.typeFactory.withClassLoader(DynamicClassLoader)
 
+
+
         return DefaultSerializerProvider.Impl().createInstance(cfg, ControlPanelView.mapper.serializerFactory)
     }
 
@@ -40,10 +42,6 @@ object ClassInformation {
      */
     fun updateMapper() {
         ser = createDSP()
-    }
-
-    fun serializableProperties(clazz: Class<*>): Pair<TypeSerializer?, Map<String, PropertyWriter>> {
-        return serializableProperties(toJavaType(clazz))
     }
 
     fun serializableProperties(type: JavaType): Pair<TypeSerializer?, Map<String, PropertyWriter>> {

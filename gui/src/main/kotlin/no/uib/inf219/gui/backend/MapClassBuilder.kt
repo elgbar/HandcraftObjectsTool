@@ -27,7 +27,6 @@ open class MapClassBuilder<K, out V>(
 
     override val serializationObject: MutableMap<ClassBuilder<*>, ClassBuilder<*>?> = HashMap()
 
-
     override fun toView(parent: EventTarget, controller: ObjectEditorController): Node {
         return parent.splitpane {
             setDividerPositions(0.25)

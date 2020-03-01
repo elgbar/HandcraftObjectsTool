@@ -1,6 +1,5 @@
 package no.uib.inf219.gui.view
 
-import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.ObjectMapper
 import javafx.beans.property.SimpleObjectProperty
@@ -43,8 +42,6 @@ object ControlPanelView : View("Control Panel") {
         set(value) {
             mapperProperty.set(value)
             ClassInformation.updateMapper()
-            value.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-
             FX.find<BackgroundView>().tabpane.closeAll()
         }
 

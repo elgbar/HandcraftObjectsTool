@@ -39,7 +39,6 @@ class CollectionClassBuilder<out T>(
 
     override val serializationObject: MutableList<ClassBuilder<*>> = ArrayList()
 
-
     override fun toView(
         parent: EventTarget,
         controller: ObjectEditorController

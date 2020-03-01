@@ -1,7 +1,6 @@
 package no.uib.inf219.gui.backend
 
 import no.uib.inf219.gui.view.ControlPanelView
-import no.uib.inf219.gui.view.OutputArea
 
 /**
  * A class builder that is able to be referenced by [ReferenceClassBuilder]. This enables [toObject] to return the same object multiple times
@@ -19,7 +18,7 @@ abstract class ReferencableClassBuilder<out T> : ClassBuilder<T> {
 
     override fun toObject(): T? {
         if (dirty || objCache == null) {
-            objCache = ControlPanelView.mapper.convertValue(serializationObject, type)
+            objCache = ControlPanelView.mapper.convertValue(this, type)
             dirty = false
         }
         return objCache
@@ -28,6 +27,5 @@ abstract class ReferencableClassBuilder<out T> : ClassBuilder<T> {
     override fun recompile() {
         parent?.recompile()
         dirty = true
-        OutputArea.logln("${this::class.java.simpleName} is dirty!")
     }
 }
