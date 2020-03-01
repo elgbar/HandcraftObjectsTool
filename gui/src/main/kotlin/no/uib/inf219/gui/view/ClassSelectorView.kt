@@ -41,7 +41,7 @@ class ClassSelectorView : View("Select implementation") {
     /**
      * The class selected by the use when closing the dialog
      */
-    var result: Class<*>? = null
+    private var result: Class<*>? = null
 
     private val searchingProperty = SimpleBooleanProperty()
     private var searching by searchingProperty

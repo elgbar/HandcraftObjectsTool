@@ -1,7 +1,7 @@
 package no.uib.inf219.gui.backend
 
+import com.fasterxml.jackson.annotation.*
 import com.fasterxml.jackson.databind.JavaType
-import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ser.PropertyWriter
 import com.fasterxml.jackson.databind.type.CollectionLikeType
 import com.fasterxml.jackson.databind.type.MapLikeType
@@ -10,7 +10,8 @@ import javafx.scene.Node
 import no.uib.inf219.gui.backend.primitive.*
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.view.ClassSelectorView
-import tornadofx.*
+import tornadofx.find
+import tornadofx.property
 
 
 /**
@@ -20,6 +21,10 @@ import tornadofx.*
  *
  * @author Elg
  */
+@JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator::class)
+@JsonIdentityReference(alwaysAsId = true)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
+@JsonIgnoreProperties("type", "parent", "name", "property", ignoreUnknown = true)
 interface ClassBuilder<out T> {
 
     val type: JavaType
@@ -39,13 +44,15 @@ interface ClassBuilder<out T> {
      */
     val property: PropertyWriter?
 
-    /**
-     * Convert this class builder to a json node
-     */
-    fun toTree(): JsonNode
 
     /**
-     * Convert this object to an instance of [T]
+     * The object to serialize
+     */
+    val serializationObject: Any
+
+    /**
+     * Convert this object to an instance of [T].
+     * The returned object must not change unless there are changes futher down the class builder change
      */
     fun toObject(): T?
 
@@ -54,11 +61,28 @@ interface ClassBuilder<out T> {
      *
      * Empty if [isLeaf] is true
      */
-    fun getSubClassBuilders(): Map<String, ClassBuilder<*>?>
+    @JsonIgnore
+    fun getSubClassBuilders(): Map<ClassBuilder<*>, ClassBuilder<*>?>
+
+    /**
+     * This is a subset of [getSubClassBuilders]
+     *
+     * @return all modifiable existing children
+     */
+    @JsonIgnore
+    fun getChildren(): List<ClassBuilder<*>> {
+        val list = ArrayList<ClassBuilder<*>>()
+        for ((k, v) in getSubClassBuilders()) {
+            if (!k.isImmutable()) list += k
+            if (v != null && !v.isImmutable()) list += v
+        }
+        return list
+    }
 
     /**
      * If this implementation does not have any sub class builders
      */
+    @JsonIgnore
     fun isLeaf(): Boolean
 
     /**
@@ -70,35 +94,38 @@ interface ClassBuilder<out T> {
      * Note that this will a
      *
      * @return A class builder for the given property, or `null` for if [isLeaf] is `true`
-     * @throws IllegalArgumentException If the given [property] is not valid
+     * @throws IllegalArgumentException If the given [key] is not valid
      */
-    fun createClassBuilderFor(property: String): ClassBuilder<*>?
-
+    fun createClassBuilderFor(key: ClassBuilder<*>, init: ClassBuilder<*>? = null): ClassBuilder<*>?
 
     /**
-     * Reset the given property for the [property] provided. If it has a default value this value will be restored
+     * Reset the given property for the [cb] provided. If it has a default value this value will be restored
      *
-     * @return If all referenced should be null-ed out
      */
-    fun reset(property: String): ClassBuilder<*>? {
-        return reset(property, null)
+    fun resetChild(cb: ClassBuilder<*>) {
+        return resetChild(cb, null)
     }
 
     /**
-     * Reset the given property for the [property] provided. If it has a default value this value will be restored
+     * Reset the given property for the [key] provided. If it has a default value this value will be restored otherwise it will be removed.
      *
-     *
-     * @return The new (potentially null) classbuilder, might be equal to [element]
-     *
-     * @throws IllegalArgumentException If both [property] and [element] are `null`
      */
-    fun reset(property: String, element: ClassBuilder<*>?): ClassBuilder<*>?
+    fun resetChild(key: ClassBuilder<*>, element: ClassBuilder<*>?)
+
+    /**
+     * Reset this class builder.
+     *
+     * @return `true` if this class builder should be removed from parent
+     */
+    fun reset(): Boolean
 
     /**
      * Preview of this class
      */
-    fun previewValue(): String
+    @JsonIgnore
+    fun getPreviewValue(): String
 
+    @JsonIgnore
     fun getClassBuilder(
         type: JavaType,
         name: String,
@@ -111,6 +138,7 @@ interface ClassBuilder<out T> {
     /**
      * @return If we are a forefather of the given [ClassBuilder]
      */
+    @JsonIgnore
     fun isParent(to: ClassBuilder<*>?): Boolean {
         return when (to) {
             null -> false
@@ -122,18 +150,30 @@ interface ClassBuilder<out T> {
     /**
      * Mark this object as dirt to flush [toObject] cache
      */
-    fun isRequired(): Boolean {
+    fun recompile()
 
-    /////////////////////////////////////
+    @JsonIgnore
+    fun isDirty(): Boolean
 
-    fun childeren()
+    /**
+     * @return The java type of of the given child
+     */
+    @JsonIgnore
+    fun getChildType(cb: ClassBuilder<*>): JavaType?
 
     /**
      * If this class builder is required to be valid. If [property] is `null` this is assumed to be required.
      */
+    @JsonIgnore
     fun isRequired(): Boolean {
         return property?.isRequired ?: true
     }
+
+    /**
+     * @return `true` if this class builder cannot change value
+     */
+    @JsonIgnore
+    fun isImmutable(): Boolean
 
     companion object {
 
@@ -148,9 +188,11 @@ interface ClassBuilder<out T> {
             prop: PropertyWriter? = null,
             superType: JavaType = type
         ): ClassBuilder<*>? {
-            return if (value != null && value is ClassBuilder<*>) {
+            val elem = if (value != null && value is ClassBuilder<*>) {
                 //it would be very weird if this happened
-                require(value.type == type) { "The value given is a already a class builder, but its type (${value.type}) does not match with the given java type $type" }
+                require(value.type == type) {
+                    "The value given is a already a class builder, but its type (${value.type}) does not match with the given java type $type"
+                }
                 return value
             } else if (type.isPrimitive) {
                 when {
@@ -295,6 +337,9 @@ interface ClassBuilder<out T> {
                 //it's not a primitive type so let's just make a complex type for it
                 ComplexClassBuilder<Any>(type, name, parent, prop, superType)
             }
+            //remember to recompile the parent to make sure it sees the changes
+            parent?.recompile()
+            return elem
         }
     }
 }

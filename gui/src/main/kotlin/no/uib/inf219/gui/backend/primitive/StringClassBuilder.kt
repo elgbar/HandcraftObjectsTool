@@ -15,10 +15,11 @@ class StringClassBuilder(
     initial: String = "",
     name: String,
     parent: ClassBuilder<*>? = null,
-    prop: PropertyWriter? = null
+    prop: PropertyWriter? = null,
+    immutable: Boolean = false
 ) :
     SimpleClassBuilder<String>(
-        String::class.java, initial, name, parent, prop,
+        String::class.java, initial, name, parent, prop, immutable,
         StringStringConverter
     ) {
 

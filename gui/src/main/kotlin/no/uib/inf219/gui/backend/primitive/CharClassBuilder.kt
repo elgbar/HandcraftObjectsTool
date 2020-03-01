@@ -9,10 +9,11 @@ class CharClassBuilder(
     initial: Char = '\u0000',
     name: String,
     parent: ClassBuilder<*>? = null,
-    prop: PropertyWriter? = null
+    prop: PropertyWriter? = null,
+    immutable: Boolean = false
 ) :
     SimpleClassBuilder<Char>(
-        Char::class.java, initial, name, parent, prop,
+        Char::class.java, initial, name, parent, prop, immutable,
         CharacterStringConverter()
     ) {
 

@@ -9,9 +9,10 @@ class IntClassBuilder(
     initial: Int = 0,
     name: String,
     parent: ClassBuilder<*>? = null,
-    prop: PropertyWriter? = null
+    prop: PropertyWriter? = null,
+    immutable: Boolean = false
 ) :
     SimpleNumberClassBuilder<Int>(
-        Int::class.java, initial, name, parent, prop,
+        Int::class.java, initial, name, parent, prop, immutable,
         IntegerStringConverter()
     ) {}

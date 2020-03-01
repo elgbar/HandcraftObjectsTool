@@ -1,5 +1,6 @@
 package no.uib.inf219.gui.view
 
+import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.ObjectMapper
 import javafx.beans.property.SimpleObjectProperty
@@ -29,7 +30,7 @@ import java.lang.invoke.MethodHandles
  */
 object ControlPanelView : View("Control Panel") {
 
-    private val mapperProperty by lazy { SimpleObjectProperty<ObjectMapper>(SerializationManager.jsonMapper) }
+    private val mapperProperty by lazy { SimpleObjectProperty<ObjectMapper>(SerializationManager.kotlinJson) }
 
 
     var lastFile: File? by Persistent()
@@ -42,6 +43,7 @@ object ControlPanelView : View("Control Panel") {
         set(value) {
             mapperProperty.set(value)
             ClassInformation.updateMapper()
+            value.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
             FX.find<BackgroundView>().tabpane.closeAll()
         }
@@ -158,7 +160,7 @@ object ControlPanelView : View("Control Panel") {
             textfield {
                 bind(classNameProperty)
                 promptText = "Full class name"
-                text = "no.uib.inf219.example.data.showcase.GenericExample"
+                text = "no.uib.inf219.example.data.Conversation" //TODO remove
                 hgrow = Priority.ALWAYS
             }
         }
@@ -194,6 +196,7 @@ object ControlPanelView : View("Control Panel") {
         OutputArea.logln("no.uib.inf219.example.data.showcase.PrimitiveDefaultValueShowcase")
         OutputArea.logln("no.uib.inf219.example.data.showcase.MapExample")
         OutputArea.logln("no.uib.inf219.example.data.showcase.GenericExample")
+        OutputArea.logln("java.lang.String")
     }
 
     fun createTab(type: JavaType) {

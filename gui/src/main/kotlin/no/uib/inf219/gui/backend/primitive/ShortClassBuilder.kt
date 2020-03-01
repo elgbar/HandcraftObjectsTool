@@ -9,10 +9,11 @@ class ShortClassBuilder(
     initial: Short = 0,
     name: String,
     parent: ClassBuilder<*>? = null,
-    prop: PropertyWriter? = null
+    prop: PropertyWriter? = null,
+    immutable: Boolean = false
 ) :
     SimpleNumberClassBuilder<Short>(
-        Short::class.java, initial, name, parent, prop,
+        Short::class.java, initial, name, parent, prop, immutable,
         ShortStringConverter()
     ) {
 

@@ -2,7 +2,9 @@ package no.uib.inf219.gui.view
 
 import javafx.scene.control.TreeItem
 import javafx.scene.input.MouseButton
+import no.uib.inf219.extra.toCb
 import no.uib.inf219.gui.backend.ClassBuilder
+import no.uib.inf219.gui.backend.ReferencableClassBuilder
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import org.apache.commons.lang3.tuple.MutableTriple
 import tornadofx.*
@@ -27,11 +29,10 @@ class NodeExplorerView(private val controller: ObjectEditorController) : Fragmen
                 if (event.clickCount == 1 && event.button == MouseButton.PRIMARY) {
                     //double left click on an item
 
-                    OutputArea.logln("name = ${it.left} | middle = ${it.middle?.type} | right = ${it.right?.type}")
                     //first time we click it we want to create it
                     if (it.middle == null && !it.right.isLeaf()) {
 
-                        val cb = it.right.createClassBuilderFor(it.left)
+                        val cb = it.right.createClassBuilderFor(it.left.toCb())
                         it.middle = cb
                         if (cb != null) {
 
@@ -41,7 +42,7 @@ class NodeExplorerView(private val controller: ObjectEditorController) : Fragmen
                                 cb.getSubClassBuilders().map { elem ->
                                     TreeItem(
                                         MutableTriple<String, ClassBuilder<*>?, ClassBuilder<*>>(
-                                            elem.key, elem.value, cb
+                                            elem.key.getPreviewValue(), elem.value, cb
                                         )
                                     )
                                 }
@@ -55,17 +56,40 @@ class NodeExplorerView(private val controller: ObjectEditorController) : Fragmen
         }
 
         contextmenu {
+            item("Make reference to...").action {
+                val item = this@treeview.selectionModel.selectedItem ?: return@action
+                if (item == root) return@action
+                val value = item.value
+                if (value.right.isLeaf()) return@action
+
+                val key = value.left.toCb()
+                val type = value.right.getChildType(key)
+                if (type == null) {
+                    OutputArea.logln("Failed to find a the type of the child ${value.left} for ${value.right}")
+                    return@action
+                }
+                val selector: ReferenceSelectorView = find("controller" to controller)
+                val other = selector.createReference(value.right, type)
+
+                value.right.createClassBuilderFor(key, other)
+
+                //reload parent view (or this view if root controller)
+                (controller.parent ?: controller).reloadView()
+
+            }
             item("Remove").action {
                 val item = this@treeview.selectionModel.selectedItem ?: return@action
-                val value = item.value
                 if (item == root) return@action
-
+                val value = item.value
 
                 //when viewing the item that is being reset change the current viewed item to root
                 // as otherwise the user is editing a stale object
                 controller.currSel = null
                 //clear the backend values
-                value.middle = value.right.reset(value.left, value.middle)
+                if (value.right != null)
+                    value.right.resetChild(value.left.toCb(), value.middle)
+                else
+                    value.middle?.reset()
 
                 //remove the visual items
                 item.children.clear()
@@ -81,11 +105,11 @@ class NodeExplorerView(private val controller: ObjectEditorController) : Fragmen
             when {
                 cb == null -> null
                 cb.isLeaf() -> null
-                else -> cb.getSubClassBuilders().map { elem ->
-                    MutableTriple(elem.key, elem.value, cb)
+                else -> cb.getSubClassBuilders().map { (key, child) ->
+                    if (child is ReferencableClassBuilder<*>) null
+                    MutableTriple(key.getPreviewValue(), child, cb)
                 }
             }
         }
     }
 }
-

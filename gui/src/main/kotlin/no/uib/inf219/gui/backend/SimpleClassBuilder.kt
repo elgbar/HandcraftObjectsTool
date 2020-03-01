@@ -1,7 +1,9 @@
 package no.uib.inf219.gui.backend
 
+import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonValue
 import com.fasterxml.jackson.databind.JavaType
-import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.fasterxml.jackson.databind.ser.PropertyWriter
 import javafx.beans.property.Property
 import javafx.beans.property.SimpleObjectProperty
@@ -15,10 +17,10 @@ import javafx.util.StringConverter
 import javafx.util.converter.*
 import no.uib.inf219.extra.removeNl
 import no.uib.inf219.gui.Styles
+import no.uib.inf219.gui.backend.serializer.SimpleCBSerializer
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.converter.UUIDStringConverter
 import no.uib.inf219.gui.loader.ClassInformation
-import no.uib.inf219.gui.view.ControlPanelView
 import no.uib.inf219.gui.view.OutputArea
 import tornadofx.*
 import java.math.BigDecimal
@@ -31,55 +33,65 @@ import java.util.*
 /**
  * A class builder intended for primitive classes to be used as leaf nodes in the class builder tree.
  *
- * Every sub-class probably want to override
  *
  * @author Elg
  */
+@JsonSerialize(
+    using = SimpleCBSerializer::class,
+    keyUsing = SimpleCBSerializer::class,
+    contentUsing = SimpleCBSerializer::class
+)
 abstract class SimpleClassBuilder<T : Any>(
     primClass: Class<T>,
     private val initialValue: T,
     override val name: String,
-    override val parent: ClassBuilder<*>? = null,
-    override val property: PropertyWriter? = null,
+    override val parent: ClassBuilder<*>?,
+    override val property: PropertyWriter?,
+    val immutable: Boolean,
     val converter: StringConverter<T>
-) : ClassBuilder<T> {
+) : ReferencableClassBuilder<T>() {
 
     override val type: JavaType = ClassInformation.toJavaType(primClass)
 
-    val valueProperty: Property<T> by lazy {
-        val p = when (type.rawClass) {
-            Int::class.javaPrimitiveType -> intProperty(initialValue as Int)
-//            Short::class.javaPrimitiveType -> shortProperty(initialValue as Short)
-//            Byte::class.javaPrimitiveType -> byteProperty(initialValue as Byte)
-            Long::class.javaPrimitiveType -> longProperty(initialValue as Long)
-            Double::class.javaPrimitiveType -> doubleProperty(initialValue as Double)
-            Float::class.javaPrimitiveType -> floatProperty(initialValue as Float)
-            Boolean::class.javaPrimitiveType -> booleanProperty(initialValue as Boolean)
-            String::class.javaPrimitiveType -> stringProperty(initialValue as String)
-//            Char::class.javaPrimitiveType -> charProperty(initialValue as Boolean)
-            else -> SimpleObjectProperty<T>()
+    companion object {
+
+        internal fun <E> findProperty(type: JavaType, initialValue: E): Property<E> {
+            val p = when (type.rawClass) {
+                Int::class.javaPrimitiveType -> intProperty(initialValue as Int)
+                Long::class.javaPrimitiveType -> longProperty(initialValue as Long)
+                Double::class.javaPrimitiveType -> doubleProperty(initialValue as Double)
+                Float::class.javaPrimitiveType -> floatProperty(initialValue as Float)
+                Boolean::class.javaPrimitiveType -> booleanProperty(initialValue as Boolean)
+                String::class.java -> stringProperty(initialValue as String)
+
+//              Short::class.javaPrimitiveType -> shortProperty(initialValue as Short)
+//              Byte::class.javaPrimitiveType -> byteProperty(initialValue as Byte)
+//              Char::class.javaPrimitiveType -> charProperty(initialValue as Boolean)
+                else -> SimpleObjectProperty<E>(initialValue)
+            }
+            @Suppress("UNCHECKED_CAST")
+            return p as Property<E>
         }
-        @Suppress("UNCHECKED_CAST")
-        return@lazy p as Property<T>
     }
 
+    @get:JsonIgnore
+    internal val valueProperty: Property<T> by lazy { findProperty(type, initialValue) }
+
+    @JsonIgnore
     fun valueProperty(): ObservableValue<T> = valueProperty
-    var value: T
+
+    @get:JsonValue
+    override var serializationObject: T
         get() = valueProperty.value
         set(value) = valueProperty.setValue(value)
 
     init {
-        valueProperty.value = initialValue
-    }
-
-    override fun toTree(): JsonNode {
-        return ControlPanelView.mapper.valueToTree(value)
-    }
-
-    override fun toObject(): T = value
-
-    override fun getSubClassBuilders(): Map<String, ClassBuilder<*>> {
-        return emptyMap()
+        valueProperty.onChange {
+            if (immutable) {
+                throw IllegalStateException("Class builder ${this::class.simpleName} is immutable")
+            }
+            recompile()
+        }
     }
 
     override fun toView(
@@ -100,6 +112,7 @@ abstract class SimpleClassBuilder<T : Any>(
     /**
      * How to view the edit the value
      */
+    @JsonIgnore
     open fun editView(parent: Pane): Node {
         return parent.textfield {
             textFormatter = TextFormatter<T>() {
@@ -110,6 +123,7 @@ abstract class SimpleClassBuilder<T : Any>(
                     OutputArea.logln { "Failed to parse '$text' to ${this@SimpleClassBuilder.initialValue::class.simpleName}" }
                     return@TextFormatter null
                 }
+                recompile()
                 return@TextFormatter it
             }
             bindStringProperty(textProperty(), converter, valueProperty)
@@ -128,37 +142,34 @@ abstract class SimpleClassBuilder<T : Any>(
         }
     }
 
-    override fun createClassBuilderFor(property: String): ClassBuilder<Any>? {
+    override fun createClassBuilderFor(key: ClassBuilder<*>, init: ClassBuilder<*>?): ClassBuilder<Any>? {
         return null
     }
 
     /**
      * Reset this simple class builder's value, as it has not properties we can safely ignore it
      */
-    fun reset(): ClassBuilder<*>? {
-        value = initialValue
-        return this
+    override fun reset(): Boolean {
+        serializationObject = initialValue
+        return false
     }
 
-    /**
-     *
-     * Reset the value this holds to the [initialValue] provided in the constructor
-     */
-    override fun reset(property: String, element: ClassBuilder<*>?): ClassBuilder<*>? {
-        require(element == null || element == this) { "Given element is not null or this" }
-        return reset()
-    }
+    override fun resetChild(key: ClassBuilder<*>, element: ClassBuilder<*>?) {}
 
-    override fun isLeaf(): Boolean {
-        return true
-    }
+    override fun getSubClassBuilders(): Map<ClassBuilder<*>, ClassBuilder<*>> = emptyMap()
 
-    override fun previewValue(): String {
-        return value.toString()
-    }
+    override fun isImmutable(): Boolean = immutable
 
+    override fun getChildren(): List<ClassBuilder<*>> = emptyList()
+
+    override fun isLeaf(): Boolean = true
+
+    override fun getPreviewValue(): String = serializationObject.toString()
+
+    override fun getChildType(cb: ClassBuilder<*>): JavaType? = null
 
     @Suppress("UNCHECKED_CAST")
+    @JsonIgnore
     private fun <T : Any> getDefaultConverter(): StringConverter<T>? = when (type.rawClass) {
         Int::class.javaPrimitiveType -> IntegerStringConverter()
         Long::class.javaPrimitiveType -> LongStringConverter()
@@ -180,6 +191,7 @@ abstract class SimpleClassBuilder<T : Any>(
         else -> null
     } as StringConverter<T>?
 
+    @JsonIgnore
     fun bindStringProperty(
         stringProperty: StringProperty,
         converter: StringConverter<T>?,
@@ -204,32 +216,32 @@ abstract class SimpleClassBuilder<T : Any>(
         }
     }
 
-
     override fun toString(): String {
-        return "Simple CB; value=$value, clazz=$type)"
+        return "Simple CB; value=$serializationObject, clazz=$type)"
     }
 
+    @Suppress("DuplicatedCode")
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is SimpleClassBuilder<*>) return false
 
-        if (initialValue != other.initialValue) return false
-        if (parent != other.parent) return false
         if (name != other.name) return false
-        if (property != other.property) return false
-        if (converter != other.converter) return false
+        if (serializationObject != other.serializationObject) return false
+        if (parent != other.parent) return false
+        if (immutable != other.immutable) return false
         if (type != other.type) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        var result = initialValue.hashCode()
+        var result = name.hashCode()
+        result = 31 * result + serializationObject.hashCode()
         result = 31 * result + (parent?.hashCode() ?: 0)
-        result = 31 * result + (name?.hashCode() ?: 0)
-        result = 31 * result + (property?.hashCode() ?: 0)
-        result = 31 * result + converter.hashCode()
+        result = 31 * result + immutable.hashCode()
         result = 31 * result + type.hashCode()
         return result
     }
+
+
 }

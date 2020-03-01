@@ -13,10 +13,11 @@ class BooleanClassBuilder(
     initial: Boolean = false,
     name: String,
     parent: ClassBuilder<*>? = null,
-    prop: PropertyWriter? = null
+    prop: PropertyWriter? = null,
+    immutable: Boolean = false
 ) :
     SimpleClassBuilder<Boolean>(
-        Boolean::class.java, initial, name, parent, prop,
+        Boolean::class.java, initial, name, parent, prop, immutable,
         BooleanStringConverter()
     ) {
     override fun editView(parent: Pane): Node {

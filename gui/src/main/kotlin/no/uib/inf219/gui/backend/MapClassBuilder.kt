@@ -1,53 +1,32 @@
 package no.uib.inf219.gui.backend
 
-import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.annotation.JsonValue
+import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.ser.PropertyWriter
-import com.fasterxml.jackson.databind.type.MapLikeType
 import javafx.event.EventTarget
 import javafx.scene.Node
 import no.uib.inf219.gui.Styles
 import no.uib.inf219.gui.controllers.ObjectEditorController
-import no.uib.inf219.gui.view.ControlPanelView
 import no.uib.inf219.gui.view.PropertyEditor
 import tornadofx.*
+import kotlin.collections.component1
+import kotlin.collections.component2
 import kotlin.collections.set
 
 /**
  * @author Elg
  */
-class MapClassBuilder<K, out V>(
-    override val type: MapLikeType,
+//@JsonSerialize(using = MapCBSerializer::class)
+open class MapClassBuilder<K, out V>(
+    override val type: JavaType,
     override val name: String,
     override val parent: ClassBuilder<*>?,
     override val property: PropertyWriter?
-) : ClassBuilder<Map<K?, V?>> {
+) : ReferencableClassBuilder<Map<K?, V?>>() {
 
+    @JsonValue
+    override val serializationObject: MutableMap<ClassBuilder<*>, ClassBuilder<*>?> = HashMap()
 
-    val map: MutableMap<ClassBuilder<*>, ClassBuilder<*>> = HashMap()
-
-    override fun toTree(): JsonNode {
-        return ControlPanelView.mapper.valueToTree(map.mapValues { it.value.toTree() }.mapKeys { it.key.toTree() })
-    }
-
-    override fun toObject(): Map<K?, V?> {
-        val realMap = HashMap<K?, V?>()
-
-        for (entry in map) {
-            val key = entry.key.toObject() as K?
-            val value = entry.value.toObject() as V?
-            realMap[key] = value
-        }
-
-        return realMap
-    }
-
-    override fun getSubClassBuilders(): Map<String, ClassBuilder<*>?> {
-        return emptyMap()
-    }
-
-    override fun isLeaf(): Boolean {
-        return false
-    }
 
     override fun toView(parent: EventTarget, controller: ObjectEditorController): Node {
         return parent.splitpane {
@@ -56,17 +35,19 @@ class MapClassBuilder<K, out V>(
             this += vbox {
                 button("Add element") {
                     action {
-                        val key = getClassBuilder(type.keyType, "key #${map.size}") ?: return@action
-                        val value = getClassBuilder(type.contentType, "value #${map.size}") ?: return@action
-                        map[key] = value
+                        val key = getClassBuilder(type.keyType, "key #${serializationObject.size}") ?: return@action
+                        val value =
+                            getClassBuilder(type.contentType, "value #${serializationObject.size}") ?: return@action
+                        serializationObject[key] = value
                         controller.reloadView()
+                        recompile()
                     }
                 }
-                for ((key, value) in map) {
+                for ((key, value) in serializationObject) {
                     hbox {
                         style { addClass(Styles.parent) }
                         val kname = key.name
-                        val vname = value.name
+                        val vname = value?.name ?: "null"
                         button(kname) { action { con.select(kname, key) } }
                         button(vname) { action { con.select(vname, value) } }
                     }
@@ -76,17 +57,40 @@ class MapClassBuilder<K, out V>(
         }
     }
 
-    override fun createClassBuilderFor(property: String): ClassBuilder<*>? {
-        return null
+    override fun createClassBuilderFor(key: ClassBuilder<*>, init: ClassBuilder<*>?): ClassBuilder<*>? {
+        return serializationObject.computeIfAbsent(key) { init }
     }
 
-    override fun reset(property: String, element: ClassBuilder<*>?): ClassBuilder<*>? {
-        return null
+    override fun resetChild(key: ClassBuilder<*>, element: ClassBuilder<*>?) {
+        //The map must have the given key
+        require(serializationObject.containsKey(key)) { "Given key does not exist in this map class builder" }
+        //But does the given element is allowed to be null,
+        require(element == null || serializationObject[key] == element) { "Given value does not match with this map class builder's value of given key" }
+
+        //if either key or value (if not null) should be removed
+        // we will remove all bindings. Though if the element is null
+        val remove = key.reset() || element?.reset() ?: false
+        if (remove) serializationObject.remove(key)
     }
 
-    override fun previewValue(): String {
-        return map.map { it.key.previewValue() + " -> " + it.value.previewValue() }.joinToString(", ")
+
+    override fun getPreviewValue(): String {
+        return serializationObject.map { it.key.getPreviewValue() + " -> " + it.value?.getPreviewValue() }
+            .joinToString(", ")
     }
+
+    override fun getChildType(cb: ClassBuilder<*>): JavaType? {
+        //TODO what if we want to reference a key?
+        return type.contentType
+    }
+
+    override fun reset(): Boolean = true
+
+    override fun getSubClassBuilders(): Map<ClassBuilder<*>, ClassBuilder<*>?> = serializationObject
+
+    override fun isLeaf(): Boolean = false
+
+    override fun isImmutable(): Boolean = false
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -96,7 +100,6 @@ class MapClassBuilder<K, out V>(
         if (parent != other.parent) return false
         if (name != other.name) return false
         if (property != other.property) return false
-
         return true
     }
 
@@ -108,5 +111,7 @@ class MapClassBuilder<K, out V>(
         return result
     }
 
-
+    override fun toString(): String {
+        return "Map CB; key type=${type.keyType}, contained type=${type.contentType})"
+    }
 }

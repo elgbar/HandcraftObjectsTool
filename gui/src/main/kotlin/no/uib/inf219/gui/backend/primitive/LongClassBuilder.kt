@@ -9,9 +9,10 @@ class LongClassBuilder(
     initial: Long = 0,
     name: String,
     parent: ClassBuilder<*>? = null,
-    prop: PropertyWriter? = null
+    prop: PropertyWriter? = null,
+    immutable: Boolean = false
 ) :
     SimpleNumberClassBuilder<Long>(
-        Long::class.java, initial, name, parent, prop,
+        Long::class.java, initial, name, parent, prop, immutable,
         LongStringConverter()
     ) {}

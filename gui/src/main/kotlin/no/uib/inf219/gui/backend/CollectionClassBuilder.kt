@@ -1,13 +1,15 @@
 package no.uib.inf219.gui.backend
 
-import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.annotation.JsonValue
+import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.ser.PropertyWriter
 import com.fasterxml.jackson.databind.type.CollectionLikeType
 import javafx.event.EventTarget
 import javafx.scene.Node
 import javafx.scene.control.TreeView
+import no.uib.inf219.extra.toCb
+import no.uib.inf219.gui.backend.primitive.IntClassBuilder
 import no.uib.inf219.gui.controllers.ObjectEditorController
-import no.uib.inf219.gui.view.ControlPanelView
 import no.uib.inf219.gui.view.NodeExplorerView
 import no.uib.inf219.gui.view.PropertyEditor
 import org.apache.commons.lang3.tuple.MutableTriple
@@ -19,41 +21,25 @@ import tornadofx.*
  *
  * @author Elg
  */
+//@JsonSerialize(using = CollectionCBSerializer::class)
 class CollectionClassBuilder<out T>(
     override val type: CollectionLikeType,
     override val name: String,
     override val parent: ClassBuilder<*>? = null,
     override val property: PropertyWriter? = null
-) : ClassBuilder<Collection<T>> {
+) : ReferencableClassBuilder<Collection<T>>() {
 
     init {
         require(type.isTrueCollectionType) { "Given type $type is not a _true_ collection like type" }
     }
 
-    private val collection: MutableCollection<ClassBuilder<*>> = ArrayList()
-
-    override fun toTree(): JsonNode {
-        return ControlPanelView.mapper.valueToTree(collection.map { it.toTree() })
+    companion object {
+        private val sizeCb = 0.toCb("add location")
     }
 
-    override fun toObject(): Collection<T>? {
-        try {
-            @Suppress("UNCHECKED_CAST")
-            return collection.map {
-                try {
-                    it.toObject() as T
-                } catch (e: ClassCastException) {
-                    throw IllegalArgumentException("Cannot convert ${it.type} to ${type.contentType}")
-                }
-            }
-        } catch (e: java.lang.ClassCastException) {
-            throw IllegalArgumentException("Cannot convert this collection class builder to $type")
-        }
-    }
+    @JsonValue
+    override val serializationObject: MutableList<ClassBuilder<*>> = ArrayList()
 
-    override fun getSubClassBuilders(): Map<String, ClassBuilder<*>> {
-        return collection.mapIndexed { i, cb -> Pair(i.toString(), cb) }.toMap()
-    }
 
     override fun toView(
         parent: EventTarget,
@@ -69,9 +55,9 @@ class CollectionClassBuilder<out T>(
 
                 button("Add element") {
                     action {
-                        val cb = getClassBuilder(type.contentType, collection.size.toString()) ?: return@action
-                        collection.add(cb)
+                        createClassBuilderFor(sizeCb)
                         controller.reloadView()
+                        recompile()
                     }
                 }
                 this.add(tv)
@@ -80,34 +66,63 @@ class CollectionClassBuilder<out T>(
         }
     }
 
-    override fun createClassBuilderFor(property: String): ClassBuilder<*>? {
-        return null
+    private fun cbToInt(cb: ClassBuilder<*>?): Int? {
+        return if (cb !is IntClassBuilder) null else cb.serializationObject
     }
 
-    override fun isLeaf(): Boolean {
-        return false
+    override fun createClassBuilderFor(key: ClassBuilder<*>, init: ClassBuilder<*>?): ClassBuilder<*>? {
+        val index = cbToInt(key)
+        if (index != null) {
+            require(init == null || init.type == getChildType(key)) {
+                "Given initial value have different type than expected. expected ${getChildType(key)} got ${init?.type}"
+            }
+            val elem = init ?: (getClassBuilder(type.contentType, serializationObject.size.toString()) ?: return null)
+            serializationObject.add(index, elem)
+            return elem
+        } else
+            return null
     }
 
-    @Deprecated("Collection elements cannot be null", ReplaceWith("reset(property: String, element: ClassBuilder<*>)"))
-    override fun reset(property: String): ClassBuilder<*>? {
-        return super.reset(property)
+
+    override fun resetChild(key: ClassBuilder<*>, element: ClassBuilder<*>?) {
+        val index: Int = cbToInt(key) ?: serializationObject.indexOf(element)
+        if (index == -1) kotlin.error("Failed to find the element of ")
+
+        val child = serializationObject[index]
+
+        require(element == null || child == element) { "Given element is not equal to stored element at index $index" }
+
+        if (child.reset()) {
+            serializationObject.removeAt(index)
+        }
     }
 
-    override fun reset(property: String, element: ClassBuilder<*>?): ClassBuilder<*>? {
-        require(element != null) { "Element cannot be null when removing from collection" }
-        collection.remove(element)
-        return null
+    override fun getSubClassBuilders(): Map<ClassBuilder<*>, ClassBuilder<*>> {
+        return serializationObject.mapIndexed { i, cb -> Pair(i.toCb("Element #$i"), cb) }.toMap()
     }
 
-    override fun previewValue(): String {
-        return collection.filter { !this.isParent(it) }.mapIndexed { i, cb -> "- $i: ${cb.previewValue()}" }
+    override fun getPreviewValue(): String {
+        return serializationObject.filter { !this.isParent(it) }.mapIndexed { i, cb -> "- $i: ${cb.getPreviewValue()}" }
             .joinToString("\n")
     }
 
-    override fun toString(): String {
-        return "Collection CB; value=${previewValue()}, contained type=${type.contentType})"
+    override fun getChildType(cb: ClassBuilder<*>): JavaType {
+        return type.contentType
     }
 
+    override fun getChildren(): List<ClassBuilder<*>> = serializationObject
+
+    override fun isLeaf() = false
+
+    override fun reset(): Boolean = true
+
+    override fun isImmutable() = false
+
+    override fun toString(): String {
+        return "Collection CB; value=${getPreviewValue()}, contained type=${type.contentType})"
+    }
+
+    @Suppress("DuplicatedCode")
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is CollectionClassBuilder<*>) return false
@@ -116,7 +131,7 @@ class CollectionClassBuilder<out T>(
         if (parent != other.parent) return false
         if (name != other.name) return false
         if (property != other.property) return false
-        if (collection != other.collection) return false
+        if (serializationObject != other.serializationObject) return false
 
         return true
     }
@@ -128,6 +143,5 @@ class CollectionClassBuilder<out T>(
         result = 31 * result + (property?.hashCode() ?: 0)
         return result
     }
-
 
 }

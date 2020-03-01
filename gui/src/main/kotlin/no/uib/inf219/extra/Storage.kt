@@ -21,7 +21,14 @@ fun homeFolder(child: String = ""): File {
  * @throws NullPointerException If the primary stage does not have a title
  */
 fun applicationHome(): File {
-    return homeFolder("." + FX.primaryStage.title!!).apply {
+
+    val appName = try {
+        FX.primaryStage.title!!
+    } catch (e: KotlinNullPointerException) {
+        "null"
+    }
+
+    return homeFolder(".$appName").apply {
         mkdirs()
     }
 }

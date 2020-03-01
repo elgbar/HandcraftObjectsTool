@@ -9,9 +9,10 @@ class FloatClassBuilder(
     initial: Float = 0.0f,
     name: String,
     parent: ClassBuilder<*>? = null,
-    prop: PropertyWriter? = null
+    prop: PropertyWriter? = null,
+    immutable: Boolean = false
 ) :
     SimpleNumberClassBuilder<Float>(
-        Float::class.java, initial, name, parent, prop,
+        Float::class.java, initial, name, parent, prop, immutable,
         FloatStringConverter()
     ) {}

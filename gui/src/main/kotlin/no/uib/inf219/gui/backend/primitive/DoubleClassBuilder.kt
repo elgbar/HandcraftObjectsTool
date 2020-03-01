@@ -9,9 +9,10 @@ class DoubleClassBuilder(
     initial: Double = 0.0,
     name: String,
     parent: ClassBuilder<*>? = null,
-    prop: PropertyWriter? = null
+    prop: PropertyWriter? = null,
+    immutable: Boolean = false
 ) :
     SimpleNumberClassBuilder<Double>(
-        Double::class.java, initial, name, parent, prop,
+        Double::class.java, initial, name, parent, prop, immutable,
         DoubleStringConverter()
     ) {}

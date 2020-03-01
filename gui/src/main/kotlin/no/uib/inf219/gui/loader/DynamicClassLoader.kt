@@ -12,7 +12,9 @@ import java.net.URLClassLoader
  * @author Elg
  */
 object DynamicClassLoader :
-    URLClassLoader(arrayOf(applicationHome().child("${GuiMain.FILES_FOLDER}/").also { it.mkdirs() }.toURI().toURL())) {
+    URLClassLoader(
+        arrayOf(applicationHome().child("${GuiMain.FILES_FOLDER}/").also { it.mkdirs() }.toURI().toURL())
+    ) {
 
     private val LoadedFiles: MutableSet<File> = HashSet()
 

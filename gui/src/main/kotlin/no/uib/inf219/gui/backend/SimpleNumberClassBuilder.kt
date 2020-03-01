@@ -21,8 +21,9 @@ abstract class SimpleNumberClassBuilder<T : Number>(
     name: String,
     parent: ClassBuilder<*>? = null,
     property: PropertyWriter? = null,
+    immutable: Boolean = false,
     converter: StringConverter<T>
-) : SimpleClassBuilder<T>(primClass, initialValue, name, parent, property, converter) {
+) : SimpleClassBuilder<T>(primClass, initialValue, name, parent, property, immutable, converter) {
 
     override fun editView(parent: Pane): Node {
         return parent.hbox {
@@ -43,14 +44,14 @@ abstract class SimpleNumberClassBuilder<T : Number>(
                             if (event.isControlDown) num *= 100
 
                             @Suppress("UNCHECKED_CAST")
-                            value = when (value::class) {
-                                Int::class -> (value as Int).plus(num) as T
-                                Long::class -> (value as Long).plus(num) as T
-                                Double::class -> (value as Double).plus(num) as T
-                                Float::class -> (value as Float).plus(num) as T
-                                Short::class -> (value as Short).plus(num).toShort() as T
-                                Byte::class -> (value as Byte).plus(num).toByte() as T
-                                else -> throw IllegalStateException("Unknown number ${value::class.java.simpleName}")
+                            serializationObject = when (serializationObject::class) {
+                                Int::class -> (serializationObject as Int).plus(num) as T
+                                Long::class -> (serializationObject as Long).plus(num) as T
+                                Double::class -> (serializationObject as Double).plus(num) as T
+                                Float::class -> (serializationObject as Float).plus(num) as T
+                                Short::class -> (serializationObject as Short).plus(num).toShort() as T
+                                Byte::class -> (serializationObject as Byte).plus(num).toByte() as T
+                                else -> throw IllegalStateException("Unknown number ${serializationObject::class.java.simpleName}")
                             }
                         }
                     }
@@ -66,14 +67,14 @@ abstract class SimpleNumberClassBuilder<T : Number>(
                             if (event.isShiftDown) num *= 10
                             if (event.isControlDown) num *= 100
                             @Suppress("UNCHECKED_CAST")
-                            value = when (value::class) {
-                                Int::class -> (value as Int).minus(num) as T
-                                Long::class -> (value as Long).minus(num) as T
-                                Double::class -> (value as Double).minus(num) as T
-                                Float::class -> (value as Float).minus(num) as T
-                                Short::class -> (value as Short).minus(num).toShort() as T
-                                Byte::class -> (value as Byte).minus(num).toByte() as T
-                                else -> throw IllegalStateException("Unknown number ${value::class.java.simpleName}")
+                            serializationObject = when (serializationObject::class) {
+                                Int::class -> (serializationObject as Int).minus(num) as T
+                                Long::class -> (serializationObject as Long).minus(num) as T
+                                Double::class -> (serializationObject as Double).minus(num) as T
+                                Float::class -> (serializationObject as Float).minus(num) as T
+                                Short::class -> (serializationObject as Short).minus(num).toShort() as T
+                                Byte::class -> (serializationObject as Byte).minus(num).toByte() as T
+                                else -> throw IllegalStateException("Unknown number ${serializationObject::class.java.simpleName}")
                             }
                         }
                     }
@@ -95,17 +96,21 @@ abstract class SimpleNumberClassBuilder<T : Number>(
                 setOnAction {
 
                     @Suppress("UNCHECKED_CAST")
-                    value = when (value::class) {
+                    serializationObject = when (serializationObject::class) {
                         Int::class -> 0 as T
                         Long::class -> 0L as T
                         Double::class -> 0.0 as T
                         Float::class -> 0f as T
                         Short::class -> (0.toShort()) as T
                         Byte::class -> (0.toByte()) as T
-                        else -> throw IllegalStateException("Unknown number ${value::class.java.simpleName}")
+                        else -> throw IllegalStateException("Unknown number ${serializationObject::class.java.simpleName}")
                     }
                 }
             }
         }
+    }
+
+    override fun toString(): String {
+        return "Simple Number CB; value=$serializationObject, clazz=$type)"
     }
 }

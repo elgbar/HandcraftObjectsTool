@@ -9,10 +9,11 @@ class ByteClassBuilder(
     initial: Byte = 0,
     name: String,
     parent: ClassBuilder<*>? = null,
-    prop: PropertyWriter? = null
+    prop: PropertyWriter? = null,
+    immutable: Boolean = false
 ) :
     SimpleNumberClassBuilder<Byte>(
-        Byte::class.java, initial, name, parent, prop,
+        Byte::class.java, initial, name, parent, prop, immutable,
         ByteStringConverter()
     ) {
 }

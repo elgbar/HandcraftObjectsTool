@@ -1,18 +1,20 @@
 package no.uib.inf219.gui.backend
 
+import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.annotation.JsonValue
 import com.fasterxml.jackson.databind.JavaType
-import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer
 import com.fasterxml.jackson.databind.ser.PropertyWriter
 import javafx.beans.Observable
-import javafx.collections.ObservableList
 import javafx.collections.ObservableMap
 import javafx.event.EventTarget
 import javafx.geometry.Pos
 import javafx.scene.Node
+import no.uib.inf219.extra.toCb
 import no.uib.inf219.gui.Styles
-import no.uib.inf219.gui.backend.exceptions.MissingPropertyException
+import no.uib.inf219.gui.backend.primitive.StringClassBuilder
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.loader.ClassInformation
 import no.uib.inf219.gui.view.ControlPanelView.mapper
@@ -25,35 +27,57 @@ import kotlin.collections.set
 /**
  * A class builder intended to be used for normal classes. It is 'complex' due containing multiple other [ClassBuilder]s.
  *
+ *
+ *
  * @author Elg
  */
+@JsonIgnoreProperties("map", ignoreUnknown = true)
 class ComplexClassBuilder<out T>(
     override val type: JavaType,
     override val name: String,
     override val parent: ClassBuilder<*>? = null,
     override val property: PropertyWriter? = null,
+    @JsonIgnore
     val superType: JavaType = type
-) : ClassBuilder<T> {
+) : ReferencableClassBuilder<T>() {
 
+    //TODO make all property info, default etc into a single class
+
+    /**
+     * Hold information about the given property
+     */
+    @JsonIgnore
     private val propInfo: Map<String, PropertyWriter>
+    /**
+     * Holds the default value for the given property
+     */
+    @JsonIgnore
     private val propDefaults: MutableMap<String, Any?> = HashMap()
+    /**
+     * Information about the generics of [T], is `null` when the class does not have a generic type
+     */
+    @JsonIgnore
+    internal val typeSerializer: TypeSerializer?
 
-    private val typeSerializer: TypeSerializer?
+    @JsonIgnore
+    override val serializationObject: MutableMap<String, ClassBuilder<*>?> = HashMap()
+    @JsonIgnore
+    internal val observableMap: ObservableMap<String, ClassBuilder<*>?> = serializationObject.toObservable()
 
-    private val props: MutableMap<String, ClassBuilder<*>?> = HashMap()
-    private val obProp: ObservableMap<String, ClassBuilder<*>?> = props.toObservable()
-
-    private val propList: MutableList<Pair<String, ClassBuilder<*>?>> = ArrayList()
-    private val obPropList: ObservableList<Pair<String, ClassBuilder<*>?>> = propList.toObservable()
+    /**
+     * This is the map we want to serialize. It contains every value of [serializationObject] but also type information
+     */
+    @JsonValue
+    private val serMap: MutableMap<String, ClassBuilder<*>?> = HashMap()
 
     init {
         val (typeSer, pinfo) = ClassInformation.serializableProperties(type)
         typeSerializer = typeSer
         propInfo = pinfo
 
-        //initiate all valid values to null
+        //initiate all valid values to null or default
         // to allow for iteration when populating Node explorer
-        for ((k, v) in propInfo) {
+        for ((key, v) in propInfo) {
             val propAn = v.getAnnotation(JsonProperty::class.java)
             val default: Any? =
                 if (propAn != null) {
@@ -64,78 +88,75 @@ class ComplexClassBuilder<out T>(
                         try {
                             mapper.readValue(defaultStr, v.type) as Any?
                         } catch (e: Throwable) {
-                            OutputArea.logln("Failed to parse default value for property $k of $type. Given string '$defaultStr'")
+                            OutputArea.logln("Failed to parse default value for property $key of $type. Given string '$defaultStr'")
                             OutputArea.logln(e.localizedMessage)
                             null
                         }
                     }
                 } else null
-            propDefaults[k] = default
+            propDefaults[key] = default
 
             if (default != null || v.type.isPrimitive) {
                 //only create a class builder for properties that has a default value
                 // or is primitive (which always have default values)
-                createClassBuilderFor(k)
+                createClassBuilderFor(key.toCb())
             } else {
-                props[k] = null
+                serializationObject[key] = null
             }
         }
-
-        obProp.addListener { ob: Observable ->
-            check(ob is ObservableMap<*, *>)
-            propList.clear()
-            propList.addAll(props.toList())
-        }
-    }
-
-    override fun toTree(): JsonNode {
-        val objProp = props.mapValues {
-            val obj = it.value?.toObject()
-
-            if (obj == null) {
-                val info: PropertyWriter =
-                    propInfo[it.key] ?: kotlin.error("Failed to find information about property '${it.key}' in $type")
-                if (info.isRequired) {
-                    throw MissingPropertyException(it.key, info.type, type)
-                }
-            }
-
-            return@mapValues mapper.valueToTree<JsonNode>(obj)
-        } as MutableMap<String, JsonNode>
-
 
         if (typeSerializer != null) {
-            checkNotNull(typeSerializer.propertyName) { "Don't know how to handle a type serializer of type '${typeSerializer::class.simpleName}' as the property name is null" }
-            objProp[typeSerializer.propertyName] = mapper.valueToTree<JsonNode>(type.rawClass.canonicalName)
+            checkNotNull(typeSerializer.propertyName) {
+                "Don't know how to handle a type serializer of type '${typeSerializer::class.simpleName}' as the property name is null"
+            }
+            serMap[typeSerializer.propertyName] = type.rawClass.canonicalName.toCb()
         }
 
-        return mapper.valueToTree(objProp)
-    }
-
-    override fun toObject(): T? {
-        return mapper.convertValue(toTree(), superType)
-    }
-
-    override fun getSubClassBuilders(): Map<String, ClassBuilder<*>?> = props
-
-    override fun createClassBuilderFor(property: String): ClassBuilder<*>? {
-        val prop = propInfo[property]
-        require(prop != null) { "The class $type does not have a property with the name '$property'. Expected one of the following: $propInfo" }
-
-        return props.computeIfAbsent(property) {
-            @Suppress("MapGetWithNotNullAssertionOperator") //checked above
-            getClassBuilder(prop.type, it, propDefaults[it], prop)
+        @Suppress("RedundantLambdaArrow")
+        observableMap.addListener { _: Observable ->
+            for ((key, cb) in serializationObject) {
+                if (serMap[key] != cb) {
+                    serMap[key] = cb
+                }
+            }
         }
     }
 
-    override fun reset(property: String, element: ClassBuilder<*>?): ClassBuilder<*>? {
-        require(propInfo.contains(property)) { "The class $type does not have a property with the name '$property'. Expected one of the following: $propInfo" }
-
-        props[property] = null
-        return createClassBuilderFor(property)
+    private fun cbToString(cb: ClassBuilder<*>?): String {
+        return (cb as? StringClassBuilder)?.serializationObject
+            ?: kotlin.error("Wrong type of key was given. Expected a ClassBuilder<String> but got $cb")
     }
 
-    override fun isLeaf(): Boolean {
+    override fun createClassBuilderFor(key: ClassBuilder<*>, init: ClassBuilder<*>?): ClassBuilder<*>? {
+        val propName = cbToString(key)
+
+        val prop = propInfo[propName]
+        require(prop != null) { "The class $type does not have a property with the name '$propName'. Expected one of the following: ${propInfo.keys}" }
+        require(init == null || init.type == getChildType(key)) {
+            "Given initial value have different type than expected. expected ${getChildType(key)} got ${init?.type}"
+        }
+
+        return serializationObject.computeIfAbsent(propName) {
+            init ?: getClassBuilder(prop.type, propName, propDefaults[propName], prop)
+        }
+    }
+
+    override fun resetChild(key: ClassBuilder<*>, element: ClassBuilder<*>?) {
+        val propName = cbToString(key)
+
+        require(element == null || element == propInfo[propName]) {
+            "The class $type does not have a property with the name '$key'. Expected one of the following: $propInfo"
+        }
+
+        val remove = element?.reset() ?: false
+        if (remove)
+            serializationObject[propName] = null
+    }
+
+    override fun reset(): Boolean {
+        for (prop in serializationObject.keys) {
+            resetChild(prop.toCb())
+        }
         return false
     }
 
@@ -143,11 +164,9 @@ class ComplexClassBuilder<out T>(
         parent: EventTarget,
         controller: ObjectEditorController
     ): Node {
-        obPropList.clear()
-        obPropList.addAll(props.filterValues { it?.isLeaf() ?: true }.toList().sortedBy { it.first })
         return parent.scrollpane(fitToWidth = true, fitToHeight = true) {
 
-            if (obPropList.isEmpty()) {
+            if (observableMap.isEmpty()) {
                 hbox {
                     alignment = Pos.CENTER
 
@@ -157,9 +176,9 @@ class ComplexClassBuilder<out T>(
                 }
             } else {
                 squeezebox {
-                    for ((name, cb) in obPropList) {
+                    for ((name, cb) in observableMap) {
                         if (cb != null) {
-                            fold("$name ${cb.previewValue()}") {
+                            fold("$name ${cb.getPreviewValue()}") {
                                 cb.toView(this, controller)
                             }
                         }
@@ -169,34 +188,41 @@ class ComplexClassBuilder<out T>(
         }
     }
 
-    override fun previewValue(): String {
-        return props.filter { !this.isParent(it.value) }.map { "${it.key}: ${it.value?.previewValue()}" }
-            .joinToString("\n")
+    override fun getChildType(cb: ClassBuilder<*>): JavaType? {
+        return propInfo[cbToString(cb)]?.type
     }
 
+    override fun getPreviewValue(): String {
+        return serializationObject.map { it.key + " -> " + it.value?.getPreviewValue() }.joinToString(", ")
+    }
+
+    override fun getSubClassBuilders(): Map<ClassBuilder<*>, ClassBuilder<*>?> =
+        serializationObject.mapKeys { it.key.toCb() }
+
+    override fun isLeaf(): Boolean = false
+
+    override fun isImmutable(): Boolean = false
+
     override fun toString(): String {
-        return "MapClassBuilder(clazz=$type, props=${props.filter { it.value !== this }})"
+        return "Complex CB; type=$type)"
     }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is ComplexClassBuilder<*>) return false
+        if (other !is MapClassBuilder<*, *>) return false
 
         if (type != other.type) return false
-        if (name != other.name) return false
         if (parent != other.parent) return false
+        if (name != other.name) return false
         if (property != other.property) return false
-
         return true
     }
 
     override fun hashCode(): Int {
         var result = type.hashCode()
-        result = 31 * result + name.hashCode()
         result = 31 * result + (parent?.hashCode() ?: 0)
+        result = 31 * result + name.hashCode()
         result = 31 * result + (property?.hashCode() ?: 0)
         return result
     }
-
-
 }
