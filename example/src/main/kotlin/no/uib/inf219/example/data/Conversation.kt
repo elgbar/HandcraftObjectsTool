@@ -13,7 +13,7 @@ import no.uib.inf219.api.serialization.storage.StoreHandler
  */
 class Conversation : Identifiable<String> {
 
-    @JsonProperty("text", required = true, defaultValue = "")
+    @JsonProperty("text", required = true)
     var text: String = ""
 
     @JsonProperty("name", defaultValue = "Conversation", required = false)
@@ -30,7 +30,6 @@ class Conversation : Identifiable<String> {
         get() = if (field.isEmpty()) Response.exitResponse else field
 
     init {
-//        println("storing name = ${name} ($text)")
         val store: RetrievableStorage<String, Conversation> =
             StoreHandler.getStore(Conversation::class.java)
         store.store(this)

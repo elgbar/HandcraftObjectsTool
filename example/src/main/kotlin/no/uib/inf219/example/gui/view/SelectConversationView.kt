@@ -9,6 +9,7 @@ import javafx.stage.FileChooser
 import no.uib.inf219.api.serialization.SerializationManager
 import no.uib.inf219.api.serialization.SerializationManager.kotlinJson
 import no.uib.inf219.api.serialization.SerializationManager.readValue
+import no.uib.inf219.api.serialization.schema
 import no.uib.inf219.example.data.Conversation
 import no.uib.inf219.example.data.Response
 import no.uib.inf219.example.data.prerequisite.AlwaysFalsePrerequisite
@@ -120,6 +121,11 @@ class SelectConversationView(val tabPane: TabPane) : View("") {
                     output.appendText("eql test conv str? ${dump2 == dump}\n")
                     output.appendText("\ndump\n $dump\n\n")
                     output.appendText("dump2\n\n $dump2")
+                }
+            }
+            hBox += button("Dump Schemas") {
+                action {
+                    output.appendText(kotlinJson.schema(Conversation::class.java) + "\n")
                 }
             }
             hBox += button("Dump End conv & exitResponse") {

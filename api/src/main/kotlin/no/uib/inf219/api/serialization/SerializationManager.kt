@@ -2,6 +2,7 @@ package no.uib.inf219.api.serialization
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
+import com.fasterxml.jackson.module.jsonSchema.JsonSchemaGenerator
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import org.apache.commons.lang.WordUtils
 
@@ -99,5 +100,10 @@ object SerializationManager {
     inline fun <reified T> ObjectMapper.readValue(str: String): T {
         return this.readValue(str, T::class.java)
     }
+}
 
+
+fun ObjectMapper.schema(clazz: Class<*>): String {
+    val schemaGen = JsonSchemaGenerator(this)
+    return writeValueAsString(schemaGen.generateSchema(clazz))
 }
