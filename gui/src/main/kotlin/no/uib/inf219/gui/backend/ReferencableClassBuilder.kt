@@ -1,6 +1,5 @@
 package no.uib.inf219.gui.backend
 
-import com.fasterxml.jackson.annotation.JsonIgnore
 import no.uib.inf219.gui.view.ControlPanelView
 import no.uib.inf219.gui.view.OutputArea
 
@@ -11,9 +10,9 @@ import no.uib.inf219.gui.view.OutputArea
  */
 abstract class ReferencableClassBuilder<out T> : ClassBuilder<T> {
 
-    @JsonIgnore
+
     private var dirty: Boolean = true
-    @JsonIgnore
+
     private var objCache: T? = null
 
     override fun isDirty() = dirty

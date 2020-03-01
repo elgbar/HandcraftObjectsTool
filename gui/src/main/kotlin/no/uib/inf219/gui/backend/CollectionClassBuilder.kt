@@ -1,6 +1,6 @@
 package no.uib.inf219.gui.backend
 
-import com.fasterxml.jackson.annotation.JsonValue
+
 import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.ser.PropertyWriter
 import com.fasterxml.jackson.databind.type.CollectionLikeType
@@ -37,7 +37,6 @@ class CollectionClassBuilder<out T>(
         private val sizeCb = 0.toCb("add location")
     }
 
-    @JsonValue
     override val serializationObject: MutableList<ClassBuilder<*>> = ArrayList()
 
 
@@ -114,7 +113,7 @@ class CollectionClassBuilder<out T>(
 
     override fun isLeaf() = false
 
-    override fun reset(): Boolean = true
+    override fun reset() = true
 
     override fun isImmutable() = false
 

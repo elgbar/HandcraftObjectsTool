@@ -1,9 +1,7 @@
 package no.uib.inf219.gui.backend
 
-import com.fasterxml.jackson.annotation.JsonIgnore
-import com.fasterxml.jackson.annotation.JsonValue
+
 import com.fasterxml.jackson.databind.JavaType
-import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.fasterxml.jackson.databind.ser.PropertyWriter
 import javafx.beans.property.Property
 import javafx.beans.property.SimpleObjectProperty
@@ -17,7 +15,6 @@ import javafx.util.StringConverter
 import javafx.util.converter.*
 import no.uib.inf219.extra.removeNl
 import no.uib.inf219.gui.Styles
-import no.uib.inf219.gui.backend.serializer.SimpleCBSerializer
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.converter.UUIDStringConverter
 import no.uib.inf219.gui.loader.ClassInformation
@@ -36,11 +33,6 @@ import java.util.*
  *
  * @author Elg
  */
-@JsonSerialize(
-    using = SimpleCBSerializer::class,
-    keyUsing = SimpleCBSerializer::class,
-    contentUsing = SimpleCBSerializer::class
-)
 abstract class SimpleClassBuilder<T : Any>(
     primClass: Class<T>,
     private val initialValue: T,
@@ -74,13 +66,11 @@ abstract class SimpleClassBuilder<T : Any>(
         }
     }
 
-    @get:JsonIgnore
     internal val valueProperty: Property<T> by lazy { findProperty(type, initialValue) }
 
-    @JsonIgnore
+
     fun valueProperty(): ObservableValue<T> = valueProperty
 
-    @get:JsonValue
     override var serializationObject: T
         get() = valueProperty.value
         set(value) = valueProperty.setValue(value)
@@ -112,7 +102,7 @@ abstract class SimpleClassBuilder<T : Any>(
     /**
      * How to view the edit the value
      */
-    @JsonIgnore
+
     open fun editView(parent: Pane): Node {
         return parent.textfield {
             textFormatter = TextFormatter<T>() {
@@ -169,7 +159,7 @@ abstract class SimpleClassBuilder<T : Any>(
     override fun getChildType(cb: ClassBuilder<*>): JavaType? = null
 
     @Suppress("UNCHECKED_CAST")
-    @JsonIgnore
+
     private fun <T : Any> getDefaultConverter(): StringConverter<T>? = when (type.rawClass) {
         Int::class.javaPrimitiveType -> IntegerStringConverter()
         Long::class.javaPrimitiveType -> LongStringConverter()
@@ -191,7 +181,7 @@ abstract class SimpleClassBuilder<T : Any>(
         else -> null
     } as StringConverter<T>?
 
-    @JsonIgnore
+
     fun bindStringProperty(
         stringProperty: StringProperty,
         converter: StringConverter<T>?,

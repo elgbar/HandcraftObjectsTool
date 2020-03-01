@@ -24,7 +24,6 @@ import tornadofx.property
 @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator::class)
 @JsonIdentityReference(alwaysAsId = true)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-@JsonIgnoreProperties("type", "parent", "name", "property", ignoreUnknown = true)
 interface ClassBuilder<out T> {
 
     val type: JavaType
@@ -48,6 +47,7 @@ interface ClassBuilder<out T> {
     /**
      * The object to serialize
      */
+    @get:JsonValue
     val serializationObject: Any
 
     /**
@@ -61,7 +61,7 @@ interface ClassBuilder<out T> {
      *
      * Empty if [isLeaf] is true
      */
-    @JsonIgnore
+
     fun getSubClassBuilders(): Map<ClassBuilder<*>, ClassBuilder<*>?>
 
     /**
@@ -69,7 +69,7 @@ interface ClassBuilder<out T> {
      *
      * @return all modifiable existing children
      */
-    @JsonIgnore
+
     fun getChildren(): List<ClassBuilder<*>> {
         val list = ArrayList<ClassBuilder<*>>()
         for ((k, v) in getSubClassBuilders()) {
@@ -82,7 +82,7 @@ interface ClassBuilder<out T> {
     /**
      * If this implementation does not have any sub class builders
      */
-    @JsonIgnore
+
     fun isLeaf(): Boolean
 
     /**
@@ -122,10 +122,10 @@ interface ClassBuilder<out T> {
     /**
      * Preview of this class
      */
-    @JsonIgnore
+
     fun getPreviewValue(): String
 
-    @JsonIgnore
+
     fun getClassBuilder(
         type: JavaType,
         name: String,
@@ -138,7 +138,7 @@ interface ClassBuilder<out T> {
     /**
      * @return If we are a forefather of the given [ClassBuilder]
      */
-    @JsonIgnore
+
     fun isParent(to: ClassBuilder<*>?): Boolean {
         return when (to) {
             null -> false
@@ -152,19 +152,19 @@ interface ClassBuilder<out T> {
      */
     fun recompile()
 
-    @JsonIgnore
+
     fun isDirty(): Boolean
 
     /**
      * @return The java type of of the given child
      */
-    @JsonIgnore
+
     fun getChildType(cb: ClassBuilder<*>): JavaType?
 
     /**
      * If this class builder is required to be valid. If [property] is `null` this is assumed to be required.
      */
-    @JsonIgnore
+
     fun isRequired(): Boolean {
         return property?.isRequired ?: true
     }
@@ -172,7 +172,7 @@ interface ClassBuilder<out T> {
     /**
      * @return `true` if this class builder cannot change value
      */
-    @JsonIgnore
+
     fun isImmutable(): Boolean
 
     companion object {
@@ -185,8 +185,7 @@ interface ClassBuilder<out T> {
             name: String,
             parent: ClassBuilder<*>? = null,
             value: Any? = null,
-            prop: PropertyWriter? = null,
-            superType: JavaType = type
+            prop: PropertyWriter? = null
         ): ClassBuilder<*>? {
             val elem = if (value != null && value is ClassBuilder<*>) {
                 //it would be very weird if this happened
@@ -332,10 +331,10 @@ interface ClassBuilder<out T> {
             } else if (!type.isConcrete) {
                 //the type is abstract/interface we need a concrete type to
                 val subtype = find<ClassSelectorView>().subtypeOf(type, false) ?: return null
-                return getClassBuilder(subtype, name, parent, value, prop, superType)
+                return getClassBuilder(subtype, name, parent, value, prop)
             } else {
                 //it's not a primitive type so let's just make a complex type for it
-                ComplexClassBuilder<Any>(type, name, parent, prop, superType)
+                ComplexClassBuilder<Any>(type, name, parent, prop)
             }
             //remember to recompile the parent to make sure it sees the changes
             parent?.recompile()

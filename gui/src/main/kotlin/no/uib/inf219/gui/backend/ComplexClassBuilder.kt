@@ -1,13 +1,13 @@
 package no.uib.inf219.gui.backend
 
-import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.annotation.JsonValue
+
 import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer
 import com.fasterxml.jackson.databind.ser.PropertyWriter
 import javafx.beans.Observable
+import javafx.collections.FXCollections
 import javafx.collections.ObservableMap
 import javafx.event.EventTarget
 import javafx.geometry.Pos
@@ -36,9 +36,7 @@ class ComplexClassBuilder<out T>(
     override val type: JavaType,
     override val name: String,
     override val parent: ClassBuilder<*>? = null,
-    override val property: PropertyWriter? = null,
-    @JsonIgnore
-    val superType: JavaType = type
+    override val property: PropertyWriter? = null
 ) : ReferencableClassBuilder<T>() {
 
     //TODO make all property info, default etc into a single class
@@ -46,34 +44,41 @@ class ComplexClassBuilder<out T>(
     /**
      * Hold information about the given property
      */
-    @JsonIgnore
     private val propInfo: Map<String, PropertyWriter>
+
     /**
      * Holds the default value for the given property
      */
-    @JsonIgnore
     private val propDefaults: MutableMap<String, Any?> = HashMap()
+
     /**
      * Information about the generics of [T], is `null` when the class does not have a generic type
      */
-    @JsonIgnore
-    internal val typeSerializer: TypeSerializer?
-
-    @JsonIgnore
-    override val serializationObject: MutableMap<String, ClassBuilder<*>?> = HashMap()
-    @JsonIgnore
-    internal val observableMap: ObservableMap<String, ClassBuilder<*>?> = serializationObject.toObservable()
+    private val typeSerializer: TypeSerializer?
 
     /**
-     * This is the map we want to serialize. It contains every value of [serializationObject] but also type information
+     * The map the user sees
      */
-    @JsonValue
-    private val serMap: MutableMap<String, ClassBuilder<*>?> = HashMap()
+    private val map: ObservableMap<String, ClassBuilder<*>?> = FXCollections.observableMap(HashMap())
+
+    /**
+     * This is the map we want to serialize. It contains every value of [map] but also type information
+     */
+    override val serializationObject: MutableMap<String, ClassBuilder<*>?> = HashMap()
 
     init {
         val (typeSer, pinfo) = ClassInformation.serializableProperties(type)
         typeSerializer = typeSer
         propInfo = pinfo
+
+
+        map.addListener { _: Observable ->
+            for ((key, cb) in map) {
+                if (serializationObject[key] != cb) {
+                    serializationObject[key] = cb
+                }
+            }
+        }
 
         //initiate all valid values to null or default
         // to allow for iteration when populating Node explorer
@@ -101,7 +106,7 @@ class ComplexClassBuilder<out T>(
                 // or is primitive (which always have default values)
                 createClassBuilderFor(key.toCb())
             } else {
-                serializationObject[key] = null
+                map[key] = null
             }
         }
 
@@ -109,16 +114,7 @@ class ComplexClassBuilder<out T>(
             checkNotNull(typeSerializer.propertyName) {
                 "Don't know how to handle a type serializer of type '${typeSerializer::class.simpleName}' as the property name is null"
             }
-            serMap[typeSerializer.propertyName] = type.rawClass.canonicalName.toCb()
-        }
-
-        @Suppress("RedundantLambdaArrow")
-        observableMap.addListener { _: Observable ->
-            for ((key, cb) in serializationObject) {
-                if (serMap[key] != cb) {
-                    serMap[key] = cb
-                }
-            }
+            serializationObject[typeSerializer.propertyName] = type.rawClass.canonicalName.toCb()
         }
     }
 
@@ -136,7 +132,7 @@ class ComplexClassBuilder<out T>(
             "Given initial value have different type than expected. expected ${getChildType(key)} got ${init?.type}"
         }
 
-        return serializationObject.computeIfAbsent(propName) {
+        return map.computeIfAbsent(propName) {
             init ?: getClassBuilder(prop.type, propName, propDefaults[propName], prop)
         }
     }
@@ -150,11 +146,11 @@ class ComplexClassBuilder<out T>(
 
         val remove = element?.reset() ?: false
         if (remove)
-            serializationObject[propName] = null
+            map[propName] = null
     }
 
     override fun reset(): Boolean {
-        for (prop in serializationObject.keys) {
+        for (prop in map.keys) {
             resetChild(prop.toCb())
         }
         return false
@@ -166,7 +162,7 @@ class ComplexClassBuilder<out T>(
     ): Node {
         return parent.scrollpane(fitToWidth = true, fitToHeight = true) {
 
-            if (observableMap.isEmpty()) {
+            if (map.isEmpty()) {
                 hbox {
                     alignment = Pos.CENTER
 
@@ -176,7 +172,7 @@ class ComplexClassBuilder<out T>(
                 }
             } else {
                 squeezebox {
-                    for ((name, cb) in observableMap) {
+                    for ((name, cb) in map) {
                         if (cb != null) {
                             fold("$name ${cb.getPreviewValue()}") {
                                 cb.toView(this, controller)
@@ -193,11 +189,10 @@ class ComplexClassBuilder<out T>(
     }
 
     override fun getPreviewValue(): String {
-        return serializationObject.map { it.key + " -> " + it.value?.getPreviewValue() }.joinToString(", ")
+        return map.map { it.key + " -> " + it.value?.getPreviewValue() }.joinToString(", ")
     }
 
-    override fun getSubClassBuilders(): Map<ClassBuilder<*>, ClassBuilder<*>?> =
-        serializationObject.mapKeys { it.key.toCb() }
+    override fun getSubClassBuilders(): Map<ClassBuilder<*>, ClassBuilder<*>?> = map.mapKeys { it.key.toCb() }
 
     override fun isLeaf(): Boolean = false
 
@@ -207,6 +202,7 @@ class ComplexClassBuilder<out T>(
         return "Complex CB; type=$type)"
     }
 
+    @Suppress("DuplicatedCode")
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is MapClassBuilder<*, *>) return false

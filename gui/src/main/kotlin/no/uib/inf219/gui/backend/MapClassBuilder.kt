@@ -1,6 +1,6 @@
 package no.uib.inf219.gui.backend
 
-import com.fasterxml.jackson.annotation.JsonValue
+
 import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.ser.PropertyWriter
 import javafx.event.EventTarget
@@ -24,7 +24,7 @@ open class MapClassBuilder<K, out V>(
     override val property: PropertyWriter?
 ) : ReferencableClassBuilder<Map<K?, V?>>() {
 
-    @JsonValue
+
     override val serializationObject: MutableMap<ClassBuilder<*>, ClassBuilder<*>?> = HashMap()
 
 
