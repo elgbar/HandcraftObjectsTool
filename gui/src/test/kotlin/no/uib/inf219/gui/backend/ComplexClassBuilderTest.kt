@@ -4,7 +4,8 @@ import no.uib.inf219.extra.type
 import no.uib.inf219.test.AlwaysTruePrerequisite
 import no.uib.inf219.test.Prerequisite
 import no.uib.inf219.test.PrimitiveDefaultValueShowcase
-import org.junit.jupiter.api.Assertions
+import no.uib.inf219.test.RecursivePrerequisite
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.testfx.framework.junit5.ApplicationExtension
@@ -18,7 +19,7 @@ internal class ComplexClassBuilderTest {
     @Test
     internal fun canCreateAbstractTypes() {
         val created = ComplexClassBuilder<Prerequisite>(AlwaysTruePrerequisite::class.type(), "preq").toObject()
-        Assertions.assertEquals(AlwaysTruePrerequisite(), created)
+        assertEquals(AlwaysTruePrerequisite(), created)
     }
 
     @Test
@@ -27,6 +28,22 @@ internal class ComplexClassBuilderTest {
             PrimitiveDefaultValueShowcase::class.type(),
             "name"
         ).toObject()
-        Assertions.assertEquals(PrimitiveDefaultValueShowcase(42, 46, 0.1, 0.1f, true, 6, 1, 'a', "abc"), created)
+        assertEquals(PrimitiveDefaultValueShowcase(42, 46, 0.1, 0.1f, true, 6, 1, 'a', "abc"), created)
+    }
+
+    @Test
+    internal fun canCreateRecursiveClass() {
+        val cb = ComplexClassBuilder<RecursivePrerequisite>(
+            RecursivePrerequisite::class.type(),
+            "rec"
+        )
+        cb.serializationObject[RecursivePrerequisite::with.name] = cb
+
+        val created = cb.toObject()
+
+        val rec = RecursivePrerequisite(AlwaysTruePrerequisite())
+        rec.with = rec
+
+        assertEquals(rec, created)
     }
 }
