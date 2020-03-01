@@ -51,10 +51,11 @@ internal class SimpleClassBuilderTest {
     @Test
     internal fun editingMutableCBAllowed() {
         val cb = "test".toCb(immutable = false)
-
+        val newValue = "Allowed"
         assertDoesNotThrow {
-            cb.serializationObject = "Allowed"
+            cb.serializationObject = newValue
         }
+        assertEquals(newValue, cb.serializationObject)
     }
 
     @Test
