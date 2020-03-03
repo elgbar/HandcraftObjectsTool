@@ -1,16 +1,35 @@
 package no.uib.inf219.gui.backend.serializers
 
-import com.fasterxml.jackson.core.JsonGenerator
-import com.fasterxml.jackson.databind.SerializerProvider
-import com.fasterxml.jackson.databind.ser.std.StdSerializer
 import no.uib.inf219.gui.backend.ClassBuilder
+import java.util.*
+import kotlin.collections.HashMap
+
 
 /**
  * @author Elg
  */
-class ClassBuilderSerializer : StdSerializer<ClassBuilder<*>>(ClassBuilder::class.java) {
+class ClassBuilderSerializer {
 
-    override fun serialize(value: ClassBuilder<*>, gen: JsonGenerator, provider: SerializerProvider) {
-        gen.writeObject(value.serializationObject)
+    private val keys = HashMap<ClassBuilder<*>, UUID>()
+    private val values = HashMap<UUID, Any>()
+
+    /**
+     * Get the ID of the given object
+     */
+    fun getId(cb: ClassBuilder<*>): UUID {
+        return keys.computeIfAbsent(cb) { UUID.randomUUID() }
+    }
+
+    fun seen(cb: ClassBuilder<*>): Boolean {
+        return keys.containsKey(cb)
+    }
+
+    fun setValue(cb: ClassBuilder<*>, value: Any) {
+        require(seen(cb))
+        values[keys[cb]!!] = value
+    }
+
+    fun getValue(cb: ClassBuilder<*>): Any? {
+        return values[keys[cb]]
     }
 }

@@ -2,6 +2,7 @@ package no.uib.inf219.gui.view
 
 import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.module.SimpleModule
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
 import javafx.scene.layout.BorderPane
@@ -12,6 +13,7 @@ import no.uib.inf219.extra.Persistent
 import no.uib.inf219.extra.closeAll
 import no.uib.inf219.extra.type
 import no.uib.inf219.gui.Styles
+import no.uib.inf219.gui.backend.serializers.ClassBuilderBeanSerializerModifier
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.loader.ClassInformation
 import no.uib.inf219.gui.loader.DynamicClassLoader
@@ -41,9 +43,22 @@ object ControlPanelView : View("Control Panel") {
         get() = mapperProperty.get()
         set(value) {
             mapperProperty.set(value)
-            ClassInformation.updateMapper()
+            updateMapper()
             FX.find<BackgroundView>().tabpane.closeAll()
         }
+
+    private fun updateMapper() {
+
+        ClassInformation.updateMapper()
+
+        val module = SimpleModule()
+        module.setSerializerModifier(ClassBuilderBeanSerializerModifier())
+        mapper.registerModule(module)
+    }
+
+    init {
+        updateMapper()
+    }
 
     override val root = vbox {
         val classNameProperty = SimpleStringProperty("")

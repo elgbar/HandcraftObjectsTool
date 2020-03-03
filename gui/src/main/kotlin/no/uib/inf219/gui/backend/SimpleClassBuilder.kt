@@ -16,6 +16,7 @@ import javafx.util.StringConverter
 import javafx.util.converter.*
 import no.uib.inf219.extra.removeNl
 import no.uib.inf219.gui.Styles
+import no.uib.inf219.gui.backend.serializers.ClassBuilderSerializer
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.converter.UUIDStringConverter
 import no.uib.inf219.gui.loader.ClassInformation
@@ -76,6 +77,10 @@ abstract class SimpleClassBuilder<T : Any>(
     override var serializationObject: T
         get() = valueProperty.value
         set(value) = valueProperty.setValue(value)
+
+    override fun mapToSerializableObject(cbs: ClassBuilderSerializer): Any {
+        return serializationObject
+    }
 
     init {
         valueProperty.onChange {

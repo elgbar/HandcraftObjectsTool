@@ -18,6 +18,11 @@ abstract class ReferencableClassBuilder<out T> : ClassBuilder<T> {
 
     override fun toObject(): T? {
         if (dirty || objCache == null) {
+            println(
+                "ControlPanelView.mapper.writeValueAsString(this) = ${ControlPanelView.mapper.writeValueAsString(
+                    this
+                )}"
+            )
             objCache = ControlPanelView.mapper.convertValue(this, type)
             dirty = false
         }

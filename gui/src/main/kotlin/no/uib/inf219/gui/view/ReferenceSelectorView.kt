@@ -21,7 +21,6 @@ import tornadofx.*
  */
 class ReferenceSelectorView : View("Reference") {
 
-
     private val searchResult: ObservableList<ClassBuilder<*>> = ArrayList<ClassBuilder<*>>().asObservable()
     private val filteredData = FilteredList(searchResult)
 
@@ -90,6 +89,10 @@ class ReferenceSelectorView : View("Reference") {
                         close()
                     }
 
+                    cellFormat {
+                        it.getPreviewValue()
+                    }
+
                     addEventHandler(KeyEvent.ANY) { event ->
                         if (event.code == KeyCode.ENTER && result != null) {
                             close()
@@ -111,31 +114,35 @@ class ReferenceSelectorView : View("Reference") {
         }
     }
 
-    private fun findInstancesOf(
-        type: JavaType,
-        cb: ClassBuilder<*> = controller.findRootController().rootBuilder
-    ): Set<ClassBuilder<*>> {
-        //find all children that is the correct type
-        // and isn't a ReferenceClassBuilder to prevent cycles
-        val children = cb.getChildren().filter { it.type == type || it is ReferenceClassBuilder }
-
-        //the set to hold all children of this class builder. Use set to prevent duplicates
-        val allChildren = HashSet<ClassBuilder<*>>(children)
-        allChildren.add(cb) //remember to also add the parent
-        for (child in children) {
-            allChildren.addAll(findInstancesOf(type, child))
-        }
-        return allChildren
-    }
 
     fun createReference(parent: ClassBuilder<*>, type: JavaType): ReferenceClassBuilder? {
         tornadofx.runAsync {
             searching = true
-            searchResult.setAll(findInstancesOf(type))
+            searchResult.setAll(findInstancesOf(type, controller.findRootController().rootBuilder))
             searching = false
         }
         openModal(block = true)
 
         return if (result == null) null else ReferenceClassBuilder(result!!, parent)
+    }
+
+    companion object {
+
+        internal fun findInstancesOf(
+            type: JavaType,
+            cb: ClassBuilder<*>
+        ): Set<ClassBuilder<*>> {
+
+            //the set to hold all children of this class builder. Use set to prevent duplicates
+            val allChildren = HashSet<ClassBuilder<*>>()
+            allChildren.add(cb) //remember to also add the parent
+            for (child in cb.getChildren()) {
+                allChildren.addAll(findInstancesOf(type, child))
+            }
+
+            //find all children that is the correct type
+            // and isn't a ReferenceClassBuilder to prevent cycles
+            return allChildren.filter { it.type == type && it !is ReferenceClassBuilder }.toSet()
+        }
     }
 }

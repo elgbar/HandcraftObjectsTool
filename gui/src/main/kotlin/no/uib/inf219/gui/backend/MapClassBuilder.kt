@@ -23,8 +23,7 @@ open class MapClassBuilder<K, out V>(
     override val parent: ClassBuilder<*>?,
     override val property: PropertyWriter?
 ) : ReferencableClassBuilder<Map<K?, V?>>() {
-
-
+    
     override val serializationObject: MutableMap<ClassBuilder<*>, ClassBuilder<*>?> = HashMap()
 
     override fun toView(parent: EventTarget, controller: ObjectEditorController): Node {

@@ -15,6 +15,7 @@ import javafx.scene.Node
 import no.uib.inf219.extra.toCb
 import no.uib.inf219.gui.Styles
 import no.uib.inf219.gui.backend.primitive.StringClassBuilder
+import no.uib.inf219.gui.backend.serializers.ClassBuilderSerializer
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.loader.ClassInformation
 import no.uib.inf219.gui.view.ControlPanelView.mapper
@@ -121,6 +122,12 @@ class ComplexClassBuilder<out T>(
     private fun cbToString(cb: ClassBuilder<*>?): String {
         return (cb as? StringClassBuilder)?.serializationObject
             ?: kotlin.error("Wrong type of key was given. Expected a ClassBuilder<String> but got $cb")
+    }
+
+    override fun mapToSerializableObject(cbs: ClassBuilderSerializer): Any {
+        return serializationObject.mapKeys { (_, cb) ->
+            if(cbs.seen(cb))
+        }
     }
 
     override fun createClassBuilderFor(key: ClassBuilder<*>, init: ClassBuilder<*>?): ClassBuilder<*>? {

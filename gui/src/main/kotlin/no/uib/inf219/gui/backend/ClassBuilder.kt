@@ -25,7 +25,7 @@ import tornadofx.property
  * @author Elg
  */
 @JsonIdentityInfo(generator = ObjectIdGenerators.UUIDGenerator::class)
-@JsonSerialize(using = ClassBuilderSerializer::class)
+//@JsonSerialize(using = ClassBuilderSerializer::class)
 interface ClassBuilder<out T> {
 
     /**
@@ -55,9 +55,11 @@ interface ClassBuilder<out T> {
     val property: PropertyWriter?
 
 
+    fun mapToSerializableObject(cbs: ClassBuilderSerializer): Any
+
     /**
      * Convert this object to an instance of [T].
-     * The returned object must not change unless there are changes futher down the class builder change
+     * The returned object must not change unless there are changes further down the class builder change
      */
     fun toObject(): T?
 
