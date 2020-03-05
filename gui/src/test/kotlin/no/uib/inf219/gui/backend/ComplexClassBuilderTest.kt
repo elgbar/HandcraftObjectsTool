@@ -11,10 +11,11 @@ import org.testfx.framework.junit5.ApplicationExtension
 
 /**
  *
+ *
  * @author Elg
  */
 @ExtendWith(ApplicationExtension::class)
-internal class ClassBuilderTest {
+internal class ComplexClassBuilderTest {
 
     @Test
     internal fun canCreateAbstractTypes() {

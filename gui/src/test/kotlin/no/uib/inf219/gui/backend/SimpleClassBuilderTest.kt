@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.testfx.framework.junit5.ApplicationExtension
 
+
 /**
  * @author Elg
  */
@@ -25,11 +26,11 @@ internal class SimpleClassBuilderTest {
     @Test
     fun reset() {
         val cb = createCB()
-        assertEquals(cb.serializationObject, INIT_VAL)
-        cb.serializationObject = INIT_VAL + "test"
-        assertNotEquals(cb.serializationObject, INIT_VAL)
+        assertEquals(cb.serObject, INIT_VAL)
+        cb.serObject = INIT_VAL + "test"
+        assertNotEquals(cb.serObject, INIT_VAL)
         assertEquals(false, cb.reset())
-        assertEquals(cb.serializationObject, INIT_VAL)
+        assertEquals(cb.serObject, INIT_VAL)
     }
 
     @Test
@@ -38,24 +39,11 @@ internal class SimpleClassBuilderTest {
     }
 
     @Test
-    internal fun editingImmutableCBThrows() {
-
-        //no need to specify that the cb is immutable, other than to make it future proof
-        val cb = "test".toCb(immutable = true)
-
-        assertThrows(IllegalStateException::class.java) {
-            cb.serializationObject = "not allowed"
-        }
-    }
-
-    @Test
     internal fun editingMutableCBAllowed() {
         val cb = "test".toCb(immutable = false)
         val newValue = "Allowed"
-        assertDoesNotThrow {
-            cb.serializationObject = newValue
-        }
-        assertEquals(newValue, cb.serializationObject)
+        cb.serObject = newValue
+        assertEquals(cb.serObject, newValue)
     }
 
     @Test
