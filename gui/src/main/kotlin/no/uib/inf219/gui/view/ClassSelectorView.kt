@@ -191,7 +191,7 @@ class ClassSelectorView : View("Select implementation") {
                 .scan().use { scanResult ->
                     val cil: ClassInfoList =
                         when {
-                            superClass == Any::class.java -> scanResult.allStandardClasses
+                            superClass == Any::class.java -> scanResult.allClasses
                             superClass.isInterface -> scanResult.getClassesImplementing(superClass.name)
                             else -> scanResult.getSubclasses(superClass.canonicalName)
                         }
