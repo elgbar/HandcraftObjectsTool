@@ -19,7 +19,7 @@ abstract class ReferencableClassBuilder<out T> : ClassBuilder<T> {
 
     override fun toObject(): T? {
         if (dirty || objCache == null) {
-            val built = ClassBuilderCompiler().build(this)
+            val built = ClassBuilderCompiler.build(this)
 
             println("built = ${mapper.writeValueAsString(built)}")
 

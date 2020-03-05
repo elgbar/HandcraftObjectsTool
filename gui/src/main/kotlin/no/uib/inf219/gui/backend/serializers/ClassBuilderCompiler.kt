@@ -1,6 +1,7 @@
 package no.uib.inf219.gui.backend.serializers
 
 import no.uib.inf219.gui.backend.ClassBuilder
+import no.uib.inf219.gui.backend.serializers.ClassBuilderCompiler.Companion.build
 import java.util.*
 import kotlin.collections.HashMap
 
@@ -16,18 +17,22 @@ import kotlin.collections.HashMap
  *
  * @author Elg
  */
-class ClassBuilderCompiler {
+class ClassBuilderCompiler private constructor() {
 
     private val ref2cb = HashMap<ClassBuilder<*>, UUID>()
     private val cache = HashMap<UUID, Any?>()
 
-    /**
-     * Format the given class builder in a way that is easier to convert to the original class.
-     */
-    fun build(initCB: ClassBuilder<*>): Any {
-        val compiled = compile(initCB)
-        initCB.link(this, compiled)
-        return compiled
+    companion object {
+
+        /**
+         * Format the given class builder in a way that is easier to convert to the original class.
+         */
+        fun build(initCB: ClassBuilder<*>): Any {
+            val cbc = ClassBuilderCompiler()
+            val compiled = cbc.compile(initCB)
+            initCB.link(cbc, compiled)
+            return compiled
+        }
     }
 
     internal fun setValue(cb: ClassBuilder<*>, value: Any?) {
