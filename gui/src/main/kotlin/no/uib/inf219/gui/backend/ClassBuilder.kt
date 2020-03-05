@@ -152,13 +152,14 @@ interface ClassBuilder<out T> {
     }
 
     /**
-     * @return If we are a forefather of the given [ClassBuilder]
+     * @return If this is a forefather of the given [ClassBuilder]. Will return `false` if `this` is equal to [to]
      */
-    fun isParent(to: ClassBuilder<*>?): Boolean {
-        return when (to) {
+    fun isParentOf(to: ClassBuilder<*>?): Boolean {
+        if (to == null) return false
+        return when (to.parent) {
             null -> false
             this -> true
-            else -> this.isParent(to.parent)
+            else -> this.isParentOf(to.parent)
         }
     }
 
