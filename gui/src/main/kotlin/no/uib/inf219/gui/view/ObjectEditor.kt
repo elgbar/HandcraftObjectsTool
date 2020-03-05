@@ -2,11 +2,13 @@ package no.uib.inf219.gui.view
 
 import javafx.scene.layout.BorderPane
 import javafx.stage.FileChooser
+import no.uib.inf219.extra.Persistent
 import no.uib.inf219.gui.Styles
 import no.uib.inf219.gui.backend.exceptions.MissingPropertyException
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.view.ControlPanelView.mapper
 import tornadofx.*
+import java.io.File
 
 
 /**
@@ -20,6 +22,7 @@ import tornadofx.*
 class ObjectEditor : View() {
 
     val controller: ObjectEditorController by param()
+    private var lastFile: File? by Persistent()
 
     private fun createPropEditor(): BorderPane {
         val editor: PropertyEditor = find("controller" to controller)
@@ -80,6 +83,7 @@ class ObjectEditor : View() {
                             ),
                             FileChooser.ExtensionFilter("All files", "*")
                         ),
+                        lastFile,
                         FileChooserMode.Save
                     )
 

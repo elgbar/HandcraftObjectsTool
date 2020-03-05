@@ -52,7 +52,7 @@ class SelectConversationView(val tabPane: TabPane) : View("") {
                             FileChooser.ExtensionFilter("YAML files", "*.yml", "*.yaml", "*.qst", "*.cnv"),
                             FileChooser.ExtensionFilter("All files", "*")
                         ),
-                        FileChooserMode.Multi
+                        mode = FileChooserMode.Multi
                     )
                     for (file in files) {
                         output.appendText("Loading file ${file.absolutePath}\n")

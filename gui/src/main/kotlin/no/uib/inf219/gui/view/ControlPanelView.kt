@@ -34,7 +34,7 @@ object ControlPanelView : View("Control Panel") {
     private val mapperProperty by lazy { SimpleObjectProperty<ObjectMapper>(SerializationManager.kotlinJson) }
 
 
-    var lastFile: File? by Persistent()
+    private var lastFile: File? by Persistent()
 
     /**
      * What object mapper to use for serialization
@@ -75,10 +75,9 @@ object ControlPanelView : View("Control Panel") {
                             FileChooser.ExtensionFilter("Jvm zip files", "*.jar", "*.zip"),
                             FileChooser.ExtensionFilter("All files", "*")
                         ),
+                        lastFile,
                         FileChooserMode.Multi
-                    ) {
-                        initialDirectory = lastFile
-                    }
+                    )
                     if (files.isNotEmpty()) {
                         lastFile = files[0].parentFile
                     }
