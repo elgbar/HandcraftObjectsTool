@@ -28,7 +28,6 @@ class ReferenceSelectorView : View("Reference") {
 
     val controller: ObjectEditorController by param()
 
-
     private val searchingProperty = SimpleBooleanProperty()
     private var searching by searchingProperty
     private val label: Node
@@ -89,8 +88,8 @@ class ReferenceSelectorView : View("Reference") {
                         close()
                     }
 
-                    cellFormat {
-                        it.getPreviewValue()
+                    cellFormat() {
+                        text = it.getPreviewValue()
                     }
 
                     addEventHandler(KeyEvent.ANY) { event ->
