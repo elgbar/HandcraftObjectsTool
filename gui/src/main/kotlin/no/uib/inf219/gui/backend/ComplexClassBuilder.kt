@@ -141,7 +141,12 @@ class ComplexClassBuilder<out T>(
 
         for ((key, value) in objMap) {
             if (value != null) {
-                objMap[key] = cbs.resolveReference(value)
+                val resolved = cbs.resolveReference(value)
+
+                //link the resolved object
+                serObject[key]?.link(cbs, resolved)
+
+                objMap[key] = resolved
             }
         }
     }

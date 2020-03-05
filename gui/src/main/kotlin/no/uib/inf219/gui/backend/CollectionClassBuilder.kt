@@ -45,17 +45,21 @@ class CollectionClassBuilder<out T>(
     }
 
     override fun link(cbs: ClassBuilderCompiler, obj: Any) {
-        require(obj is MutableCollection<*>) { "Cannot link a collection class builder with object other than a mutable collection" }
+        require(obj is MutableList<*>) { "Cannot link a collection class builder with object other than a mutable collection" }
 
         @Suppress("UNCHECKED_CAST")
-        val objList = obj as MutableCollection<Any>
+        val objList = obj as MutableList<Any>
 
         val objListCpy = ArrayList(obj)
 
         //resolve all items
         objList.clear()
-        for (ref in objListCpy) {
-            objList.add(cbs.resolveReference(ref))
+
+        @Suppress("UNCHECKED_CAST")
+        for ((index, ref) in objListCpy as MutableCollection<Pair<Int, Any>>) {
+            val resolved = cbs.resolveReference(ref)
+            serObject[index].link(cbs, resolved)
+            objList.add(index, resolved)
         }
     }
 
