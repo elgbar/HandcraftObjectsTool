@@ -38,10 +38,10 @@ class CollectionClassBuilder<out T>(
         private val sizeCb = 0.toCb("add location")
     }
 
-    override val serializationObject: MutableList<ClassBuilder<*>> = ArrayList()
+    override val serObject: MutableList<ClassBuilder<*>> = ArrayList()
 
     override fun compile(cbs: ClassBuilderCompiler): List<Any> {
-        return serializationObject.map { cbs.compile(it) }
+        return serObject.mapIndexed { index, cb -> index to cbs.compile(cb) }
     }
 
     override fun link(cbs: ClassBuilderCompiler, obj: Any) {
@@ -85,7 +85,7 @@ class CollectionClassBuilder<out T>(
     }
 
     private fun cbToInt(cb: ClassBuilder<*>?): Int? {
-        return if (cb !is IntClassBuilder) null else cb.serializationObject
+        return if (cb !is IntClassBuilder) null else cb.serObject
     }
 
     override fun createClassBuilderFor(key: ClassBuilder<*>, init: ClassBuilder<*>?): ClassBuilder<*>? {
@@ -94,8 +94,8 @@ class CollectionClassBuilder<out T>(
             require(init == null || init.type == getChildType(key)) {
                 "Given initial value have different type than expected. expected ${getChildType(key)} got ${init?.type}"
             }
-            val elem = init ?: (getClassBuilder(type.contentType, serializationObject.size.toString()) ?: return null)
-            serializationObject.add(index, elem)
+            val elem = init ?: (getClassBuilder(type.contentType, serObject.size.toString()) ?: return null)
+            serObject.add(index, elem)
             return elem
         } else
             return null
@@ -103,24 +103,24 @@ class CollectionClassBuilder<out T>(
 
 
     override fun resetChild(key: ClassBuilder<*>, element: ClassBuilder<*>?) {
-        val index: Int = cbToInt(key) ?: serializationObject.indexOf(element)
+        val index: Int = cbToInt(key) ?: serObject.indexOf(element)
         if (index == -1) kotlin.error("Failed to find the element of ")
 
-        val child = serializationObject[index]
+        val child = serObject[index]
 
         require(element == null || child == element) { "Given element is not equal to stored element at index $index" }
 
         if (child.reset()) {
-            serializationObject.removeAt(index)
+            serObject.removeAt(index)
         }
     }
 
     override fun getSubClassBuilders(): Map<ClassBuilder<*>, ClassBuilder<*>> {
-        return serializationObject.mapIndexed { i, cb -> Pair(i.toCb("Element #$i"), cb) }.toMap()
+        return serObject.mapIndexed { i, cb -> Pair(i.toCb("Element #$i"), cb) }.toMap()
     }
 
     override fun getPreviewValue(): String {
-        return serializationObject.filter { !this.isParent(it) }.mapIndexed { i, cb -> "- $i: ${cb.getPreviewValue()}" }
+        return serObject.filter { !this.isParentOf(it) }.mapIndexed { i, cb -> "- $i: ${cb.getPreviewValue()}" }
             .joinToString("\n")
     }
 
@@ -128,7 +128,7 @@ class CollectionClassBuilder<out T>(
         return type.contentType
     }
 
-    override fun getChildren(): List<ClassBuilder<*>> = serializationObject
+    override fun getChildren(): List<ClassBuilder<*>> = serObject
 
     override fun isLeaf() = false
 
@@ -149,7 +149,7 @@ class CollectionClassBuilder<out T>(
         if (parent != other.parent) return false
         if (name != other.name) return false
         if (property != other.property) return false
-        if (serializationObject != other.serializationObject) return false
+        if (serObject != other.serObject) return false
 
         return true
     }

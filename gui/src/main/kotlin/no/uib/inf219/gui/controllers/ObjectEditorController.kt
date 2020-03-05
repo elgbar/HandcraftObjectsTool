@@ -50,12 +50,16 @@ class ObjectEditorController(
         currSel = curr
     }
 
-    fun select(pair: Pair<String, ClassBuilder<*>?>) {
-        select(pair.first, pair.second)
+    fun select(classBuilder: ClassBuilder<*>) {
+        currSel = MutableTriple<String, ClassBuilder<*>?, ClassBuilder<*>>(
+            classBuilder.name,
+            classBuilder,
+            classBuilder.parent!!
+        )
     }
 
     fun select(name: String, classBuilder: ClassBuilder<*>?) {
-        currSel = MutableTriple<String, ClassBuilder<*>?, ClassBuilder<*>>(name, classBuilder, classBuilder?.parent)
+        currSel = MutableTriple<String, ClassBuilder<*>?, ClassBuilder<*>>(name, classBuilder, classBuilder?.parent!!)
     }
 
     /**

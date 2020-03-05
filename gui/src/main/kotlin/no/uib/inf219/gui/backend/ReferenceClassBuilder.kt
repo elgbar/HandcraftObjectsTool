@@ -20,52 +20,33 @@ class ReferenceClassBuilder(
     /**
      * The class builder this class builder is referencing
      */
-    override val serializationObject: ClassBuilder<*>,
+    override val serObject: ClassBuilder<*>,
     override val parent: ClassBuilder<*>?
 ) : ReferencableClassBuilder<Any>() {
 
-    override val type: JavaType = serializationObject.type
-    override val name: String = "ref " + serializationObject.name
-    override val property: PropertyWriter? = serializationObject.property
+    override val type: JavaType = serObject.type
+    override val name: String = "ref " + serObject.name
+    override val property: PropertyWriter? = serObject.property
 
     override fun toView(parent: EventTarget, controller: ObjectEditorController): Node {
         return parent.hbox {
             alignment = Pos.CENTER
 
             onDoubleClick {
-                controller.select(
-                    serializationObject.name,
-                    serializationObject
-                )
+                controller.select(serObject.name, serObject)
             }
-            text("This class builder is only a reference to ${serializationObject.getPreviewValue()}. Double click to edit the referenced class builder.")
+            text("This class builder is only a reference to ${serObject.getPreviewValue()}. Double click to edit the referenced class builder.")
         }
     }
 
     override fun compile(cbs: ClassBuilderCompiler): Any {
-
-        val pair = cbs.getValue(serializationObject)
-        return if (pair == null) {
-            val compiled = cbs.compile(serializationObject)
-            //after
-            cbs.setValue(this, compiled)
-            compiled
-        } else {
-            //this has already been seen so we return the uuid to be resolved later
-            pair.first
-        }
+        return cbs.compile(serObject)
     }
 
     override fun link(cbs: ClassBuilderCompiler, obj: Any) {
-//        if (obj is UUID) {
-//            //If the object is an UUID it might be a reference to another object.
-//            // or it might just be a UUID used in the created object
-//            return cbs.resolveReference(obj)
-//        }
-//        return obj
     }
 
-    override fun getPreviewValue() = "Ref to " + serializationObject.getPreviewValue()
+    override fun getPreviewValue() = "Ref to " + serObject.getPreviewValue()
 
     override fun getSubClassBuilders(): Map<ClassBuilder<*>, ClassBuilder<*>?> = emptyMap()
 
@@ -85,19 +66,19 @@ class ReferenceClassBuilder(
         if (this === other) return true
         if (other !is ReferenceClassBuilder) return false
 
-        if (serializationObject != other.serializationObject) return false
+        if (serObject != other.serObject) return false
         if (parent != other.parent) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        var result = serializationObject.hashCode()
+        var result = serObject.hashCode()
         result = 31 * result + (parent?.hashCode() ?: 0)
         return result
     }
 
     override fun toString(): String {
-        return "Ref CB; ref=$serializationObject, clazz=$type)"
+        return "Ref CB; ref=$serObject, clazz=$type)"
     }
 }

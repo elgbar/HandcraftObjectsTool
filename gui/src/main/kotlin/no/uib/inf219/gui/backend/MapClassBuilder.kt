@@ -25,10 +25,10 @@ open class MapClassBuilder<K, out V>(
     override val property: PropertyWriter?
 ) : ReferencableClassBuilder<Map<K?, V?>>() {
 
-    override val serializationObject: MutableMap<ClassBuilder<*>, ClassBuilder<*>?> = HashMap()
+    override val serObject: MutableMap<ClassBuilder<*>, ClassBuilder<*>?> = HashMap()
 
     override fun compile(cbs: ClassBuilderCompiler): Map<Any, Any?> {
-        return serializationObject.mapKeys { (key, _) -> cbs.compile(key) }.mapValues { (_, value) ->
+        return serObject.mapKeys { (key, _) -> cbs.compile(key) }.mapValues { (_, value) ->
             if (value != null) {
                 cbs.compile(value)
             } else {
@@ -69,15 +69,15 @@ open class MapClassBuilder<K, out V>(
             this += vbox {
                 button("Add element") {
                     action {
-                        val key = getClassBuilder(type.keyType, "key #${serializationObject.size}") ?: return@action
+                        val key = getClassBuilder(type.keyType, "key #${serObject.size}") ?: return@action
                         val value =
-                            getClassBuilder(type.contentType, "value #${serializationObject.size}") ?: return@action
-                        serializationObject[key] = value
+                            getClassBuilder(type.contentType, "value #${serObject.size}") ?: return@action
+                        serObject[key] = value
                         controller.reloadView()
                         recompile()
                     }
                 }
-                for ((key, value) in serializationObject) {
+                for ((key, value) in serObject) {
                     hbox {
                         style { addClass(Styles.parent) }
                         val kname = key.name
@@ -92,24 +92,24 @@ open class MapClassBuilder<K, out V>(
     }
 
     override fun createClassBuilderFor(key: ClassBuilder<*>, init: ClassBuilder<*>?): ClassBuilder<*>? {
-        return serializationObject.computeIfAbsent(key) { init }
+        return serObject.computeIfAbsent(key) { init }
     }
 
     override fun resetChild(key: ClassBuilder<*>, element: ClassBuilder<*>?) {
         //The map must have the given key
-        require(serializationObject.containsKey(key)) { "Given key does not exist in this map class builder" }
+        require(serObject.containsKey(key)) { "Given key does not exist in this map class builder" }
         //But does the given element is allowed to be null,
-        require(element == null || serializationObject[key] == element) { "Given value does not match with this map class builder's value of given key" }
+        require(element == null || serObject[key] == element) { "Given value does not match with this map class builder's value of given key" }
 
         //if either key or value (if not null) should be removed
         // we will remove all bindings. Though if the element is null
         val remove = key.reset() || element?.reset() ?: false
-        if (remove) serializationObject.remove(key)
+        if (remove) serObject.remove(key)
     }
 
 
     override fun getPreviewValue(): String {
-        return serializationObject.map { it.key.getPreviewValue() + " -> " + it.value?.getPreviewValue() }
+        return serObject.map { it.key.getPreviewValue() + " -> " + it.value?.getPreviewValue() }
             .joinToString(", ")
     }
 
@@ -120,7 +120,7 @@ open class MapClassBuilder<K, out V>(
 
     override fun reset(): Boolean = true
 
-    override fun getSubClassBuilders(): Map<ClassBuilder<*>, ClassBuilder<*>?> = serializationObject
+    override fun getSubClassBuilders(): Map<ClassBuilder<*>, ClassBuilder<*>?> = serObject
 
     override fun isLeaf(): Boolean = false
 

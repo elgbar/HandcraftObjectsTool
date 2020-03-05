@@ -74,12 +74,12 @@ abstract class SimpleClassBuilder<T : Any>(
 
     fun valueProperty(): ObservableValue<T> = valueProperty
 
-    override var serializationObject: T
+    override var serObject: T
         get() = valueProperty.value
         set(value) = valueProperty.setValue(value)
 
     override fun compile(cbs: ClassBuilderCompiler): Any {
-        return serializationObject
+        return serObject
     }
 
     override fun link(cbs: ClassBuilderCompiler, obj: Any) {}
@@ -149,7 +149,7 @@ abstract class SimpleClassBuilder<T : Any>(
      * Reset this simple class builder's value, as it has not properties we can safely ignore it
      */
     override fun reset(): Boolean {
-        serializationObject = initialValue
+        serObject = initialValue
         return false
     }
 
@@ -163,7 +163,7 @@ abstract class SimpleClassBuilder<T : Any>(
 
     override fun isLeaf(): Boolean = true
 
-    override fun getPreviewValue(): String = serializationObject.toString()
+    override fun getPreviewValue(): String = serObject.toString()
 
     override fun getChildType(cb: ClassBuilder<*>): JavaType? = null
 
@@ -216,7 +216,7 @@ abstract class SimpleClassBuilder<T : Any>(
     }
 
     override fun toString(): String {
-        return "Simple CB; value=$serializationObject, clazz=$type)"
+        return "Simple CB; value=$serObject, clazz=$type)"
     }
 
     @Suppress("DuplicatedCode")
@@ -225,7 +225,7 @@ abstract class SimpleClassBuilder<T : Any>(
         if (other !is SimpleClassBuilder<*>) return false
 
         if (name != other.name) return false
-        if (serializationObject != other.serializationObject) return false
+        if (serObject != other.serObject) return false
         if (parent != other.parent) return false
         if (immutable != other.immutable) return false
         if (type != other.type) return false
@@ -235,7 +235,7 @@ abstract class SimpleClassBuilder<T : Any>(
 
     override fun hashCode(): Int {
         var result = name.hashCode()
-        result = 31 * result + serializationObject.hashCode()
+        result = 31 * result + serObject.hashCode()
         result = 31 * result + (parent?.hashCode() ?: 0)
         result = 31 * result + immutable.hashCode()
         result = 31 * result + type.hashCode()

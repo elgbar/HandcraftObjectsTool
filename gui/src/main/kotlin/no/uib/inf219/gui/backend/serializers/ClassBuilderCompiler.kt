@@ -50,6 +50,7 @@ class ClassBuilderCompiler private constructor() {
     }
 
     internal fun compile(cb: ClassBuilder<*>): Any {
+
         val pair = getValue(cb)
         return if (pair == null) {
             setValue(cb, null)

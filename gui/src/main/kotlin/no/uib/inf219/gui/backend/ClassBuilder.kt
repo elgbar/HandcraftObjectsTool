@@ -30,7 +30,7 @@ interface ClassBuilder<out T> {
     /**
      * The object to serialize
      */
-    val serializationObject: Any
+    val serObject: Any
 
     @get:JsonIgnore
     val type: JavaType

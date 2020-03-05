@@ -64,7 +64,7 @@ class ComplexClassBuilder<out T>(
     /**
      * This is the map we want to serialize. It contains every value of [map] but also type information
      */
-    override val serializationObject: MutableMap<String, ClassBuilder<*>?> = HashMap()
+    override val serObject: MutableMap<String, ClassBuilder<*>?> = HashMap()
 
     init {
         val (typeSer, pinfo) = ClassInformation.serializableProperties(type)
@@ -74,8 +74,8 @@ class ComplexClassBuilder<out T>(
 
         map.addListener { _: Observable ->
             for ((key, cb) in map) {
-                if (serializationObject[key] != cb) {
-                    serializationObject[key] = cb
+                if (serObject[key] != cb) {
+                    serObject[key] = cb
                 }
             }
         }
@@ -114,17 +114,17 @@ class ComplexClassBuilder<out T>(
             checkNotNull(typeSerializer.propertyName) {
                 "Don't know how to handle a type serializer of type '${typeSerializer::class.simpleName}' as the property name is null"
             }
-            serializationObject[typeSerializer.propertyName] = type.rawClass.canonicalName.toCb()
+            serObject[typeSerializer.propertyName] = type.rawClass.canonicalName.toCb()
         }
     }
 
     private fun cbToString(cb: ClassBuilder<*>?): String {
-        return (cb as? StringClassBuilder)?.serializationObject
+        return (cb as? StringClassBuilder)?.serObject
             ?: kotlin.error("Wrong type of key was given. Expected a ClassBuilder<String> but got $cb")
     }
 
     override fun compile(cbs: ClassBuilderCompiler): MutableMap<String, Any?> {
-        return serializationObject.mapValuesTo(HashMap()) { (_, cb) ->
+        return serObject.mapValuesTo(HashMap()) { (_, cb) ->
             if (cb != null) {
                 cbs.compile(cb)
             } else {
