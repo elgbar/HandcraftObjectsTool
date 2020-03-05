@@ -4,14 +4,13 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.ObjectIdGenerators
 import com.fasterxml.jackson.databind.JavaType
-import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.fasterxml.jackson.databind.ser.PropertyWriter
 import com.fasterxml.jackson.databind.type.CollectionLikeType
 import com.fasterxml.jackson.databind.type.MapLikeType
 import javafx.event.EventTarget
 import javafx.scene.Node
 import no.uib.inf219.gui.backend.primitive.*
-import no.uib.inf219.gui.backend.serializers.ClassBuilderSerializer
+import no.uib.inf219.gui.backend.serializers.ClassBuilderCompiler
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.view.ClassSelectorView
 import tornadofx.find
@@ -55,7 +54,18 @@ interface ClassBuilder<out T> {
     val property: PropertyWriter?
 
 
-    fun mapToSerializableObject(cbs: ClassBuilderSerializer): Any
+    /**
+     * Compile this class builder to the representation we want to use to convert this to [T].
+     *
+     * Use [ClassBuilderCompiler.compile] over this directly to allow for referring
+     *
+     */
+    fun compile(cbs: ClassBuilderCompiler): Any
+
+    /**
+     * Link all references not yet made. Must modify the given object to do so
+     */
+    fun link(cbs: ClassBuilderCompiler, obj: Any)
 
     /**
      * Convert this object to an instance of [T].
