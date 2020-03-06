@@ -15,16 +15,26 @@ internal class ClassBuilderTest {
     @Test
     internal fun isParent_self() {
         val parent = CollectionClassBuilder<Any>(ArrayList::class.type() as CollectionLikeType, "list")
-        val child = "test123 :)".toCb(parent = parent, immutable = false)
+        val child = "test123 :)".toCb(parent = parent)
 
         assertFalse(child.isParentOf(child))
         assertFalse(parent.isParentOf(parent))
     }
 
     @Test
+    internal fun isParent_sibling() {
+        val parent = CollectionClassBuilder<Any>(ArrayList::class.type() as CollectionLikeType, "list")
+        val childA = "test123 :)".toCb(parent = parent)
+        val childB = "Second child".toCb(parent = parent)
+
+        assertFalse(childA.isParentOf(childB))
+        assertFalse(childB.isParentOf(childA))
+    }
+
+    @Test
     internal fun isParent_direct() {
         val parent = CollectionClassBuilder<Any>(ArrayList::class.type() as CollectionLikeType, "list")
-        val child = "test123 :)".toCb(parent = parent, immutable = false)
+        val child = "test123 :)".toCb(parent = parent)
 
         assertTrue(parent.isParentOf(child))
         assertFalse(child.isParentOf(parent))
@@ -34,12 +44,15 @@ internal class ClassBuilderTest {
     internal fun isParent_grandChild() {
         val parent = CollectionClassBuilder<Any>(ArrayList::class.type() as CollectionLikeType, "list")
         val child = CollectionClassBuilder<Any>(ArrayList::class.type() as CollectionLikeType, "list", parent)
-        val grandChild = "test123 :)".toCb(parent = child, immutable = false)
+        val grandChild = "test123 :)".toCb(parent = child)
 
         assertTrue(parent.isParentOf(child))
         assertTrue(child.isParentOf(grandChild))
 
-        //make sure this is transient
+        //make sure this is transitive
         assertTrue(parent.isParentOf(grandChild))
+
+        //sanity check
+        assertFalse(grandChild.isParentOf(parent))
     }
 }
