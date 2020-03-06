@@ -3,9 +3,9 @@ package no.uib.inf219.gui.backend
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.JavaType
+import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer
 import com.fasterxml.jackson.databind.ser.PropertyWriter
-import javafx.beans.Observable
 import javafx.collections.FXCollections
 import javafx.collections.ObservableMap
 import javafx.event.EventTarget
@@ -15,6 +15,7 @@ import no.uib.inf219.extra.toCb
 import no.uib.inf219.gui.Styles
 import no.uib.inf219.gui.backend.primitive.StringClassBuilder
 import no.uib.inf219.gui.backend.serializers.ClassBuilderCompiler
+import no.uib.inf219.gui.backend.serializers.ComplexClassBuilderSerializer
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.loader.ClassInformation
 import no.uib.inf219.gui.view.ControlPanelView.mapper
@@ -32,6 +33,7 @@ import kotlin.collections.set
  * @author Elg
  */
 @JsonIgnoreProperties("map", ignoreUnknown = true)
+@JsonSerialize(using = ComplexClassBuilderSerializer::class)
 class ComplexClassBuilder<out T>(
     override val type: JavaType,
     override val name: String,
@@ -44,7 +46,7 @@ class ComplexClassBuilder<out T>(
     /**
      * Hold information about the given property
      */
-    private val propInfo: Map<String, PropertyWriter>
+    val propInfo: Map<String, PropertyWriter>
 
     /**
      * Holds the default value for the given property
@@ -54,31 +56,14 @@ class ComplexClassBuilder<out T>(
     /**
      * Information about the generics of [T], is `null` when the class does not have a generic type
      */
-    private val typeSerializer: TypeSerializer?
+    val typeSerializer: TypeSerializer?
 
-    /**
-     * The map the user sees
-     */
-    private val map: ObservableMap<String, ClassBuilder<*>?> = FXCollections.observableMap(HashMap())
-
-    /**
-     * This is the map we want to serialize. It contains every value of [map] but also type information
-     */
-    override val serObject: MutableMap<String, ClassBuilder<*>?> = HashMap()
+    override val serObject: ObservableMap<String, ClassBuilder<*>?> = FXCollections.observableMap(HashMap())
 
     init {
         val (typeSer, pinfo) = ClassInformation.serializableProperties(type)
         typeSerializer = typeSer
         propInfo = pinfo
-
-
-        map.addListener { _: Observable ->
-            for ((key, cb) in map) {
-                if (serObject[key] != cb) {
-                    serObject[key] = cb
-                }
-            }
-        }
 
         //initiate all valid values to null or default
         // to allow for iteration when populating Node explorer
@@ -106,16 +91,16 @@ class ComplexClassBuilder<out T>(
                 // or is primitive (which always have default values)
                 createClassBuilderFor(key.toCb())
             } else {
-                map[key] = null
+                this.serObject[key] = null
             }
         }
 
-        if (typeSerializer != null) {
-            checkNotNull(typeSerializer.propertyName) {
-                "Don't know how to handle a type serializer of type '${typeSerializer::class.simpleName}' as the property name is null"
-            }
-            serObject[typeSerializer.propertyName] = type.rawClass.canonicalName.toCb()
-        }
+//        if (typeSerializer != null) {
+//            checkNotNull(typeSerializer.propertyName) {
+//                "Don't know how to handle a type serializer of type '${typeSerializer::class.simpleName}' as the property name is null"
+//            }
+//            this.serObject[typeSerializer.propertyName] = type.rawClass.canonicalName.toCb()
+//        }
     }
 
     private fun cbToString(cb: ClassBuilder<*>?): String {
@@ -124,7 +109,7 @@ class ComplexClassBuilder<out T>(
     }
 
     override fun compile(cbs: ClassBuilderCompiler): MutableMap<String, Any?> {
-        return serObject.mapValuesTo(HashMap()) { (_, cb) ->
+        return this.serObject.mapValuesTo(HashMap()) { (_, cb) ->
             if (cb != null) {
                 cbs.compile(cb)
             } else {
@@ -144,7 +129,7 @@ class ComplexClassBuilder<out T>(
                 val resolved = cbs.resolveReference(value)
 
                 //link the resolved object
-                serObject[key]?.link(cbs, resolved)
+                this.serObject[key]?.link(cbs, resolved)
 
                 objMap[key] = resolved
             }
@@ -160,7 +145,7 @@ class ComplexClassBuilder<out T>(
             "Given initial value have different type than expected. expected ${getChildType(key)} got ${init?.type}"
         }
 
-        return map.computeIfAbsent(propName) {
+        return this.serObject.computeIfAbsent(propName) {
             init ?: getClassBuilder(prop.type, propName, propDefaults[propName], prop)
         }
     }
@@ -174,11 +159,11 @@ class ComplexClassBuilder<out T>(
 
         val remove = element?.reset() ?: false
         if (remove)
-            map[propName] = null
+            this.serObject[propName] = null
     }
 
     override fun reset(): Boolean {
-        for (prop in map.keys) {
+        for (prop in this.serObject.keys) {
             resetChild(prop.toCb())
         }
         return false
@@ -190,7 +175,7 @@ class ComplexClassBuilder<out T>(
     ): Node {
         return parent.scrollpane(fitToWidth = true, fitToHeight = true) {
 
-            if (map.isEmpty()) {
+            if (this@ComplexClassBuilder.serObject.isEmpty()) {
                 hbox {
                     alignment = Pos.CENTER
 
@@ -200,7 +185,7 @@ class ComplexClassBuilder<out T>(
                 }
             } else {
                 squeezebox {
-                    for ((name, cb) in map) {
+                    for ((name, cb) in this@ComplexClassBuilder.serObject) {
                         if (cb != null) {
                             fold("$name ${cb.getPreviewValue()}") {
                                 cb.toView(this, controller)
@@ -217,10 +202,11 @@ class ComplexClassBuilder<out T>(
     }
 
     override fun getPreviewValue(): String {
-        return map.map { it.key + " -> " + it.value?.getPreviewValue() }.joinToString(", ")
+        return this.serObject.map { it.key + " -> " + it.value?.getPreviewValue() }.joinToString(", ")
     }
 
-    override fun getSubClassBuilders(): Map<ClassBuilder<*>, ClassBuilder<*>?> = map.mapKeys { it.key.toCb() }
+    override fun getSubClassBuilders(): Map<ClassBuilder<*>, ClassBuilder<*>?> =
+        this.serObject.mapKeys { it.key.toCb() }
 
     override fun isLeaf(): Boolean = false
 

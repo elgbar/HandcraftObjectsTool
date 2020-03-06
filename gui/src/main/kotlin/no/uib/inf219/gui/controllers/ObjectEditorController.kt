@@ -20,7 +20,6 @@ class ObjectEditorController(
     val parent: ObjectEditorController? = null
 ) {
 
-
     /**
      * Left type is name of selected
      *

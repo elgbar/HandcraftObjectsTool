@@ -1,6 +1,5 @@
 package no.uib.inf219.gui.backend
 
-import no.uib.inf219.gui.backend.serializers.ClassBuilderCompiler
 import no.uib.inf219.gui.view.ControlPanelView.mapper
 
 
@@ -19,16 +18,10 @@ abstract class ReferencableClassBuilder<out T> : ClassBuilder<T> {
 
     override fun toObject(): T? {
         if (dirty || objCache == null) {
-            val built = ClassBuilderCompiler.build(this)
+//            val built = ClassBuilderCompiler.build(this)
 
-            println("built = ${mapper.writeValueAsString(built)}")
-
-//            val typer: TypeResolverBuilder<*> = StdTypeResolverBuilder()
-//                .init(JsonTypeInfo.Id.CLASS, null)
-//                .inclusion(JsonTypeInfo.As.PROPERTY)
-//            mapper.setDefaultTyping(typer)
-
-            objCache = mapper.convertValue(built, type)
+            println("built = ${mapper.writerWithDefaultPrettyPrinter().writeValueAsString(this)}")
+            objCache = mapper.convertValue(this, type)
 
             dirty = false
         }

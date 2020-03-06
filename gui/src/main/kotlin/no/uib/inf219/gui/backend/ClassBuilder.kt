@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.ObjectIdGenerators
 import com.fasterxml.jackson.databind.JavaType
+import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.fasterxml.jackson.databind.ser.PropertyWriter
 import com.fasterxml.jackson.databind.type.CollectionLikeType
 import com.fasterxml.jackson.databind.type.MapLikeType
@@ -11,6 +12,7 @@ import javafx.event.EventTarget
 import javafx.scene.Node
 import no.uib.inf219.gui.backend.primitive.*
 import no.uib.inf219.gui.backend.serializers.ClassBuilderCompiler
+import no.uib.inf219.gui.backend.serializers.ClassBuilderSerializer
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.view.ClassSelectorView
 import tornadofx.find
@@ -24,7 +26,7 @@ import tornadofx.property
  * @author Elg
  */
 @JsonIdentityInfo(generator = ObjectIdGenerators.UUIDGenerator::class)
-//@JsonSerialize(using = ClassBuilderSerializer::class)
+@JsonSerialize(using = ClassBuilderSerializer::class)
 interface ClassBuilder<out T> {
 
     /**

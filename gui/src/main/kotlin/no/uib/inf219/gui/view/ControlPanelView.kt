@@ -31,8 +31,7 @@ import java.lang.invoke.MethodHandles
  */
 object ControlPanelView : View("Control Panel") {
 
-    private val mapperProperty by lazy { SimpleObjectProperty<ObjectMapper>(SerializationManager.kotlinJson) }
-
+    private val mapperProperty by lazy { SimpleObjectProperty(SerializationManager.kotlinJson) }
 
     private var lastFile: File? by Persistent()
 
