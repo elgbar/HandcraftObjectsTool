@@ -103,6 +103,13 @@ abstract class SimpleClassBuilder<T : Any>(
                 addClass(Styles.parent)
                 label("Required? ${isRequired()}")
                 label("Type: ${type.rawClass}")
+                val parent = this@SimpleClassBuilder.parent
+                if (parent != null && parent is ComplexClassBuilder) {
+                    val desc = parent.propInfo[this@SimpleClassBuilder.name]?.metadata?.description
+                    if (!desc.isNullOrBlank()) {
+                        label("Description: $desc")
+                    }
+                }
             }
             this += editView(this)
         }
