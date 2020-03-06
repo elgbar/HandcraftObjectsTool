@@ -16,7 +16,6 @@ import javafx.util.StringConverter
 import javafx.util.converter.*
 import no.uib.inf219.extra.removeNl
 import no.uib.inf219.gui.Styles
-import no.uib.inf219.gui.backend.serializers.ClassBuilderCompiler
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.converter.UUIDStringConverter
 import no.uib.inf219.gui.loader.ClassInformation
@@ -77,13 +76,7 @@ abstract class SimpleClassBuilder<T : Any>(
     override var serObject: T
         get() = valueProperty.value
         set(value) = valueProperty.setValue(value)
-
-    override fun compile(cbs: ClassBuilderCompiler): Any {
-        return serObject
-    }
-
-    override fun link(cbs: ClassBuilderCompiler, obj: Any) {}
-
+    
     init {
         valueProperty.onChange {
             if (immutable) {

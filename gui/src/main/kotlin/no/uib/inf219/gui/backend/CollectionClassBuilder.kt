@@ -9,7 +9,6 @@ import javafx.scene.Node
 import javafx.scene.control.TreeView
 import no.uib.inf219.extra.toCb
 import no.uib.inf219.gui.backend.primitive.IntClassBuilder
-import no.uib.inf219.gui.backend.serializers.ClassBuilderCompiler
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.view.NodeExplorerView
 import no.uib.inf219.gui.view.PropertyEditor
@@ -39,29 +38,6 @@ class CollectionClassBuilder<out T>(
     }
 
     override val serObject: MutableList<ClassBuilder<*>> = ArrayList()
-
-    override fun compile(cbs: ClassBuilderCompiler): List<Any> {
-        return serObject.mapIndexed { index, cb -> index to cbs.compile(cb) }
-    }
-
-    override fun link(cbs: ClassBuilderCompiler, obj: Any) {
-        require(obj is MutableList<*>) { "Cannot link a collection class builder with object other than a mutable collection" }
-
-        @Suppress("UNCHECKED_CAST")
-        val objList = obj as MutableList<Any>
-
-        val objListCpy = ArrayList(obj)
-
-        //resolve all items
-        objList.clear()
-
-        @Suppress("UNCHECKED_CAST")
-        for ((index, ref) in objListCpy as MutableCollection<Pair<Int, Any>>) {
-            val resolved = cbs.resolveReference(ref)
-            serObject[index].link(cbs, resolved)
-            objList.add(index, resolved)
-        }
-    }
 
     override fun toView(
         parent: EventTarget,

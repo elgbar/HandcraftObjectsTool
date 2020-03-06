@@ -14,7 +14,6 @@ import javafx.scene.Node
 import no.uib.inf219.extra.toCb
 import no.uib.inf219.gui.Styles
 import no.uib.inf219.gui.backend.primitive.StringClassBuilder
-import no.uib.inf219.gui.backend.serializers.ClassBuilderCompiler
 import no.uib.inf219.gui.backend.serializers.ComplexClassBuilderSerializer
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.loader.ClassInformation
@@ -106,34 +105,6 @@ class ComplexClassBuilder<out T>(
     private fun cbToString(cb: ClassBuilder<*>?): String {
         return (cb as? StringClassBuilder)?.serObject
             ?: kotlin.error("Wrong type of key was given. Expected a ClassBuilder<String> but got $cb")
-    }
-
-    override fun compile(cbs: ClassBuilderCompiler): MutableMap<String, Any?> {
-        return this.serObject.mapValuesTo(HashMap()) { (_, cb) ->
-            if (cb != null) {
-                cbs.compile(cb)
-            } else {
-                null
-            }
-        }
-    }
-
-    override fun link(cbs: ClassBuilderCompiler, obj: Any) {
-        require(obj is MutableMap<*, *>) { "Cannot link a complex class builder with object other than mutable Map" }
-
-        @Suppress("UNCHECKED_CAST")
-        val objMap: MutableMap<String, Any?> = obj as MutableMap<String, Any?>
-
-        for ((key, value) in objMap) {
-            if (value != null) {
-                val resolved = cbs.resolveReference(value)
-
-                //link the resolved object
-                this.serObject[key]?.link(cbs, resolved)
-
-                objMap[key] = resolved
-            }
-        }
     }
 
     override fun createClassBuilderFor(key: ClassBuilder<*>, init: ClassBuilder<*>?): ClassBuilder<*>? {

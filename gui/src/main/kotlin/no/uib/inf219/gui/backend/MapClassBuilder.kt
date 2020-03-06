@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.ser.PropertyWriter
 import javafx.event.EventTarget
 import javafx.scene.Node
 import no.uib.inf219.gui.Styles
-import no.uib.inf219.gui.backend.serializers.ClassBuilderCompiler
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.view.PropertyEditor
 import tornadofx.*
@@ -26,41 +25,6 @@ open class MapClassBuilder<K, out V>(
 ) : ReferencableClassBuilder<Map<K?, V?>>() {
 
     override val serObject: MutableMap<ClassBuilder<*>, ClassBuilder<*>?> = HashMap()
-
-    override fun compile(cbs: ClassBuilderCompiler): Map<Any, Any?> {
-        return serObject.mapKeys { (key, _) -> cbs.compile(key) }.mapValues { (_, value) ->
-            if (value != null) {
-                cbs.compile(value)
-            } else {
-                null
-            }
-        }
-    }
-
-    override fun link(cbs: ClassBuilderCompiler, obj: Any) {
-        require(obj is MutableMap<*, *>) { "Cannot link a map class builder with object other than mutable Map" }
-        @Suppress("UNCHECKED_CAST")
-        val objMap: MutableMap<Any, Any?> = obj as MutableMap<Any, Any?>
-
-        for ((key, value) in objMap) {
-            if (value != null) {
-                objMap[key] = cbs.resolveReference(value)
-            }
-        }
-
-        TODO("also remap keys")
-
-//        return obj.mapKeys { (key, _) ->
-//            requireNotNull(key)
-//            cbs.resolveReference(key)
-//        }.mapValues { (_, ref) ->
-//            if (ref != null) {
-//                cbs.resolveReference(ref)
-//            } else {
-//                null
-//            }
-//        }
-    }
 
     override fun toView(parent: EventTarget, controller: ObjectEditorController): Node {
         return parent.splitpane {

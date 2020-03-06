@@ -11,7 +11,6 @@ import com.fasterxml.jackson.databind.type.MapLikeType
 import javafx.event.EventTarget
 import javafx.scene.Node
 import no.uib.inf219.gui.backend.primitive.*
-import no.uib.inf219.gui.backend.serializers.ClassBuilderCompiler
 import no.uib.inf219.gui.backend.serializers.ClassBuilderSerializer
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.view.ClassSelectorView
@@ -54,20 +53,6 @@ interface ClassBuilder<out T> {
      */
     @get:JsonIgnore
     val property: PropertyWriter?
-
-
-    /**
-     * Compile this class builder to the representation we want to use to convert this to [T].
-     *
-     * Use [ClassBuilderCompiler.compile] over this directly to allow for referring
-     *
-     */
-    fun compile(cbs: ClassBuilderCompiler): Any
-
-    /**
-     * Link all references not yet made. Must modify the given object to do so
-     */
-    fun link(cbs: ClassBuilderCompiler, obj: Any)
 
     /**
      * Convert this object to an instance of [T].

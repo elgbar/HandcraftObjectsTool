@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ser.PropertyWriter
 import javafx.event.EventTarget
 import javafx.geometry.Pos
 import javafx.scene.Node
-import no.uib.inf219.gui.backend.serializers.ClassBuilderCompiler
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import tornadofx.hbox
 import tornadofx.onDoubleClick
@@ -37,13 +36,6 @@ class ReferenceClassBuilder(
             }
             text("This class builder is only a reference to ${serObject.getPreviewValue()}. Double click to edit the referenced class builder.")
         }
-    }
-
-    override fun compile(cbs: ClassBuilderCompiler): Any {
-        return cbs.compile(serObject)
-    }
-
-    override fun link(cbs: ClassBuilderCompiler, obj: Any) {
     }
 
     override fun getPreviewValue() = "Ref to " + serObject.getPreviewValue()
