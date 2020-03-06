@@ -1,10 +1,12 @@
 package no.uib.inf219.gui.backend
 
 import com.fasterxml.jackson.databind.JavaType
+import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.fasterxml.jackson.databind.ser.PropertyWriter
 import javafx.event.EventTarget
 import javafx.geometry.Pos
 import javafx.scene.Node
+import no.uib.inf219.gui.backend.serializers.ReferenceClassBuilderSerializer
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import tornadofx.hbox
 import tornadofx.onDoubleClick
@@ -15,6 +17,7 @@ import tornadofx.text
  *
  * @author Elg
  */
+@JsonSerialize(using = ReferenceClassBuilderSerializer::class)
 class ReferenceClassBuilder(
     /**
      * The class builder this class builder is referencing
@@ -71,6 +74,6 @@ class ReferenceClassBuilder(
     }
 
     override fun toString(): String {
-        return "Ref CB; ref=$serObject, clazz=$type)"
+        return "Ref CB; ref=$serObject)"
     }
 }

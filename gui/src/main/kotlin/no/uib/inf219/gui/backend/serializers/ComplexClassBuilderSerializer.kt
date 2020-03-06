@@ -15,7 +15,7 @@ import tornadofx.findFieldByName
 /**
  * @author Elg
  */
-class ComplexClassBuilderSerializer : StdSerializer<ComplexClassBuilder<*>>(ComplexClassBuilder::class.type()) {
+object ComplexClassBuilderSerializer : StdSerializer<ComplexClassBuilder<*>>(ComplexClassBuilder::class.type()) {
 
 
     override fun serialize(value: ComplexClassBuilder<*>, gen: JsonGenerator, provider: SerializerProvider) {
@@ -75,7 +75,7 @@ class ComplexClassBuilderSerializer : StdSerializer<ComplexClassBuilder<*>>(Comp
                 break
             }
             // then find serializer to use
-            val ser: JsonSerializer<Any> = provider.findValueSerializer(prop::class.java)
+            val ser: JsonSerializer<Any> = provider.findValueSerializer(prop::class.type())
 
             gen.writeFieldName(key)
             ser.serialize(prop, gen, provider)
