@@ -1,6 +1,7 @@
 package no.uib.inf219.example.data
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.annotation.JsonPropertyDescription
 import javafx.scene.control.Tooltip
 import no.uib.inf219.api.serialization.Identifiable
 import no.uib.inf219.api.serialization.storage.RetrievableStorage
@@ -11,16 +12,20 @@ import no.uib.inf219.example.data.prerequisite.Prerequisite
  * @author Elg
  */
 class Response : Identifiable<String> {
-    
+
+    @JsonPropertyDescription("How the user will response to the parent conversation text")
     @JsonProperty("response", required = true)
-    var response: String = "???"
+    var response: String = ""
 
-    @JsonProperty("name", required = false, defaultValue = "Response")
-    var name: String = "Response #${++createId}"
+    @JsonPropertyDescription("Name of this response for later referencing. Must be unique")
+    @JsonProperty("name", required = false, defaultValue = "\"Response\"")
+    var name: String = ""
 
+    @JsonPropertyDescription("The following conversation this response lead to. If null the conversation will end")
     @JsonProperty("conv", required = false)
     var conv: Conversation? = null
 
+    @JsonPropertyDescription("What prerequisites must be fulfilled in order for the user to choose this response")
     @JsonProperty("prerequisites", required = false)
     var prereq: Prerequisite? = null
 

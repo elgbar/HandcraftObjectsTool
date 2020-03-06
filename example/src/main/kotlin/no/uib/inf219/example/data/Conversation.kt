@@ -2,6 +2,7 @@ package no.uib.inf219.example.data
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.annotation.JsonPropertyDescription
 import no.uib.inf219.api.serialization.Identifiable
 import no.uib.inf219.api.serialization.storage.RetrievableStorage
 import no.uib.inf219.api.serialization.storage.StoreHandler
@@ -13,10 +14,12 @@ import no.uib.inf219.api.serialization.storage.StoreHandler
  */
 class Conversation : Identifiable<String> {
 
+    @JsonPropertyDescription("The text to player will read")
     @JsonProperty("text", required = true)
     var text: String = ""
 
-    @JsonProperty("name", defaultValue = "Conversation", required = false)
+    @JsonPropertyDescription("The name of this conversation for later referencing")
+    @JsonProperty("name", defaultValue = "\"Conversation\"", required = false)
     var name: String = "Conversation #${++createId}"
         set(value) {
             field = value
@@ -25,6 +28,8 @@ class Conversation : Identifiable<String> {
             store.update(this)
         }
 
+
+    @JsonPropertyDescription("The responses the player can have to the the text in this conversation")
     @JsonProperty("responses", defaultValue = "[]", required = false)
     var responses: MutableList<Response> = ArrayList()
         get() = if (field.isEmpty()) Response.exitResponse else field
