@@ -72,7 +72,7 @@ object ComplexClassBuilderSerializer : StdSerializer<ComplexClassBuilder<*>>(Com
             // Null handling is bit different, check that first
             if (prop == null) {
                 gen.writeNullField(key)
-                break
+                continue
             }
             // then find serializer to use
             val ser: JsonSerializer<Any> = provider.findValueSerializer(prop::class.type())
