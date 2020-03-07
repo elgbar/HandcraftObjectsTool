@@ -58,7 +58,9 @@ interface ClassBuilder<out T> {
      * Convert this object to an instance of [T].
      * The returned object must not change unless there are changes further down the class builder change
      */
-    fun toObject(): T?
+    fun toObject(): T? {
+        return ControlPanelView.mapper.convertValue<T>(this, type)
+    }
 
     /**
      * return all sub values this class can hold. The [Map.keys] must exactly return all valid keys. If any of them have a default value they must reflect so
@@ -149,14 +151,6 @@ interface ClassBuilder<out T> {
             else -> this.isParentOf(to.parent)
         }
     }
-
-    /**
-     * Mark this object as dirt to flush [toObject] cache
-     */
-    fun recompile()
-
-    @JsonIgnore
-    fun isDirty(): Boolean
 
     /**
      * @return The java type of of the given child

@@ -38,7 +38,7 @@ class ComplexClassBuilder<out T>(
     override val name: String,
     override val parent: ClassBuilder<*>? = null,
     override val property: PropertyWriter? = null
-) : ReferencableClassBuilder<T>() {
+) : ClassBuilder<T> {
 
     //TODO make all property info, default etc into a single class
 
@@ -93,13 +93,6 @@ class ComplexClassBuilder<out T>(
                 this.serObject[key] = null
             }
         }
-
-//        if (typeSerializer != null) {
-//            checkNotNull(typeSerializer.propertyName) {
-//                "Don't know how to handle a type serializer of type '${typeSerializer::class.simpleName}' as the property name is null"
-//            }
-//            this.serObject[typeSerializer.propertyName] = type.rawClass.canonicalName.toCb()
-//        }
     }
 
     private fun cbToString(cb: ClassBuilder<*>?): String {

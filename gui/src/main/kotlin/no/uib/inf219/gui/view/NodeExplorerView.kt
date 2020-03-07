@@ -4,7 +4,7 @@ import javafx.scene.control.TreeItem
 import javafx.scene.input.MouseButton
 import no.uib.inf219.extra.toCb
 import no.uib.inf219.gui.backend.ClassBuilder
-import no.uib.inf219.gui.backend.ReferencableClassBuilder
+import no.uib.inf219.gui.backend.ReferenceClassBuilder
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import org.apache.commons.lang3.tuple.MutableTriple
 import tornadofx.*
@@ -105,8 +105,8 @@ class NodeExplorerView(private val controller: ObjectEditorController) : Fragmen
             when {
                 cb == null -> null
                 cb.isLeaf() -> null
+                cb is ReferenceClassBuilder -> null //break cycles
                 else -> cb.getSubClassBuilders().map { (key, child) ->
-                    if (child is ReferencableClassBuilder<*>) null
                     MutableTriple(key.getPreviewValue(), child, cb)
                 }
             }

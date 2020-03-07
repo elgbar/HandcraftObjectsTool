@@ -27,7 +27,7 @@ class CollectionClassBuilder<out T>(
     override val name: String,
     override val parent: ClassBuilder<*>? = null,
     override val property: PropertyWriter? = null
-) : ReferencableClassBuilder<Collection<T>>() {
+) : ClassBuilder<Collection<T>> {
 
     init {
         require(type.isTrueCollectionType) { "Given type $type is not a _true_ collection like type" }
@@ -55,7 +55,6 @@ class CollectionClassBuilder<out T>(
                     action {
                         createClassBuilderFor(sizeCb)
                         controller.reloadView()
-                        recompile()
                     }
                 }
                 this.add(tv)

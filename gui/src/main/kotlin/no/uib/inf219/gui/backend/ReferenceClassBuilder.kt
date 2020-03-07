@@ -24,7 +24,7 @@ class ReferenceClassBuilder(
      */
     override val serObject: ClassBuilder<*>,
     override val parent: ClassBuilder<*>?
-) : ReferencableClassBuilder<Any>() {
+) : ClassBuilder<Any> {
 
     override val type: JavaType = serObject.type
     override val name: String = "ref " + serObject.name

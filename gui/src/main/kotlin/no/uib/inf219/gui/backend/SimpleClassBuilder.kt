@@ -43,7 +43,7 @@ abstract class SimpleClassBuilder<T : Any>(
     val immutable: Boolean,
     @JsonIgnore
     val converter: StringConverter<T>
-) : ReferencableClassBuilder<T>() {
+) : ClassBuilder<T> {
 
     override val type: JavaType = ClassInformation.toJavaType(primClass)
 
@@ -82,7 +82,6 @@ abstract class SimpleClassBuilder<T : Any>(
             if (immutable) {
                 throw IllegalStateException("Class builder ${this::class.simpleName} is immutable")
             }
-            recompile()
         }
     }
 
@@ -122,7 +121,6 @@ abstract class SimpleClassBuilder<T : Any>(
                     OutputArea.logln { "Failed to parse '$text' to ${this@SimpleClassBuilder.initialValue::class.simpleName}" }
                     return@TextFormatter null
                 }
-                recompile()
                 return@TextFormatter it
             }
             bindStringProperty(textProperty(), converter, valueProperty)

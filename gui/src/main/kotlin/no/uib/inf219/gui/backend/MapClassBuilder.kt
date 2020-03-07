@@ -22,7 +22,7 @@ open class MapClassBuilder<K, out V>(
     override val name: String,
     override val parent: ClassBuilder<*>?,
     override val property: PropertyWriter?
-) : ReferencableClassBuilder<Map<K?, V?>>() {
+) : ClassBuilder<Map<K?, V?>> {
 
     override val serObject: MutableMap<ClassBuilder<*>, ClassBuilder<*>?> = HashMap()
 
@@ -38,7 +38,6 @@ open class MapClassBuilder<K, out V>(
                             getClassBuilder(type.contentType, "value #${serObject.size}") ?: return@action
                         serObject[key] = value
                         controller.reloadView()
-                        recompile()
                     }
                 }
                 for ((key, value) in serObject) {
