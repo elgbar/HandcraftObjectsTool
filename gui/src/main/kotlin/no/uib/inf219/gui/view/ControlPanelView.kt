@@ -204,6 +204,7 @@ object ControlPanelView : View("Control Panel") {
         OutputArea.logln("no.uib.inf219.example.data.showcase.PrimitiveDefaultValueShowcase")
         OutputArea.logln("no.uib.inf219.example.data.showcase.MapExample")
         OutputArea.logln("no.uib.inf219.example.data.showcase.GenericExample")
+        OutputArea.logln("no.uib.inf219.example.data.showcase.Weather")
         OutputArea.logln("java.lang.String")
     }
 

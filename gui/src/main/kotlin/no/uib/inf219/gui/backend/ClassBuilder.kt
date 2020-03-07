@@ -14,6 +14,7 @@ import no.uib.inf219.gui.backend.primitive.*
 import no.uib.inf219.gui.backend.serializers.ClassBuilderSerializer
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.view.ClassSelectorView
+import no.uib.inf219.gui.view.ControlPanelView
 import tornadofx.find
 import tornadofx.property
 
@@ -174,168 +175,104 @@ interface ClassBuilder<out T> {
     companion object {
 
         /**
-         * Get a correct class builder for the given java type
+         * Get a correct class builder for the given java type.
+         * This is a convenience method to not deal with types when the type is unknown
          */
         fun getClassBuilder(
             type: JavaType,
             name: String,
             parent: ClassBuilder<*>? = null,
-            value: Any? = null,
             prop: PropertyWriter? = null
-        ): ClassBuilder<*>? {
-            val elem = if (value != null && value is ClassBuilder<*>) {
-                //it would be very weird if this happened
-                require(value.type == type) {
-                    "The value given is a already a class builder, but its type (${value.type}) does not match with the given java type $type"
+        ): ClassBuilder<Any>? {
+            return getClassBuilder<Any>(type, name, parent, null, prop)
+        }
+
+        /**
+         * Get a correct class builder for the given java type.
+         * We do not return `ClassBuilder<T>` as some class use more advanced types such as `Collection<T>` and `Map<K,V>`
+         *
+         * The given type overrules the method type
+         *
+         */
+        fun <T : Any> getClassBuilder(
+            type: JavaType,
+            name: String,
+            parent: ClassBuilder<*>? = null,
+            value: T? = null,
+            prop: PropertyWriter? = null
+        ): ClassBuilder<Any>? {
+
+            if (value != null) {
+                val clazz: Class<*> = if (type.isPrimitive) value::class.javaPrimitiveType!! else value::class.java
+                require((type.rawClass == clazz) || type.rawClass.isAssignableFrom(clazz)) {
+                    "Mismatch between given java type and the initial value. Given java type $type, initial value type $clazz"
                 }
-                return value
-            } else if (type.isPrimitive) {
+            }
+
+            return if (type.isPrimitive) {
                 when {
-                    type.isTypeOrSuperTypeOf(Byte::class.java) -> {
-                        if (value == null) ByteClassBuilder(
-                            name = name,
-                            parent = parent,
-                            prop = prop
-                        ) else
-                            ByteClassBuilder(
-                                value as Byte,
-                                name,
-                                parent,
-                                prop
-                            )
-                    }
-                    type.isTypeOrSuperTypeOf(Short::class.java) -> {
-                        if (value == null) ShortClassBuilder(
-                            name = name,
-                            parent = parent,
-                            prop = prop
-                        ) else
-                            ShortClassBuilder(
-                                value as Short,
-                                name,
-                                parent,
-                                prop
-                            )
-                    }
                     type.isTypeOrSuperTypeOf(Int::class.java) -> {
-                        if (value == null) IntClassBuilder(
-                            name = name,
-                            parent = parent,
-                            prop = prop
-                        ) else
-                            IntClassBuilder(
-                                value as Int,
-                                name,
-                                parent,
-                                prop
-                            )
+                        if (value == null) IntClassBuilder(name = name, parent = parent, prop = prop) else
+                            IntClassBuilder(value as Int, name, parent, prop)
                     }
                     type.isTypeOrSuperTypeOf(Long::class.java) -> {
-                        if (value == null) LongClassBuilder(
-                            name = name,
-                            parent = parent,
-                            prop = prop
-                        ) else
-                            LongClassBuilder(
-                                value as Long,
-                                name,
-                                parent,
-                                prop
-                            )
+                        if (value == null) LongClassBuilder(name = name, parent = parent, prop = prop) else
+                            LongClassBuilder(value as Long, name, parent, prop)
                     }
                     type.isTypeOrSuperTypeOf(Float::class.java) -> {
-                        if (value == null) FloatClassBuilder(
-                            name = name,
-                            parent = parent,
-                            prop = prop
-                        ) else
-                            FloatClassBuilder(
-                                value as Float,
-                                name,
-                                parent,
-                                prop
-                            )
+                        if (value == null) FloatClassBuilder(name = name, parent = parent, prop = prop) else
+                            FloatClassBuilder(value as Float, name, parent, prop)
                     }
                     type.isTypeOrSuperTypeOf(Double::class.java) -> {
-                        if (value == null) DoubleClassBuilder(
-                            name = name,
-                            parent = parent,
-                            prop = prop
-                        ) else
-                            DoubleClassBuilder(
-                                value as Double,
-                                name,
-                                parent,
-                                prop
-                            )
-                    }
-                    type.isTypeOrSuperTypeOf(Char::class.java) -> {
-                        if (value == null) CharClassBuilder(
-                            name = name,
-                            parent = parent,
-                            prop = prop
-                        ) else
-                            CharClassBuilder(
-                                value as Char,
-                                name,
-                                parent,
-                                prop
-                            )
+                        if (value == null) DoubleClassBuilder(name = name, parent = parent, prop = prop) else
+                            DoubleClassBuilder(value as Double, name, parent, prop)
                     }
                     type.isTypeOrSuperTypeOf(Boolean::class.java) -> {
-                        if (value == null) BooleanClassBuilder(
-                            name = name,
-                            parent = parent,
-                            prop = prop
-                        ) else
-                            BooleanClassBuilder(
-                                value as Boolean,
-                                name,
-                                parent,
-                                prop
-                            )
+                        if (value == null) BooleanClassBuilder(name = name, parent = parent, prop = prop) else
+                            BooleanClassBuilder(value as Boolean, name, parent, prop)
+                    }
+                    type.isTypeOrSuperTypeOf(Char::class.java) -> {
+                        if (value == null) CharClassBuilder(name = name, parent = parent, prop = prop) else
+                            CharClassBuilder(value as Char, name, parent, prop)
+                    }
+                    type.isTypeOrSuperTypeOf(Byte::class.java) -> {
+                        if (value == null) ByteClassBuilder(name = name, parent = parent, prop = prop) else
+                            ByteClassBuilder(value as Byte, name, parent, prop)
+                    }
+                    type.isTypeOrSuperTypeOf(Short::class.java) -> {
+                        if (value == null) ShortClassBuilder(name = name, parent = parent, prop = prop) else
+                            ShortClassBuilder(value as Short, name, parent, prop)
                     }
                     else -> throw IllegalStateException("Unknown primitive $type")
                 }
             } else if (type.isTypeOrSuperTypeOf(String::class.java)) {
                 //Strings is not a primitive, but its not far off
-                if (value == null) StringClassBuilder(
-                    name = name,
-                    parent = parent,
-                    prop = prop
-                ) else
-                    StringClassBuilder(
-                        value as String,
-                        name,
-                        parent,
-                        prop
-                    )
+                val init = if (value != null) value as String else ""
+                StringClassBuilder(init, name, parent, prop)
             } else if (type.isCollectionLikeType && (type as CollectionLikeType).isTrueCollectionType) {
                 //TODO add support for non-true collection types
-                CollectionClassBuilder<Any>(type, name, parent, prop)
+                CollectionClassBuilder<T>(type, name, parent, prop)
             } else if (type.isMapLikeType && (type as MapLikeType).isTrueMapType) {
                 //TODO add support for non-true map types
-                MapClassBuilder<Any, Any>(type, name, parent, prop)
+                MapClassBuilder<Any, T>(type, name, parent, prop)
 
             } else if (type.isArrayType) {
                 TODO("Arrays not yet supported")
             } else if (type.isEnumType) {
-                TODO("Enums not yet supported")
+                val enumClass = type.rawClass as Class<Enum<*>>
+                val init = if (value != null) value as Enum<*> else EnumClassBuilder.findEnumValues(enumClass)[0]
+                EnumClassBuilder(enumClass, init, name, parent, prop)
+
             } else if (type.rawClass.isAnnotation) {
                 TODO("Handle annotation")
-
             } else if (!type.isConcrete) {
                 //the type is abstract/interface we need a concrete type to
                 val subtype = find<ClassSelectorView>().subtypeOf(type, false) ?: return null
-                return getClassBuilder(subtype, name, parent, value, prop)
+                getClassBuilder(subtype, name, parent, value, prop)
             } else {
                 //it's not a primitive type so let's just make a complex type for it
-                ComplexClassBuilder<Any>(type, name, parent, prop)
+                ComplexClassBuilder(type, name, parent, prop)
             }
-            //remember to recompile the parent to make sure it sees the changes
-            parent?.recompile()
-            return elem
         }
     }
 }
-

@@ -3,8 +3,7 @@ package no.uib.inf219.gui.backend
 import com.fasterxml.jackson.databind.type.CollectionLikeType
 import no.uib.inf219.extra.toCb
 import no.uib.inf219.extra.type
-import org.junit.jupiter.api.Assertions.assertFalse
-import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.testfx.framework.junit5.ApplicationExtension
@@ -54,5 +53,24 @@ internal class ClassBuilderTest {
 
         //sanity check
         assertFalse(grandChild.isParentOf(parent))
+    }
+
+    @Test
+    internal fun getClassBuilder_failOnTypeMismatch() {
+        assertThrows(IllegalArgumentException::class.java) {
+            ClassBuilder.getClassBuilder(String::class.type(), "name", value = 2)
+        }
+    }
+
+    @Test
+    internal fun getClassBuilder_worksForPrimitives() {
+        assertDoesNotThrow {
+            ClassBuilder.getClassBuilder(Boolean::class.type(), "name", value = true)
+        }
+
+        assertDoesNotThrow {
+            ClassBuilder.getClassBuilder(Boolean::class.javaPrimitiveType!!.type(), "name", value = true)
+        }
+
     }
 }
