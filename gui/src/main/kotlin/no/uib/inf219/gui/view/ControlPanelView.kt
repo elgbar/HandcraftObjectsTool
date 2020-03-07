@@ -168,7 +168,7 @@ object ControlPanelView : View("Control Panel") {
             textfield {
                 bind(classNameProperty)
                 promptText = "Full class name"
-                text = "no.uib.inf219.example.data.showcase.Weather" //TODO remove
+                text = "no.uib.inf219.example.data.Conversation" //TODO remove
                 hgrow = Priority.ALWAYS
             }
         }
@@ -210,7 +210,7 @@ object ControlPanelView : View("Control Panel") {
 
     fun createTab(type: JavaType) {
         FX.find<BackgroundView>().tabpane.tab("Edit ${type.rawClass.simpleName}", BorderPane()) {
-            add(find<ObjectEditor>(params = *arrayOf("controller" to ObjectEditorController(type))).root)
+            add(find(ObjectEditor::class, Scope(), "controller" to ObjectEditorController(type)).root)
             tabPane.selectionModel.select(this)
         }
     }
