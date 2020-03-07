@@ -1,6 +1,5 @@
 package no.uib.inf219.gui.backend
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
@@ -9,8 +8,8 @@ import com.fasterxml.jackson.databind.ser.PropertyWriter
 import javafx.collections.FXCollections
 import javafx.collections.ObservableMap
 import javafx.event.EventTarget
-import javafx.geometry.Pos
 import javafx.scene.Node
+import javafx.scene.text.TextAlignment
 import no.uib.inf219.extra.toCb
 import no.uib.inf219.gui.Styles
 import no.uib.inf219.gui.backend.primitive.StringClassBuilder
@@ -27,11 +26,8 @@ import kotlin.collections.set
 /**
  * A class builder intended to be used for normal classes. It is 'complex' due containing multiple other [ClassBuilder]s.
  *
- *
- *
  * @author Elg
  */
-@JsonIgnoreProperties("map", ignoreUnknown = true)
 @JsonSerialize(using = ComplexClassBuilderSerializer::class)
 class ComplexClassBuilder<out T>(
     override val type: JavaType,
@@ -122,8 +118,7 @@ class ComplexClassBuilder<out T>(
         }
 
         val remove = element?.reset() ?: false
-        if (remove)
-            this.serObject[propName] = null
+        if (remove) this.serObject[propName] = null
     }
 
     override fun reset(): Boolean {
@@ -140,19 +135,27 @@ class ComplexClassBuilder<out T>(
         return parent.scrollpane(fitToWidth = true, fitToHeight = true) {
 
             if (this@ComplexClassBuilder.serObject.isEmpty()) {
-                hbox {
-                    alignment = Pos.CENTER
+                textflow {
+                    textAlignment = TextAlignment.CENTER
 
-                    text("Class ")
-                    text(type.rawClass.canonicalName) { font = Styles.monospaceFont }
-                    text(" have no simple serializable properties")
+                    label("Class ")
+                    label(type.rawClass.canonicalName) { font = Styles.monospaceFont }
+                    label(" have no simple serializable properties")
                 }
             } else {
                 squeezebox {
                     for ((name, cb) in this@ComplexClassBuilder.serObject) {
                         if (cb != null) {
-                            fold("$name ${cb.getPreviewValue()}") {
+                            fold("$name: ${cb.getPreviewValue()}") {
                                 cb.toView(this, controller)
+                            }
+                        } else {
+                            fold("$name: (null)") {
+                                val createdCB = createClassBuilderFor(name.toCb())
+                                controller.reloadView()
+                                if (createdCB != null) {
+                                    controller.select(createdCB)
+                                }
                             }
                         }
                     }
@@ -166,7 +169,7 @@ class ComplexClassBuilder<out T>(
     }
 
     override fun getPreviewValue(): String {
-        return this.serObject.map { it.key + " -> " + it.value?.getPreviewValue() }.joinToString(", ")
+        return this.serObject.map { it.key + ": " + it.value?.getPreviewValue() }.joinToString(", ")
     }
 
     override fun getSubClassBuilders(): Map<ClassBuilder<*>, ClassBuilder<*>?> =

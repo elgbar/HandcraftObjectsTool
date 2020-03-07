@@ -8,8 +8,7 @@ import no.uib.inf219.test.conv.Conversation
 import no.uib.inf219.test.conv.Response
 import no.uib.inf219.test.precondition.AlwaysTruePrecondition
 import no.uib.inf219.test.precondition.Precondition
-import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.testfx.framework.junit5.ApplicationExtension
@@ -81,12 +80,11 @@ internal class ComplexClassBuilderTest {
         resp2.serObject[Response::conv.name] = ReferenceClassBuilder(resp1CB, resp2)
 
         //Each response lead to a common conversation, now lets try convert this to a real conversation
-        val converted: Conversation = cb.toObject() ?: Assertions.fail("Compiled object is null")
+        val converted: Conversation = cb.toObject() ?: fail("Compiled object is null")
         val convertedResponses = converted.responses
 
         //Each response lead to a common conversation
         assertEquals(convertedResponses[0].conv, convertedResponses[1].conv)
-        //TODO allow for references, and not just clones
-        Assertions.assertTrue(convertedResponses[0].conv === convertedResponses[1].conv) { "The converted conversation responses are equal, but not the same object" }
+        assertTrue(convertedResponses[0].conv === convertedResponses[1].conv) { "The converted conversation responses are equal, but not the same object" }
     }
 }

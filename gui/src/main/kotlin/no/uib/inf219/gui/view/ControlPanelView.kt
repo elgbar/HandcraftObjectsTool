@@ -168,7 +168,7 @@ object ControlPanelView : View("Control Panel") {
             textfield {
                 bind(classNameProperty)
                 promptText = "Full class name"
-                text = "no.uib.inf219.example.data.Conversation" //TODO remove
+                text = "no.uib.inf219.example.data.showcase.Weather" //TODO remove
                 hgrow = Priority.ALWAYS
             }
         }

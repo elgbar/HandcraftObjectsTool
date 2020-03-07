@@ -60,7 +60,7 @@ abstract class SimpleClassBuilder<T : Any>(
 
 //              Short::class.javaPrimitiveType -> shortProperty(initialValue as Short)
 //              Byte::class.javaPrimitiveType -> byteProperty(initialValue as Byte)
-//              Char::class.javaPrimitiveType -> charProperty(initialValue as Boolean)
+//              Char::class.javaPrimitiveType -> charProperty(initialValue as Char)
                 else -> SimpleObjectProperty<E>(initialValue)
             }
             @Suppress("UNCHECKED_CAST")
@@ -76,7 +76,7 @@ abstract class SimpleClassBuilder<T : Any>(
     override var serObject: T
         get() = valueProperty.value
         set(value) = valueProperty.setValue(value)
-    
+
     init {
         valueProperty.onChange {
             if (immutable) {
@@ -95,9 +95,9 @@ abstract class SimpleClassBuilder<T : Any>(
                 addClass(Styles.parent)
                 label("Required? ${isRequired()}")
                 label("Type: ${type.rawClass}")
-                val parent = this@SimpleClassBuilder.parent
-                if (parent != null && parent is ComplexClassBuilder) {
-                    val desc = parent.propInfo[this@SimpleClassBuilder.name]?.metadata?.description
+                val cbParent = this@SimpleClassBuilder.parent
+                if (cbParent != null && cbParent is ComplexClassBuilder) {
+                    val desc = cbParent.propInfo[this@SimpleClassBuilder.name]?.metadata?.description
                     if (!desc.isNullOrBlank()) {
                         label("Description: $desc")
                     }

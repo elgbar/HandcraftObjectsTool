@@ -13,7 +13,7 @@ import tornadofx.property
  */
 class ObjectEditorController(
     root: JavaType,
-    val rootBuilder: ClassBuilder<*> = ClassBuilder.getClassBuilder(root, "root", null)!!,
+    val rootBuilder: ClassBuilder<*> = ClassBuilder.getClassBuilder(root, "root")!!,
     /**
      * Parent controller, if any
      */

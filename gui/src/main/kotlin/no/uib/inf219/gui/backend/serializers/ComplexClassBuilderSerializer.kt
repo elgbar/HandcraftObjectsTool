@@ -36,6 +36,8 @@ object ComplexClassBuilderSerializer : StdSerializer<ComplexClassBuilder<*>>(Com
 
         if (objIdWriter != null) {
 
+            //this is ripped straight out BeanSerializer#_serializeWithObjectId
+
             val ser = objIdWriter.serializer ?: provider.findValueSerializer(objIdWriter.idType)
 
             val serObjIdWriter = objIdWriter.withSerializer(ser)
