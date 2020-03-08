@@ -114,15 +114,25 @@ class ReferenceSelectorView : View("Reference") {
     }
 
 
-    fun createReference(parent: ClassBuilder<*>, type: JavaType): ReferenceClassBuilder? {
+    fun createReference(
+        type: JavaType,
+        key: ClassBuilder<*>,
+        parent: ClassBuilder<*>
+    ): ReferenceClassBuilder? {
         tornadofx.runAsync {
             searching = true
             searchResult.setAll(findInstancesOf(type, controller.findRootController().rootBuilder))
+            if (searchResult.isEmpty()) {
+
+            }
             searching = false
         }
         openModal(block = true)
 
-        return if (result == null) null else ReferenceClassBuilder(result!!, parent)
+        val ref = result ?: return null
+        val refKey = ref.key ?: return null
+        val refParent = ref.parent ?: return null
+        return ReferenceClassBuilder(refKey, refParent, key, parent)
     }
 
     companion object {

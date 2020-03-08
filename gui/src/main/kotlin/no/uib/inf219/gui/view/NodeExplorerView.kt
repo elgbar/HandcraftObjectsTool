@@ -1,5 +1,6 @@
 package no.uib.inf219.gui.view
 
+import javafx.scene.control.Alert
 import javafx.scene.control.TreeItem
 import javafx.scene.input.MouseButton
 import no.uib.inf219.extra.toCb
@@ -56,6 +57,7 @@ class NodeExplorerView(private val controller: ObjectEditorController) : Fragmen
         }
 
         contextmenu {
+
             item("Make reference to...").action {
                 val item = this@treeview.selectionModel.selectedItem ?: return@action
                 if (item == root) return@action
@@ -69,27 +71,43 @@ class NodeExplorerView(private val controller: ObjectEditorController) : Fragmen
                     return@action
                 }
                 val selector: ReferenceSelectorView = find("controller" to controller)
-                val other = selector.createReference(value.right, type)
+                val ref = selector.createReference(type, key, value.right)
 
-                value.right.createClassBuilderFor(key, other)
+                if (ref == null) {
+                    alert(
+                        Alert.AlertType.WARNING,
+                        "No reference returned",
+                        "No reference was returned from the search. This could be because you canceled the search (pressed escape) or because the chosen class builder was invalid."
+                    )
+                    return@action
+                }
+
+                //register the new reference but first null out any old reference
+                value.right.resetChild(key, restoreDefault = false)
+                value.right.createClassBuilderFor(key, ref)
 
                 //reload parent view (or this view if root controller)
                 (controller.parent ?: controller).reloadView()
 
             }
-            item("Remove").action {
-                val item = this@treeview.selectionModel.selectedItem ?: return@action
-                if (item == root) return@action
+
+            fun resetClicked(restoreDefault: Boolean) {
+                val item = this@treeview.selectionModel.selectedItem ?: return
+                if (item == root) {
+                    alert(
+                        Alert.AlertType.INFORMATION,
+                        "Resetting root is not supported",
+                        "Resetting the root is not supported at this moment"
+                    )
+                }
                 val value = item.value
+
 
                 //when viewing the item that is being reset change the current viewed item to root
                 // as otherwise the user is editing a stale object
                 controller.currSel = null
                 //clear the backend values
-                if (value.right != null)
-                    value.right.resetChild(value.left.toCb(), value.middle)
-                else
-                    value.middle?.reset()
+                value.right.resetChild(value.left.toCb(), value.middle, restoreDefault)
 
                 //remove the visual items
                 item.children.clear()
@@ -97,12 +115,31 @@ class NodeExplorerView(private val controller: ObjectEditorController) : Fragmen
                 //reload parent view (or this view if root controller)
                 (controller.parent ?: controller).reloadView()
             }
+
+            item("Restore to default") {
+                tooltip = tooltip(
+                    "Reset the value of this class builder to the default value.\n" +
+                            "What this means is up to each type of class builder.\n" +
+                            "Usually it will remove all values but a default value might be restored if any is specified.\n" +
+                            "If you intend to completely remove it select \"Set to null\""
+                )
+                action { resetClicked(true) }
+            }
+
+
+            item("Set to null") {
+                tooltip = tooltip(
+                    "Remove all references to this class builder"
+                )
+                action { resetClicked(false) }
+            }
         }
 
         @Suppress("UNCHECKED_CAST")
         populate {
             val cb = it.value.middle
             when {
+                //FIXME removing child of root does not work, it does not update the visual children
                 cb == null -> null
                 cb.isLeaf() -> null
                 cb is ReferenceClassBuilder -> null //break cycles
