@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer
 import com.fasterxml.jackson.databind.ser.PropertyWriter
 import javafx.event.EventTarget
+import javafx.geometry.Pos
 import javafx.scene.Node
 import javafx.scene.text.TextAlignment
 import no.uib.inf219.extra.toCb
@@ -134,26 +135,53 @@ class ComplexClassBuilder<out T>(
         return parent.scrollpane(fitToWidth = true, fitToHeight = true) {
 
             if (this@ComplexClassBuilder.serObject.isEmpty()) {
-                textflow {
-                    textAlignment = TextAlignment.CENTER
+                hbox {
+                    alignment = Pos.CENTER
+                    textflow {
+                        textAlignment = TextAlignment.CENTER
 
-                    label("Class ")
-                    label(type.rawClass.canonicalName) { font = Styles.monospaceFont }
-                    label(" have no simple serializable properties")
+
+                        text("Class ")
+
+                        text(type.rawClass.canonicalName) {
+                            font = Styles.monospaceFont
+
+                        }
+                        text(" have no simple serializable properties")
+                    }
                 }
             } else {
                 squeezebox {
-                    for ((name, cb) in this@ComplexClassBuilder.serObject) {
-                        if (cb != null) {
-                            fold("$name: ${cb.getPreviewValue()}") {
+                    for ((name, child) in this@ComplexClassBuilder.serObject) {
+
+                        fun getFoldTitle(cb: ClassBuilder<*>? = child): String {
+                            //Star mean required, that's universal right? Otherwise we need to communicate this to the user
+                            return "$name: ${cb?.getPreviewValue() ?: "(null)"}${if (isRequired()) " *" else ""}"
+                        }
+
+                        fold(getFoldTitle()) {
+
+                            //Wait for the fold to be expanded for the first time to create the view, cb etc
+                            expandedProperty().onChangeOnce {
+                                val cb: ClassBuilder<*>
+                                if (child == null) {
+                                    //This should never be null as we are using the name of a property
+                                    // well, if it is something has gone wrong, but not here!
+                                    val createdCB = createClassBuilderFor(name.toCb())!!
+
+                                    //update fold title before editing
+                                    this.text = getFoldTitle(createdCB)
+                                    cb = createdCB
+                                } else {
+                                    cb = child
+                                }
+
                                 cb.toView(this, controller)
-                            }
-                        } else {
-                            fold("$name: (null)") {
-                                val createdCB = createClassBuilderFor(name.toCb())
-                                controller.reloadView()
-                                if (createdCB != null) {
-                                    controller.select(createdCB)
+
+                                //reflect changes in the title of the fold
+                                cb.serObjectProperty.onChange {
+                                    //text means title in this context
+                                    this.text = getFoldTitle()
                                 }
                             }
                         }
