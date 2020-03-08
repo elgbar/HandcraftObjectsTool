@@ -11,7 +11,7 @@ import tornadofx.checkbox
 
 class BooleanClassBuilder(
     initial: Boolean = false,
-    name: String,
+    name: ClassBuilder<*>? = null,
     parent: ClassBuilder<*>? = null,
     prop: PropertyWriter? = null,
     immutable: Boolean = false
@@ -22,7 +22,7 @@ class BooleanClassBuilder(
     ) {
     override fun editView(parent: Pane): Node {
         return parent.checkbox {
-            bind(serObjectProperty)
+            bind(serObjectObservable)
         }
     }
 }

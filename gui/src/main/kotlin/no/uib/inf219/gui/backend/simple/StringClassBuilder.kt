@@ -13,7 +13,7 @@ import tornadofx.textarea
  */
 class StringClassBuilder(
     initial: String = "",
-    name: String,
+    name: ClassBuilder<*>? = null,
     parent: ClassBuilder<*>? = null,
     prop: PropertyWriter? = null,
     immutable: Boolean = false
@@ -25,7 +25,7 @@ class StringClassBuilder(
 
     override fun editView(parent: Pane): Node {
         return parent.textarea {
-            bindStringProperty(textProperty(), converter, serObjectProperty)
+            bindStringProperty(textProperty(), converter, serObjectObservable)
         }
     }
 

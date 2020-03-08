@@ -7,12 +7,8 @@ import no.uib.inf219.gui.backend.SimpleNumberClassBuilder
 
 class IntClassBuilder(
     initial: Int = 0,
-    name: String,
+    key: ClassBuilder<*>? = null,
     parent: ClassBuilder<*>? = null,
     prop: PropertyWriter? = null,
     immutable: Boolean = false
-) :
-    SimpleNumberClassBuilder<Int>(
-        Int::class.java, initial, name, parent, prop, immutable,
-        IntegerStringConverter()
-    ) {}
+) : SimpleNumberClassBuilder<Int>(Int::class.java, initial, key, parent, prop, immutable, IntegerStringConverter()) {}

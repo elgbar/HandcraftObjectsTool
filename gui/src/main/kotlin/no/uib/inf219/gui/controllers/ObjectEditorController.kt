@@ -13,7 +13,7 @@ import tornadofx.property
  */
 class ObjectEditorController(
     root: JavaType,
-    val rootBuilder: ClassBuilder<*> = ClassBuilder.getClassBuilder(root, "root")!!,
+    val rootBuilder: ClassBuilder<*> = ClassBuilder.getClassBuilder(root)!!,
     /**
      * Parent controller, if any
      */
@@ -51,9 +51,7 @@ class ObjectEditorController(
 
     fun select(classBuilder: ClassBuilder<*>) {
         currSel = MutableTriple<String, ClassBuilder<*>?, ClassBuilder<*>>(
-            classBuilder.name,
-            classBuilder,
-            classBuilder.parent!!
+            classBuilder.key!!.getPreviewValue(), classBuilder, classBuilder.parent!!
         )
     }
 

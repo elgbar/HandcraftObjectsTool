@@ -37,7 +37,7 @@ import java.util.*
 abstract class SimpleClassBuilder<T : Any>(
     primClass: Class<T>,
     private val initialValue: T,
-    override val name: String,
+    override val key: ClassBuilder<*>?,
     override val parent: ClassBuilder<*>?,
     override val property: PropertyWriter?,
     val immutable: Boolean,
@@ -61,7 +61,7 @@ abstract class SimpleClassBuilder<T : Any>(
 //              Short::class.javaPrimitiveType -> shortProperty(initialValue as Short)
 //              Byte::class.javaPrimitiveType -> byteProperty(initialValue as Byte)
 //              Char::class.javaPrimitiveType -> charProperty(initialValue as Char)
-                else -> SimpleObjectProperty<E>(initialValue)
+                else -> SimpleObjectProperty(initialValue)
             }
             @Suppress("UNCHECKED_CAST")
             return p as Property<E>
@@ -69,14 +69,14 @@ abstract class SimpleClassBuilder<T : Any>(
     }
 
     @get:JsonIgnore
-    final override val serObjectProperty: Property<T> by lazy { findProperty(type, initialValue) }
+    final override val serObjectObservable: Property<T> by lazy { findProperty(type, initialValue) }
 
     override var serObject: T
-        get() = serObjectProperty.value
-        set(value) = serObjectProperty.setValue(value)
+        get() = serObjectObservable.value
+        set(value) = serObjectObservable.setValue(value)
 
     init {
-        serObjectProperty.onChange {
+        serObjectObservable.onChange {
             if (immutable) {
                 throw IllegalStateException("Class builder ${this::class.simpleName} is immutable")
             }
@@ -95,7 +95,7 @@ abstract class SimpleClassBuilder<T : Any>(
                 label("Type: ${type.rawClass}")
                 val cbParent = this@SimpleClassBuilder.parent
                 if (cbParent != null && cbParent is ComplexClassBuilder) {
-                    val desc = cbParent.propInfo[this@SimpleClassBuilder.name]?.metadata?.description
+                    val desc = cbParent.propInfo[key?.getPreviewValue()]?.metadata?.description
                     if (!desc.isNullOrBlank()) {
                         label("Description: $desc")
                     }
@@ -116,12 +116,12 @@ abstract class SimpleClassBuilder<T : Any>(
                 val text = it.controlNewText.removeNl().trim()
 
                 if (it.isContentChange && text.isNotEmpty() && !validate(text)) {
-                    OutputArea.logln { "Failed to parse '$text' to ${this@SimpleClassBuilder.initialValue::class.simpleName}" }
+                    OutputArea.logln { "Failed to parse '$text' to ${this@SimpleClassBuilder.serObject::class.simpleName}" }
                     return@TextFormatter null
                 }
                 return@TextFormatter it
             }
-            bindStringProperty(textProperty(), converter, serObjectProperty)
+            bindStringProperty(textProperty(), converter, serObjectObservable)
         }
     }
 
@@ -141,15 +141,16 @@ abstract class SimpleClassBuilder<T : Any>(
         return null
     }
 
-    /**
-     * Reset this simple class builder's value, as it has not properties we can safely ignore it
-     */
-    override fun reset(): Boolean {
-        serObject = initialValue
-        return false
+    override fun resetChild(
+        key: ClassBuilder<*>,
+        element: ClassBuilder<*>?,
+        restoreDefault: Boolean
+    ) {
     }
 
-    override fun resetChild(key: ClassBuilder<*>, element: ClassBuilder<*>?) {}
+    override fun getChild(key: ClassBuilder<*>): ClassBuilder<*>? {
+        return null
+    }
 
     override fun getSubClassBuilders(): Map<ClassBuilder<*>, ClassBuilder<*>> = emptyMap()
 
@@ -220,7 +221,7 @@ abstract class SimpleClassBuilder<T : Any>(
         if (this === other) return true
         if (other !is SimpleClassBuilder<*>) return false
 
-        if (name != other.name) return false
+        if (key != other.key) return false
         if (serObject != other.serObject) return false
         if (parent != other.parent) return false
         if (immutable != other.immutable) return false
@@ -230,7 +231,7 @@ abstract class SimpleClassBuilder<T : Any>(
     }
 
     override fun hashCode(): Int {
-        var result = name.hashCode()
+        var result = key.hashCode()
         result = 31 * result + serObject.hashCode()
         result = 31 * result + (parent?.hashCode() ?: 0)
         result = 31 * result + immutable.hashCode()

@@ -19,8 +19,7 @@ class EnumConverterTest {
     internal fun fromStringTest() {
         val cb = EnumClassBuilder(
             Weather::class.java,
-            Weather.SUNNY,
-            "name"
+            Weather.SUNNY
         )
         Assertions.assertEquals(Weather.SUNNY, cb.converter.fromString(Weather.SUNNY.name))
     }
@@ -29,8 +28,7 @@ class EnumConverterTest {
     internal fun toStringTest() {
         val cb = EnumClassBuilder(
             Weather::class.java,
-            Weather.SUNNY,
-            "name"
+            Weather.SUNNY
         )
         Assertions.assertEquals(Weather.SUNNY.name, cb.converter.toString(Weather.SUNNY))
     }
@@ -41,8 +39,7 @@ class EnumConverterTest {
     internal fun fromString_null() {
         val cb = EnumClassBuilder(
             Weather::class.java,
-            Weather.SUNNY,
-            "name"
+            Weather.SUNNY
         )
         Assertions.assertNull(cb.converter.fromString(null))
     }
@@ -51,8 +48,7 @@ class EnumConverterTest {
     internal fun toString_null() {
         val cb = EnumClassBuilder(
             Weather::class.java,
-            Weather.SUNNY,
-            "name"
+            Weather.SUNNY
         )
         Assertions.assertNull(cb.converter.toString(null))
     }
@@ -63,8 +59,7 @@ class EnumConverterTest {
     internal fun fromString_invalid() {
         val cb = EnumClassBuilder(
             Weather::class.java,
-            Weather.SUNNY,
-            "name"
+            Weather.SUNNY
         )
         Assertions.assertNull(cb.converter.fromString("something random"))
     }

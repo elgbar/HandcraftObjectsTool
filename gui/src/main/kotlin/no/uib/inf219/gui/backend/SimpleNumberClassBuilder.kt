@@ -18,12 +18,12 @@ import tornadofx.*
 abstract class SimpleNumberClassBuilder<T : Number>(
     primClass: Class<T>,
     initialValue: T,
-    name: String,
-    parent: ClassBuilder<*>? = null,
-    property: PropertyWriter? = null,
-    immutable: Boolean = false,
+    key: ClassBuilder<*>?,
+    parent: ClassBuilder<*>?,
+    property: PropertyWriter?,
+    immutable: Boolean,
     converter: StringConverter<T>
-) : SimpleClassBuilder<T>(primClass, initialValue, name, parent, property, immutable, converter) {
+) : SimpleClassBuilder<T>(primClass, initialValue, key, parent, property, immutable, converter) {
 
     override fun editView(parent: Pane): Node {
         return parent.hbox {
@@ -90,7 +90,7 @@ abstract class SimpleNumberClassBuilder<T : Number>(
                     }
                     return@TextFormatter it
                 }
-                bindStringProperty(textProperty(), converter, serObjectProperty)
+                bindStringProperty(textProperty(), converter, serObjectObservable)
             }
             button("reset") {
                 setOnAction {

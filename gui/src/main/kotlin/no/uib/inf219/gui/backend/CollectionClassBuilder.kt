@@ -8,7 +8,7 @@ import javafx.event.EventTarget
 import javafx.scene.Node
 import javafx.scene.control.TreeView
 import no.uib.inf219.extra.toCb
-import no.uib.inf219.gui.backend.primitive.IntClassBuilder
+import no.uib.inf219.gui.backend.simple.IntClassBuilder
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.view.NodeExplorerView
 import no.uib.inf219.gui.view.PropertyEditor
@@ -24,7 +24,7 @@ import tornadofx.*
 //@JsonSerialize(using = CollectionCBSerializer::class)
 class CollectionClassBuilder<out T>(
     override val type: CollectionLikeType,
-    override val name: String,
+    override val key: ClassBuilder<*>? = null,
     override val parent: ClassBuilder<*>? = null,
     override val property: PropertyWriter? = null
 ) : ClassBuilder<Collection<T>> {
@@ -33,13 +33,9 @@ class CollectionClassBuilder<out T>(
         require(type.isTrueCollectionType) { "Given type $type is not a _true_ collection like type" }
     }
 
-    companion object {
-        private val sizeCb = 0.toCb("add location")
-    }
-
     override val serObject = ArrayList<ClassBuilder<*>>()
 
-    override val serObjectProperty = serObject.toProperty()
+    override val serObjectObservable = serObject.asObservable()
 
     override fun toView(
         parent: EventTarget,
@@ -55,7 +51,7 @@ class CollectionClassBuilder<out T>(
 
                 button("Add element") {
                     action {
-                        createClassBuilderFor(sizeCb)
+                        createClassBuilderFor(serObject.size.toCb())
                         controller.reloadView()
                     }
                 }
@@ -71,33 +67,45 @@ class CollectionClassBuilder<out T>(
 
     override fun createClassBuilderFor(key: ClassBuilder<*>, init: ClassBuilder<*>?): ClassBuilder<*>? {
         val index = cbToInt(key)
-        if (index != null) {
+        return if (index != null) {
             require(init == null || init.type == getChildType(key)) {
                 "Given initial value have different type than expected. expected ${getChildType(key)} got ${init?.type}"
             }
-            val elem = init ?: (getClassBuilder(type.contentType, serObject.size.toString()) ?: return null)
+            val elem = init ?: (getClassBuilder(type.contentType, key)
+                ?: kotlin.error("Failed to create class builder for $key"))
             serObject.add(index, elem)
-            return elem
+            elem
         } else
-            return null
+            null
+    }
+
+    override fun getChild(key: ClassBuilder<*>): ClassBuilder<*>? {
+        val index = cbToInt(key)
+        require(index != null)
+        return serObject[index]
     }
 
 
-    override fun resetChild(key: ClassBuilder<*>, element: ClassBuilder<*>?) {
+    //TODO Test
+    override fun resetChild(
+        key: ClassBuilder<*>,
+        element: ClassBuilder<*>?,
+        restoreDefault: Boolean
+    ) {
         val index: Int = cbToInt(key) ?: serObject.indexOf(element)
-        if (index == -1) kotlin.error("Failed to find the element of ")
+        require(index in 0 until serObject.size) {
+            "Given index is not within the range of the collection"
+        }
 
         val child = serObject[index]
 
         require(element == null || child == element) { "Given element is not equal to stored element at index $index" }
 
-        if (child.reset()) {
-            serObject.removeAt(index)
-        }
+        serObject.removeAt(index)
     }
 
     override fun getSubClassBuilders(): Map<ClassBuilder<*>, ClassBuilder<*>> {
-        return serObject.mapIndexed { i, cb -> Pair(i.toCb("Element #$i"), cb) }.toMap()
+        return serObject.mapIndexed { i, cb -> Pair(i.toCb("Element #$i".toCb()), cb) }.toMap()
     }
 
     override fun getPreviewValue(): String {
@@ -113,8 +121,6 @@ class CollectionClassBuilder<out T>(
 
     override fun isLeaf() = false
 
-    override fun reset() = true
-
     override fun isImmutable() = false
 
     override fun toString(): String {
@@ -128,7 +134,7 @@ class CollectionClassBuilder<out T>(
 
         if (type != other.type) return false
         if (parent != other.parent) return false
-        if (name != other.name) return false
+        if (key != other.key) return false
         if (property != other.property) return false
         if (serObject != other.serObject) return false
 
@@ -138,7 +144,7 @@ class CollectionClassBuilder<out T>(
     override fun hashCode(): Int {
         var result = type.hashCode()
         result = 31 * result + (parent?.hashCode() ?: 0)
-        result = 31 * result + name.hashCode()
+        result = 31 * result + key.hashCode()
         result = 31 * result + (property?.hashCode() ?: 0)
         return result
     }

@@ -7,7 +7,7 @@ import no.uib.inf219.gui.backend.SimpleNumberClassBuilder
 
 class FloatClassBuilder(
     initial: Float = 0.0f,
-    name: String,
+    name: ClassBuilder<*>? = null,
     parent: ClassBuilder<*>? = null,
     prop: PropertyWriter? = null,
     immutable: Boolean = false

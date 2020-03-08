@@ -14,7 +14,7 @@ import tornadofx.combobox
 class EnumClassBuilder<T : Enum<*>>(
     clazz: Class<T>,
     initialValue: T,
-    name: String,
+    name: ClassBuilder<*>? = null,
     parent: ClassBuilder<*>? = null,
     property: PropertyWriter? = null
 ) : SimpleClassBuilder<T>(
@@ -42,7 +42,7 @@ class EnumClassBuilder<T : Enum<*>>(
 
     override fun editView(parent: Pane): Node {
         return parent.combobox<T>(
-            property = serObjectProperty,
+            property = serObjectObservable,
             values = enumValues.toList()
         )
     }

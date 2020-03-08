@@ -7,7 +7,7 @@ import no.uib.inf219.gui.backend.SimpleNumberClassBuilder
 
 class DoubleClassBuilder(
     initial: Double = 0.0,
-    name: String,
+    name: ClassBuilder<*>? = null,
     parent: ClassBuilder<*>? = null,
     prop: PropertyWriter? = null,
     immutable: Boolean = false

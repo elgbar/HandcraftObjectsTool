@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.ser.PropertyWriter
 import javafx.event.EventTarget
 import javafx.scene.Node
+import no.uib.inf219.extra.bindCbText
+import no.uib.inf219.extra.toCb
 import no.uib.inf219.gui.Styles
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.view.PropertyEditor
@@ -19,24 +21,25 @@ import kotlin.collections.set
 //@JsonSerialize(using = MapCBSerializer::class)
 class MapClassBuilder<K, out V>(
     override val type: JavaType,
-    override val name: String,
+    override val key: ClassBuilder<*>? = null,
     override val parent: ClassBuilder<*>?,
     override val property: PropertyWriter?
 ) : ClassBuilder<Map<K?, V?>> {
 
     override val serObject = HashMap<ClassBuilder<*>, ClassBuilder<*>?>()
-    override val serObjectProperty = serObject.toProperty()
+    override val serObjectObservable = serObject.asObservable()
 
     override fun toView(parent: EventTarget, controller: ObjectEditorController): Node {
+
         return parent.splitpane {
             setDividerPositions(0.25)
             val con = ObjectEditorController(type, this@MapClassBuilder, controller)
             this += vbox {
                 button("Add element") {
                     action {
-                        val key = getClassBuilder(type.keyType, "key #${serObject.size}") ?: return@action
+                        val key = getClassBuilder(type.keyType, "key #${serObject.size}".toCb()) ?: return@action
                         val value =
-                            getClassBuilder(type.contentType, "value #${serObject.size}") ?: return@action
+                            getClassBuilder(type.contentType, "value #${serObject.size}".toCb()) ?: return@action
                         serObject[key] = value
                         controller.reloadView()
                     }
@@ -44,10 +47,30 @@ class MapClassBuilder<K, out V>(
                 for ((key, value) in serObject) {
                     hbox {
                         style { addClass(Styles.parent) }
-                        val kname = key.name
-                        val vname = value?.name ?: "null"
-                        button(kname) { action { con.select(kname, key) } }
-                        button(vname) { action { con.select(vname, value) } }
+
+                        fun name(cb: ClassBuilder<*>?): String {
+                            return cb?.key?.getPreviewValue() ?: "null"
+                        }
+
+                        button(name(key)) {
+
+                            this.textProperty().bindCbText(key, ::name)
+
+                            action {
+                                con.select(key)
+                            }
+                        }
+                        button(name(value)) {
+                            if (value != null) {
+                                this.textProperty().bindCbText(value, ::name)
+                                action {
+                                    con.select(value)
+                                }
+                            } else {
+                                //TODO is this the correct thing to do?
+                                isDisable = true
+                            }
+                        }
                     }
                 }
             }
@@ -56,19 +79,27 @@ class MapClassBuilder<K, out V>(
     }
 
     override fun createClassBuilderFor(key: ClassBuilder<*>, init: ClassBuilder<*>?): ClassBuilder<*>? {
+        require(init == null || init.type == getChildType(key)) {
+            "Given initial value have different type than expected. expected ${getChildType(key)} got ${init?.type}"
+        }
         return serObject.computeIfAbsent(key) { init }
     }
 
-    override fun resetChild(key: ClassBuilder<*>, element: ClassBuilder<*>?) {
+    override fun getChild(key: ClassBuilder<*>): ClassBuilder<*>? {
+        return serObject[key]
+    }
+
+    override fun resetChild(
+        key: ClassBuilder<*>,
+        element: ClassBuilder<*>?,
+        restoreDefault: Boolean
+    ) {
         //The map must have the given key
         require(serObject.containsKey(key)) { "Given key does not exist in this map class builder" }
         //But does the given element is allowed to be null,
         require(element == null || serObject[key] == element) { "Given value does not match with this map class builder's value of given key" }
 
-        //if either key or value (if not null) should be removed
-        // we will remove all bindings. Though if the element is null
-        val remove = key.reset() || element?.reset() ?: false
-        if (remove) serObject.remove(key)
+        serObject.remove(key)
     }
 
 
@@ -82,8 +113,6 @@ class MapClassBuilder<K, out V>(
         return type.contentType
     }
 
-    override fun reset(): Boolean = true
-
     override fun getSubClassBuilders(): Map<ClassBuilder<*>, ClassBuilder<*>?> = serObject
 
     override fun isLeaf(): Boolean = false
@@ -96,7 +125,7 @@ class MapClassBuilder<K, out V>(
 
         if (type != other.type) return false
         if (parent != other.parent) return false
-        if (name != other.name) return false
+        if (key != other.key) return false
         if (property != other.property) return false
         return true
     }
@@ -104,7 +133,7 @@ class MapClassBuilder<K, out V>(
     override fun hashCode(): Int {
         var result = type.hashCode()
         result = 31 * result + (parent?.hashCode() ?: 0)
-        result = 31 * result + name.hashCode()
+        result = 31 * result + key.hashCode()
         result = 31 * result + (property?.hashCode() ?: 0)
         return result
     }

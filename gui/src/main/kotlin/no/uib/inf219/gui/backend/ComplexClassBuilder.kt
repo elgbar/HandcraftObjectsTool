@@ -9,9 +9,9 @@ import javafx.event.EventTarget
 import javafx.geometry.Pos
 import javafx.scene.Node
 import javafx.scene.text.TextAlignment
+import no.uib.inf219.extra.onChange
 import no.uib.inf219.extra.toCb
 import no.uib.inf219.gui.Styles
-import no.uib.inf219.gui.backend.primitive.StringClassBuilder
 import no.uib.inf219.gui.backend.serializers.ComplexClassBuilderSerializer
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.loader.ClassInformation
@@ -30,7 +30,7 @@ import kotlin.collections.set
 @JsonSerialize(using = ComplexClassBuilderSerializer::class)
 class ComplexClassBuilder<out T>(
     override val type: JavaType,
-    override val name: String,
+    override val key: ClassBuilder<*>? = null,
     override val parent: ClassBuilder<*>? = null,
     override val property: PropertyWriter? = null
 ) : ClassBuilder<T> {
@@ -40,12 +40,12 @@ class ComplexClassBuilder<out T>(
     /**
      * Hold information about the given property
      */
-    val propInfo: Map<String, PropertyWriter>
+    internal val propInfo: Map<String, PropertyWriter>
 
     /**
      * Holds the default value for the given property
      */
-    private val propDefaults: MutableMap<String, Any?> = HashMap()
+    internal val propDefaults: MutableMap<String, Any?> = HashMap()
 
     /**
      * Information about the generics of [T], is `null` when the class does not have a generic type
@@ -53,7 +53,7 @@ class ComplexClassBuilder<out T>(
     val typeSerializer: TypeSerializer?
 
     override val serObject = HashMap<String, ClassBuilder<*>?>()
-    override val serObjectProperty = serObject.toProperty()
+    override val serObjectObservable = serObject.asObservable()
 
     init {
         val (typeSer, pinfo) = ClassInformation.serializableProperties(type)
@@ -92,7 +92,7 @@ class ComplexClassBuilder<out T>(
     }
 
     private fun cbToString(cb: ClassBuilder<*>?): String {
-        return (cb as? StringClassBuilder)?.serObject
+        return cb?.serObject as? String
             ?: kotlin.error("Wrong type of key was given. Expected a ClassBuilder<String> but got $cb")
     }
 
@@ -104,28 +104,44 @@ class ComplexClassBuilder<out T>(
         require(init == null || init.type == getChildType(key)) {
             "Given initial value have different type than expected. expected ${getChildType(key)} got ${init?.type}"
         }
-
-        return this.serObject.computeIfAbsent(propName) {
-            init ?: getClassBuilder(prop.type, propName, propDefaults[propName], prop)
+        return serObjectObservable.computeIfAbsent(propName) {
+            createChild(key, init, prop)
         }
     }
 
-    override fun resetChild(key: ClassBuilder<*>, element: ClassBuilder<*>?) {
+    override fun resetChild(
+        key: ClassBuilder<*>,
+        element: ClassBuilder<*>?,
+        restoreDefault: Boolean
+    ) {
         val propName = cbToString(key)
 
-        require(element == null || element == propInfo[propName]) {
-            "The class $type does not have a property with the name '$key'. Expected one of the following: $propInfo"
+        require(serObject.containsKey(propName)) {
+            "The class $type does not have a property with the name '$propName'. Expected one of the following: ${propInfo.keys}"
+        }
+        require(element == null || element === serObject[propName]) {
+            "Given element to reset does not match with the internal element. element: $element, internal ${serObject[propName]}"
         }
 
-        val remove = element?.reset() ?: false
-        if (remove) this.serObject[propName] = null
+
+        val newProp = if (restoreDefault && propDefaults[propName] != null) {
+            val prop: PropertyWriter = propInfo[propName] ?: kotlin.error("Given prop name is wrong")
+            //must be set to null to trigger the change event!
+            // stupid javafx
+            serObject[propName] = null //use non observable map to to trigger on change event
+            createChild(key, null, prop)
+        } else {
+            null
+        }
+        serObjectObservable[propName] = newProp
     }
 
-    override fun reset(): Boolean {
-        for (prop in this.serObject.keys) {
-            resetChild(prop.toCb())
-        }
-        return false
+    private fun createChild(key: ClassBuilder<*>, init: ClassBuilder<*>?, prop: PropertyWriter): ClassBuilder<*>? {
+        return init ?: getClassBuilder(prop.type, key, propDefaults[key.serObject], prop)
+    }
+
+    override fun getChild(key: ClassBuilder<*>): ClassBuilder<*>? {
+        return serObject[cbToString(key)]
     }
 
     override fun toView(
@@ -179,7 +195,7 @@ class ComplexClassBuilder<out T>(
                                 cb.toView(this, controller)
 
                                 //reflect changes in the title of the fold
-                                cb.serObjectProperty.onChange {
+                                cb.serObjectObservable.onChange {
                                     //text means title in this context
                                     this.text = getFoldTitle()
                                 }
@@ -217,7 +233,7 @@ class ComplexClassBuilder<out T>(
 
         if (type != other.type) return false
         if (parent != other.parent) return false
-        if (name != other.name) return false
+        if (key != other.key) return false
         if (property != other.property) return false
         return true
     }
@@ -225,7 +241,7 @@ class ComplexClassBuilder<out T>(
     override fun hashCode(): Int {
         var result = type.hashCode()
         result = 31 * result + (parent?.hashCode() ?: 0)
-        result = 31 * result + name.hashCode()
+        result = 31 * result + key.hashCode()
         result = 31 * result + (property?.hashCode() ?: 0)
         return result
     }

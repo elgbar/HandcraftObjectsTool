@@ -3,7 +3,8 @@ package no.uib.inf219.gui.backend
 import javafx.beans.property.*
 import no.uib.inf219.extra.toCb
 import no.uib.inf219.extra.type
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.testfx.framework.junit5.ApplicationExtension
@@ -21,16 +22,6 @@ internal class SimpleClassBuilderTest {
 
     companion object {
         const val INIT_VAL = "This is a string"
-    }
-
-    @Test
-    fun reset() {
-        val cb = createCB()
-        assertEquals(cb.serObject, INIT_VAL)
-        cb.serObject = INIT_VAL + "test"
-        assertNotEquals(cb.serObject, INIT_VAL)
-        assertEquals(false, cb.reset())
-        assertEquals(cb.serObject, INIT_VAL)
     }
 
     @Test

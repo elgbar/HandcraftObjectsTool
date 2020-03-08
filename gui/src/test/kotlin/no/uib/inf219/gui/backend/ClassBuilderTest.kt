@@ -13,7 +13,7 @@ internal class ClassBuilderTest {
 
     @Test
     internal fun isParent_self() {
-        val parent = CollectionClassBuilder<Any>(ArrayList::class.type() as CollectionLikeType, "list")
+        val parent = CollectionClassBuilder<Any>(ArrayList::class.type() as CollectionLikeType)
         val child = "test123 :)".toCb(parent = parent)
 
         assertFalse(child.isParentOf(child))
@@ -22,7 +22,7 @@ internal class ClassBuilderTest {
 
     @Test
     internal fun isParent_sibling() {
-        val parent = CollectionClassBuilder<Any>(ArrayList::class.type() as CollectionLikeType, "list")
+        val parent = CollectionClassBuilder<Any>(ArrayList::class.type() as CollectionLikeType)
         val childA = "test123 :)".toCb(parent = parent)
         val childB = "Second child".toCb(parent = parent)
 
@@ -32,7 +32,7 @@ internal class ClassBuilderTest {
 
     @Test
     internal fun isParent_direct() {
-        val parent = CollectionClassBuilder<Any>(ArrayList::class.type() as CollectionLikeType, "list")
+        val parent = CollectionClassBuilder<Any>(ArrayList::class.type() as CollectionLikeType)
         val child = "test123 :)".toCb(parent = parent)
 
         assertTrue(parent.isParentOf(child))
@@ -41,8 +41,8 @@ internal class ClassBuilderTest {
 
     @Test
     internal fun isParent_grandChild() {
-        val parent = CollectionClassBuilder<Any>(ArrayList::class.type() as CollectionLikeType, "list")
-        val child = CollectionClassBuilder<Any>(ArrayList::class.type() as CollectionLikeType, "list", parent)
+        val parent = CollectionClassBuilder<Any>(ArrayList::class.type() as CollectionLikeType)
+        val child = CollectionClassBuilder<Any>(ArrayList::class.type() as CollectionLikeType, parent = parent)
         val grandChild = "test123 :)".toCb(parent = child)
 
         assertTrue(parent.isParentOf(child))
@@ -58,19 +58,33 @@ internal class ClassBuilderTest {
     @Test
     internal fun getClassBuilder_failOnTypeMismatch() {
         assertThrows(IllegalArgumentException::class.java) {
-            ClassBuilder.getClassBuilder(String::class.type(), "name", value = 2)
+            ClassBuilder.getClassBuilder(String::class.type(), value = 2)
         }
     }
 
     @Test
     internal fun getClassBuilder_worksForPrimitives() {
         assertDoesNotThrow {
-            ClassBuilder.getClassBuilder(Boolean::class.type(), "name", value = true)
+            ClassBuilder.getClassBuilder(Boolean::class.type(), value = true)
         }
 
         assertDoesNotThrow {
-            ClassBuilder.getClassBuilder(Boolean::class.javaPrimitiveType!!.type(), "name", value = true)
+            ClassBuilder.getClassBuilder(Boolean::class.javaPrimitiveType!!.type(), value = true)
         }
+    }
 
+    @Test
+    internal fun createClassBuilderFor() {
+        TODO("not implemented")
+    }
+
+    @Test
+    internal fun resetChild_dontRestore_collection() {
+        TODO("not implemented")
+    }
+
+    @Test
+    internal fun resetChild_dontRestore_map() {
+        TODO("not implemented")
     }
 }

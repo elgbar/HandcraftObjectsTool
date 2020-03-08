@@ -3,8 +3,6 @@ package no.uib.inf219.test.conv
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
 import no.uib.inf219.api.serialization.Identifiable
-import no.uib.inf219.api.serialization.storage.RetrievableStorage
-import no.uib.inf219.api.serialization.storage.StoreHandler
 
 /**
  * TODO allow for multiple pages of text
@@ -14,27 +12,14 @@ import no.uib.inf219.api.serialization.storage.StoreHandler
 class Conversation : Identifiable<String> {
 
     @JsonProperty("text", required = true)
-    var text: String = ""
+    lateinit var text: String
 
-    @JsonProperty("name", defaultValue = "Conversation", required = false)
-    var name: String = "Conversation #${++createId}"
-        set(value) {
-            field = value
-            val store: RetrievableStorage<String, Conversation> =
-                StoreHandler.getStore(Conversation::class.java)
-            store.update(this)
-        }
+    @JsonProperty("name", defaultValue = "\"Conversation\"")
+    lateinit var name: String
 
-    @JsonProperty("responses", defaultValue = "[]", required = false)
+    @JsonProperty("responses", defaultValue = "[]")
     var responses: MutableList<Response> = ArrayList()
         get() = if (field.isEmpty()) Response.exitResponse else field
-
-    init {
-        val store: RetrievableStorage<String, Conversation> =
-            StoreHandler.getStore(Conversation::class.java)
-        store.store(this)
-
-    }
 
     /**
      * If this conversation have been held, setter always sets this to `true`

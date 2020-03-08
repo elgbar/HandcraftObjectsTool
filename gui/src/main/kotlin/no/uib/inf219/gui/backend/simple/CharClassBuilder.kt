@@ -7,7 +7,7 @@ import no.uib.inf219.gui.backend.SimpleClassBuilder
 
 class CharClassBuilder(
     initial: Char = '\u0000',
-    name: String,
+    name: ClassBuilder<*>? = null,
     parent: ClassBuilder<*>? = null,
     prop: PropertyWriter? = null,
     immutable: Boolean = false

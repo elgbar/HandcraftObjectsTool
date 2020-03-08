@@ -16,7 +16,7 @@ class EnumClassBuilderTest {
 
     @Test
     internal fun canSerializeEnum() {
-        val cb = ClassBuilder.getClassBuilder(Weather::class.type(), "weather", value = Weather.SUNNY)
+        val cb = ClassBuilder.getClassBuilder(Weather::class.type(), value = Weather.SUNNY)
         assertNotNull(cb)
 
         assertEquals(Weather.SUNNY, cb!!.toObject())
@@ -24,7 +24,7 @@ class EnumClassBuilderTest {
 
     @Test
     internal fun canSerializeEnum_nullValue() {
-        val cb = ClassBuilder.getClassBuilder(Weather::class.type(), "weather")
+        val cb = ClassBuilder.getClassBuilder(Weather::class.type())
         assertNotNull(cb)
 
         assertEquals(Weather.values()[0], cb!!.toObject())
@@ -34,8 +34,7 @@ class EnumClassBuilderTest {
     internal fun notImmutable() {
         val cb = EnumClassBuilder(
             Weather::class.java,
-            Weather.SUNNY,
-            "name"
+            Weather.SUNNY
         )
         assertFalse(cb.isImmutable())
         assertFalse(cb.immutable)

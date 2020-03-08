@@ -8,11 +8,11 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.fasterxml.jackson.databind.ser.PropertyWriter
 import com.fasterxml.jackson.databind.type.CollectionLikeType
 import com.fasterxml.jackson.databind.type.MapLikeType
-import javafx.beans.property.Property
+import javafx.beans.Observable
 import javafx.event.EventTarget
 import javafx.scene.Node
-import no.uib.inf219.gui.backend.primitive.*
 import no.uib.inf219.gui.backend.serializers.ClassBuilderSerializer
+import no.uib.inf219.gui.backend.simple.*
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.view.ClassSelectorView
 import no.uib.inf219.gui.view.ControlPanelView
@@ -23,6 +23,8 @@ import tornadofx.property
  * An interface that is the super class of all object builder, the aim of this interface is to manage how to build a given type.
  *
  * This is a a way to create classes by holding all included attributes as keys and their values as value in an internal map.
+ *
+ * TODO extract methods that should only be available for class builder that has childeren (ie NOT simple cb)
  *
  * @author Elg
  */
@@ -38,7 +40,7 @@ interface ClassBuilder<out T> {
     /**
      * Observable property for [serObject]
      */
-    val serObjectProperty: Property<*>
+    val serObjectObservable: Observable
 
     @get:JsonIgnore
     val type: JavaType
@@ -53,7 +55,7 @@ interface ClassBuilder<out T> {
      * Key of the property to access this from the parent (if any)
      */
     @get:JsonIgnore
-    val name: String
+    val key: ClassBuilder<*>?
 
     /**
      * The property this class builder is creating, used for gaining additional metadata about what we're creating.
@@ -70,9 +72,8 @@ interface ClassBuilder<out T> {
     }
 
     /**
-     * return all sub values this class can hold. The [Map.keys] must exactly return all valid keys. If any of them have a default value they must reflect so
      *
-     * Empty if [isLeaf] is true
+     * @return all sub values this class can hold. The [Map.keys] must exactly return all valid keys.
      */
     @JsonIgnore
     fun getSubClassBuilders(): Map<ClassBuilder<*>, ClassBuilder<*>?>
@@ -93,7 +94,9 @@ interface ClassBuilder<out T> {
     }
 
     /**
-     * If this implementation does not have any sub class builders
+     * If this is an end to the class builder tree. Usually this means that [getSubClassBuilders] is empty, but it is not guaranteed.
+     *
+     * @see ReferenceClassBuilder Is a leaf, but [getSubClassBuilders] is not empty
      */
     @JsonIgnore
     fun isLeaf(): Boolean
@@ -104,47 +107,41 @@ interface ClassBuilder<out T> {
     fun toView(parent: EventTarget, controller: ObjectEditorController): Node
 
     /**
-     * Note that this will a
      *
-     * @return A class builder for the given property, or `null` for if [isLeaf] is `true`
-     * @throws IllegalArgumentException If the given [key] is not valid
+     * @param key The key to the property to create. All keys from [getSubClassBuilders] are guaranteed to work, others might work but it is up to the implementation to accept or reject keys
+     * @param init The value to be placed at the given [key] property
+     *
+     * @return A class builder for the given property type found at [key].
+     *
+     *
+     * @throws IllegalArgumentException If the given [key] is not valid or [init] is invalid
      */
     fun createClassBuilderFor(key: ClassBuilder<*>, init: ClassBuilder<*>? = null): ClassBuilder<*>?
 
     /**
-     * Reset the given property for the [cb] provided. If it has a default value this value will be restored
-     *
-     */
-    fun resetChild(cb: ClassBuilder<*>) {
-        return resetChild(cb, null)
-    }
-
-    /**
      * Reset the given property for the [key] provided. If it has a default value this value will be restored otherwise it will be removed.
      *
-     */
-    fun resetChild(key: ClassBuilder<*>, element: ClassBuilder<*>?)
-
-    /**
-     * Reset this class builder.
+     * @param key Specify which child class builder to reset
+     * @param element The instance of the child to reset. Must be identical to the class builder found with [key] or be `null`
+     * @param restoreDefault If the default value (if none default is `null`) should be restored. If `false` the child found at [key] will be `null` after this method
      *
-     * @return `true` if this class builder should be removed from parent
+     * @throws IllegalArgumentException If child found with [key] does not match [element]. Will not be thrown if [element] is `null`
      */
-    fun reset(): Boolean
+    fun resetChild(key: ClassBuilder<*>, element: ClassBuilder<*>? = null, restoreDefault: Boolean = true)
 
     /**
-     * Preview of this class
+     * Preview of the value of this class builder
      */
     @JsonIgnore
     fun getPreviewValue(): String
 
     fun getClassBuilder(
         type: JavaType,
-        name: String,
+        key: ClassBuilder<*>?,
         value: Any? = null,
         prop: PropertyWriter? = null
     ): ClassBuilder<*>? {
-        return getClassBuilder(type, name, this, value, prop)
+        return getClassBuilder(type, key, this, value, prop)
     }
 
     /**
@@ -163,6 +160,14 @@ interface ClassBuilder<out T> {
      * @return The java type of of the given child
      */
     fun getChildType(cb: ClassBuilder<*>): JavaType?
+
+
+    /**
+     * @return The child at the given location
+     *
+     * @throws IllegalArgumentException If the [key] is invalid
+     */
+    fun getChild(key: ClassBuilder<*>): ClassBuilder<*>?
 
     /**
      * If this class builder is required to be valid. If [property] is `null` this is assumed to be required.
@@ -186,11 +191,11 @@ interface ClassBuilder<out T> {
          */
         fun getClassBuilder(
             type: JavaType,
-            name: String,
+            key: ClassBuilder<*>? = null,
             parent: ClassBuilder<*>? = null,
             prop: PropertyWriter? = null
         ): ClassBuilder<Any>? {
-            return getClassBuilder<Any>(type, name, parent, null, prop)
+            return getClassBuilder<Any>(type, key, parent, null, prop)
         }
 
         /**
@@ -202,11 +207,13 @@ interface ClassBuilder<out T> {
          */
         fun <T : Any> getClassBuilder(
             type: JavaType,
-            name: String,
+            key: ClassBuilder<*>? = null,
             parent: ClassBuilder<*>? = null,
             value: T? = null,
             prop: PropertyWriter? = null
         ): ClassBuilder<Any>? {
+
+            require(parent == null || !parent.isLeaf()) { "Parent cannot be a leaf" }
 
             if (value != null) {
                 val clazz: Class<*> = if (type.isPrimitive) value::class.javaPrimitiveType!! else value::class.java
@@ -218,66 +225,68 @@ interface ClassBuilder<out T> {
             return if (type.isPrimitive) {
                 when {
                     type.isTypeOrSuperTypeOf(Int::class.java) -> {
-                        if (value == null) IntClassBuilder(name = name, parent = parent, prop = prop) else
-                            IntClassBuilder(value as Int, name, parent, prop)
+                        if (value == null) IntClassBuilder(key = key, parent = parent, prop = prop) else
+                            IntClassBuilder(value as Int, key, parent, prop)
                     }
                     type.isTypeOrSuperTypeOf(Long::class.java) -> {
-                        if (value == null) LongClassBuilder(name = name, parent = parent, prop = prop) else
-                            LongClassBuilder(value as Long, name, parent, prop)
+                        if (value == null) LongClassBuilder(name = key, parent = parent, prop = prop) else
+                            LongClassBuilder(value as Long, key, parent, prop)
                     }
                     type.isTypeOrSuperTypeOf(Float::class.java) -> {
-                        if (value == null) FloatClassBuilder(name = name, parent = parent, prop = prop) else
-                            FloatClassBuilder(value as Float, name, parent, prop)
+                        if (value == null) FloatClassBuilder(name = key, parent = parent, prop = prop) else
+                            FloatClassBuilder(value as Float, key, parent, prop)
                     }
                     type.isTypeOrSuperTypeOf(Double::class.java) -> {
-                        if (value == null) DoubleClassBuilder(name = name, parent = parent, prop = prop) else
-                            DoubleClassBuilder(value as Double, name, parent, prop)
+                        if (value == null) DoubleClassBuilder(name = key, parent = parent, prop = prop) else
+                            DoubleClassBuilder(value as Double, key, parent, prop)
                     }
                     type.isTypeOrSuperTypeOf(Boolean::class.java) -> {
-                        if (value == null) BooleanClassBuilder(name = name, parent = parent, prop = prop) else
-                            BooleanClassBuilder(value as Boolean, name, parent, prop)
+                        if (value == null) BooleanClassBuilder(name = key, parent = parent, prop = prop) else
+                            BooleanClassBuilder(value as Boolean, key, parent, prop)
                     }
                     type.isTypeOrSuperTypeOf(Char::class.java) -> {
-                        if (value == null) CharClassBuilder(name = name, parent = parent, prop = prop) else
-                            CharClassBuilder(value as Char, name, parent, prop)
+                        if (value == null) CharClassBuilder(name = key, parent = parent, prop = prop) else
+                            CharClassBuilder(value as Char, key, parent, prop)
                     }
                     type.isTypeOrSuperTypeOf(Byte::class.java) -> {
-                        if (value == null) ByteClassBuilder(name = name, parent = parent, prop = prop) else
-                            ByteClassBuilder(value as Byte, name, parent, prop)
+                        if (value == null) ByteClassBuilder(name = key, parent = parent, prop = prop) else
+                            ByteClassBuilder(value as Byte, key, parent, prop)
                     }
                     type.isTypeOrSuperTypeOf(Short::class.java) -> {
-                        if (value == null) ShortClassBuilder(name = name, parent = parent, prop = prop) else
-                            ShortClassBuilder(value as Short, name, parent, prop)
+                        if (value == null) ShortClassBuilder(name = key, parent = parent, prop = prop) else
+                            ShortClassBuilder(value as Short, key, parent, prop)
                     }
                     else -> throw IllegalStateException("Unknown primitive $type")
                 }
             } else if (type.isTypeOrSuperTypeOf(String::class.java)) {
                 //Strings is not a primitive, but its not far off
                 val init = if (value != null) value as String else ""
-                StringClassBuilder(init, name, parent, prop)
+                StringClassBuilder(init, key, parent, prop)
             } else if (type.isCollectionLikeType && (type as CollectionLikeType).isTrueCollectionType) {
                 //TODO add support for non-true collection types
-                CollectionClassBuilder<T>(type, name, parent, prop)
+                //TODO add support for sets/non-list collections
+                CollectionClassBuilder<T>(type, key, parent, prop)
             } else if (type.isMapLikeType && (type as MapLikeType).isTrueMapType) {
                 //TODO add support for non-true map types
-                MapClassBuilder<Any, T>(type, name, parent, prop)
+                MapClassBuilder<Any, T>(type, key, parent, prop)
 
             } else if (type.isArrayType) {
                 TODO("Arrays not yet supported")
             } else if (type.isEnumType) {
+                @Suppress("UNCHECKED_CAST") //checking with isEnumType above
                 val enumClass = type.rawClass as Class<Enum<*>>
                 val init = if (value != null) value as Enum<*> else EnumClassBuilder.findEnumValues(enumClass)[0]
-                EnumClassBuilder(enumClass, init, name, parent, prop)
+                EnumClassBuilder(enumClass, init, key, parent, prop)
 
             } else if (type.rawClass.isAnnotation) {
                 TODO("Handle annotation")
             } else if (!type.isConcrete) {
                 //the type is abstract/interface we need a concrete type to
                 val subtype = find<ClassSelectorView>().subtypeOf(type, false) ?: return null
-                getClassBuilder(subtype, name, parent, value, prop)
+                getClassBuilder(subtype, key, parent, value, prop)
             } else {
                 //it's not a primitive type so let's just make a complex type for it
-                ComplexClassBuilder(type, name, parent, prop)
+                ComplexClassBuilder(type, key, parent, prop)
             }
         }
     }

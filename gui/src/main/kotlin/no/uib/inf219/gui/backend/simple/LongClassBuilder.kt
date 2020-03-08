@@ -7,7 +7,7 @@ import no.uib.inf219.gui.backend.SimpleNumberClassBuilder
 
 class LongClassBuilder(
     initial: Long = 0,
-    name: String,
+    name: ClassBuilder<*>? = null,
     parent: ClassBuilder<*>? = null,
     prop: PropertyWriter? = null,
     immutable: Boolean = false
