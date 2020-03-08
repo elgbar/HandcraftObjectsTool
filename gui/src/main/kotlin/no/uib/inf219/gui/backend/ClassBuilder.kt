@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.fasterxml.jackson.databind.ser.PropertyWriter
 import com.fasterxml.jackson.databind.type.CollectionLikeType
 import com.fasterxml.jackson.databind.type.MapLikeType
+import javafx.beans.property.Property
 import javafx.event.EventTarget
 import javafx.scene.Node
 import no.uib.inf219.gui.backend.primitive.*
@@ -33,6 +34,11 @@ interface ClassBuilder<out T> {
      * The object to serialize
      */
     val serObject: Any
+
+    /**
+     * Observable property for [serObject]
+     */
+    val serObjectProperty: Property<*>
 
     @get:JsonIgnore
     val type: JavaType

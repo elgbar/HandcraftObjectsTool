@@ -90,7 +90,7 @@ abstract class SimpleNumberClassBuilder<T : Number>(
                     }
                     return@TextFormatter it
                 }
-                bindStringProperty(textProperty(), converter, valueProperty)
+                bindStringProperty(textProperty(), converter, serObjectProperty)
             }
             button("reset") {
                 setOnAction {

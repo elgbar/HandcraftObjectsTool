@@ -25,7 +25,7 @@ class StringClassBuilder(
 
     override fun editView(parent: Pane): Node {
         return parent.textarea {
-            bindStringProperty(textProperty(), converter, valueProperty)
+            bindStringProperty(textProperty(), converter, serObjectProperty)
         }
     }
 

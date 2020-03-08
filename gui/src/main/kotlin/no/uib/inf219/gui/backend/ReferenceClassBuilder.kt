@@ -11,6 +11,7 @@ import no.uib.inf219.gui.controllers.ObjectEditorController
 import tornadofx.hbox
 import tornadofx.onDoubleClick
 import tornadofx.text
+import tornadofx.toProperty
 
 /**
  * A reference to another class builder.
@@ -29,6 +30,7 @@ class ReferenceClassBuilder(
     override val type: JavaType = serObject.type
     override val name: String = "ref " + serObject.name
     override val property: PropertyWriter? = serObject.property
+    override val serObjectProperty = serObject.toProperty()
 
     override fun toView(parent: EventTarget, controller: ObjectEditorController): Node {
         return parent.hbox {

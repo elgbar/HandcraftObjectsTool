@@ -17,14 +17,15 @@ import kotlin.collections.set
  * @author Elg
  */
 //@JsonSerialize(using = MapCBSerializer::class)
-open class MapClassBuilder<K, out V>(
+class MapClassBuilder<K, out V>(
     override val type: JavaType,
     override val name: String,
     override val parent: ClassBuilder<*>?,
     override val property: PropertyWriter?
 ) : ClassBuilder<Map<K?, V?>> {
 
-    override val serObject: MutableMap<ClassBuilder<*>, ClassBuilder<*>?> = HashMap()
+    override val serObject = HashMap<ClassBuilder<*>, ClassBuilder<*>?>()
+    override val serObjectProperty = serObject.toProperty()
 
     override fun toView(parent: EventTarget, controller: ObjectEditorController): Node {
         return parent.splitpane {

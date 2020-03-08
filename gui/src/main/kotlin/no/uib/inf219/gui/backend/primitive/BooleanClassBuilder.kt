@@ -22,7 +22,7 @@ class BooleanClassBuilder(
     ) {
     override fun editView(parent: Pane): Node {
         return parent.checkbox {
-            bind(valueProperty)
+            bind(serObjectProperty)
         }
     }
 }

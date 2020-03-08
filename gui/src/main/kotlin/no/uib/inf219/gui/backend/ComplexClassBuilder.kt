@@ -5,8 +5,6 @@ import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer
 import com.fasterxml.jackson.databind.ser.PropertyWriter
-import javafx.collections.FXCollections
-import javafx.collections.ObservableMap
 import javafx.event.EventTarget
 import javafx.scene.Node
 import javafx.scene.text.TextAlignment
@@ -53,7 +51,8 @@ class ComplexClassBuilder<out T>(
      */
     val typeSerializer: TypeSerializer?
 
-    override val serObject: ObservableMap<String, ClassBuilder<*>?> = FXCollections.observableMap(HashMap())
+    override val serObject = HashMap<String, ClassBuilder<*>?>()
+    override val serObjectProperty = serObject.toProperty()
 
     init {
         val (typeSer, pinfo) = ClassInformation.serializableProperties(type)

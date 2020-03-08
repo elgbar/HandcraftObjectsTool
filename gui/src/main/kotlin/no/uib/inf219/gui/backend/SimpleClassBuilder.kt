@@ -69,16 +69,14 @@ abstract class SimpleClassBuilder<T : Any>(
     }
 
     @get:JsonIgnore
-    internal val valueProperty: Property<T> by lazy { findProperty(type, initialValue) }
-
-    fun valueProperty(): ObservableValue<T> = valueProperty
+    final override val serObjectProperty: Property<T> by lazy { findProperty(type, initialValue) }
 
     override var serObject: T
-        get() = valueProperty.value
-        set(value) = valueProperty.setValue(value)
+        get() = serObjectProperty.value
+        set(value) = serObjectProperty.setValue(value)
 
     init {
-        valueProperty.onChange {
+        serObjectProperty.onChange {
             if (immutable) {
                 throw IllegalStateException("Class builder ${this::class.simpleName} is immutable")
             }
@@ -123,7 +121,7 @@ abstract class SimpleClassBuilder<T : Any>(
                 }
                 return@TextFormatter it
             }
-            bindStringProperty(textProperty(), converter, valueProperty)
+            bindStringProperty(textProperty(), converter, serObjectProperty)
         }
     }
 

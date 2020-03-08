@@ -37,7 +37,9 @@ class CollectionClassBuilder<out T>(
         private val sizeCb = 0.toCb("add location")
     }
 
-    override val serObject: MutableList<ClassBuilder<*>> = ArrayList()
+    override val serObject = ArrayList<ClassBuilder<*>>()
+
+    override val serObjectProperty = serObject.toProperty()
 
     override fun toView(
         parent: EventTarget,

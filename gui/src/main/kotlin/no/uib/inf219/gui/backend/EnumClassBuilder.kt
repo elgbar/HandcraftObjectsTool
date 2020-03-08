@@ -38,7 +38,7 @@ class EnumClassBuilder<T : Enum<*>>(
 
     override fun editView(parent: Pane): Node {
         return parent.combobox<T>(
-            property = valueProperty,
+            property = serObjectProperty,
             values = enumValues.toList()
         )
     }
