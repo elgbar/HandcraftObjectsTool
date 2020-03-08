@@ -198,6 +198,7 @@ object ControlPanelView : View("Control Panel") {
         }
 
         OutputArea.logln("Example classes to load:")
+        OutputArea.logln("java.lang.String")
         OutputArea.logln("no.uib.inf219.example.data.Conversation")
         OutputArea.logln("no.uib.inf219.example.data.Response")
         OutputArea.logln("no.uib.inf219.example.data.showcase.PrimitiveConvertsShowcase")
@@ -205,7 +206,7 @@ object ControlPanelView : View("Control Panel") {
         OutputArea.logln("no.uib.inf219.example.data.showcase.MapExample")
         OutputArea.logln("no.uib.inf219.example.data.showcase.GenericExample")
         OutputArea.logln("no.uib.inf219.example.data.showcase.Weather")
-        OutputArea.logln("java.lang.String")
+        OutputArea.logln("no.uib.inf219.example.data.prerequisite.AlwaysFalsePrerequisite")
     }
 
     fun createTab(type: JavaType) {

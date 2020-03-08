@@ -14,9 +14,6 @@ import java.io.File
 /**
  * The view of the main editor
  *
- *
- *
- * @param clazz The class we are editing
  * @author Elg
  */
 class ObjectEditor : View() {

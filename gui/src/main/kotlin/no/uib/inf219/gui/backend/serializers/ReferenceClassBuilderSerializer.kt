@@ -14,7 +14,7 @@ import no.uib.inf219.gui.backend.ReferenceClassBuilder
 object ReferenceClassBuilderSerializer : StdSerializer<ReferenceClassBuilder>(ReferenceClassBuilder::class.type()) {
 
     override fun serialize(value: ReferenceClassBuilder, gen: JsonGenerator, provider: SerializerProvider) {
-        deligateToRealSerializer(value, gen, provider, null)
+        delegateToRealSerializer(value, gen, provider, null)
     }
 
     override fun serializeWithType(
@@ -23,10 +23,10 @@ object ReferenceClassBuilderSerializer : StdSerializer<ReferenceClassBuilder>(Re
         provider: SerializerProvider,
         typeSer: TypeSerializer?
     ) {
-        deligateToRealSerializer(value, gen, provider, typeSer)
+        delegateToRealSerializer(value, gen, provider, typeSer)
     }
 
-    private fun deligateToRealSerializer(
+    private fun delegateToRealSerializer(
         value: ReferenceClassBuilder,
         gen: JsonGenerator,
         provider: SerializerProvider,
@@ -35,6 +35,11 @@ object ReferenceClassBuilderSerializer : StdSerializer<ReferenceClassBuilder>(Re
         //find the real serializer and delegate to it
         val ser: JsonSerializer<Any> = provider.findValueSerializer(value.serObject::class.type())
             ?: error("Failed to find serializer for ${value.serObject}")
+
+        if (value.serObject == value) {
+            error("Endless cycle detected. class builder is referencing it self")
+        }
+
         if (typeSer != null)
             ser.serializeWithType(value.serObject, gen, provider, typeSer)
         else

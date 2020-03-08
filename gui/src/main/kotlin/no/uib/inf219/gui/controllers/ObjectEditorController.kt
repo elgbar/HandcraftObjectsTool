@@ -45,7 +45,7 @@ class ObjectEditorController(
         // It is rebuilt when controller.currSel, so we change the currently viewed to the root then back to this view
         // In other words we turn it off then on again
         val curr = currSel
-        currSel = rootSel
+        currSel = MutableTriple("", null, rootBuilder)
         currSel = curr
     }
 
