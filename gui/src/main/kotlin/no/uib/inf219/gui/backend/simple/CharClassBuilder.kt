@@ -1,4 +1,4 @@
-package no.uib.inf219.gui.backend.primitive
+package no.uib.inf219.gui.backend.simple
 
 import com.fasterxml.jackson.databind.ser.PropertyWriter
 import javafx.util.converter.CharacterStringConverter

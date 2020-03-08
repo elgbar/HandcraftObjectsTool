@@ -1,18 +1,18 @@
-package no.uib.inf219.gui.backend.primitive
+package no.uib.inf219.gui.backend.simple
 
 import com.fasterxml.jackson.databind.ser.PropertyWriter
-import javafx.util.converter.DoubleStringConverter
+import javafx.util.converter.IntegerStringConverter
 import no.uib.inf219.gui.backend.ClassBuilder
 import no.uib.inf219.gui.backend.SimpleNumberClassBuilder
 
-class DoubleClassBuilder(
-    initial: Double = 0.0,
+class IntClassBuilder(
+    initial: Int = 0,
     name: String,
     parent: ClassBuilder<*>? = null,
     prop: PropertyWriter? = null,
     immutable: Boolean = false
 ) :
-    SimpleNumberClassBuilder<Double>(
-        Double::class.java, initial, name, parent, prop, immutable,
-        DoubleStringConverter()
+    SimpleNumberClassBuilder<Int>(
+        Int::class.java, initial, name, parent, prop, immutable,
+        IntegerStringConverter()
     ) {}

@@ -1,6 +1,6 @@
 package no.uib.inf219.gui.backend.enumclassbuilder
 
-import no.uib.inf219.gui.backend.EnumClassBuilder
+import no.uib.inf219.gui.backend.simple.EnumClassBuilder
 import no.uib.inf219.test.Weather
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
@@ -17,13 +17,21 @@ class EnumConverterTest {
 
     @Test
     internal fun fromStringTest() {
-        val cb = EnumClassBuilder(Weather::class.java, Weather.SUNNY, "name")
+        val cb = EnumClassBuilder(
+            Weather::class.java,
+            Weather.SUNNY,
+            "name"
+        )
         Assertions.assertEquals(Weather.SUNNY, cb.converter.fromString(Weather.SUNNY.name))
     }
 
     @Test
     internal fun toStringTest() {
-        val cb = EnumClassBuilder(Weather::class.java, Weather.SUNNY, "name")
+        val cb = EnumClassBuilder(
+            Weather::class.java,
+            Weather.SUNNY,
+            "name"
+        )
         Assertions.assertEquals(Weather.SUNNY.name, cb.converter.toString(Weather.SUNNY))
     }
 
@@ -31,13 +39,21 @@ class EnumConverterTest {
 
     @Test
     internal fun fromString_null() {
-        val cb = EnumClassBuilder(Weather::class.java, Weather.SUNNY, "name")
+        val cb = EnumClassBuilder(
+            Weather::class.java,
+            Weather.SUNNY,
+            "name"
+        )
         Assertions.assertNull(cb.converter.fromString(null))
     }
 
     @Test
     internal fun toString_null() {
-        val cb = EnumClassBuilder(Weather::class.java, Weather.SUNNY, "name")
+        val cb = EnumClassBuilder(
+            Weather::class.java,
+            Weather.SUNNY,
+            "name"
+        )
         Assertions.assertNull(cb.converter.toString(null))
     }
 
@@ -45,7 +61,11 @@ class EnumConverterTest {
 
     @Test
     internal fun fromString_invalid() {
-        val cb = EnumClassBuilder(Weather::class.java, Weather.SUNNY, "name")
+        val cb = EnumClassBuilder(
+            Weather::class.java,
+            Weather.SUNNY,
+            "name"
+        )
         Assertions.assertNull(cb.converter.fromString("something random"))
     }
 }

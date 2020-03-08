@@ -1,9 +1,11 @@
-package no.uib.inf219.gui.backend
+package no.uib.inf219.gui.backend.simple
 
 import com.fasterxml.jackson.databind.ser.PropertyWriter
 import javafx.scene.Node
 import javafx.scene.layout.Pane
 import javafx.util.StringConverter
+import no.uib.inf219.gui.backend.ClassBuilder
+import no.uib.inf219.gui.backend.SimpleClassBuilder
 import tornadofx.combobox
 
 /**
@@ -16,10 +18,12 @@ class EnumClassBuilder<T : Enum<*>>(
     parent: ClassBuilder<*>? = null,
     property: PropertyWriter? = null
 ) : SimpleClassBuilder<T>(
-    clazz, initialValue, name, parent, property, false, EnumConverter(clazz)
+    clazz, initialValue, name, parent, property, false,
+    EnumConverter(clazz)
 ) {
 
-    private val enumValues: Array<T> = findEnumValues(clazz)
+    private val enumValues: Array<T> =
+        findEnumValues(clazz)
 
     init {
         require(clazz.isEnum) { "Given class is not an enum class" }
@@ -48,7 +52,8 @@ class EnumClassBuilder<T : Enum<*>>(
         private val values = HashMap<String, T>()
 
         init {
-            val enumValues: Array<T> = findEnumValues(clazz)
+            val enumValues: Array<T> =
+                findEnumValues(clazz)
             for (enum in enumValues) {
                 values[enum.name] = enum
             }
