@@ -1,6 +1,5 @@
 package no.uib.inf219.gui.view
 
-import javafx.scene.control.Alert
 import javafx.scene.control.TreeItem
 import javafx.scene.input.MouseButton
 import no.uib.inf219.extra.toCb
@@ -74,8 +73,7 @@ class NodeExplorerView(private val controller: ObjectEditorController) : Fragmen
                 val ref = selector.createReference(type, key, value.right)
 
                 if (ref == null) {
-                    alert(
-                        Alert.AlertType.WARNING,
+                    warning(
                         "No reference returned",
                         "No reference was returned from the search. This could be because you canceled the search (pressed escape) or because the chosen class builder was invalid."
                     )
@@ -94,14 +92,14 @@ class NodeExplorerView(private val controller: ObjectEditorController) : Fragmen
             fun resetClicked(restoreDefault: Boolean) {
                 val item = this@treeview.selectionModel.selectedItem ?: return
                 if (item == root) {
-                    alert(
-                        Alert.AlertType.INFORMATION,
+                    information(
                         "Resetting root is not supported",
                         "Resetting the root is not supported at this moment"
                     )
+                    return
                 }
-                val value = item.value
 
+                val value = item.value
 
                 //when viewing the item that is being reset change the current viewed item to root
                 // as otherwise the user is editing a stale object
