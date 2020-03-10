@@ -36,7 +36,7 @@ import java.util.*
  */
 abstract class SimpleClassBuilder<T : Any>(
     primClass: Class<T>,
-    private val initialValue: T,
+    internal val initialValue: T,
     override val key: ClassBuilder<*>?,
     override val parent: ClassBuilder<*>?,
     override val property: PropertyWriter?,

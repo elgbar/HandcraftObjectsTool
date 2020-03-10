@@ -22,8 +22,7 @@ class EnumClassBuilder<T : Enum<*>>(
     EnumConverter(clazz)
 ) {
 
-    private val enumValues: Array<T> =
-        findEnumValues(clazz)
+    private val enumValues = findEnumValues(clazz)
 
     init {
         require(clazz.isEnum) { "Given class is not an enum class" }
@@ -34,30 +33,34 @@ class EnumClassBuilder<T : Enum<*>>(
         /**
          * When [enumValues<T>] cannot be used
          */
-        fun <T> findEnumValues(enumClass: Class<T>): Array<T> {
+        fun <T : Enum<*>> findEnumValues(enumClass: Class<T>): List<T> {
             require(enumClass.isEnum) { "Given class is not an enum class" }
-            return enumClass.getMethod("values").invoke(null) as Array<T>
+            return (enumClass.getMethod("values").invoke(null) as Array<T>).toList().sortedBy { it.name }
         }
     }
 
     override fun editView(parent: Pane): Node {
-        return parent.combobox<T>(
+        return parent.combobox(
             property = serObjectObservable,
-            values = enumValues.toList()
-        )
+            values = enumValues
+        ) {
+            //Select the initial value as the first one
+            value = initialValue
+
+            setOnKeyPressed { event ->
+                //find the first enum that starts with the given text and make it the selected value
+                enumValues.find { it.name.startsWith(event.text, true) }.also {
+                    if (it != null) {
+                        value = it
+                    }
+                }
+            }
+        }
     }
 
     internal class EnumConverter<T : Enum<*>>(clazz: Class<T>) : StringConverter<T>() {
 
-        private val values = HashMap<String, T>()
-
-        init {
-            val enumValues: Array<T> =
-                findEnumValues(clazz)
-            for (enum in enumValues) {
-                values[enum.name] = enum
-            }
-        }
+        private val values = findEnumValues(clazz).map { it.name to it }.toMap()
 
         override fun toString(enum: T?): String? {
             return enum?.name
