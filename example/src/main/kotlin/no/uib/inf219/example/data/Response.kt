@@ -81,6 +81,8 @@ class Response : Identifiable<String> {
 
         if (response != other.response) return false
         if (name != other.name) return false
+        if (conv != other.conv) return false
+        if (prereq != other.prereq) return false
 
         return true
     }
@@ -89,6 +91,9 @@ class Response : Identifiable<String> {
         var result = response.hashCode()
         result = 31 * result + name.hashCode()
         result = 31 * result + (conv?.hashCode() ?: 0)
+        result = 31 * result + (prereq?.hashCode() ?: 0)
         return result
     }
+
+
 }

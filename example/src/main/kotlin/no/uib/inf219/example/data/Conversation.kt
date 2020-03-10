@@ -80,13 +80,13 @@ class Conversation : Identifiable<String> {
 
         if (text != other.text) return false
         if (name != other.name) return false
+
         return true
     }
 
     override fun hashCode(): Int {
         var result = text.hashCode()
         result = 31 * result + name.hashCode()
-        result = 31 * result + responses.hashCode()
         return result
     }
 
