@@ -21,6 +21,21 @@ class NodeExplorerView(private val controller: ObjectEditorController) : Fragmen
         root = TreeItem(controller.rootSel)
         root.isExpanded = true
 
+        @Suppress("UNCHECKED_CAST")
+        fun factory(it: TreeItem<MutableTriple<String, ClassBuilder<*>?, ClassBuilder<*>>>): Iterable<MutableTriple<String, ClassBuilder<*>?, ClassBuilder<*>>>? {
+            val cb = it.value.middle
+            return when {
+                //FIXME removing child of root does not work, it does not update the visual children
+                cb == null -> null
+                cb.isLeaf() -> null
+                cb is ReferenceClassBuilder -> null //break cycles
+                else -> cb.getSubClassBuilders().map { (key, child) ->
+                    MutableTriple(key.getPreviewValue(), child, cb)
+                }
+            }
+        }
+        populate { factory(it) }
+
         cellFormat {
             text = it.left
 
@@ -84,34 +99,42 @@ class NodeExplorerView(private val controller: ObjectEditorController) : Fragmen
                 value.right.resetChild(key, restoreDefault = false)
                 value.right.createClassBuilderFor(key, ref)
 
+
                 //reload parent view (or this view if root controller)
-                (controller.parent ?: controller).reloadView()
+                (controller.parentController ?: controller).reloadView()
 
             }
 
             fun resetClicked(restoreDefault: Boolean) {
                 val item = this@treeview.selectionModel.selectedItem ?: return
-                if (item == root) {
-                    information(
-                        "Resetting root is not supported",
-                        "Resetting the root is not supported at this moment"
-                    )
-                    return
-                }
-
                 val value = item.value
 
-                //when viewing the item that is being reset change the current viewed item to root
-                // as otherwise the user is editing a stale object
-                controller.currSel = null
-                //clear the backend values
-                value.right.resetChild(value.left.toCb(), value.middle, restoreDefault)
+                val key = value.left.toCb()
 
-                //remove the visual items
+                //reset the clicked item
+                value.right.resetChild(key, value.middle, restoreDefault)
+
+                //Now get the new instance of it (if any)
+                val newCb = value.right.getChild(key)
+
+                //If we are resetting the root we need to make sure we select the correct parent
+                val parent = if (value.right == controller.rootCb.parent) controller.rootCb else value.right
+
+                //we must update the property editor area otherwise we will be editing a stale object
+                controller.currSel = MutableTriple(value.left, newCb, parent)
+
+                //remove all children from the tree view
                 item.children.clear()
+                if (newCb != null) {
 
-                //reload parent view (or this view if root controller)
-                (controller.parent ?: controller).reloadView()
+                    //and replace them with the new children if the new class builder have a default value
+                    val children = newCb.getSubClassBuilders().map { (k, cb) ->
+                        TreeItem(MutableTriple(k.getPreviewValue(), cb, parent))
+                    }
+                    item.children.setAll(children)
+                }
+
+//                (controller.parentController ?: controller).reloadView()
             }
 
             item("Restore to default") {
@@ -130,20 +153,6 @@ class NodeExplorerView(private val controller: ObjectEditorController) : Fragmen
                     "Remove all references to this class builder"
                 )
                 action { resetClicked(false) }
-            }
-        }
-
-        @Suppress("UNCHECKED_CAST")
-        populate {
-            val cb = it.value.middle
-            when {
-                //FIXME removing child of root does not work, it does not update the visual children
-                cb == null -> null
-                cb.isLeaf() -> null
-                cb is ReferenceClassBuilder -> null //break cycles
-                else -> cb.getSubClassBuilders().map { (key, child) ->
-                    MutableTriple(key.getPreviewValue(), child, cb)
-                }
             }
         }
     }

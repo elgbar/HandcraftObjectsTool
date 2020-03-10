@@ -211,7 +211,7 @@ object ControlPanelView : View("Control Panel") {
 
     fun createTab(type: JavaType) {
         FX.find<BackgroundView>().tabpane.tab("Edit ${type.rawClass.simpleName}", BorderPane()) {
-            add(find(ObjectEditor::class, Scope(), "controller" to ObjectEditorController(type)).root)
+            add(find(ObjectEditor::class, Scope(), "controller" to ObjectEditorController(type, null)).root)
             tabPane.selectionModel.select(this)
         }
     }

@@ -121,7 +121,7 @@ class ReferenceSelectorView : View("Reference") {
     ): ReferenceClassBuilder? {
         tornadofx.runAsync {
             searching = true
-            searchResult.setAll(findInstancesOf(type, controller.findRootController().rootBuilder))
+            searchResult.setAll(findInstancesOf(type, controller.findRootController().rootCb))
             if (searchResult.isEmpty()) {
 
             }

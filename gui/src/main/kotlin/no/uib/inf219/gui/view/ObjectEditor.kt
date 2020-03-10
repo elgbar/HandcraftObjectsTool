@@ -23,7 +23,7 @@ class ObjectEditor : View() {
 
     private fun createPropEditor(): BorderPane {
         val editor: PropertyEditor = find("controller" to controller)
-        editor.root.center = controller.rootBuilder.toView(this, controller)
+        editor.root.center = controller.rootCb.toView(this, controller)
         return editor.root
     }
 
@@ -114,7 +114,7 @@ class ObjectEditor : View() {
 
     fun toObject(): Any? {
         try {
-            return controller.rootBuilder.toObject()!!
+            return controller.rootCb.toObject()!!
         } catch (e: MissingPropertyException) {
             OutputArea.logln("Failed to create object.\n$e")
         } catch (e: Throwable) {
