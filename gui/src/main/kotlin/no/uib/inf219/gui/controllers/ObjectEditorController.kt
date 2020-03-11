@@ -89,8 +89,6 @@ class ObjectEditorController(
         ClassBuilder<Any>,
         ReadWriteProperty<Any?, ClassBuilder<*>> {
 
-        val rootProp = realRoot.toProperty()
-
         private val rootKey: ClassBuilder<*>
         private val rootParent: ClassBuilder<*>
 

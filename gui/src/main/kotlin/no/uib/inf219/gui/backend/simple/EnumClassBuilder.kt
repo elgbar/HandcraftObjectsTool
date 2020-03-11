@@ -7,6 +7,7 @@ import javafx.util.StringConverter
 import no.uib.inf219.gui.backend.ClassBuilder
 import no.uib.inf219.gui.backend.SimpleClassBuilder
 import tornadofx.combobox
+import tornadofx.onChange
 
 /**
  * @author Elg
@@ -24,8 +25,27 @@ class EnumClassBuilder<T : Enum<*>>(
 
     private val enumValues = findEnumValues(clazz)
 
-    init {
-        require(clazz.isEnum) { "Given class is not an enum class" }
+    override fun editView(parent: Pane): Node {
+        return parent.combobox(
+            property = serObjectObservable,
+            values = enumValues
+        ) {
+            //Select the initial value as the first one
+            value = initialValue
+
+            selectionModel.selectedItemProperty().onChange {
+                print("new $it")
+            }
+
+            setOnKeyPressed { event ->
+                //find the first enum that starts with the given text and make it the selected value
+                enumValues.find {
+                    it.name.startsWith(event.text, true)
+                }.also {
+                    selectionModel.select(it)
+                }
+            }
+        }
     }
 
     companion object {
@@ -35,39 +55,18 @@ class EnumClassBuilder<T : Enum<*>>(
          */
         fun <T : Enum<*>> findEnumValues(enumClass: Class<T>): List<T> {
             require(enumClass.isEnum) { "Given class is not an enum class" }
+            @Suppress("UNCHECKED_CAST")
             return (enumClass.getMethod("values").invoke(null) as Array<T>).toList().sortedBy { it.name }
-        }
-    }
-
-    override fun editView(parent: Pane): Node {
-        return parent.combobox(
-            property = serObjectObservable,
-            values = enumValues
-        ) {
-            //Select the initial value as the first one
-            value = initialValue
-
-            setOnKeyPressed { event ->
-                //find the first enum that starts with the given text and make it the selected value
-                enumValues.find { it.name.startsWith(event.text, true) }.also {
-                    if (it != null) {
-                        value = it
-                    }
-                }
-            }
         }
     }
 
     internal class EnumConverter<T : Enum<*>>(clazz: Class<T>) : StringConverter<T>() {
 
-        private val values = findEnumValues(clazz).map { it.name to it }.toMap()
+        //key is nullable to allow for shorter fromString :)
+        private val values: Map<String?, T> = findEnumValues(clazz).map { it.name to it }.toMap()
 
-        override fun toString(enum: T?): String? {
-            return enum?.name
-        }
+        override fun toString(enum: T?) = enum?.name
 
-        override fun fromString(name: String?): T? {
-            return if (name == null) null else values[name]
-        }
+        override fun fromString(name: String?) = values[name]
     }
 }

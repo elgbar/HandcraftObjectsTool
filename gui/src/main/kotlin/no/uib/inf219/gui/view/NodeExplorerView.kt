@@ -22,19 +22,16 @@ class NodeExplorerView(private val controller: ObjectEditorController) : Fragmen
         root.isExpanded = true
 
         @Suppress("UNCHECKED_CAST")
-        fun factory(it: TreeItem<MutableTriple<String, ClassBuilder<*>?, ClassBuilder<*>>>): Iterable<MutableTriple<String, ClassBuilder<*>?, ClassBuilder<*>>>? {
+        fun childFactory(it: TreeItem<MutableTriple<String, ClassBuilder<*>?, ClassBuilder<*>>>): Iterable<MutableTriple<String, ClassBuilder<*>?, ClassBuilder<*>>>? {
             val cb = it.value.middle
             return when {
-                //FIXME removing child of root does not work, it does not update the visual children
                 cb == null -> null
                 cb.isLeaf() -> null
                 cb is ReferenceClassBuilder -> null //break cycles
-                else -> cb.getSubClassBuilders().map { (key, child) ->
-                    MutableTriple(key.getPreviewValue(), child, cb)
-                }
+                else -> cb.getSubClassBuilders().map { (key, child) -> MutableTriple(key.getPreviewValue(), child, cb) }
             }
         }
-        populate { factory(it) }
+        populate { childFactory(it) }
 
         cellFormat {
             text = it.left
@@ -153,6 +150,12 @@ class NodeExplorerView(private val controller: ObjectEditorController) : Fragmen
                     "Remove all references to this class builder"
                 )
                 action { resetClicked(false) }
+            }
+
+            item("Force update tree") {
+                this@treeview.populate { childFactory(it) }
+                this@treeview.refresh()
+                this@treeview.populate { childFactory(it) }
             }
         }
     }

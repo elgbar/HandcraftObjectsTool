@@ -29,6 +29,7 @@ class BackgroundView : View("Handcrafted Objects Tool") {
                     this.isClosable = false
                 }
             }
+            
             this += OutputArea
         }
     }
