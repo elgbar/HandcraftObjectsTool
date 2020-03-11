@@ -210,8 +210,16 @@ object ControlPanelView : View("Control Panel") {
     }
 
     fun createTab(type: JavaType) {
+        val editor: ObjectEditor
+        try {
+            editor = find(ObjectEditor::class, Scope(), "controller" to ObjectEditorController(type, null))
+        } catch (e: Throwable) {
+            OutputArea.log { "Failed to open tab due to an error $e" }
+            error("Cannot serialize $type, failed to create an editor for the given type", e.message)
+            return
+        }
         FX.find<BackgroundView>().tabpane.tab("Edit ${type.rawClass.simpleName}", BorderPane()) {
-            add(find(ObjectEditor::class, Scope(), "controller" to ObjectEditorController(type, null)).root)
+            add(editor.root)
             tabPane.selectionModel.select(this)
         }
     }
