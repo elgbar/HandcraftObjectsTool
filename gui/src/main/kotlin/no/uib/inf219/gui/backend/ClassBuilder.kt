@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators
 import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.fasterxml.jackson.databind.ser.PropertyWriter
-import com.fasterxml.jackson.databind.type.CollectionLikeType
 import com.fasterxml.jackson.databind.type.MapLikeType
 import javafx.beans.Observable
 import javafx.event.EventTarget
@@ -262,16 +261,11 @@ interface ClassBuilder<out T> {
                 //Strings is not a primitive, but its not far off
                 val init = if (value != null) value as String else ""
                 StringClassBuilder(init, key, parent, prop)
-            } else if (type.isCollectionLikeType && (type as CollectionLikeType).isTrueCollectionType) {
-                //TODO add support for non-true collection types
-                //TODO add support for sets/non-list collections
+            } else if (type.isCollectionLikeType || type.isArrayType) {
                 CollectionClassBuilder<T>(type, key, parent, prop)
             } else if (type.isMapLikeType && (type as MapLikeType).isTrueMapType) {
                 //TODO add support for non-true map types
                 MapClassBuilder<Any, T>(type, key, parent, prop)
-
-            } else if (type.isArrayType) {
-                TODO("Arrays not yet supported")
             } else if (type.isEnumType) {
                 @Suppress("UNCHECKED_CAST") //checking with isEnumType above
                 val enumClass = type.rawClass as Class<Enum<*>>

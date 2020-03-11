@@ -2,8 +2,8 @@ package no.uib.inf219.gui.backend
 
 
 import com.fasterxml.jackson.databind.JavaType
+import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.fasterxml.jackson.databind.ser.PropertyWriter
-import com.fasterxml.jackson.databind.type.CollectionLikeType
 import javafx.event.EventTarget
 import javafx.scene.Node
 import javafx.scene.control.TreeView
@@ -18,20 +18,18 @@ import tornadofx.*
 
 
 /**
- *
- *
  * @author Elg
  */
 @JsonSerialize(using = ParentClassBuilderSerializer::class)
 class CollectionClassBuilder<out T>(
-    override val type: CollectionLikeType,
+    override val type: JavaType,
     override val key: ClassBuilder<*>? = null,
     override val parent: ClassBuilder<*>? = null,
     override val property: PropertyWriter? = null
 ) : ClassBuilder<Collection<T>> {
 
     init {
-        require(type.isTrueCollectionType) { "Given type $type is not a _true_ collection like type" }
+        require(type.isContainerType)
     }
 
     override val serObject = ArrayList<ClassBuilder<*>>()
