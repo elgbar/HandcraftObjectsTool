@@ -8,7 +8,7 @@ import javafx.geometry.Pos
 import javafx.scene.Node
 import no.uib.inf219.extra.onChange
 import no.uib.inf219.extra.textCb
-import no.uib.inf219.gui.backend.serializers.ReferenceClassBuilderSerializer
+import no.uib.inf219.gui.backend.serializers.ParentClassBuilderSerializer
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import tornadofx.hbox
 import tornadofx.onDoubleClick
@@ -19,7 +19,7 @@ import tornadofx.toProperty
  *
  * @author Elg
  */
-@JsonSerialize(using = ReferenceClassBuilderSerializer::class)
+@JsonSerialize(using = ParentClassBuilderSerializer::class)
 class ReferenceClassBuilder(
     private val refKey: ClassBuilder<*>,
     private val refParent: ClassBuilder<*>,

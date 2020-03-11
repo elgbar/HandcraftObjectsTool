@@ -8,6 +8,7 @@ import javafx.event.EventTarget
 import javafx.scene.Node
 import javafx.scene.control.TreeView
 import no.uib.inf219.extra.toCb
+import no.uib.inf219.gui.backend.serializers.ParentClassBuilderSerializer
 import no.uib.inf219.gui.backend.simple.IntClassBuilder
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.view.NodeExplorerView
@@ -21,7 +22,7 @@ import tornadofx.*
  *
  * @author Elg
  */
-//@JsonSerialize(using = CollectionCBSerializer::class)
+@JsonSerialize(using = ParentClassBuilderSerializer::class)
 class CollectionClassBuilder<out T>(
     override val type: CollectionLikeType,
     override val key: ClassBuilder<*>? = null,

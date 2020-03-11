@@ -6,19 +6,19 @@ import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer
 import com.fasterxml.jackson.databind.ser.std.StdSerializer
 import no.uib.inf219.extra.type
-import no.uib.inf219.gui.backend.ReferenceClassBuilder
+import no.uib.inf219.gui.backend.ClassBuilder
 
 /**
  * @author Elg
  */
-object ReferenceClassBuilderSerializer : StdSerializer<ReferenceClassBuilder>(ReferenceClassBuilder::class.type()) {
+object ParentClassBuilderSerializer : StdSerializer<ClassBuilder<*>>(ClassBuilder::class.type()) {
 
-    override fun serialize(value: ReferenceClassBuilder, gen: JsonGenerator, provider: SerializerProvider) {
+    override fun serialize(value: ClassBuilder<*>, gen: JsonGenerator, provider: SerializerProvider) {
         delegateToRealSerializer(value, gen, provider, null)
     }
 
     override fun serializeWithType(
-        value: ReferenceClassBuilder,
+        value: ClassBuilder<*>,
         gen: JsonGenerator,
         provider: SerializerProvider,
         typeSer: TypeSerializer?
@@ -27,7 +27,7 @@ object ReferenceClassBuilderSerializer : StdSerializer<ReferenceClassBuilder>(Re
     }
 
     private fun delegateToRealSerializer(
-        value: ReferenceClassBuilder,
+        value: ClassBuilder<*>,
         gen: JsonGenerator,
         provider: SerializerProvider,
         typeSer: TypeSerializer?
