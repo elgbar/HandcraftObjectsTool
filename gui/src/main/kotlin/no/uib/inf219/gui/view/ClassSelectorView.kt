@@ -196,7 +196,9 @@ class ClassSelectorView : View("Select implementation") {
                             else -> scanResult.getSubclasses(superClass.canonicalName)
                         }
                     val classes = cil.filter {
-                        (showAbstract || !Modifier.isAbstract(it.modifiers))
+                        //Only show abstract types when wanted
+                        // and never show annotations
+                        (showAbstract || !Modifier.isAbstract(it.modifiers)) && !it.isAnnotation
                     }.names
 
                     runLater {

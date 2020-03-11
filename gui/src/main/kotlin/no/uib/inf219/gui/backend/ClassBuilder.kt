@@ -273,7 +273,7 @@ interface ClassBuilder<out T> {
                 EnumClassBuilder(enumClass, init, key, parent, prop)
 
             } else if (type.rawClass.isAnnotation) {
-                TODO("Handle annotation")
+                error("Cannot serialize annotations.")
             } else if (!type.isConcrete) {
                 //the type is abstract/interface we need a concrete type to
                 val subtype = find<ClassSelectorView>().subtypeOf(type, false) ?: return null
