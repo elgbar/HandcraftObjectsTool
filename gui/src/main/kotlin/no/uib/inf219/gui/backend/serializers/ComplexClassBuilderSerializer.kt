@@ -5,7 +5,6 @@ import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.databind.JsonSerializer
 import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer
-import com.fasterxml.jackson.databind.ser.BeanSerializer
 import com.fasterxml.jackson.databind.ser.impl.ObjectIdWriter
 import com.fasterxml.jackson.databind.ser.std.StdSerializer
 import no.uib.inf219.extra.type
@@ -29,7 +28,7 @@ object ComplexClassBuilderSerializer : StdSerializer<ComplexClassBuilder<*>>(Com
         typeSer: TypeSerializer?
     ) {
 
-        val beanSer = provider.findValueSerializer(value.type) as BeanSerializer
+        val beanSer = provider.findValueSerializer(value.type)
         val objIdWriter: ObjectIdWriter? = beanSer.javaClass.findFieldByName("_objectIdWriter").also {
             it?.isAccessible = true
         }?.get(beanSer) as ObjectIdWriter?

@@ -16,7 +16,7 @@ object DynamicClassLoader :
         arrayOf(applicationHome().child("${GuiMain.FILES_FOLDER}/").also { it.mkdirs() }.toURI().toURL())
     ) {
 
-    private val LoadedFiles: MutableSet<File> = HashSet()
+    private val loadedFiles: MutableSet<File> = HashSet()
 
     /**
      * Load all classes from the given [File], if file is already loaded nothing will be done
@@ -25,7 +25,8 @@ object DynamicClassLoader :
      * @param reload If all classes should be loaded again
      */
     fun loadFile(file: File, reload: Boolean = false) {
-        if (reload && LoadedFiles.contains(file)) return
+        if (reload && loadedFiles.contains(file)) return
         addURL(file.toURI().toURL())
     }
+
 }
