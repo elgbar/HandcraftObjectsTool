@@ -15,6 +15,7 @@ import no.uib.inf219.gui.Styles
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.loader.ClassInformation
 import no.uib.inf219.gui.loader.DynamicClassLoader
+import no.uib.inf219.gui.loader.ObjectMapperLoader
 import tornadofx.*
 import java.io.File
 import java.io.FileFilter
@@ -45,17 +46,16 @@ object ControlPanelView : View("Control Panel") {
         }
 
     private fun updateMapper() {
-
         ClassInformation.updateMapper()
-
-//        val module = SimpleModule()
-//        module.setSerializerModifier(ClassBuilderBeanSerializerModifier())
-//        mapper.registerModule(module)
     }
 
     init {
         updateMapper()
     }
+
+    private val possibleMappers =
+        SerializationManager.StdObjectMapper.values().mapTo(ArrayList()) { it.toString() to it.getObjectMapper() }
+            .asObservable()
 
     override val root = vbox {
         val classNameProperty = SimpleStringProperty("")
@@ -186,13 +186,18 @@ object ControlPanelView : View("Control Panel") {
                 label("Object Mapper Type ")
 
                 combobox(
-                    property = SerializationManager.StdObjectMapper.fromObjectMapper(mapper).toProperty(),
-                    values = SerializationManager.StdObjectMapper.values().asList()
+                    values = possibleMappers
                 ) {
+
                     selectionModel.selectedItemProperty().onChange {
-                        OutputArea.logln("Changing object mapper to ${it?.toString()}")
-                        if (it != null) mapper = it.getObjectMapper()
+                        OutputArea.logln("Changing object mapper to ${it?.first}")
+                        if (it != null) mapper = it.second
                     }
+                    //wait till we're finished setting things up before changing the selected
+                    runLater {
+                        selectionModel.select(2)
+                    }
+                    cellFormat { text = it.first }
                 }
             }
         }
@@ -235,6 +240,9 @@ object ControlPanelView : View("Control Panel") {
             e.printStackTrace()
         }
         OutputArea.logln("Successfully loaded jar file ${file.absolutePath}")
+
+        val mapper = ObjectMapperLoader.findObjectMapper(file) ?: return
+        possibleMappers.add(file.nameWithoutExtension to mapper)
     }
 
     fun File.copyInputStreamToFile(inputStream: InputStream) {
