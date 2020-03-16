@@ -36,6 +36,8 @@ class NodeExplorerView(private val controller: ObjectEditorController) : Fragmen
         cellFormat {
             text = it.left
 
+            tooltip("Class: ${it.middle?.type ?: it.right.getChildType(it.left.toCb())}")
+
             setOnMouseClicked { event ->
                 //note that "isPrimaryButtonDown" and "isSecondaryButtonDown" is not used as it does not work
                 if (event.clickCount == 1 && event.button == MouseButton.PRIMARY) {
@@ -135,20 +137,20 @@ class NodeExplorerView(private val controller: ObjectEditorController) : Fragmen
             }
 
             item("Restore to default") {
-                tooltip = tooltip(
-                    "Reset the value of this class builder to the default value.\n" +
-                            "What this means is up to each type of class builder.\n" +
-                            "Usually it will remove all values but a default value might be restored if any is specified.\n" +
-                            "If you intend to completely remove it select \"Set to null\""
-                )
+//                tooltip = tooltip(
+//                    "Reset the value of this class builder to the default value.\n" +
+//                            "What this means is up to each type of class builder.\n" +
+//                            "Usually it will remove all values but a default value might be restored if any is specified.\n" +
+//                            "If you intend to completely remove it select \"Set to null\""
+//                )
                 action { resetClicked(true) }
             }
 
 
             item("Set to null") {
-                tooltip = tooltip(
-                    "Remove all references to this class builder"
-                )
+//                tooltip = tooltip(
+//                    "Remove all references to this class builder"
+//                )
                 action { resetClicked(false) }
             }
 
