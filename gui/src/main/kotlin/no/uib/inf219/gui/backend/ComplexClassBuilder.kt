@@ -155,7 +155,7 @@ class ComplexClassBuilder<out T>(
 
                         fun getFoldTitle(cb: ClassBuilder<*>? = child): String {
                             //Star mean required, that's universal right? Otherwise we need to communicate this to the user
-                            return "$name: ${cb?.getPreviewValue() ?: "(null)"}${if (isRequired()) " *" else ""}"
+                            return "$name: ${cb?.getPreviewValue() ?: "(null)"}${if (isRequired()) " *" else ""} - ${propInfo[name]!!.type.rawClass.canonicalName}"
                         }
 
                         fold(getFoldTitle()) {
