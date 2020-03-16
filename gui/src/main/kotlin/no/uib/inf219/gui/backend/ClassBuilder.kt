@@ -283,7 +283,7 @@ interface ClassBuilder<out T> {
                     } else {
                         warning(
                             "Polymorphic types with type information not allowed with MrBean module",
-                            "Since base classes are often abstract classes, but those classes should not be materialized, because they are never used (instead, actual concrete sub-classes are used). Because of this, Mr Bean will ''not materialize any types annotated with @JsonTypeInfo annotation''."
+                            "Since base classes are often abstract classes, but those classes should not be materialized, because they are never used (instead, actual concrete sub-classes are used). Because of this, Mr Bean will not materialize any types annotated with @JsonTypeInfo annotation."
                         )
                     }
                 }

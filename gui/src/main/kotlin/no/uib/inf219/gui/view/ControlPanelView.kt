@@ -220,8 +220,7 @@ object ControlPanelView : View("Control Panel") {
                 }
             }
             checkbox("Use MrBean Module", useMrBean) {
-                tooltip("If the MrBean module should be enabled. If it is the object mapper will allow to create instances from interfaces and abstract classes directly. Node ")
-
+                tooltip("If the MrBean module should be enabled. If it is the object mapper will allow to create instances from interfaces and abstract classes directly. This will not work with classes that are polymorphic and is annotated with @JsonTypeInfo.")
             }
         }
 

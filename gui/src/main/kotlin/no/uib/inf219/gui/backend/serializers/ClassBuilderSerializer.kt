@@ -12,7 +12,6 @@ import no.uib.inf219.gui.backend.ClassBuilder
  */
 object ClassBuilderSerializer : StdSerializer<ClassBuilder<*>>(ClassBuilder::class.type()) {
 
-
     override fun serialize(value: ClassBuilder<*>, gen: JsonGenerator, provider: SerializerProvider) {
         val ser: JsonSerializer<Any> = provider.findValueSerializer(value.type)
         ser.serialize(value.serObject, gen, provider)
