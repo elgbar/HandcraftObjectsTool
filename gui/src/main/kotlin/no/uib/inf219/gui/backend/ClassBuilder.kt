@@ -2,6 +2,7 @@ package no.uib.inf219.gui.backend
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo
 import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.annotation.ObjectIdGenerators
 import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
@@ -17,13 +18,14 @@ import no.uib.inf219.gui.view.ClassSelectorView
 import no.uib.inf219.gui.view.ControlPanelView
 import tornadofx.find
 import tornadofx.property
+import tornadofx.warning
 
 /**
  * An interface that is the super class of all object builder, the aim of this interface is to manage how to build a given type.
  *
  * This is a a way to create classes by holding all included attributes as keys and their values as value in an internal map.
  *
- * TODO extract methods that should only be available for class builder that has childeren (ie NOT simple cb)
+ * TODO extract methods that should only be available for class builder that has children (ie NOT simple cb)
  *
  * @author Elg
  */
@@ -275,10 +277,22 @@ interface ClassBuilder<out T> {
             } else if (type.rawClass.isAnnotation) {
                 error("Cannot serialize annotations.")
             } else if (!type.isConcrete) {
+                if (ControlPanelView.useMrBean.value) {
+                    if (!type.rawClass.isAnnotationPresent(JsonTypeInfo::class.java)) {
+                        return ComplexClassBuilder(type, key, parent, prop)
+                    } else {
+                        warning(
+                            "Polymorphic types with type information not allowed with MrBean module",
+                            "Since base classes are often abstract classes, but those classes should not be materialized, because they are never used (instead, actual concrete sub-classes are used). Because of this, Mr Bean will ''not materialize any types annotated with @JsonTypeInfo annotation''."
+                        )
+                    }
+                }
                 //the type is abstract/interface we need a concrete type to
                 val subtype = find<ClassSelectorView>().subtypeOf(type, false) ?: return null
                 getClassBuilder(subtype, key, parent, value, prop)
+
             } else {
+
                 //it's not a primitive type so let's just make a complex type for it
                 ComplexClassBuilder(type, key, parent, prop)
             }

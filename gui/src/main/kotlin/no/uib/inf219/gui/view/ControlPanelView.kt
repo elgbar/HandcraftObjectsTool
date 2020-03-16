@@ -2,6 +2,7 @@ package no.uib.inf219.gui.view
 
 import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.mrbean.MrBeanModule
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
 import javafx.scene.layout.BorderPane
@@ -34,19 +35,37 @@ object ControlPanelView : View("Control Panel") {
 
     private var lastFile: File? by Persistent()
 
+    private var orgMapper: ObjectMapper = mapper
+
     /**
      * What object mapper to use for serialization
      */
     var mapper: ObjectMapper
         get() = mapperProperty.get()
         set(value) {
-            mapperProperty.set(value)
+            orgMapper = value
+            mapperProperty.set(value.copy())
             updateMapper()
             FX.find<BackgroundView>().tabpane.closeAll()
         }
 
+    var useMrBean = false.toProperty().apply {
+        onChange {
+            mapper = orgMapper
+        }
+    }
+
     private fun updateMapper() {
         ClassInformation.updateMapper()
+
+        val beanModule = MrBeanModule();
+
+        if (mapper.registeredModuleIds.contains(beanModule.typeId) && !useMrBean.value) {
+            //It is enabled for the current ObjectMapper already do not enable it again
+            useMrBean.set(true)
+        } else if (useMrBean.value) {
+            mapper.registerModule(MrBeanModule())
+        }
     }
 
     init {
@@ -179,9 +198,9 @@ object ControlPanelView : View("Control Panel") {
         }
 
         vbox {
+            addClass(Styles.parent)
             hbox {
                 tooltip("Change what object mapper to use.\nWarning: Changing this will close all opened tabs.")
-                addClass(Styles.parent)
 
                 label("Object Mapper Type ")
 
@@ -200,6 +219,10 @@ object ControlPanelView : View("Control Panel") {
                     cellFormat { text = it.first }
                 }
             }
+            checkbox("Use MrBean Module", useMrBean) {
+                tooltip("If the MrBean module should be enabled. If it is the object mapper will allow to create instances from interfaces and abstract classes directly. Node ")
+
+            }
         }
 
         OutputArea.logln("Example classes to load:")
@@ -214,7 +237,7 @@ object ControlPanelView : View("Control Panel") {
         OutputArea.logln("no.uib.inf219.example.data.prerequisite.AlwaysFalsePrerequisite")
     }
 
-    fun createTab(type: JavaType) {
+    private fun createTab(type: JavaType) {
         val editor: ObjectEditor
         try {
             editor = find(ObjectEditor::class, Scope(), "controller" to ObjectEditorController(type, null))
@@ -229,7 +252,7 @@ object ControlPanelView : View("Control Panel") {
         }
     }
 
-    fun loadFileSafely(file: File) {
+    private fun loadFileSafely(file: File) {
 
         OutputArea.logln("Loading file ${file.absolutePath}")
         try {
@@ -245,7 +268,7 @@ object ControlPanelView : View("Control Panel") {
         possibleMappers.add(file.nameWithoutExtension to mapper)
     }
 
-    fun File.copyInputStreamToFile(inputStream: InputStream) {
+    private fun File.copyInputStreamToFile(inputStream: InputStream) {
         this.outputStream().use { fileOut ->
             inputStream.copyTo(fileOut)
         }
