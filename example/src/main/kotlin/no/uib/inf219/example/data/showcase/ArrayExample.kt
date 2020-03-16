@@ -1,4 +1,4 @@
-package no.uib.inf219.extra
+package no.uib.inf219.example.data.showcase
 
 /**
  * @author Elg

@@ -229,6 +229,7 @@ object ControlPanelView : View("Control Panel") {
         OutputArea.logln("java.util.UUID")
         OutputArea.logln("no.uib.inf219.example.data.Conversation")
         OutputArea.logln("no.uib.inf219.example.data.Response")
+        OutputArea.logln("no.uib.inf219.example.data.showcase.JsonValueExample")
         OutputArea.logln("no.uib.inf219.example.data.showcase.PrimitiveConvertsShowcase")
         OutputArea.logln("no.uib.inf219.example.data.showcase.PrimitiveDefaultValueShowcase")
         OutputArea.logln("no.uib.inf219.example.data.showcase.MapExample")
