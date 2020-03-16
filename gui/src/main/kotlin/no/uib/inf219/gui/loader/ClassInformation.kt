@@ -25,7 +25,7 @@ object ClassInformation {
 
     private var ser: DefaultSerializerProvider = createDSP()
 
-    private val cache: MutableMap<JavaType, Pair<TypeSerializer, Map<String, PropertyMetadata>>> = HashMap()
+    private val cache: MutableMap<JavaType, Triple<TypeSerializer, Map<String, PropertyMetadata>, Boolean>> = HashMap()
     private val typeCache: MutableMap<Class<*>, JavaType> = HashMap()
 
 
@@ -74,7 +74,7 @@ object ClassInformation {
     }
 
 
-    fun serializableProperties(type: JavaType): Pair<TypeSerializer?, Map<String, PropertyMetadata>> {
+    fun serializableProperties(type: JavaType): Triple<TypeSerializer?, Map<String, PropertyMetadata>, Boolean> {
 
         val realType = ser.findValueSerializer(type).handledType().type()
 
@@ -82,7 +82,9 @@ object ClassInformation {
 
             val props = ser.findValueSerializer(realType)
             val map = HashMap<String, PropertyMetadata>()
+            val valueDelegator: Boolean
             if (props.handledType() == type.rawClass) {
+                valueDelegator = false
                 props.properties().forEach { prop: PropertyWriter ->
                     map[prop.name] = PropertyMetadata(
                         prop.name,
@@ -94,6 +96,7 @@ object ClassInformation {
                     )
                 }
             } else {
+                valueDelegator = true
                 map[VALUE_DELEGATOR_NAME] =
                     PropertyMetadata(
                         VALUE_DELEGATOR_NAME,
@@ -104,8 +107,7 @@ object ClassInformation {
                         true
                     )
             }
-            ser.findTypeSerializer(it) to map
-
+            return@computeIfAbsent Triple(ser.findTypeSerializer(it), map, valueDelegator)
         }
     }
 

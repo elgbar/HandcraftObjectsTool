@@ -44,7 +44,6 @@ class ReferenceSelectorView : View("Reference") {
                 minHeight = 25.ems
             }
 
-
             label = hbox {
                 alignment = Pos.CENTER
                 text(ClassSelectorView.SEARCHING) {

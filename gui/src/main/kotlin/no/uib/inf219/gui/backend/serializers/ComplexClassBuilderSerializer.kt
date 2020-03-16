@@ -18,6 +18,7 @@ object ComplexClassBuilderSerializer : StdSerializer<ComplexClassBuilder<*>>(Com
 
 
     override fun serialize(value: ComplexClassBuilder<*>, gen: JsonGenerator, provider: SerializerProvider) {
+
         serializeWithType(value, gen, provider, value.typeSerializer)
     }
 
@@ -56,11 +57,14 @@ object ComplexClassBuilderSerializer : StdSerializer<ComplexClassBuilder<*>>(Com
                 return
             }
 
-            gen.writeStartObject()
-            objectId.writeAsField(gen, provider, serObjIdWriter)
+            if (!value.isJsonValueDelegator) {
+                gen.writeStartObject()
+                objectId.writeAsField(gen, provider, serObjIdWriter)
+            }
 
         } else {
-            gen.writeStartObject()
+            if (!value.isJsonValueDelegator)
+                gen.writeStartObject()
         }
 
         //include type information as a new property
@@ -77,11 +81,12 @@ object ComplexClassBuilderSerializer : StdSerializer<ComplexClassBuilder<*>>(Com
             }
             // then find serializer to use
             val ser: JsonSerializer<Any> = provider.findValueSerializer(prop::class.type())
-
-            gen.writeFieldName(key)
+            if (!value.isJsonValueDelegator) {
+                gen.writeFieldName(key)
+            }
             ser.serialize(prop, gen, provider)
         }
-
-        gen.writeEndObject()
+        if (!value.isJsonValueDelegator)
+            gen.writeEndObject()
     }
 }

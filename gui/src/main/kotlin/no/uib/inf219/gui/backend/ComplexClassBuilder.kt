@@ -48,11 +48,14 @@ class ComplexClassBuilder<out T>(
      */
     val typeSerializer: TypeSerializer?
 
+    val isJsonValueDelegator: Boolean
+
     override val serObject = HashMap<String, ClassBuilder<*>?>()
     override val serObjectObservable = serObject.asObservable()
 
     init {
-        val (typeSer, pinfo) = ClassInformation.serializableProperties(type)
+        val (typeSer, pinfo, valueDelegator) = ClassInformation.serializableProperties(type)
+        isJsonValueDelegator = valueDelegator
         typeSerializer = typeSer
         propInfo = pinfo
 
