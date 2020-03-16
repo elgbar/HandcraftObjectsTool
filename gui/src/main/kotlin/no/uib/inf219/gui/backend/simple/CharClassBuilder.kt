@@ -24,7 +24,22 @@ class CharClassBuilder(
     ) {
 
     override fun validate(text: String): Boolean {
-        //TODO rework this
-        return text.length <= 1
+        return StringEscapeUtils.unescapeJava(text).length == 1
+    }
+
+    override fun editView(parent: Pane): Node {
+        return parent.textfield {
+            textFormatter = TextFormatter<Char>() {
+
+                val text: String = it.controlNewText ?: return@TextFormatter null
+
+                if (it.isContentChange && text.isNotEmpty() && !validate(text)) {
+                    OutputArea.logln { "Failed to parse '$text' to ${this@CharClassBuilder.serObject::class.simpleName}" }
+                    return@TextFormatter null
+                }
+                return@TextFormatter it
+            }
+            bindStringProperty(textProperty(), converter, serObjectObservable)
+        }
     }
 }
