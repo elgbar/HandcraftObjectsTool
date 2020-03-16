@@ -177,7 +177,7 @@ interface ClassBuilder<out T> {
      */
     @JsonIgnore
     fun isRequired(): Boolean {
-        return property?.required ?: true
+        return property?.required ?: false
     }
 
     /**
