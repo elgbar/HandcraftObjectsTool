@@ -1,11 +1,11 @@
 package no.uib.inf219.gui.backend.simple
 
-import com.fasterxml.jackson.databind.ser.PropertyWriter
 import javafx.scene.Node
 import javafx.scene.layout.Pane
 import javafx.util.StringConverter
 import no.uib.inf219.gui.backend.ClassBuilder
 import no.uib.inf219.gui.backend.SimpleClassBuilder
+import no.uib.inf219.gui.loader.ClassInformation
 import tornadofx.combobox
 import tornadofx.onChange
 
@@ -17,7 +17,7 @@ class EnumClassBuilder<T : Enum<*>>(
     initialValue: T,
     name: ClassBuilder<*>? = null,
     parent: ClassBuilder<*>? = null,
-    property: PropertyWriter? = null
+    property: ClassInformation.PropertyMetadata? = null
 ) : SimpleClassBuilder<T>(
     clazz, initialValue, name, parent, property, false,
     EnumConverter(clazz)

@@ -1,15 +1,21 @@
 package no.uib.inf219.gui.backend.simple
 
-import com.fasterxml.jackson.databind.ser.PropertyWriter
+import javafx.scene.Node
+import javafx.scene.control.TextFormatter
+import javafx.scene.layout.Pane
 import javafx.util.converter.CharacterStringConverter
 import no.uib.inf219.gui.backend.ClassBuilder
 import no.uib.inf219.gui.backend.SimpleClassBuilder
+import no.uib.inf219.gui.loader.ClassInformation
+import no.uib.inf219.gui.view.OutputArea
+import org.apache.commons.text.StringEscapeUtils
+import tornadofx.textfield
 
 class CharClassBuilder(
     initial: Char = '\u0000',
     name: ClassBuilder<*>? = null,
     parent: ClassBuilder<*>? = null,
-    prop: PropertyWriter? = null,
+    prop: ClassInformation.PropertyMetadata? = null,
     immutable: Boolean = false
 ) :
     SimpleClassBuilder<Char>(

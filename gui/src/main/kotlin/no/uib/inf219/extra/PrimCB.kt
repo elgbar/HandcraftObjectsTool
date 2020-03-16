@@ -1,10 +1,10 @@
 package no.uib.inf219.extra
 
-import com.fasterxml.jackson.databind.ser.PropertyWriter
 import no.uib.inf219.gui.backend.ClassBuilder
 import no.uib.inf219.gui.backend.SimpleClassBuilder
 import no.uib.inf219.gui.backend.simple.IntClassBuilder
 import no.uib.inf219.gui.backend.simple.StringClassBuilder
+import no.uib.inf219.gui.loader.ClassInformation
 
 /**
  * Create [ClassBuilder]s from primitives
@@ -14,7 +14,7 @@ import no.uib.inf219.gui.backend.simple.StringClassBuilder
 fun String.toCb(
     key: ClassBuilder<*>? = null,
     parent: ClassBuilder<*>? = null,
-    prop: PropertyWriter? = null,
+    prop: ClassInformation.PropertyMetadata? = null,
     immutable: Boolean = true
 ): SimpleClassBuilder<String> {
     return StringClassBuilder(this, key, parent, prop, immutable)
@@ -23,7 +23,7 @@ fun String.toCb(
 fun Int.toCb(
     key: ClassBuilder<*>? = null,
     parent: ClassBuilder<*>? = null,
-    prop: PropertyWriter? = null,
+    prop: ClassInformation.PropertyMetadata? = null,
     immutable: Boolean = true
 ): SimpleClassBuilder<Int> {
     return IntClassBuilder(this, key, parent, prop, immutable)

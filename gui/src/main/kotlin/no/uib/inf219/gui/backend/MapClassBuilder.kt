@@ -2,13 +2,13 @@ package no.uib.inf219.gui.backend
 
 
 import com.fasterxml.jackson.databind.JavaType
-import com.fasterxml.jackson.databind.ser.PropertyWriter
 import javafx.event.EventTarget
 import javafx.scene.Node
 import no.uib.inf219.extra.bindCbText
 import no.uib.inf219.extra.toCb
 import no.uib.inf219.gui.Styles
 import no.uib.inf219.gui.controllers.ObjectEditorController
+import no.uib.inf219.gui.loader.ClassInformation
 import no.uib.inf219.gui.view.PropertyEditor
 import tornadofx.*
 import kotlin.collections.component1
@@ -23,7 +23,7 @@ class MapClassBuilder<K, out V>(
     override val type: JavaType,
     override val key: ClassBuilder<*>? = null,
     override val parent: ClassBuilder<*>?,
-    override val property: PropertyWriter?
+    override val property: ClassInformation.PropertyMetadata?
 ) : ClassBuilder<Map<K?, V?>> {
 
     override val serObject = HashMap<ClassBuilder<*>, ClassBuilder<*>?>()

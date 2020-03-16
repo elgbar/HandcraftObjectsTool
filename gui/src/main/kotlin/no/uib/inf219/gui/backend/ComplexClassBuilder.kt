@@ -1,10 +1,8 @@
 package no.uib.inf219.gui.backend
 
-import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer
-import com.fasterxml.jackson.databind.ser.PropertyWriter
 import javafx.event.EventTarget
 import javafx.geometry.Pos
 import javafx.scene.Node
@@ -15,8 +13,6 @@ import no.uib.inf219.gui.Styles
 import no.uib.inf219.gui.backend.serializers.ComplexClassBuilderSerializer
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.loader.ClassInformation
-import no.uib.inf219.gui.view.ControlPanelView.mapper
-import no.uib.inf219.gui.view.OutputArea
 import tornadofx.*
 import kotlin.collections.component1
 import kotlin.collections.component2
@@ -32,7 +28,7 @@ class ComplexClassBuilder<out T>(
     override val type: JavaType,
     override val key: ClassBuilder<*>? = null,
     override val parent: ClassBuilder<*>? = null,
-    override val property: PropertyWriter? = null
+    override val property: ClassInformation.PropertyMetadata? = null
 ) : ClassBuilder<T> {
 
     //TODO make all property info, default etc into a single class
@@ -40,7 +36,7 @@ class ComplexClassBuilder<out T>(
     /**
      * Hold information about the given property
      */
-    internal val propInfo: Map<String, PropertyWriter>
+    internal val propInfo: Map<String, ClassInformation.PropertyMetadata>
 
     /**
      * Holds the default value for the given property
@@ -63,25 +59,8 @@ class ComplexClassBuilder<out T>(
         //initiate all valid values to null or default
         // to allow for iteration when populating Node explorer
         for ((key, v) in propInfo) {
-            val propAn = v.getAnnotation(JsonProperty::class.java)
-            val default: Any? =
-                if (propAn != null) {
-                    val defaultStr = propAn.defaultValue
-                    if (defaultStr.isEmpty()) {
-                        null
-                    } else {
-                        try {
-                            mapper.readValue(defaultStr, v.type) as Any?
-                        } catch (e: Throwable) {
-                            OutputArea.logln("Failed to parse default value for property $key of $type. Given string '$defaultStr'")
-                            OutputArea.logln(e.localizedMessage)
-                            null
-                        }
-                    }
-                } else null
-            propDefaults[key] = default
-
-            if (default != null || v.type.isPrimitive) {
+            propDefaults[key] = v.getDefaultInstance()
+            if (propDefaults[key] != null || v.type.isPrimitive) {
                 //only create a class builder for properties that has a default value
                 // or is primitive (which always have default values)
                 createClassBuilderFor(key.toCb())
@@ -125,7 +104,7 @@ class ComplexClassBuilder<out T>(
 
 
         val newProp = if (restoreDefault && propDefaults[propName] != null) {
-            val prop: PropertyWriter = propInfo[propName] ?: kotlin.error("Given prop name is wrong")
+            val prop: ClassInformation.PropertyMetadata = propInfo[propName] ?: kotlin.error("Given prop name is wrong")
             //must be set to null to trigger the change event!
             // stupid javafx
             serObject[propName] = null //use non observable map to to trigger on change event
@@ -136,7 +115,11 @@ class ComplexClassBuilder<out T>(
         serObjectObservable[propName] = newProp
     }
 
-    private fun createChild(key: ClassBuilder<*>, init: ClassBuilder<*>?, prop: PropertyWriter): ClassBuilder<*>? {
+    private fun createChild(
+        key: ClassBuilder<*>,
+        init: ClassBuilder<*>?,
+        prop: ClassInformation.PropertyMetadata
+    ): ClassBuilder<*>? {
         return init ?: getClassBuilder(prop.type, key, propDefaults[key.serObject], prop)
     }
 

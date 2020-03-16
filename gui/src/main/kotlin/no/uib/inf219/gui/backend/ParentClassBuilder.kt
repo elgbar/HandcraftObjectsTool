@@ -1,7 +1,6 @@
 package no.uib.inf219.gui.backend
 
 import com.fasterxml.jackson.databind.JavaType
-import com.fasterxml.jackson.databind.ser.PropertyWriter
 
 /**
  * TODO move all the overwritten methods here from ClassBuilder
@@ -39,14 +38,5 @@ abstract class ParentClassBuilder<out T> : ClassBuilder<T> {
 
     override fun getChildren(): List<ClassBuilder<*>> {
         return super.getChildren()
-    }
-
-    override fun getClassBuilder(
-        type: JavaType,
-        key: ClassBuilder<*>?,
-        value: Any?,
-        prop: PropertyWriter?
-    ): ClassBuilder<*>? {
-        return super.getClassBuilder(type, key, value, prop)
     }
 }

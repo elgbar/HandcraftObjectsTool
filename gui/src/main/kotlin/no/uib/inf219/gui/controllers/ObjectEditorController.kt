@@ -1,12 +1,12 @@
 package no.uib.inf219.gui.controllers
 
 import com.fasterxml.jackson.databind.JavaType
-import com.fasterxml.jackson.databind.ser.PropertyWriter
 import javafx.beans.property.ObjectProperty
 import javafx.event.EventTarget
 import no.uib.inf219.extra.toCb
 import no.uib.inf219.extra.type
 import no.uib.inf219.gui.backend.ClassBuilder
+import no.uib.inf219.gui.loader.ClassInformation
 import org.apache.commons.lang3.tuple.MutableTriple
 import tornadofx.getProperty
 import tornadofx.property
@@ -135,7 +135,7 @@ class ObjectEditorController(
         override val type = Any::class.type()
         override val parent: ClassBuilder<*>? = null
         override val key: ClassBuilder<*>? = null
-        override val property: PropertyWriter? = null
+        override val property: ClassInformation.PropertyMetadata? = null
 
         override fun isLeaf(): Boolean = false
         override fun getPreviewValue() = "Fake root"

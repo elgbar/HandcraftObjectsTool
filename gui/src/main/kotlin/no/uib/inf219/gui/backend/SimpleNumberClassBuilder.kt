@@ -1,6 +1,5 @@
 package no.uib.inf219.gui.backend
 
-import com.fasterxml.jackson.databind.ser.PropertyWriter
 import javafx.scene.Node
 import javafx.scene.control.TextFormatter
 import javafx.scene.input.MouseButton
@@ -8,6 +7,7 @@ import javafx.scene.layout.Pane
 import javafx.util.StringConverter
 import no.uib.inf219.extra.removeNl
 import no.uib.inf219.gui.Styles.Companion.numberChanger
+import no.uib.inf219.gui.loader.ClassInformation
 import no.uib.inf219.gui.view.OutputArea
 import tornadofx.*
 
@@ -20,7 +20,7 @@ abstract class SimpleNumberClassBuilder<T : Number>(
     initialValue: T,
     key: ClassBuilder<*>?,
     parent: ClassBuilder<*>?,
-    property: PropertyWriter?,
+    property: ClassInformation.PropertyMetadata?,
     immutable: Boolean,
     converter: StringConverter<T>
 ) : SimpleClassBuilder<T>(primClass, initialValue, key, parent, property, immutable, converter) {

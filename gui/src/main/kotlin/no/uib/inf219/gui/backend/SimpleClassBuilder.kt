@@ -3,7 +3,6 @@ package no.uib.inf219.gui.backend
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.databind.JavaType
-import com.fasterxml.jackson.databind.ser.PropertyWriter
 import javafx.beans.property.Property
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.StringProperty
@@ -39,7 +38,7 @@ abstract class SimpleClassBuilder<T : Any>(
     internal val initialValue: T,
     override val key: ClassBuilder<*>?,
     override val parent: ClassBuilder<*>?,
-    override val property: PropertyWriter?,
+    override val property: ClassInformation.PropertyMetadata?,
     val immutable: Boolean,
     @JsonIgnore
     val converter: StringConverter<T>
@@ -95,7 +94,7 @@ abstract class SimpleClassBuilder<T : Any>(
                 label("Type: ${type.rawClass}")
                 val cbParent = this@SimpleClassBuilder.parent
                 if (cbParent != null && cbParent is ComplexClassBuilder) {
-                    val desc = cbParent.propInfo[key?.getPreviewValue()]?.metadata?.description
+                    val desc = cbParent.propInfo[key?.getPreviewValue()]?.description
                     if (!desc.isNullOrBlank()) {
                         label("Description: $desc")
                     }

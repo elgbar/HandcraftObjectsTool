@@ -2,7 +2,6 @@ package no.uib.inf219.gui.backend
 
 import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
-import com.fasterxml.jackson.databind.ser.PropertyWriter
 import javafx.event.EventTarget
 import javafx.geometry.Pos
 import javafx.scene.Node
@@ -10,6 +9,7 @@ import no.uib.inf219.extra.onChange
 import no.uib.inf219.extra.textCb
 import no.uib.inf219.gui.backend.serializers.ParentClassBuilderSerializer
 import no.uib.inf219.gui.controllers.ObjectEditorController
+import no.uib.inf219.gui.loader.ClassInformation
 import tornadofx.hbox
 import tornadofx.onDoubleClick
 import tornadofx.toProperty
@@ -29,18 +29,10 @@ class ReferenceClassBuilder(
 
     override var serObject: ClassBuilder<*> = refParent.getChild(refKey)
         ?: error("Failed to find a serObject with the given reference parent and ref key. Cannot make a reference to a null class builder")
-        get() {
-//            val newRef = refParent.getChild(refKey)
-//            if (newRef !== field && newRef != null) {
-//                //we have a new object to reference
-//                serObject = newRef
-//            }
-            return field
-        }
         private set
 
     override val type: JavaType = serObject.type
-    override val property: PropertyWriter? = serObject.property
+    override val property: ClassInformation.PropertyMetadata? = serObject.property
     override val serObjectObservable = serObject.toProperty()
 
     init {

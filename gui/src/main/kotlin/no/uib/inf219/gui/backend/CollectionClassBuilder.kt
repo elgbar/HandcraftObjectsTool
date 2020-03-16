@@ -3,7 +3,6 @@ package no.uib.inf219.gui.backend
 
 import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
-import com.fasterxml.jackson.databind.ser.PropertyWriter
 import javafx.event.EventTarget
 import javafx.scene.Node
 import javafx.scene.control.TreeView
@@ -11,6 +10,7 @@ import no.uib.inf219.extra.toCb
 import no.uib.inf219.gui.backend.serializers.ParentClassBuilderSerializer
 import no.uib.inf219.gui.backend.simple.IntClassBuilder
 import no.uib.inf219.gui.controllers.ObjectEditorController
+import no.uib.inf219.gui.loader.ClassInformation
 import no.uib.inf219.gui.view.NodeExplorerView
 import no.uib.inf219.gui.view.PropertyEditor
 import org.apache.commons.lang3.tuple.MutableTriple
@@ -25,7 +25,7 @@ class CollectionClassBuilder<out T>(
     override val type: JavaType,
     override val key: ClassBuilder<*>? = null,
     override val parent: ClassBuilder<*>? = null,
-    override val property: PropertyWriter? = null
+    override val property: ClassInformation.PropertyMetadata? = null
 ) : ClassBuilder<Collection<T>> {
 
     init {

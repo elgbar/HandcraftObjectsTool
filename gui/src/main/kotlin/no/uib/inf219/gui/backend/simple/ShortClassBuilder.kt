@@ -1,15 +1,15 @@
 package no.uib.inf219.gui.backend.simple
 
-import com.fasterxml.jackson.databind.ser.PropertyWriter
 import javafx.util.converter.ShortStringConverter
 import no.uib.inf219.gui.backend.ClassBuilder
 import no.uib.inf219.gui.backend.SimpleNumberClassBuilder
+import no.uib.inf219.gui.loader.ClassInformation
 
 class ShortClassBuilder(
     initial: Short = 0,
     name: ClassBuilder<*>? = null,
     parent: ClassBuilder<*>? = null,
-    prop: PropertyWriter? = null,
+    prop: ClassInformation.PropertyMetadata? = null,
     immutable: Boolean = false
 ) :
     SimpleNumberClassBuilder<Short>(

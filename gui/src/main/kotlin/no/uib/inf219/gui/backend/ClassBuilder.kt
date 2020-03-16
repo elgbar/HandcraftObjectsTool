@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.annotation.ObjectIdGenerators
 import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
-import com.fasterxml.jackson.databind.ser.PropertyWriter
 import com.fasterxml.jackson.databind.type.MapLikeType
 import javafx.beans.Observable
 import javafx.event.EventTarget
@@ -14,11 +13,14 @@ import javafx.scene.Node
 import no.uib.inf219.gui.backend.serializers.ClassBuilderSerializer
 import no.uib.inf219.gui.backend.simple.*
 import no.uib.inf219.gui.controllers.ObjectEditorController
+import no.uib.inf219.gui.loader.ClassInformation.PropertyMetadata
 import no.uib.inf219.gui.view.ClassSelectorView
 import no.uib.inf219.gui.view.ControlPanelView
 import tornadofx.find
 import tornadofx.property
 import tornadofx.warning
+import java.util.*
+import kotlin.collections.ArrayList
 
 /**
  * An interface that is the super class of all object builder, the aim of this interface is to manage how to build a given type.
@@ -62,7 +64,7 @@ interface ClassBuilder<out T> {
      * The property this class builder is creating, used for gaining additional metadata about what we're creating.
      */
     @get:JsonIgnore
-    val property: PropertyWriter?
+    val property: PropertyMetadata?
 
     /**
      * Convert this object to an instance of [T].
@@ -140,7 +142,7 @@ interface ClassBuilder<out T> {
         type: JavaType,
         key: ClassBuilder<*>?,
         value: Any? = null,
-        prop: PropertyWriter? = null
+        prop: PropertyMetadata? = null
     ): ClassBuilder<*>? {
         return getClassBuilder(type, key, this, value, prop)
     }
@@ -175,7 +177,7 @@ interface ClassBuilder<out T> {
      */
     @JsonIgnore
     fun isRequired(): Boolean {
-        return property?.isRequired ?: true
+        return property?.required ?: true
     }
 
     /**
@@ -194,7 +196,7 @@ interface ClassBuilder<out T> {
             type: JavaType,
             key: ClassBuilder<*>? = null,
             parent: ClassBuilder<*>? = null,
-            prop: PropertyWriter? = null
+            prop: PropertyMetadata? = null
         ): ClassBuilder<Any>? {
             return getClassBuilder<Any>(type, key, parent, null, prop)
         }
@@ -211,7 +213,7 @@ interface ClassBuilder<out T> {
             key: ClassBuilder<*>? = null,
             parent: ClassBuilder<*>? = null,
             value: T? = null,
-            prop: PropertyWriter? = null
+            prop: PropertyMetadata? = null
         ): ClassBuilder<Any>? {
 
             require(parent == null || !parent.isLeaf()) { "Parent cannot be a leaf" }
@@ -263,6 +265,8 @@ interface ClassBuilder<out T> {
                 //Strings is not a primitive, but its not far off
                 val init = if (value != null) value as String else ""
                 StringClassBuilder(init, key, parent, prop)
+            } else if (type.isTypeOrSuperTypeOf(UUID::class.java)) {
+                UUIDClassBuilder(UUID.randomUUID(), key, parent, prop)
             } else if (type.isCollectionLikeType || type.isArrayType) {
                 CollectionClassBuilder<T>(type, key, parent, prop)
             } else if (type.isMapLikeType && (type as MapLikeType).isTrueMapType) {
