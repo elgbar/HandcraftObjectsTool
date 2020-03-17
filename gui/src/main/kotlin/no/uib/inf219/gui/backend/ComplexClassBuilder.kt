@@ -134,26 +134,40 @@ class ComplexClassBuilder<out T>(
         parent: EventTarget,
         controller: ObjectEditorController
     ): Node {
-        return parent.scrollpane(fitToWidth = true, fitToHeight = true) {
+        return parent.borderpane {
 
-            if (this@ComplexClassBuilder.serObject.isEmpty()) {
-                hbox {
-                    alignment = Pos.CENTER
-                    textflow {
-                        textAlignment = TextAlignment.CENTER
-
-
-                        text("Class ")
-
-                        text(type.rawClass.canonicalName) {
-                            font = Styles.monospaceFont
-
+            top = borderpane {
+                center = vbox {
+                    addClass(Styles.parent)
+                    label("Required? ${isRequired()}")
+                    label("Type: ${type.rawClass}")
+                    val cbParent = this@ComplexClassBuilder.parent
+                    if (cbParent != null && cbParent is ComplexClassBuilder) {
+                        val desc = cbParent.propInfo[key?.getPreviewValue()]?.description
+                        if (!desc.isNullOrBlank()) {
+                            label("Description: $desc")
                         }
-                        text(" have no simple serializable properties")
                     }
                 }
+            }
+
+            if (this@ComplexClassBuilder.serObject.isEmpty()) {
+                center = borderpane {
+                    top = separator()
+                    center = vbox {
+                        alignment = Pos.CENTER
+                        textflow {
+                            textAlignment = TextAlignment.CENTER
+
+                            text("Class ")
+                            text(type.rawClass.canonicalName) { font = Styles.monospaceFont }
+                            text(" have no serializable properties")
+                        }
+                    }
+                }
+
             } else {
-                squeezebox {
+                center = squeezebox(false) {
                     for ((name, child) in this@ComplexClassBuilder.serObject) {
 
                         fun getFoldTitle(cb: ClassBuilder<*>? = child): String {
