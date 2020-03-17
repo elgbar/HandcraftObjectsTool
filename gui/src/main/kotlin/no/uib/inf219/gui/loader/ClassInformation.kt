@@ -32,14 +32,12 @@ object ClassInformation {
     private fun createDSP(): DefaultSerializerProvider {
         val jfac = JsonFactory.builder().build()
         val gen: JsonGenerator = jfac.createGenerator(SegmentedStringWriter(jfac._getBufferRecycler()))
-        val cfg: SerializationConfig = ControlPanelView.mapper.serializationConfig
+        val cfg: SerializationConfig = mapper.serializationConfig
         cfg.initialize(gen)
 
-        ControlPanelView.mapper.typeFactory = ControlPanelView.mapper.typeFactory.withClassLoader(DynamicClassLoader)
+        mapper.typeFactory = mapper.typeFactory.withClassLoader(DynamicClassLoader)
 
-
-
-        return DefaultSerializerProvider.Impl().createInstance(cfg, ControlPanelView.mapper.serializerFactory)
+        return DefaultSerializerProvider.Impl().createInstance(cfg, mapper.serializerFactory)
     }
 
     /**
@@ -118,7 +116,7 @@ object ClassInformation {
      */
     fun toJavaType(clazz: Class<*>): JavaType {
         return typeCache.computeIfAbsent(clazz) {
-            ControlPanelView.mapper.typeFactory.constructType(it)
+            mapper.typeFactory.constructType(it)
         }
     }
 }

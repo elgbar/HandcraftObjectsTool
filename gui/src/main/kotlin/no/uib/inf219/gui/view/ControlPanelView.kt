@@ -55,6 +55,8 @@ object ControlPanelView : View("Control Panel") {
         }
     }
 
+    var unsafeSerialization = false.toProperty()
+
     private fun updateMapper() {
         ClassInformation.updateMapper()
 
@@ -197,10 +199,12 @@ object ControlPanelView : View("Control Panel") {
             addClass(Styles.parent)
         }
 
+        val closeTabsWarningMsg = "Warning: Changing this will close all opened tabs."
+
         vbox {
             addClass(Styles.parent)
             hbox {
-                tooltip("Change what object mapper to use.\nWarning: Changing this will close all opened tabs.")
+                tooltip("Change what object mapper to use.\n$closeTabsWarningMsg")
 
                 label("Object Mapper Type ")
 
@@ -220,7 +224,12 @@ object ControlPanelView : View("Control Panel") {
                 }
             }
             checkbox("Use MrBean Module", useMrBean) {
-                tooltip("If the MrBean module should be enabled. If it is the object mapper will allow to create instances from interfaces and abstract classes directly. This will not work with classes that are polymorphic and is annotated with @JsonTypeInfo.")
+                tooltip(
+                    "If the MrBean module should be enabled. If it is the object mapper will allow to create instances from interfaces and abstract classes directly. This will not work with classes that are polymorphic and is annotated with @JsonTypeInfo.\n$closeTabsWarningMsg"
+                )
+            }
+            checkbox("Unsafe Serialization", unsafeSerialization) {
+                tooltip("If the objects should be serialized without checking if they can be deserialized again.")
             }
         }
 

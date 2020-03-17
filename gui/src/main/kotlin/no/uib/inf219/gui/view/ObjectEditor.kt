@@ -46,7 +46,7 @@ class ObjectEditor : View() {
             button("Save") {
                 setOnAction {
 
-                    val obj = toObject()
+                    val obj = toJson()
                     if (obj == null) {
                         OutputArea.logln("Cannot save object as it is not valid. Please validate it first")
                         return@setOnAction
@@ -88,7 +88,7 @@ class ObjectEditor : View() {
                     val file = files[0]
 
                     ControlPanelView.runAsync {
-                        mapper.writeValue(file, obj)
+                        mapper.writeValue(file, mapper.convertValue(controller.rootCb, controller.rootCb.type))
                         OutputArea.logln("Saved object to file ${file.canonicalPath}")
                     }
                 }
@@ -99,11 +99,10 @@ class ObjectEditor : View() {
                     OutputArea.logln("Validating...")
                     runAsync {
 
-                        val obj = toObject()
+                        val obj = toJson()
                         if (obj != null) {
                             OutputArea.logln("Successfully created object!")
-                            OutputArea.logln("obj=$obj")
-                            OutputArea.logln("json=${mapper.writeValueAsString(obj)}")
+                            OutputArea.logln("json=$obj")
                         }
                     }
                 }
@@ -112,9 +111,14 @@ class ObjectEditor : View() {
         }
     }
 
-    fun toObject(): Any? {
+    private fun toJson(): String? {
         try {
-            return controller.rootCb.toObject()!!
+            return if (ControlPanelView.unsafeSerialization.value) {
+                mapper.writeValueAsString(controller.rootCb)
+            } else {
+                val obj = mapper.convertValue<Any>(controller.rootCb, controller.rootCb.type)!!
+                mapper.writeValueAsString(obj)
+            }
         } catch (e: MissingPropertyException) {
             OutputArea.logln("Failed to create object.\n$e")
         } catch (e: Throwable) {
