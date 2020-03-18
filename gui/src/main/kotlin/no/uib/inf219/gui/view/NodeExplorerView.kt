@@ -98,10 +98,8 @@ class NodeExplorerView(private val controller: ObjectEditorController) : Fragmen
                 value.right.resetChild(key, restoreDefault = false)
                 value.right.createClassBuilderFor(key, ref)
 
-
                 //reload parent view (or this view if root controller)
                 (controller.parentController ?: controller).reloadView()
-
             }
 
             fun resetClicked(restoreDefault: Boolean) {
@@ -132,32 +130,15 @@ class NodeExplorerView(private val controller: ObjectEditorController) : Fragmen
                     }
                     item.children.setAll(children)
                 }
-
-//                (controller.parentController ?: controller).reloadView()
             }
 
             item("Restore to default") {
-//                tooltip = tooltip(
-//                    "Reset the value of this class builder to the default value.\n" +
-//                            "What this means is up to each type of class builder.\n" +
-//                            "Usually it will remove all values but a default value might be restored if any is specified.\n" +
-//                            "If you intend to completely remove it select \"Set to null\""
-//                )
                 action { resetClicked(true) }
             }
 
 
             item("Set to null") {
-//                tooltip = tooltip(
-//                    "Remove all references to this class builder"
-//                )
                 action { resetClicked(false) }
-            }
-
-            item("Force update tree") {
-                this@treeview.populate { childFactory(it) }
-                this@treeview.refresh()
-                this@treeview.populate { childFactory(it) }
             }
         }
     }
