@@ -275,8 +275,7 @@ interface ClassBuilder<out T> {
             } else if (type.isEnumType) {
                 @Suppress("UNCHECKED_CAST") //checking with isEnumType above
                 val enumClass = type.rawClass as Class<Enum<*>>
-                val init = if (value != null) value as Enum<*> else EnumClassBuilder.findEnumValues(enumClass)[0]
-                EnumClassBuilder(enumClass, init, key, parent, prop)
+                EnumClassBuilder(enumClass, enumClass.cast(value), key, parent, prop)
 
             } else if (type.rawClass.isAnnotation) {
                 error("Cannot serialize annotations.")

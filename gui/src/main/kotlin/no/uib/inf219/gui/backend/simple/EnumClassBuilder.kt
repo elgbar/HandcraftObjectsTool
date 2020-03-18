@@ -1,5 +1,6 @@
 package no.uib.inf219.gui.backend.simple
 
+import com.fasterxml.jackson.annotation.JsonEnumDefaultValue
 import javafx.scene.Node
 import javafx.scene.layout.Pane
 import javafx.util.StringConverter
@@ -8,18 +9,24 @@ import no.uib.inf219.gui.backend.SimpleClassBuilder
 import no.uib.inf219.gui.loader.ClassInformation
 import tornadofx.combobox
 import tornadofx.onChange
+import java.lang.reflect.Field
 
 /**
  * @author Elg
  */
 class EnumClassBuilder<T : Enum<*>>(
     clazz: Class<T>,
-    initialValue: T,
+    initialValue: T? = null,
     name: ClassBuilder<*>? = null,
     parent: ClassBuilder<*>? = null,
     property: ClassInformation.PropertyMetadata? = null
 ) : SimpleClassBuilder<T>(
-    clazz, initialValue, name, parent, property, false,
+    clazz,
+    initialValue ?: getDefaultEnumValue(clazz),
+    name,
+    parent,
+    property,
+    false,
     EnumConverter(clazz)
 ) {
 
@@ -56,7 +63,18 @@ class EnumClassBuilder<T : Enum<*>>(
         fun <T : Enum<*>> findEnumValues(enumClass: Class<T>): List<T> {
             require(enumClass.isEnum) { "Given class is not an enum class" }
             @Suppress("UNCHECKED_CAST")
-            return (enumClass.getMethod("values").invoke(null) as Array<T>).toList().sortedBy { it.name }
+            return enumClass.enumConstants.sortedBy { it.name }
+        }
+
+        fun <T : Enum<*>> getDefaultEnumValue(enumClass: Class<T>): T {
+            val enumConstants = findEnumValues(enumClass)
+            for (value in enumConstants) {
+                val field: Field = enumClass.getField(value.name)
+                if (field.isAnnotationPresent(JsonEnumDefaultValue::class.java)) {
+                    return value
+                }
+            }
+            return enumConstants[0]
         }
     }
 

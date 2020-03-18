@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.type.CollectionLikeType
 import no.uib.inf219.extra.toCb
 import no.uib.inf219.extra.type
 import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.testfx.framework.junit5.ApplicationExtension
@@ -73,16 +74,19 @@ internal class ClassBuilderTest {
         }
     }
 
+    @Disabled
     @Test
     internal fun createClassBuilderFor() {
         TODO("not implemented")
     }
 
+    @Disabled
     @Test
     internal fun resetChild_dontRestore_collection() {
         TODO("not implemented")
     }
 
+    @Disabled
     @Test
     internal fun resetChild_dontRestore_map() {
         TODO("not implemented")
