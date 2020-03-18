@@ -281,7 +281,7 @@ interface ClassBuilder<out T> {
             } else if (type.rawClass.isAnnotation) {
                 error("Cannot serialize annotations.")
             } else if (!type.isConcrete) {
-                if (ControlPanelView.useMrBean.value) {
+                if (ControlPanelView.useMrBean) {
                     if (!type.rawClass.isAnnotationPresent(JsonTypeInfo::class.java)) {
                         return ComplexClassBuilder(type, key, parent, prop)
                     } else {
@@ -292,7 +292,8 @@ interface ClassBuilder<out T> {
                     }
                 }
                 //the type is abstract/interface we need a concrete type to
-                val subtype = find<ClassSelectorView>().subtypeOf(type, false) ?: return null
+                val subtype = find<ClassSelectorView>().subtypeOf(type, true) ?: return null
+
                 getClassBuilder(subtype, key, parent, value, prop)
 
             } else {

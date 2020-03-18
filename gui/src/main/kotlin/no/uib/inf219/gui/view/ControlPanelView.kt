@@ -49,11 +49,12 @@ object ControlPanelView : View("Control Panel") {
             FX.find<BackgroundView>().tabpane.closeAll()
         }
 
-    var useMrBean = false.toProperty().apply {
+    private var useMrBeanProperty = false.toProperty().apply {
         onChange {
             mapper = orgMapper
         }
     }
+    var useMrBean by useMrBeanProperty
 
     var unsafeSerialization = false.toProperty()
 
@@ -62,10 +63,10 @@ object ControlPanelView : View("Control Panel") {
 
         val beanModule = MrBeanModule();
 
-        if (mapper.registeredModuleIds.contains(beanModule.typeId) && !useMrBean.value) {
+        if (mapper.registeredModuleIds.contains(beanModule.typeId) && !useMrBean) {
             //It is enabled for the current ObjectMapper already do not enable it again
-            useMrBean.set(true)
-        } else if (useMrBean.value) {
+            useMrBean = true
+        } else if (useMrBean) {
             mapper.registerModule(MrBeanModule())
         }
     }
@@ -223,9 +224,9 @@ object ControlPanelView : View("Control Panel") {
                     cellFormat { text = it.first }
                 }
             }
-            checkbox("Use MrBean Module", useMrBean) {
+            checkbox("Use MrBean Module", useMrBeanProperty) {
                 tooltip(
-                    "If the MrBean module should be enabled. If it is the object mapper will allow to create instances from interfaces and abstract classes directly. This will not work with classes that are polymorphic and is annotated with @JsonTypeInfo.\n$closeTabsWarningMsg"
+                    "If the MrBean module should be enabled. If it is the object mapper will allow to create instances from interfaces and abstract classes directly. This will not work with classes that are polymorphic and is annotated with @JsonTypeInfo. Enabling this will allow you to select interfaces and abstract classes in the class selection interface.\n$closeTabsWarningMsg"
                 )
             }
             checkbox("Unsafe Serialization", unsafeSerialization) {

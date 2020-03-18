@@ -10,6 +10,7 @@ import javafx.collections.ObservableList
 import javafx.collections.transformation.FilteredList
 import javafx.geometry.Pos
 import javafx.scene.Node
+import javafx.scene.control.ButtonType
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
 import no.uib.inf219.extra.type
@@ -41,7 +42,12 @@ class ClassSelectorView : View("Select implementation") {
     /**
      * The class selected by the use when closing the dialog
      */
-    private var result: Class<*>? = null
+    private var result: JavaType? = null
+
+    /**
+     * If we the current [result] class the the class we want to return
+     */
+    private val finishedSearching = false.toProperty()
 
     private val searchingProperty = SimpleBooleanProperty()
     private var searching by searchingProperty
@@ -57,6 +63,13 @@ class ClassSelectorView : View("Select implementation") {
 
     init {
         with(root) {
+
+
+            contextmenu {
+                checkmenuitem("Select implementation of selected") {
+                    bind(finishedSearching)
+                }
+            }
 
             style {
                 minWidth = 45.ems
@@ -113,22 +126,84 @@ class ClassSelectorView : View("Select implementation") {
                 }
 
                 listview(filteredData) {
+                    fun confirmAbstractClose() {
+
+                        fun findSubType() {
+                            finishedSearching.set(false)
+                            close()
+                        }
+
+                        fun returnSelectedType() {
+                            finishedSearching.set(true)
+                            close()
+                        }
+
+                        val realResult = result
+                        if (realResult != null) {
+
+                            val resultType: String
+                            val contentInfo: String
+
+                            when {
+                                realResult.isAbstract -> {
+                                    if (!ControlPanelView.useMrBean) {
+                                        //mr bean is not enabled so we cannot return abstract types
+                                        findSubType()
+                                        return
+                                    }
+                                    resultType = if (realResult.isInterface) "interface" else "abstract class"
+                                    contentInfo =
+                                        "The class you have selected is either an interface or an abstract class.\n" +
+                                                "You can select an abstract type as the Mr Bean module is enabled in the settings."
+                                }
+                                realResult.isFinal -> {
+                                    //There can never be any subclasses of final classes
+                                    returnSelectedType()
+                                    return
+                                }
+                                else -> {
+                                    resultType = "class"
+                                    contentInfo =
+                                        "The selected class may have subclasses you want to choose rather than this one."
+                                }
+                            }
+
+                            confirmation(
+                                "Do you want to return the selected $resultType ${realResult.rawClass?.name}?",
+                                "$contentInfo\n" +
+                                        "\n" +
+                                        "If you choose YES you will select this class and the dialogue will close.\n" +
+                                        "If you choose NO then you will be asked to select a subclass of this class.\n" +
+                                        "If you select CANCEL no choice will be made can you are free to choose another class.",
+                                title = "Return the selected $resultType ${realResult.rawClass?.name}?",
+                                owner = currentWindow,
+                                buttons = *arrayOf(ButtonType.YES, ButtonType.NO, ButtonType.CANCEL),
+                                actionFn = {
+                                    when (it) {
+                                        ButtonType.YES -> returnSelectedType() // return the abstract class
+                                        ButtonType.NO -> findSubType() // find an impl of the selected class
+                                        ButtonType.CANCEL -> return //Return to search , do not select the class
+                                    }
+                                }
+                            )
+                        }
+                    }
 
                     onUserSelect {
-                        result = DynamicClassLoader.loadClass(it)
+                        result = DynamicClassLoader.loadClass(it)?.type()
                     }
 
                     //close when pressing enter and something is selected or double clicking
                     onUserSelect(2) {
-                        result = DynamicClassLoader.loadClass(it)
-                        close()
+                        confirmAbstractClose()
                     }
 
                     addEventHandler(KeyEvent.ANY) { event ->
                         if (event.code == KeyCode.ENTER && result != null) {
-                            close()
+                            confirmAbstractClose()
                         }
                     }
+
                 }
             }
 
@@ -157,11 +232,15 @@ class ClassSelectorView : View("Select implementation") {
      * @throws IllegalArgumentException if the given types does not have a java class associated with it
      */
     fun subtypeOf(superType: JavaType, showAbstract: Boolean = false): JavaType? {
-        tornadofx.runAsync {
-            searchForSubtypes(superType, showAbstract)
-        }
-        openModal(block = true)
-        return result?.type()
+        result = superType
+        finishedSearching.value = false
+        do {
+            tornadofx.runAsync {
+                searchForSubtypes(result!!, showAbstract)
+            }
+            openModal(block = true)
+        } while (result != null && !finishedSearching.value)
+        return result
     }
 
     /**
@@ -173,9 +252,9 @@ class ClassSelectorView : View("Select implementation") {
     fun searchForSubtypes(superType: JavaType, showAbstract: Boolean) {
 
         require(superType.rawClass != null) { "Given java '$superType' types does not have a raw class" }
-        require(superType.rawClass.canonicalName != null) { "Given class '${superType.toCanonical()}' must have a canonical name" }
-        require(!superType.isPrimitive) { "Given class '${superType.toCanonical()}' cannot be primitive" }
-        require(!superType.isFinal) { "Given class '${superType.toCanonical()}' cannot be final" }
+        require(superType.rawClass.canonicalName != null) { "Given super class '${superType.toCanonical()}' must have a canonical name" }
+        require(!superType.isPrimitive) { "Given super class '${superType.toCanonical()}' cannot be primitive" }
+        require(!superType.isFinal) { "Given super class '${superType.toCanonical()}' cannot be final" }
 
         synchronized(this) {
 
