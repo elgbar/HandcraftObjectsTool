@@ -148,7 +148,8 @@ class ReferenceSelectorView : View("Reference") {
 
             //find all children that is the correct type
             // and isn't a ReferenceClassBuilder to prevent cycles
-            return allChildren.filter { it.type == type && it !is ReferenceClassBuilder }.toSet()
+            return allChildren.filter { it.type.isTypeOrSubTypeOf(type.rawClass) && it !is ReferenceClassBuilder }
+                .toSet()
         }
     }
 }

@@ -83,8 +83,8 @@ class ComplexClassBuilder<out T>(
 
         val prop = propInfo[propName]
         require(prop != null) { "The class $type does not have a property with the name '$propName'. Expected one of the following: ${propInfo.keys}" }
-        require(init == null || init.type == getChildType(key)) {
-            "Given initial value have different type than expected. expected ${getChildType(key)} got ${init?.type}"
+        require(init == null || init.type.isTypeOrSubTypeOf(getChildType(key)?.rawClass)) {
+            "Given initial value have different type than expected. Expected a subclass of ${getChildType(key)} got ${init?.type}"
         }
         return serObjectObservable.computeIfAbsent(propName) {
             createChild(key, init, prop)
@@ -212,7 +212,7 @@ class ComplexClassBuilder<out T>(
     }
 
     override fun getPreviewValue(): String {
-        return this.serObject.map { it.key + ": " + it.value?.getPreviewValue() }.joinToString(", ")
+        return "Complex class of type ${type.rawClass.typeName}. ${if (parent == null) "Root builder" else "Child ${key?.getPreviewValue()} of ${parent.getPreviewValue()}"}"
     }
 
     override fun getSubClassBuilders(): Map<ClassBuilder<*>, ClassBuilder<*>?> =

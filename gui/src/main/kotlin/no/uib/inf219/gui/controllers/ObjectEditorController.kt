@@ -138,7 +138,7 @@ class ObjectEditorController(
         override val property: ClassInformation.PropertyMetadata? = null
 
         override fun isLeaf(): Boolean = false
-        override fun getPreviewValue() = "Fake root"
+        override fun getPreviewValue() = "null"
         override fun getChildType(cb: ClassBuilder<*>) = getOrCreateRoot().type
         override fun getChild(key: ClassBuilder<*>) = getOrCreateRoot()
         override fun isImmutable() = true
