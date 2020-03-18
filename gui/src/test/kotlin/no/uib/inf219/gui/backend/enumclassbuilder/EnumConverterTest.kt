@@ -1,8 +1,11 @@
 package no.uib.inf219.gui.backend.enumclassbuilder
 
+import no.uib.inf219.extra.type
+import no.uib.inf219.gui.backend.ClassBuilder
 import no.uib.inf219.gui.backend.simple.EnumClassBuilder
 import no.uib.inf219.test.Weather
 import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.testfx.framework.junit5.ApplicationExtension
@@ -13,43 +16,39 @@ import org.testfx.framework.junit5.ApplicationExtension
 @ExtendWith(ApplicationExtension::class)
 class EnumConverterTest {
 
+
+    lateinit var cb: EnumClassBuilder<Weather>
+
+    @BeforeEach
+    internal fun setUp() {
+        cb = ClassBuilder.getClassBuilder(Weather::class.type())!! as EnumClassBuilder<Weather>
+    }
+
     //basic check
 
     @Test
     internal fun fromStringTest() {
-        val cb = EnumClassBuilder(
-            Weather::class.java,
-            Weather.SUNNY
-        )
+        cb.serObject = Weather.SUNNY
         Assertions.assertEquals(Weather.SUNNY, cb.converter.fromString(Weather.SUNNY.name))
     }
 
     @Test
     internal fun toStringTest() {
-        val cb = EnumClassBuilder(
-            Weather::class.java,
-            Weather.SUNNY
-        )
-        Assertions.assertEquals(Weather.SUNNY.name, cb.converter.toString(Weather.SUNNY))
+        cb.serObject = Weather.RAIN
+        Assertions.assertEquals(Weather.RAIN.name, cb.converter.toString(Weather.RAIN))
     }
 
     //Null checking
 
     @Test
     internal fun fromString_null() {
-        val cb = EnumClassBuilder(
-            Weather::class.java,
-            Weather.SUNNY
-        )
+        cb.serObject = Weather.SUNNY
         Assertions.assertNull(cb.converter.fromString(null))
     }
 
     @Test
     internal fun toString_null() {
-        val cb = EnumClassBuilder(
-            Weather::class.java,
-            Weather.SUNNY
-        )
+        cb.serObject = Weather.SUNNY
         Assertions.assertNull(cb.converter.toString(null))
     }
 
@@ -57,10 +56,7 @@ class EnumConverterTest {
 
     @Test
     internal fun fromString_invalid() {
-        val cb = EnumClassBuilder(
-            Weather::class.java,
-            Weather.SUNNY
-        )
+        cb.serObject = Weather.SUNNY
         Assertions.assertNull(cb.converter.fromString("something random"))
     }
 }
