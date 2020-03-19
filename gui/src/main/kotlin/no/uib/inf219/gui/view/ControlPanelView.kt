@@ -2,6 +2,7 @@ package no.uib.inf219.gui.view
 
 import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.afterburner.AfterburnerModule
 import com.fasterxml.jackson.module.mrbean.MrBeanModule
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
@@ -14,6 +15,7 @@ import no.uib.inf219.extra.closeAll
 import no.uib.inf219.extra.type
 import no.uib.inf219.gui.Styles
 import no.uib.inf219.gui.controllers.ObjectEditorController
+import no.uib.inf219.gui.ems
 import no.uib.inf219.gui.loader.ClassInformation
 import no.uib.inf219.gui.loader.DynamicClassLoader
 import no.uib.inf219.gui.loader.ObjectMapperLoader
@@ -49,25 +51,37 @@ object ControlPanelView : View("Control Panel") {
             FX.find<BackgroundView>().tabpane.closeAll()
         }
 
-    internal var useMrBeanProperty = false.toProperty().apply {
+    internal var useMrBeanProperty = booleanProperty().apply {
         onChange {
             mapper = orgMapper
         }
     }
     var useMrBean by useMrBeanProperty
 
+    var useAfterburnerProp = booleanProperty(true)
+    var useAfterburner by useAfterburnerProp
+
     var unsafeSerialization = false.toProperty()
 
     private fun updateMapper() {
         ClassInformation.updateMapper()
 
-        val beanModule = MrBeanModule();
+        val beanModule = MrBeanModule()
 
         if (mapper.registeredModuleIds.contains(beanModule.typeId) && !useMrBean) {
             //It is enabled for the current ObjectMapper already do not enable it again
             useMrBean = true
         } else if (useMrBean) {
-            mapper.registerModule(MrBeanModule())
+            mapper.registerModule(beanModule)
+        }
+
+        val afterBurnerModule = AfterburnerModule()
+
+        if (mapper.registeredModuleIds.contains(afterBurnerModule.typeId) && !useAfterburner) {
+            //It is enabled for the current ObjectMapper already do not enable it again
+            useAfterburner = true
+        } else if (useAfterburner) {
+            mapper.registerModule(afterBurnerModule)
         }
     }
 
@@ -166,7 +180,7 @@ object ControlPanelView : View("Control Panel") {
                         try {
                             clazz = DynamicClassLoader.loadClass(className)
                         } catch (e: Throwable) {
-                            OutputArea.log { "Failed to load class $className due to an error $e" }
+                            OutputArea.logln { "Failed to load class $className due to an error $e" }
                             ui {
                                 warning(
                                     "Failed to find a class with the name '${className}'",
@@ -196,16 +210,30 @@ object ControlPanelView : View("Control Panel") {
         label("Settings") {
             addClass(Styles.headLineLabel)
             addClass(Styles.parent)
+            style {
+                fontSize = 1.6.ems
+            }
         }
 
         val closeTabsWarningMsg = "Warning: Changing this will close all opened tabs."
 
         vbox {
             addClass(Styles.parent)
-            hbox {
-                tooltip("Change what object mapper to use.\n$closeTabsWarningMsg")
 
-                label("Object Mapper Type ")
+            separator()
+            label("Object Mapper") {
+                style {
+                    fontSize = 1.3.ems
+                }
+            }
+
+            hbox {
+
+                style {
+                    spacing = 0.333.ems
+                }
+
+                tooltip("Change what object mapper to use.\n$closeTabsWarningMsg")
 
                 combobox(
                     values = possibleMappers
@@ -222,11 +250,39 @@ object ControlPanelView : View("Control Panel") {
                     cellFormat { text = it.first }
                 }
             }
-            checkbox("Use MrBean Module", useMrBeanProperty) {
-                tooltip(
-                    "If the MrBean module should be enabled. If it is the object mapper will allow to create instances from interfaces and abstract classes directly. This will not work with classes that are polymorphic and is annotated with @JsonTypeInfo. Enabling this will allow you to select interfaces and abstract classes in the class selection interface.\n$closeTabsWarningMsg"
-                )
+
+            separator()
+            label("Modules") {
+                style {
+                    fontSize = 1.3.ems
+                }
             }
+
+            hbox {
+                style {
+                    spacing = 0.333.ems
+                }
+                checkbox("Use MrBean Module", useMrBeanProperty) {
+                    tooltip(
+                        "Mr Bean is an extension that implements support for \"POJO type materialization\"; ability for databinder to construct implementation classes for Java interfaces and abstract classes, as part of deserialization. This will not work with classes that are polymorphic and is annotated with @JsonTypeInfo. Enabling this will allow you to select interfaces and abstract classes in the class selection interface.\n$closeTabsWarningMsg"
+                    )
+                }
+
+                checkbox("Use Afterburner Module", useAfterburnerProp) {
+                    tooltip(
+                        "Module that will add dynamic bytecode generation for standard Jackson POJO serializers and deserializers, eliminating majority of remaining data binding overhead.\n" +
+                                "It is recommenced to have this enabled, but can be disabled if there are any problems with it\n" +
+                                closeTabsWarningMsg
+                    )
+                }
+            }
+            separator()
+            label("Misc") {
+                style {
+                    fontSize = 1.3.ems
+                }
+            }
+
             checkbox("Unsafe Serialization", unsafeSerialization) {
                 tooltip("If the objects should be serialized without checking if they can be deserialized again.")
             }
@@ -251,7 +307,7 @@ object ControlPanelView : View("Control Panel") {
         try {
             editor = find(ObjectEditor::class, Scope(), "controller" to ObjectEditorController(type, null))
         } catch (e: Throwable) {
-            OutputArea.log { "Failed to open tab due to an error $e" }
+            OutputArea.logln { "Failed to open tab due to an error $e" }
             error(
                 "Can not serialize ${type.rawClass}",
                 "failed to create an editor for the given class\n" +

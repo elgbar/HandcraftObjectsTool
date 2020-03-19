@@ -109,6 +109,7 @@ project(":gui") {
         implementation "io.github.classgraph:classgraph:4.8.60"
 
         implementation "com.fasterxml.jackson.module:jackson-module-mrbean:$jackson_version"
+        implementation "com.fasterxml.jackson.module:jackson-module-afterburner:$jackson_version"
     }
 
     jar {
