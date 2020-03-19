@@ -25,7 +25,8 @@ object ClassInformation {
 
     private var ser: DefaultSerializerProvider = createDSP()
 
-    private val cache: MutableMap<JavaType, Triple<TypeSerializer, Map<String, PropertyMetadata>, Boolean>> = HashMap()
+    private val typePropCache: MutableMap<JavaType, Triple<TypeSerializer, Map<String, PropertyMetadata>, Boolean>> =
+        HashMap()
     private val typeCache: MutableMap<Class<*>, JavaType> = HashMap()
 
 
@@ -45,6 +46,7 @@ object ClassInformation {
      */
     fun updateMapper() {
         ser = createDSP()
+        typePropCache.clear()
     }
 
     data class PropertyMetadata(
@@ -76,7 +78,7 @@ object ClassInformation {
 
         val realType = ser.findValueSerializer(type).handledType().type()
 
-        return cache.computeIfAbsent(type) {
+        return typePropCache.computeIfAbsent(type) {
 
             val props = ser.findValueSerializer(realType)
             val map = HashMap<String, PropertyMetadata>()
