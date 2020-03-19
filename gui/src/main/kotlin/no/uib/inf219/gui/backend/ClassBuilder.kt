@@ -280,19 +280,20 @@ interface ClassBuilder<out T> {
             } else if (type.rawClass.isAnnotation) {
                 error("Serialization of annotations is not supported, is there even any way to serialize them?")
             } else if (!type.isConcrete) {
+                //the type is abstract/interface we need a concrete type to
+                val subtype = find<ClassSelectorView>().subtypeOf(type, true) ?: return null
+
                 if (ControlPanelView.useMrBean) {
-                    if (!type.rawClass.isAnnotationPresent(JsonTypeInfo::class.java)) {
-                        return ComplexClassBuilder(type, key, parent, prop)
+                    if (!subtype.rawClass.isAnnotationPresent(JsonTypeInfo::class.java)) {
+                        return ComplexClassBuilder(subtype, key, parent, prop)
                     } else {
                         warning(
                             "Polymorphic types with type information not allowed with MrBean module",
                             "Since base classes are often abstract classes, but those classes should not be materialized, because they are never used (instead, actual concrete sub-classes are used). Because of this, Mr Bean will not materialize any types annotated with @JsonTypeInfo annotation."
                         )
+                        return null
                     }
                 }
-                //the type is abstract/interface we need a concrete type to
-                val subtype = find<ClassSelectorView>().subtypeOf(type, true) ?: return null
-
                 getClassBuilder(subtype, key, parent, value, prop)
 
             } else {
