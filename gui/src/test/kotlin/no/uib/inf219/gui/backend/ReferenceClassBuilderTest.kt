@@ -3,6 +3,7 @@ package no.uib.inf219.gui.backend
 import com.fasterxml.jackson.databind.type.CollectionLikeType
 import no.uib.inf219.extra.toCb
 import no.uib.inf219.extra.type
+import no.uib.inf219.gui.view.ControlPanelView
 import no.uib.inf219.test.conv.Conversation
 import no.uib.inf219.test.conv.Response
 import org.junit.jupiter.api.Assertions.*
@@ -60,12 +61,17 @@ internal class ReferenceClassBuilderTest {
             ReferenceClassBuilder(Response::conv.name.toCb(), resp1, 1.toCb(), responses)
 
         //Each response lead to a common conversation, now lets try convert this to a real conversation
-        val converted: Conversation = cb.toObject() ?: fail("Compiled object is null")
-        val convertedResponses = converted.responses
+        var converted: Conversation? = null
+        assertDoesNotThrow {
+            println(ControlPanelView.mapper.writeValueAsString(cb.serObject))
+            converted = cb.toObject()
+        }
+        val convertedResponses = converted?.responses ?: fail("Compiled object is null")
 
-        //Each response lead to a common conversation
         assertEquals(convertedResponses[0].conv, convertedResponses[1].conv)
-        assertTrue(convertedResponses[0].conv === convertedResponses[1].conv) { "The converted conversation responses are equal, but not the same object" }
+        assertSame(convertedResponses[0].conv, convertedResponses[1].conv) {
+            "The converted conversation responses are equal, but not the same object"
+        }
     }
 
     @Test

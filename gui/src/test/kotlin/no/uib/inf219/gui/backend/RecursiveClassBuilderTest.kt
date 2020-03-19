@@ -1,6 +1,5 @@
 package no.uib.inf219.gui.backend
 
-import no.uib.inf219.extra.toCb
 import no.uib.inf219.extra.type
 import no.uib.inf219.gui.view.ControlPanelView
 import no.uib.inf219.test.UselessRecursiveObject
@@ -51,14 +50,16 @@ class RecursiveClassBuilderTest {
     internal fun canCreateRecursiveClass() {
 
         val cb = ComplexClassBuilder<UselessRecursiveObject>(UselessRecursiveObject::class.type())
-        val key = UselessRecursiveObject::with.name.toCb()
+
         //do not use ReferenceClassBuilder here as it will create a cycle with itself, and not the parent
         cb.serObject[UselessRecursiveObject::with.name] = cb
 
         var created: UselessRecursiveObject? = null
         assertDoesNotThrow {
             created = cb.toObject()
+            println(ControlPanelView.mapper.writeValueAsString(cb.serObject))
         }
+
 
         assertNotNull(created)
         assertTrue(created === created!!.with)

@@ -26,9 +26,7 @@ internal class ComplexClassBuilderTest {
 
     @Test
     internal fun canCreateAbstractTypes() {
-        val created = ComplexClassBuilder<Precondition>(
-            AlwaysTruePrecondition::class.type()
-        ).toObject()
+        val created = ComplexClassBuilder<Precondition>(AlwaysTruePrecondition::class.type()).toObject()
         assertEquals(AlwaysTruePrecondition(), created)
     }
 
