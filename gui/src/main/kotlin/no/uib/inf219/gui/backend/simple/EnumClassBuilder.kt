@@ -1,14 +1,16 @@
 package no.uib.inf219.gui.backend.simple
 
 import com.fasterxml.jackson.annotation.JsonEnumDefaultValue
+import javafx.collections.transformation.FilteredList
 import javafx.scene.Node
+import javafx.scene.control.SelectionMode
 import javafx.scene.layout.Pane
 import javafx.util.StringConverter
+import no.uib.inf219.gui.Styles
 import no.uib.inf219.gui.backend.ClassBuilder
 import no.uib.inf219.gui.backend.SimpleClassBuilder
 import no.uib.inf219.gui.loader.ClassInformation
-import tornadofx.combobox
-import tornadofx.onChange
+import tornadofx.*
 import java.lang.reflect.Field
 
 /**
@@ -30,26 +32,36 @@ class EnumClassBuilder<T : Enum<*>>(
     EnumConverter(clazz)
 ) {
 
-    private val enumValues = findEnumValues(clazz)
+    private val enumValues = findEnumValues(clazz).asObservable()
+    private val filteredValues = FilteredList(enumValues)
 
     override fun editView(parent: Pane): Node {
-        return parent.combobox(
-            property = serObjectObservable,
-            values = enumValues
-        ) {
-            //Select the initial value as the first one
-            value = initialValue
-
-            selectionModel.selectedItemProperty().onChange {
-                print("new $it")
+        return parent.vbox {
+            addClass(Styles.parent)
+            textfield {
+                promptText = "Enum name"
+                textProperty().onChange {
+                    if (text.isNullOrBlank()) {
+                        filteredValues.predicate = null
+                    } else {
+                        filteredValues.setPredicate {
+                            it.name.contains(text, ignoreCase = true)
+                        }
+                    }
+                }
             }
 
-            setOnKeyPressed { event ->
-                //find the first enum that starts with the given text and make it the selected value
-                enumValues.find {
-                    it.name.startsWith(event.text, true)
-                }.also {
-                    selectionModel.select(it)
+            listview(filteredValues) {
+                selectionModel.selectionMode = SelectionMode.SINGLE
+                selectionModel.select(initialValue)
+
+                filteredValues.onChange {
+                    if (filteredValues.contains(serObject)) {
+                        selectionModel.select(serObject)
+                    }
+                }
+                onUserSelect(1) {
+                    serObject = it
                 }
             }
         }
