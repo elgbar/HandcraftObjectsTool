@@ -13,6 +13,7 @@ import javafx.scene.Node
 import javafx.scene.control.ButtonType
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
+import no.uib.inf219.extra.onChange
 import no.uib.inf219.extra.type
 import no.uib.inf219.gui.Styles
 import no.uib.inf219.gui.ems
@@ -47,13 +48,16 @@ class ClassSelectorView : View("Select implementation") {
     /**
      * If we the current [result] class the the class we want to return
      */
-    private val finishedSearching = false.toProperty()
+    private val finishedSearching = booleanProperty()
 
     private val searchingProperty = SimpleBooleanProperty()
     private var searching by searchingProperty
 
     private val superClassProperty = SimpleStringProperty()
     private var superClass by superClassProperty
+
+    private val showMrBeanWarningProperty = booleanProperty(true)
+    private var showMrBeanWarning by showMrBeanWarningProperty
 
     private val label: Node
     private lateinit var textLabelProperty: StringProperty
@@ -62,6 +66,12 @@ class ClassSelectorView : View("Select implementation") {
     override val root = borderpane()
 
     init {
+
+        ControlPanelView.useMrBeanProperty.onChange { useMrBean ->
+            //reset the warning when mr bean is disabled
+            if (!useMrBean) showMrBeanWarning = true
+        }
+
         with(root) {
 
 
@@ -147,6 +157,19 @@ class ClassSelectorView : View("Select implementation") {
                             when {
                                 realResult.isAbstract -> {
                                     if (!ControlPanelView.useMrBean) {
+                                        if (showMrBeanWarning) {
+                                            val noWarnButton =
+                                                ButtonType("OK do not warn me again", ButtonBar.ButtonData.OK_DONE)
+                                            information(
+                                                "Cannot select an abstract class when the Mr Bean module is not enabled.",
+                                                buttons = *arrayOf(ButtonType.OK, noWarnButton),
+                                                actionFn = {
+                                                    when (it) {
+                                                        noWarnButton -> showMrBeanWarning = false
+                                                    }
+                                                }
+                                            )
+                                        }
                                         //mr bean is not enabled so we cannot return abstract types
                                         findSubType()
                                         return

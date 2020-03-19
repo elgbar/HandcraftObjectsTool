@@ -49,7 +49,7 @@ object ControlPanelView : View("Control Panel") {
             FX.find<BackgroundView>().tabpane.closeAll()
         }
 
-    private var useMrBeanProperty = false.toProperty().apply {
+    internal var useMrBeanProperty = false.toProperty().apply {
         onChange {
             mapper = orgMapper
         }
