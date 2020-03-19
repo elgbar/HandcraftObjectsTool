@@ -23,12 +23,14 @@ object ClassInformation {
 
     const val VALUE_DELEGATOR_NAME = "value"
 
-    private var ser: DefaultSerializerProvider = createDSP()
+    private lateinit var ser: DefaultSerializerProvider
+    private val typePropCache: MutableMap<JavaType, Triple<TypeSerializer, Map<String, PropertyMetadata>, Boolean>>
+    private val typeCache: MutableMap<Class<*>, JavaType>
 
-    private val typePropCache: MutableMap<JavaType, Triple<TypeSerializer, Map<String, PropertyMetadata>, Boolean>> =
-        HashMap()
-    private val typeCache: MutableMap<Class<*>, JavaType> = HashMap()
-
+    init {
+        typePropCache = HashMap()
+        typeCache = HashMap()
+    }
 
     private fun createDSP(): DefaultSerializerProvider {
         val jfac = JsonFactory.builder().build()
