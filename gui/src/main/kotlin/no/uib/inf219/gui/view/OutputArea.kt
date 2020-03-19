@@ -24,26 +24,12 @@ object OutputArea : View() {
     }
 
     /**
-     * Log a message
-     */
-    fun log(msg: String) {
-        Platform.runLater {
-            root.appendText(msg)
-        }
-    }
-
-    /**
      * Log a message and append a newline
      */
     fun logln(msg: String) {
-        log(msg + "\n")
-    }
-
-    /**
-     * Log a message lazily
-     */
-    fun log(msg: () -> String) {
-        log(msg())
+        Platform.runLater {
+            root.appendText(msg + "\n")
+        }
     }
 
     /**
