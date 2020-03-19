@@ -2,7 +2,6 @@ package no.uib.inf219.gui.backend
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo
 import com.fasterxml.jackson.annotation.JsonIgnore
-import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.annotation.ObjectIdGenerators
 import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
@@ -10,13 +9,17 @@ import com.fasterxml.jackson.databind.type.MapLikeType
 import javafx.beans.Observable
 import javafx.event.EventTarget
 import javafx.scene.Node
+import javafx.scene.control.ButtonBar
+import javafx.scene.control.ButtonType
 import no.uib.inf219.gui.backend.serializers.ClassBuilderSerializer
 import no.uib.inf219.gui.backend.simple.*
 import no.uib.inf219.gui.controllers.ObjectEditorController
+import no.uib.inf219.gui.loader.ClassInformation
 import no.uib.inf219.gui.loader.ClassInformation.PropertyMetadata
 import no.uib.inf219.gui.view.ClassSelectorView
 import no.uib.inf219.gui.view.ControlPanelView
 import tornadofx.find
+import tornadofx.information
 import tornadofx.property
 import tornadofx.warning
 import java.util.*
@@ -213,7 +216,8 @@ interface ClassBuilder<out T> {
             key: ClassBuilder<*>? = null,
             parent: ClassBuilder<*>? = null,
             value: T? = null,
-            prop: PropertyMetadata? = null
+            prop: PropertyMetadata? = null,
+            allowAbstractType: Boolean = false
         ): ClassBuilder<Any>? {
 
             require(parent == null || !parent.isLeaf()) { "Parent cannot be a leaf" }
@@ -279,23 +283,44 @@ interface ClassBuilder<out T> {
 
             } else if (type.rawClass.isAnnotation) {
                 error("Serialization of annotations is not supported, is there even any way to serialize them?")
-            } else if (!type.isConcrete) {
-                //the type is abstract/interface we need a concrete type to
-                val subtype = find<ClassSelectorView>().subtypeOf(type, true) ?: return null
+            } else if (!type.isConcrete && !allowAbstractType) {
 
                 if (ControlPanelView.useMrBean) {
-                    if (!subtype.rawClass.isAnnotationPresent(JsonTypeInfo::class.java)) {
-                        return ComplexClassBuilder(subtype, key, parent, prop)
-                    } else {
+                    //users might want to create the selected class not a subclass
+
+                    val createThis = ButtonType("Create this", ButtonBar.ButtonData.OK_DONE)
+                    val findSubclass = ButtonType("Find subclass", ButtonBar.ButtonData.NEXT_FORWARD)
+                    information(
+                        "You you want to create ${type.rawClass} or a sub class of it?",
+                        "The class you want to create is an abstract class or an interface." +
+                                "\nDo you want to create this abstract type or find a sub class of it?",
+                        buttons = *arrayOf(createThis, findSubclass),
+                        actionFn = {
+                            if (it == createThis) {
+                                return getClassBuilder(type, key, parent, value, prop, true)
+                            }
+                        }
+                    )
+                }
+
+                val subtype = find<ClassSelectorView>().subtypeOf(type, true) ?: return null
+                val allowAbstractNextTime = if (ControlPanelView.useMrBean) {
+
+                    val typeInfo = ClassInformation.serializableProperties(subtype)
+                    if (typeInfo.first != null) {
                         warning(
                             "Polymorphic types with type information not allowed with MrBean module",
                             "Since base classes are often abstract classes, but those classes should not be materialized, because they are never used (instead, actual concrete sub-classes are used). Because of this, Mr Bean will not materialize any types annotated with @JsonTypeInfo annotation."
                         )
-                        return null
+                        false
+                    } else {
+                        //selected type is allowed so the next time around don't go here
+                        true
                     }
+                } else {
+                    false
                 }
-                getClassBuilder(subtype, key, parent, value, prop)
-
+                getClassBuilder(subtype, key, parent, value, prop, allowAbstractNextTime)
             } else {
 
                 //it's not a primitive type so let's just make a complex type for it
