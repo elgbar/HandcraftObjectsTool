@@ -10,6 +10,7 @@ import javafx.collections.ObservableList
 import javafx.collections.transformation.FilteredList
 import javafx.geometry.Pos
 import javafx.scene.Node
+import javafx.scene.control.ButtonBar
 import javafx.scene.control.ButtonType
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
@@ -109,16 +110,10 @@ class ClassSelectorView : View("Select implementation") {
                     return "Choose subclass of $superClass (${searchResult.size} found)"
                 }
 
-                text(updateText()) {
-                    style {
-                        fontSize = 1.5.ems
-                    }
-                    superClassProperty.onChange {
-                        text = updateText()
-                    }
-                    searchResult.onChange {
-                        text = updateText()
-                    }
+                textflow().text(updateText()) {
+                    style { fontSize = 1.5.ems }
+                    superClassProperty.onChange { text = updateText() }
+                    searchResult.onChange { text = updateText() }
                 }
 
                 textfield {
@@ -237,8 +232,10 @@ class ClassSelectorView : View("Select implementation") {
                 runLater {
                     if (searching) {
                         center.replaceWith(label, sizeToScene = true, centerOnScreen = true)
+                        this@ClassSelectorView.title = "Searching for subclasses of $superClass"
                     } else {
                         center.replaceWith(resultList, sizeToScene = true, centerOnScreen = true)
+                        this@ClassSelectorView.title = "Select a subclass of $superClass"
                     }
                 }
             }
