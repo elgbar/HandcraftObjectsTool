@@ -199,7 +199,10 @@ class ClassSelectorView : View("Select implementation") {
                     }
 
                     addEventHandler(KeyEvent.ANY) { event ->
-                        if (event.code == KeyCode.ENTER && result != null) {
+                        if (event.code == KeyCode.ESCAPE) {
+                            result = null
+                            close()
+                        } else if (event.code == KeyCode.ENTER && result != null) {
                             confirmAbstractClose()
                         }
                     }
