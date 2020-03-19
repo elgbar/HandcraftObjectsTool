@@ -278,7 +278,7 @@ interface ClassBuilder<out T> {
                 EnumClassBuilder(enumClass, enumClass.cast(value), key, parent, prop)
 
             } else if (type.rawClass.isAnnotation) {
-                error("Cannot serialize annotations.")
+                error("Serialization of annotations is not supported, is there even any way to serialize them?")
             } else if (!type.isConcrete) {
                 if (ControlPanelView.useMrBean) {
                     if (!type.rawClass.isAnnotationPresent(JsonTypeInfo::class.java)) {

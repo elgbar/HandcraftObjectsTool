@@ -164,18 +164,16 @@ object ControlPanelView : View("Control Panel") {
                         val className = classNameProperty.value
                         val clazz: Class<*>
                         try {
-                            try {
-                                clazz = DynamicClassLoader.loadClass(className)
-                            } catch (e: Throwable) {
-                                ui {
-                                    OutputArea.logln("Failed to find a class with the name '${className}'")
-                                }
-                                return@runAsync
-                            }
-                        } catch (e: IllegalStateException) {
+                            clazz = DynamicClassLoader.loadClass(className)
+                        } catch (e: Throwable) {
+                            OutputArea.log { "Failed to load class $className due to an error $e" }
                             ui {
-                                OutputArea.logln("Failed to load class due to $e")
-                                e.printStackTrace()
+                                warning(
+                                    "Failed to find a class with the name '${className}'",
+                                    "Due to exception ${e.javaClass.name}: ${e.localizedMessage}\n" +
+                                            "\n" +
+                                            "Have you remembered to load the expected jar(s)?"
+                                )
                             }
                             return@runAsync
                         }
@@ -254,7 +252,12 @@ object ControlPanelView : View("Control Panel") {
             editor = find(ObjectEditor::class, Scope(), "controller" to ObjectEditorController(type, null))
         } catch (e: Throwable) {
             OutputArea.log { "Failed to open tab due to an error $e" }
-            error("Cannot serialize $type, failed to create an editor for the given type", e.message)
+            error(
+                "Can not serialize ${type.rawClass}",
+                "failed to create an editor for the given class\n" +
+                        "\n" +
+                        "${e.message}"
+            )
             return
         }
         FX.find<BackgroundView>().tabpane.tab("Edit ${type.rawClass.simpleName}", BorderPane()) {
