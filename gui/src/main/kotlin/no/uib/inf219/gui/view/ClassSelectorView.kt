@@ -180,7 +180,8 @@ class ClassSelectorView : View("Select implementation") {
                                     return
                                 }
                                 else -> {
-                                    resultType = "class"
+                                    resultType =
+                                        if (realResult.isEnumType) "enum" else if (realResult.isArrayType) "array" else "class"
                                     contentInfo =
                                         "The selected class may have subclasses you want to choose rather than this one."
                                 }
