@@ -157,6 +157,8 @@ class ClassSelectorView : View("Select implementation") {
                                                 ButtonType("OK do not warn me again", ButtonBar.ButtonData.OK_DONE)
                                             information(
                                                 "Cannot select an abstract class when the Mr Bean module is not enabled.",
+                                                "You will now be asked to select a subclass of ${realResult.rawClass}",
+                                                owner = currentWindow,
                                                 buttons = *arrayOf(ButtonType.OK, noWarnButton),
                                                 actionFn = {
                                                     when (it) {
