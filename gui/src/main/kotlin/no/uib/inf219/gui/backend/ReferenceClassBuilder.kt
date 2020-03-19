@@ -114,7 +114,7 @@ class ReferenceClassBuilder(
 
     override fun hashCode(): Int {
         var result = serObject.hashCode()
-        result = 31 * result + (parent?.hashCode() ?: 0)
+        result = 31 * result + parent.hashCode()
         return result
     }
 

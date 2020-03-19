@@ -31,8 +31,6 @@ class ComplexClassBuilder<out T>(
     override val property: ClassInformation.PropertyMetadata? = null
 ) : ClassBuilder<T> {
 
-    //TODO make all property info, default etc into a single class
-
     /**
      * Hold information about the given property
      */

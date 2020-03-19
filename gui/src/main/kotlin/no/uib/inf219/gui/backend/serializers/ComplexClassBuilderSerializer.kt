@@ -20,7 +20,6 @@ object ComplexClassBuilderSerializer : StdSerializer<ComplexClassBuilder<*>>(Com
 
 
     override fun serialize(value: ComplexClassBuilder<*>, gen: JsonGenerator, provider: SerializerProvider) {
-
         serializeWithType(value, gen, provider, value.typeSerializer)
     }
 
@@ -33,12 +32,7 @@ object ComplexClassBuilderSerializer : StdSerializer<ComplexClassBuilder<*>>(Com
 
 
         if (value.isJsonValueDelegator) {
-
             require(value.serObject.size == 1) { "Json delegated values can only have one property!. Found ${value.serObject.size}! ${value.serObject}" }
-            val prop = value.serObject.values.first()!!
-            val ser: JsonSerializer<Any> = provider.findValueSerializer(prop.javaClass.type())
-            ser.serialize(prop, gen, provider)
-            return
         }
 
         val beanSer = provider.findValueSerializer(value.type)
@@ -90,7 +84,9 @@ object ComplexClassBuilderSerializer : StdSerializer<ComplexClassBuilder<*>>(Com
             gen.writeTypePrefix(typeId)
         } else {
             //if we do not have any type id just begin the object
-            gen.writeStartObject()
+            if (!value.isJsonValueDelegator) {
+                gen.writeStartObject()
+            }
             typeId = null //No type info given
         }
 
@@ -98,23 +94,37 @@ object ComplexClassBuilderSerializer : StdSerializer<ComplexClassBuilder<*>>(Com
         // do it in here as we are sure no delegation is happening
         objectId?.writeAsField(gen, provider, objIdWriter)
 
-        for ((key, prop) in value.serObject) {
-
-            // Null handling is bit different, check that first
+        if (value.isJsonValueDelegator) {
+            val prop = value.serObject.values.first()
             if (prop == null) {
-                gen.writeNullField(key)
-                continue
+                gen.writeNull()
+            } else {
+                val ser: JsonSerializer<Any> = provider.findValueSerializer(prop.javaClass.type())
+                ser.serialize(prop, gen, provider)
             }
-            // then find serializer to use
-            val ser: JsonSerializer<Any> = provider.findValueSerializer(prop.javaClass.type())
-            gen.writeFieldName(key)
-            ser.serialize(prop, gen, provider)
+        } else {
+
+            for ((key, prop) in value.serObject) {
+
+                // Null handling is bit different, check that first
+                if (prop == null) {
+                    gen.writeNullField(key)
+                    continue
+                }
+                // then find serializer to use
+                val ser: JsonSerializer<Any> = provider.findValueSerializer(prop.javaClass.type())
+                if (!value.isJsonValueDelegator) {
+                    gen.writeFieldName(key)
+                }
+                ser.serialize(prop, gen, provider)
+            }
         }
 
         //close the object we're editing
-        if (typeId != null)
+        if (typeId != null) {
             gen.writeTypeSuffix(typeId)
-        else
+        } else if (!value.isJsonValueDelegator) {
             gen.writeEndObject()
+        }
     }
 }
