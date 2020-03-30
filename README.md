@@ -1,6 +1,6 @@
 # INF219 Project Spring 2020
 
-This is a student project for the course [INF219](https://www.uib.no/en/course/INF219) at the university of Bergen. The project aims to make it easy to write serialized JVM objects for use where hand crafted object are needed. [Jackson](https://github.com/FasterXML/jackson) is used to handle the heavy lifting with (de)serialization, originally snake yaml [Snake YAML](https://bitbucket.org/asomov/snakeyaml-engine/src/master/) was planned to be used.
+This is a student project for the course [INF219](https://www.uib.no/en/course/INF219) at the university of Bergen. The project aims to make it easy to write serialized JVM objects for use where hand crafted object are needed. [Jackson](https://github.com/FasterXML/jackson) is used to handle the heavy lifting with (de)serialization, originally [Snake YAML](https://bitbucket.org/asomov/snakeyaml-engine/src/master/) was planned to be used.
 
 
 ## Features
