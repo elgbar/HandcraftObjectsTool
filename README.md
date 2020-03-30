@@ -53,7 +53,7 @@ This is a list of planned features this project _might_ have, the order is rando
 
 When loading a jar you can specify your own Object Mapper to be used with serialization. To do this create a file named `.hot` in the root directory of the jar (ie. root folder of your resources folder if using gradle/maven). Within this file you need to specify the full class name of the file which contains the __static__ field which contains the `ObjectMapper`. The second line contains the name of the field, it is optional and defaults to `mapper`.
 
-The code that handles this can be found at `no.uib.inf219.gui.loader.ObjectMapperLoader`
+The code that handles this can be found at [`no.uib.inf219.gui.loader.ObjectMapperLoader`](https://github.com/kh498/HandcraftObjectsTool/blob/master/gui/src/main/kotlin/no/uib/inf219/gui/loader/ObjectMapperLoader.kt)
 
 ### Example content of `.hot`
 
