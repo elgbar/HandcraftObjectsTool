@@ -5,7 +5,7 @@ This is a student project for the course [INF219](https://www.uib.no/en/course/I
 
 ## Features
 
-By API in the feature lists below it is understood that it allows for extension of a given feature by an external unrelated party.
+By API in the feature lists below it is understood that it allows for extension of a given feature by an external third party.
 
 ### List of Features
 
@@ -13,15 +13,18 @@ Features of the project that will be completed before considering the project in
 
 * [x] Load wanted class from given JAR(s).
 * [x] Serialize to YAML.
+   * _See [jacksons text module](https://github.com/FasterXML/jackson-dataformats-text)_
 * [x] Type checking for primitives.
 * [x] API for (de)serialization of object you can and cannot modify.
     * _Jackson provides this with MixIn annotations, they can be loaded via custom object mappers_
-* [x] API to communicate information about an object.
+* [x] API to communicate information about how to serialize/deserialize different objects.
+   * _This can be achived with jackson modules, see [Using a custom Object Mapper](#using-a-custom-object-mapper)_
 * [x] Allow objects to be optional.
-* [x] Support for lists, sets and maps:
-  * [x] List
-  * [x] Set
-  * [x] Map
+   * _See [Jacksons JsonProperty](https://github.com/FasterXML/jackson-annotations/blob/master/src/main/java/com/fasterxml/jackson/annotation/JsonProperty.java#L60-L78)_
+* [x] Support for lists, sets and maps
+   * [x] List
+   * [x] Set
+   * [x] Map
 * [x] Subtype selection.
   * Allowing to select a subclass of a to create.
 * [ ] Loading of already serialized object and allow to continue to edit them.
@@ -33,6 +36,7 @@ This is a list of planned features this project _might_ have, the order is rando
 * [x] Support for annotation to other formats:
   * [x] JSON
   * [x] XML
+  * * _See [jacksons text module](https://github.com/FasterXML/jackson-dataformats-text)_
 * [ ] API for creating wizards for complicated objects.
   * If an object is particularly hard to write by hand it might be useful to create a wizard to allow easier configuration of said object.
 * [ ] Web version.
