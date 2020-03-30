@@ -36,7 +36,7 @@ This is a list of planned features this project _might_ have, the order is rando
 * [x] Support for annotation to other formats:
   * [x] JSON
   * [x] XML
-  * * _See [jacksons text module](https://github.com/FasterXML/jackson-dataformats-text)_
+  * _See [jacksons text module](https://github.com/FasterXML/jackson-dataformats-text)_
 * [ ] API for creating wizards for complicated objects.
   * If an object is particularly hard to write by hand it might be useful to create a wizard to allow easier configuration of said object.
 * [ ] Web version.
