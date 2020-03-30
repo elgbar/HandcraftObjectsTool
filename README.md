@@ -74,11 +74,11 @@ public class JavaClass{
     //visibility of field does not matter
     // but the field MUST be static!
     // this field have to be named 'mapper' if no second line is present in '.hot'
-    private static ObjectMapper objMapper;
+    private static com.fasterxml.jackson.databind.ObjectMapper objMapper;
 
     static {
         //statically create the object mapper 
-        objMapper = ObjectMapper();
+        objMapper = new ObjectMapper();
         objMapper.registerModule(SomeModule());
     }
 }
