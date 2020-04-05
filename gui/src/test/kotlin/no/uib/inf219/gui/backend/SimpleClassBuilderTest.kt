@@ -16,7 +16,7 @@ import org.testfx.framework.junit5.ApplicationExtension
 @ExtendWith(ApplicationExtension::class)
 internal class SimpleClassBuilderTest {
 
-    private fun createCB(): SimpleClassBuilder<String> {
+    private fun createCB(): SimpleClassBuilder<*> {
         return INIT_VAL.toCb(immutable = false)
     }
 

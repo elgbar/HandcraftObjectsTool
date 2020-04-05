@@ -2,28 +2,32 @@ package no.uib.inf219.gui.backend
 
 import javafx.scene.Node
 import javafx.scene.control.TextFormatter
+import javafx.scene.control.TreeItem
 import javafx.scene.input.MouseButton
 import javafx.scene.layout.Pane
 import javafx.util.StringConverter
 import no.uib.inf219.extra.removeNl
 import no.uib.inf219.gui.Styles.Companion.numberChanger
+import no.uib.inf219.gui.controllers.ClassBuilderNode
 import no.uib.inf219.gui.loader.ClassInformation
 import no.uib.inf219.gui.view.OutputArea
 import tornadofx.*
+import kotlin.reflect.KClass
 
 
 /**
  * @author Elg
  */
 abstract class SimpleNumberClassBuilder<T : Number>(
-    primClass: Class<T>,
+    primClass: KClass<T>,
     initialValue: T,
-    key: ClassBuilder<*>?,
-    parent: ClassBuilder<*>?,
+    key: ClassBuilder?,
+    parent: ParentClassBuilder?,
     property: ClassInformation.PropertyMetadata?,
     immutable: Boolean,
-    converter: StringConverter<T>
-) : SimpleClassBuilder<T>(primClass, initialValue, key, parent, property, immutable, converter) {
+    converter: StringConverter<T>,
+    item: TreeItem<ClassBuilderNode>
+) : SimpleClassBuilder<T>(primClass, initialValue, key, parent, property, immutable, converter, item) {
 
     override fun editView(parent: Pane): Node {
         return parent.hbox {

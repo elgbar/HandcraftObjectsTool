@@ -1,7 +1,9 @@
 package no.uib.inf219.gui.loader
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import javafx.application.Platform
 import no.uib.inf219.gui.view.OutputArea.logln
+import tornadofx.warning
 import java.io.File
 import java.lang.reflect.Field
 import java.util.*
@@ -51,7 +53,12 @@ object ObjectMapperLoader {
 
                 val lines = zipFile.getInputStream(entry).bufferedReader().readLines()
                 if (lines.isEmpty()) {
-                    logln("No class specified in object file")
+                    Platform.runLater {
+                        warning(
+                            "Failed to load Object Mapper from jar",
+                            "No class specified to load Object Mapper from, file $file"
+                        )
+                    }
                     return null
                 }
                 clazzPath = lines[0]
@@ -68,8 +75,13 @@ object ObjectMapperLoader {
         val clazz: Class<*>
         try {
             clazz = DynamicClassLoader.loadClass(clazzPath)
-        } catch (e: ClassCastException) {
-            logln("Failed to load class with object mapper '$clazzPath' in file $file")
+        } catch (e: Throwable) {
+            Platform.runLater {
+                warning(
+                    "Failed to load Object Mapper from jar",
+                    "Failed to load class with object mapper '$clazzPath' in file $file"
+                )
+            }
             return null
         }
 
@@ -77,16 +89,41 @@ object ObjectMapperLoader {
 
         try {
             field = clazz.getDeclaredField(fieldPath)
-        } catch (e: NoSuchFieldError) {
-            logln("Failed to find the specified (or default) field '$fieldPath' within class '$clazzPath' in file $file")
+            field.isAccessible = true
+        } catch (e: Throwable) {
+            Platform.runLater {
+                warning(
+                    "Failed to load Object Mapper from jar",
+                    "Failed to find the specified (or default) field '$fieldPath' within class '$clazzPath' in file $file"
+                )
+            }
             return null
         }
 
         val mapper: ObjectMapper
         try {
             mapper = field.get(null) as ObjectMapper
+        } catch (e: ClassCastException) {
+            val className = try {
+                field.type.name
+            } catch (e: Throwable) {
+                "unknown type (${e.javaClass.simpleName} was thrown)"
+            }
+            Platform.runLater {
+                warning(
+                    "Failed to load Object Mapper from jar",
+                    "Given field for object mapper is not an object mapper nor any subclass of object mapper!\n" +
+                            "Field '$fieldPath' (of type $className) in class '$clazzPath' in file $file"
+                )
+            }
+            return null
         } catch (e: Throwable) {
-            logln("Given field for object mapper is not an object mapper nor any subclass of object mapper! Field '$fieldPath' in class '$clazzPath' in file $file")
+            Platform.runLater {
+                warning(
+                    "Failed to load Object Mapper from jar",
+                    "Failed to get the instance of the field. Field '$fieldPath' in class '$clazzPath' in file $file"
+                )
+            }
             return null
         }
 

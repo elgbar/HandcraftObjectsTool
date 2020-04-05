@@ -3,6 +3,8 @@ package no.uib.inf219.gui.backend
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.annotation.JsonValue
+import javafx.scene.control.TreeItem
+import no.uib.inf219.extra.toCb
 import no.uib.inf219.extra.type
 import no.uib.inf219.gui.backend.simple.UUIDClassBuilder
 import no.uib.inf219.gui.loader.ClassInformation
@@ -56,8 +58,18 @@ class JsonValueSerialization {
         val expected = ControlPanelView.mapper.writeValueAsString(jsonValueInstance)
         println("expected = $expected")
 
-        val cb = ComplexClassBuilder<JsonValueExample>(JsonValueExample::class.type()).apply {
-            serObject[ClassInformation.VALUE_DELEGATOR_NAME] = UUIDClassBuilder(uuid)
+        val cb = ComplexClassBuilder(
+            JsonValueExample::class.type(),
+            key = "key".toCb(),
+            parent = SimpleClassBuilder.FAKE_ROOT,
+            item = TreeItem()
+        ).apply {
+            serObject[ClassInformation.VALUE_DELEGATOR_NAME] = UUIDClassBuilder(
+                uuid,
+                key = "key".toCb(),
+                parent = SimpleClassBuilder.FAKE_ROOT,
+                item = TreeItem()
+            )
         }
 
         val json = ControlPanelView.mapper.writeValueAsString(cb)
@@ -78,7 +90,12 @@ class JsonValueSerialization {
         println("expected = $expectedJson")
         val expectedObj = ControlPanelView.mapper.readValue(expectedJson, JsonValueExample::class.java)
 
-        val cb = ComplexClassBuilder<JsonValueExample>(JsonValueExample::class.type()).apply {
+        val cb = ComplexClassBuilder(
+            JsonValueExample::class.type(),
+            key = "key".toCb(),
+            parent = SimpleClassBuilder.FAKE_ROOT,
+            item = TreeItem()
+        ).apply {
             serObject[ClassInformation.VALUE_DELEGATOR_NAME] = null
         }
 
@@ -102,8 +119,18 @@ class JsonValueSerialization {
         val expected = ControlPanelView.mapper.writeValueAsString(jsonValueInstance)
         println("expected = $expected")
 
-        val cb = ComplexClassBuilder<TypedJsonValueExample>(TypedJsonValueExample::class.type()).apply {
-            serObject[ClassInformation.VALUE_DELEGATOR_NAME] = UUIDClassBuilder(uuid)
+        val cb = ComplexClassBuilder(
+            TypedJsonValueExample::class.type(),
+            key = "key".toCb(),
+            parent = SimpleClassBuilder.FAKE_ROOT,
+            item = TreeItem()
+        ).apply {
+            serObject[ClassInformation.VALUE_DELEGATOR_NAME] = UUIDClassBuilder(
+                uuid,
+                key = "key".toCb(),
+                parent = SimpleClassBuilder.FAKE_ROOT,
+                item = TreeItem()
+            )
         }
 
         val json = ControlPanelView.mapper.writeValueAsString(cb)
@@ -147,7 +174,7 @@ class JsonValueSerialization {
 //        println("expected = $expectedJson")
 //        val expectedObj = ControlPanelView.mapper.readValue(expectedJson, IdJsonValueExample::class.java)
 //
-//        val cb = ComplexClassBuilder<IdJsonValueExample>(IdJsonValueExample::class.type()).apply {
+//        val cb = ComplexClassBuilder(IdJsonValueExample::class.type()).apply {
 //            serObject[ClassInformation.VALUE_DELEGATOR_NAME] = UUIDClassBuilder(uuid)
 //        }
 //

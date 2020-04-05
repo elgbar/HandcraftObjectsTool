@@ -282,12 +282,15 @@ class ClassSelectorView : View("Select implementation") {
         require(!superType.isPrimitive) { "Given super class '${superType.toCanonical()}' cannot be primitive" }
         require(!superType.isFinal) { "Given super class '${superType.toCanonical()}' cannot be final" }
 
+
         synchronized(this) {
 
-            searching = true
-            result = null
-            superClass = superType.rawClass.name
-            textLabelProperty.set("")
+            runLater {
+                result = null
+                superClass = superType.rawClass.name
+                textLabelProperty.set("")
+                searching = true
+            }
             val superClass: Class<*> = superType.rawClass
 
             ClassGraph()

@@ -16,26 +16,23 @@ import tornadofx.findFieldByName
 /**
  * @author Elg
  */
-object ComplexClassBuilderSerializer : StdSerializer<ComplexClassBuilder<*>>(ComplexClassBuilder::class.type()) {
+object ComplexClassBuilderSerializer : StdSerializer<ComplexClassBuilder>(ComplexClassBuilder::class.type()) {
 
-
-    override fun serialize(value: ComplexClassBuilder<*>, gen: JsonGenerator, provider: SerializerProvider) {
+    override fun serialize(value: ComplexClassBuilder, gen: JsonGenerator, provider: SerializerProvider) {
         serializeWithType(value, gen, provider, value.typeSerializer)
     }
 
     override fun serializeWithType(
-        value: ComplexClassBuilder<*>,
+        cb: ComplexClassBuilder,
         gen: JsonGenerator,
         provider: SerializerProvider,
         typeSer: TypeSerializer?
     ) {
-
-
-        if (value.isJsonValueDelegator) {
-            require(value.serObject.size == 1) { "Json delegated values can only have one property!. Found ${value.serObject.size}! ${value.serObject}" }
+        if (cb.isJsonValueDelegator) {
+            require(cb.serObject.size == 1) { "Json delegated values can only have one property!. Found ${cb.serObject.size}! ${cb.serObject}" }
         }
 
-        val beanSer = provider.findValueSerializer(value.type)
+        val beanSer = provider.findValueSerializer(cb.type)
         var objIdWriter: ObjectIdWriter? = beanSer.javaClass.findFieldByName("_objectIdWriter").also {
             it?.isAccessible = true
         }?.get(beanSer) as ObjectIdWriter?
@@ -53,14 +50,14 @@ object ComplexClassBuilderSerializer : StdSerializer<ComplexClassBuilder<*>>(Com
             //this is ripped straight out BeanSerializerBase#_serializeWithObjectId
             checkNotNull(objIdWriter.serializer)
 
-            objectId = provider.findObjectId(value.serObject, objIdWriter.generator)
+            objectId = provider.findObjectId(cb.serObject, objIdWriter.generator)
             // If possible, write as id already
             if (objectId.writeAsId(gen, provider, objIdWriter)) {
                 return
             }
 
             // If not, need to inject the id:
-            val id = objectId.generateId(value.serObject)
+            val id = objectId.generateId(cb.serObject)
 
             if (objIdWriter.alwaysAsId) {
                 objIdWriter.serializer.serialize(id, gen, provider)
@@ -79,12 +76,12 @@ object ComplexClassBuilderSerializer : StdSerializer<ComplexClassBuilder<*>>(Com
             //Set the id of the type based not on the object in WritableTypeId but rather
             // the class we're pretending we're serializing: value.type
             if (typeId.id == null) {
-                typeId.id = typeSer.typeIdResolver.idFromValueAndType(null, value.type.rawClass)
+                typeId.id = typeSer.typeIdResolver.idFromValueAndType(null, cb.type.rawClass)
             }
             gen.writeTypePrefix(typeId)
         } else {
             //if we do not have any type id just begin the object
-            if (!value.isJsonValueDelegator) {
+            if (!cb.isJsonValueDelegator) {
                 gen.writeStartObject()
             }
             typeId = null //No type info given
@@ -94,8 +91,8 @@ object ComplexClassBuilderSerializer : StdSerializer<ComplexClassBuilder<*>>(Com
         // do it in here as we are sure no delegation is happening
         objectId?.writeAsField(gen, provider, objIdWriter)
 
-        if (value.isJsonValueDelegator) {
-            val prop = value.serObject.values.first()
+        if (cb.isJsonValueDelegator) {
+            val prop = cb.serObject.values.first()
             if (prop == null) {
                 gen.writeNull()
             } else {
@@ -104,7 +101,7 @@ object ComplexClassBuilderSerializer : StdSerializer<ComplexClassBuilder<*>>(Com
             }
         } else {
 
-            for ((key, prop) in value.serObject) {
+            for ((key, prop) in cb.serObject) {
 
                 // Null handling is bit different, check that first
                 if (prop == null) {
@@ -113,7 +110,7 @@ object ComplexClassBuilderSerializer : StdSerializer<ComplexClassBuilder<*>>(Com
                 }
                 // then find serializer to use
                 val ser: JsonSerializer<Any> = provider.findValueSerializer(prop.javaClass.type())
-                if (!value.isJsonValueDelegator) {
+                if (!cb.isJsonValueDelegator) {
                     gen.writeFieldName(key)
                 }
                 ser.serialize(prop, gen, provider)
@@ -123,7 +120,7 @@ object ComplexClassBuilderSerializer : StdSerializer<ComplexClassBuilder<*>>(Com
         //close the object we're editing
         if (typeId != null) {
             gen.writeTypeSuffix(typeId)
-        } else if (!value.isJsonValueDelegator) {
+        } else if (!cb.isJsonValueDelegator) {
             gen.writeEndObject()
         }
     }

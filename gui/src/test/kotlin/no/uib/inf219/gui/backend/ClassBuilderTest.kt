@@ -1,6 +1,7 @@
 package no.uib.inf219.gui.backend
 
 import com.fasterxml.jackson.databind.type.CollectionLikeType
+import javafx.scene.control.TreeItem
 import no.uib.inf219.extra.toCb
 import no.uib.inf219.extra.type
 import org.junit.jupiter.api.Assertions.*
@@ -12,20 +13,29 @@ import org.testfx.framework.junit5.ApplicationExtension
 @ExtendWith(ApplicationExtension::class)
 internal class ClassBuilderTest {
 
+    fun listCB(parent: ParentClassBuilder = SimpleClassBuilder.FAKE_ROOT): CollectionClassBuilder {
+        return CollectionClassBuilder(
+            ArrayList::class.type() as CollectionLikeType,
+            key = "key".toCb(),
+            parent = parent,
+            item = TreeItem()
+        )
+    }
+
     @Test
     internal fun isParent_self() {
-        val parent = CollectionClassBuilder<Any>(ArrayList::class.type() as CollectionLikeType)
-        val child = "test123 :)".toCb(parent = parent)
+        val parent = listCB()
+        val child = listCB(parent)
 
-        assertFalse(child.isParentOf(child))
         assertFalse(parent.isParentOf(parent))
+        assertFalse(child.isParentOf(parent))
     }
 
     @Test
     internal fun isParent_sibling() {
-        val parent = CollectionClassBuilder<Any>(ArrayList::class.type() as CollectionLikeType)
-        val childA = "test123 :)".toCb(parent = parent)
-        val childB = "Second child".toCb(parent = parent)
+        val parent = listCB()
+        val childA = listCB(parent)
+        val childB = listCB(parent)
 
         assertFalse(childA.isParentOf(childB))
         assertFalse(childB.isParentOf(childA))
@@ -33,8 +43,8 @@ internal class ClassBuilderTest {
 
     @Test
     internal fun isParent_direct() {
-        val parent = CollectionClassBuilder<Any>(ArrayList::class.type() as CollectionLikeType)
-        val child = "test123 :)".toCb(parent = parent)
+        val parent = listCB()
+        val child = listCB(parent)
 
         assertTrue(parent.isParentOf(child))
         assertFalse(child.isParentOf(parent))
@@ -42,9 +52,9 @@ internal class ClassBuilderTest {
 
     @Test
     internal fun isParent_grandChild() {
-        val parent = CollectionClassBuilder<Any>(ArrayList::class.type() as CollectionLikeType)
-        val child = CollectionClassBuilder<Any>(ArrayList::class.type() as CollectionLikeType, parent = parent)
-        val grandChild = "test123 :)".toCb(parent = child)
+        val parent = listCB()
+        val child = listCB(parent)
+        val grandChild = listCB(child)
 
         assertTrue(parent.isParentOf(child))
         assertTrue(child.isParentOf(grandChild))
@@ -59,25 +69,31 @@ internal class ClassBuilderTest {
     @Test
     internal fun getClassBuilder_failOnTypeMismatch() {
         assertThrows(IllegalArgumentException::class.java) {
-            ClassBuilder.getClassBuilder(String::class.type(), value = 2)
+            ClassBuilder.createClassBuilder(
+                String::class.type(), value = 2, key = "key".toCb(), parent = SimpleClassBuilder.FAKE_ROOT
+            )
         }
     }
 
     @Test
     internal fun getClassBuilder_worksForPrimitives() {
         assertDoesNotThrow {
-            ClassBuilder.getClassBuilder(Boolean::class.type(), value = true)
+            ClassBuilder.createClassBuilder(
+                Boolean::class.type(),
+                value = true,
+                key = "key".toCb(),
+                parent = SimpleClassBuilder.FAKE_ROOT
+            )
         }
 
         assertDoesNotThrow {
-            ClassBuilder.getClassBuilder(Boolean::class.javaPrimitiveType!!.type(), value = true)
+            ClassBuilder.createClassBuilder(
+                Boolean::class.javaPrimitiveType!!.type(),
+                value = true,
+                key = "key".toCb(),
+                parent = SimpleClassBuilder.FAKE_ROOT
+            )
         }
-    }
-
-    @Disabled
-    @Test
-    internal fun createClassBuilderFor() {
-        TODO("not implemented")
     }
 
     @Disabled

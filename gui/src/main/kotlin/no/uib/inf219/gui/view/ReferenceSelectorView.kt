@@ -7,11 +7,15 @@ import javafx.collections.ObservableList
 import javafx.collections.transformation.FilteredList
 import javafx.geometry.Pos
 import javafx.scene.Node
+import javafx.scene.control.TreeItem
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
 import no.uib.inf219.gui.Styles
 import no.uib.inf219.gui.backend.ClassBuilder
+import no.uib.inf219.gui.backend.ParentClassBuilder
 import no.uib.inf219.gui.backend.ReferenceClassBuilder
+import no.uib.inf219.gui.controllers.ClassBuilderNode
+import no.uib.inf219.gui.controllers.FilledClassBuilderNode
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.ems
 import tornadofx.*
@@ -21,10 +25,10 @@ import tornadofx.*
  */
 class ReferenceSelectorView : View("Reference") {
 
-    private val searchResult: ObservableList<ClassBuilder<*>> = ArrayList<ClassBuilder<*>>().asObservable()
+    private val searchResult: ObservableList<ClassBuilder> = ArrayList<ClassBuilder>().asObservable()
     private val filteredData = FilteredList(searchResult)
 
-    private var result: ClassBuilder<*>? = null
+    private var result: ClassBuilder? = null
 
     val controller: ObjectEditorController by param()
 
@@ -115,8 +119,8 @@ class ReferenceSelectorView : View("Reference") {
 
     fun createReference(
         type: JavaType,
-        key: ClassBuilder<*>,
-        parent: ClassBuilder<*>
+        key: ClassBuilder,
+        parent: ParentClassBuilder
     ): ReferenceClassBuilder? {
         tornadofx.runAsync {
             searching = true
@@ -127,23 +131,26 @@ class ReferenceSelectorView : View("Reference") {
         openModal(block = true)
 
         val ref = result ?: return null
-        val refKey = ref.key ?: return null
-        val refParent = ref.parent ?: return null
-        return ReferenceClassBuilder(refKey, refParent, key, parent)
+        val item = TreeItem<ClassBuilderNode>()
+        return ReferenceClassBuilder(ref.key, ref.parent, key, parent, item = item).apply {
+            item.value = FilledClassBuilderNode(key, this, parent)
+        }
     }
 
     companion object {
 
         internal fun findInstancesOf(
             type: JavaType,
-            cb: ClassBuilder<*>
-        ): Set<ClassBuilder<*>> {
+            cb: ClassBuilder
+        ): Set<ClassBuilder> {
 
             //the set to hold all children of this class builder. Use set to prevent duplicates
-            val allChildren = HashSet<ClassBuilder<*>>()
+            val allChildren = HashSet<ClassBuilder>()
             allChildren.add(cb) //remember to also add the parent
-            for (child in cb.getChildren()) {
-                allChildren.addAll(findInstancesOf(type, child))
+            if (cb is ParentClassBuilder) {
+                for (child in cb.getChildren()) {
+                    allChildren.addAll(findInstancesOf(type, child))
+                }
             }
 
             //find all children that is the correct type

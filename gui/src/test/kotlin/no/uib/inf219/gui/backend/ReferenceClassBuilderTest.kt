@@ -1,6 +1,7 @@
 package no.uib.inf219.gui.backend
 
 import com.fasterxml.jackson.databind.type.CollectionLikeType
+import javafx.scene.control.TreeItem
 import no.uib.inf219.extra.toCb
 import no.uib.inf219.extra.type
 import no.uib.inf219.gui.view.ControlPanelView
@@ -22,23 +23,29 @@ internal class ReferenceClassBuilderTest {
     @Test
     internal fun resolveReference() {
 
-        val cb = ComplexClassBuilder<Conversation>(Conversation::class.type())
+        val cb = ComplexClassBuilder(
+            Conversation::class.type(),
+            key = "key".toCb(),
+            parent = SimpleClassBuilder.FAKE_ROOT,
+            item = TreeItem()
+        )
         cb.serObject[Conversation::name.name] = "Root conv name".toCb(Conversation::name.name.toCb(), cb)
         cb.serObject[Conversation::text.name] = "Root conv response".toCb(Conversation::text.name.toCb(), cb)
 
-        val responses = CollectionClassBuilder<List<Response>>(
+        val responses = CollectionClassBuilder(
             List::class.type() as CollectionLikeType,
             Conversation::responses.name.toCb(),
-            parent = cb
+            parent = cb,
+            item = TreeItem()
         )
         cb.serObject[no.uib.inf219.test.conv.Conversation::responses.name] = responses
 
         //create two responses
-        val resp1 = ComplexClassBuilder<Response>(Response::class.type(), "#1".toCb(), responses)
+        val resp1 = ComplexClassBuilder(Response::class.type(), "#1".toCb(), responses, item = TreeItem())
         resp1.serObject[Response::name.name] = "resp 1 name".toCb(Response::name.name.toCb(), resp1)
         resp1.serObject[Response::response.name] = "resp 1 response".toCb(Response::response.name.toCb(), resp1)
 
-        val resp2 = ComplexClassBuilder<Response>(Response::class.type(), "#2".toCb(), responses)
+        val resp2 = ComplexClassBuilder(Response::class.type(), "#2".toCb(), responses, item = TreeItem())
         resp2.serObject[Response::name.name] = "resp 2 name".toCb(Response::name.name.toCb(), resp2)
         resp2.serObject[Response::response.name] = "resp 2 response".toCb(Response::response.name.toCb(), resp2)
 
@@ -48,7 +55,7 @@ internal class ReferenceClassBuilderTest {
 
 
         val resp1CB =
-            ComplexClassBuilder<Conversation>(Conversation::class.type(), Response::conv.name.toCb(), responses)
+            ComplexClassBuilder(Conversation::class.type(), Response::conv.name.toCb(), responses, item = TreeItem())
         resp1CB.serObject[Conversation::name.name] =
             "response conv name".toCb(Conversation::name.name.toCb(), resp1CB)
         resp1CB.serObject[Conversation::text.name] =
@@ -58,13 +65,13 @@ internal class ReferenceClassBuilderTest {
         //both responses will bring up the same conversation
         resp1.serObject[Response::conv.name] = resp1CB
         resp2.serObject[Response::conv.name] =
-            ReferenceClassBuilder(Response::conv.name.toCb(), resp1, 1.toCb(), responses)
+            ReferenceClassBuilder(Response::conv.name.toCb(), resp1, 1.toCb(), responses, item = TreeItem())
 
         //Each response lead to a common conversation, now lets try convert this to a real conversation
         var converted: Conversation? = null
         assertDoesNotThrow {
             println(ControlPanelView.mapper.writeValueAsString(cb.serObject))
-            converted = cb.toObject()
+            converted = cb.toObject() as Conversation?
         }
         val convertedResponses = converted?.responses ?: fail("Compiled object is null")
 
@@ -76,14 +83,25 @@ internal class ReferenceClassBuilderTest {
 
     @Test
     internal fun refIsReset_toDefault() {
-        val cb = ComplexClassBuilder<Conversation>(Conversation::class.type())
+        val cb = ComplexClassBuilder(
+            Conversation::class.type(),
+            key = "key".toCb(),
+            parent = SimpleClassBuilder.FAKE_ROOT,
+            item = TreeItem()
+        )
         //name have default value
         val orgKey = Conversation::name.name
         val org = cb.serObject[orgKey] ?: fail("org is null")
 
         //text property is a reference to the name property in this example
         val refKey = Conversation::text.name
-        val ref = ReferenceClassBuilder(Conversation::name.name.toCb(), cb, Conversation::text.name.toCb(), cb)
+        val ref = ReferenceClassBuilder(
+            Conversation::name.name.toCb(),
+            cb,
+            Conversation::text.name.toCb(),
+            cb,
+            item = TreeItem()
+        )
         cb.serObject[refKey] = ref
 
         //then we remove the original
@@ -98,14 +116,25 @@ internal class ReferenceClassBuilderTest {
 
     @Test
     internal fun refIsReset_toNull() {
-        val cb = ComplexClassBuilder<Conversation>(Conversation::class.type())
+        val cb = ComplexClassBuilder(
+            Conversation::class.type(),
+            key = "key".toCb(),
+            parent = SimpleClassBuilder.FAKE_ROOT,
+            item = TreeItem()
+        )
         //name have default value
         val orgKey = Conversation::name.name
         assertNotNull(cb.serObject[orgKey])
 
         //text property is a reference to the name property in this example
         val refKey = Conversation::text.name
-        val ref = ReferenceClassBuilder(Conversation::name.name.toCb(), cb, Conversation::text.name.toCb(), cb)
+        val ref = ReferenceClassBuilder(
+            Conversation::name.name.toCb(),
+            cb,
+            Conversation::text.name.toCb(),
+            cb,
+            item = TreeItem()
+        )
         cb.serObject[refKey] = ref
 
         //then we remove the original

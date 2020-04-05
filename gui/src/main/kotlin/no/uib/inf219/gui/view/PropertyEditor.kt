@@ -10,11 +10,11 @@ import tornadofx.onChange
  */
 class PropertyEditor : Fragment("Attribute Editor") {
 
-    private val controller: ObjectEditorController by param()
+    internal val controller: ObjectEditorController by param()
 
     override val root = borderpane {
         controller.currProp.onChange {
-            center = it?.middle?.toView(this, controller)
+            center = it?.cb?.toView(this, controller)
         }
     }
 }

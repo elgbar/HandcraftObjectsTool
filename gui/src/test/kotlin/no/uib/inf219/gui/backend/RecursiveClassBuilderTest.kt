@@ -1,5 +1,7 @@
 package no.uib.inf219.gui.backend
 
+import javafx.scene.control.TreeItem
+import no.uib.inf219.extra.toCb
 import no.uib.inf219.extra.type
 import no.uib.inf219.gui.view.ControlPanelView
 import no.uib.inf219.test.UselessRecursiveObject
@@ -49,14 +51,19 @@ class RecursiveClassBuilderTest {
     @Test
     internal fun canCreateRecursiveClass() {
 
-        val cb = ComplexClassBuilder<UselessRecursiveObject>(UselessRecursiveObject::class.type())
+        val cb = ComplexClassBuilder(
+            UselessRecursiveObject::class.type(),
+            key = "key".toCb(),
+            parent = SimpleClassBuilder.FAKE_ROOT,
+            item = TreeItem()
+        )
 
         //do not use ReferenceClassBuilder here as it will create a cycle with itself, and not the parent
         cb.serObject[UselessRecursiveObject::with.name] = cb
 
         var created: UselessRecursiveObject? = null
         assertDoesNotThrow {
-            created = cb.toObject()
+            created = cb.toObject() as UselessRecursiveObject?
             println(ControlPanelView.mapper.writeValueAsString(cb.serObject))
         }
 

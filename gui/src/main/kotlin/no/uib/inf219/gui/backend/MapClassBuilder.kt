@@ -1,142 +1,152 @@
 package no.uib.inf219.gui.backend
 
 
+import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.JavaType
+import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import javafx.event.EventTarget
 import javafx.scene.Node
-import no.uib.inf219.extra.bindCbText
+import javafx.scene.control.TreeItem
 import no.uib.inf219.extra.toCb
-import no.uib.inf219.gui.Styles
+import no.uib.inf219.gui.backend.serializers.MapClassBuilderSerializer
+import no.uib.inf219.gui.controllers.ClassBuilderNode
+import no.uib.inf219.gui.controllers.FilledClassBuilderNode
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.loader.ClassInformation
-import no.uib.inf219.gui.view.PropertyEditor
-import tornadofx.*
-import kotlin.collections.component1
-import kotlin.collections.component2
+import no.uib.inf219.gui.view.ControlPanelView.mapper
+import tornadofx.action
+import tornadofx.asObservable
+import tornadofx.borderpane
+import tornadofx.button
 import kotlin.collections.set
 
 /**
  * @author Elg
  */
-//@JsonSerialize(using = MapCBSerializer::class)
-class MapClassBuilder<K, out V>(
+@JsonSerialize(using = MapClassBuilderSerializer::class)
+class MapClassBuilder(
     override val type: JavaType,
-    override val key: ClassBuilder<*>? = null,
-    override val parent: ClassBuilder<*>?,
-    override val property: ClassInformation.PropertyMetadata?
-) : ClassBuilder<Map<K?, V?>> {
+    override val key: ClassBuilder,
+    override val parent: ParentClassBuilder,
+    override val property: ClassInformation.PropertyMetadata?,
+    override val item: TreeItem<ClassBuilderNode>
+) : ParentClassBuilder() {
 
-    override val serObject = HashMap<ClassBuilder<*>, ClassBuilder<*>?>()
+    override val serObject = HashSet<ComplexClassBuilder>()
     override val serObjectObservable = serObject.asObservable()
+
+    companion object {
+        const val ENTRY_KEY = "key"
+        const val ENTRY_VALUE = "value"
+        val keyCb = ENTRY_KEY.toCb()
+        val valueCb = ENTRY_VALUE.toCb()
+
+        val entryCb = "entry".toCb()
+
+        val entryType = mapper.typeFactory.constructType(object :
+            TypeReference<Map.Entry<ClassBuilder?, ClassBuilder?>>() {})
+            ?: error("Failed to construct map entry type")
+    }
+
+    private fun get(key: ClassBuilder?): ClassBuilder? {
+        return serObject.firstOrNull { it.key == key }
+    }
+
+    /**
+     * Check the if an entry with the given key exists
+     */
+    private fun contains(key: ClassBuilder?): Boolean {
+        return get(key) != null
+    }
+
+    private fun create(
+        key: ClassBuilder,
+        value: ClassBuilder?
+    ): ComplexClassBuilder {
+        val item = TreeItem<ClassBuilderNode>()
+        val entry = ComplexClassBuilder(entryType, entryCb, this@MapClassBuilder, item = item)
+        item.value = FilledClassBuilderNode(key, entry, parent)
+
+        entry.serObject[ENTRY_VALUE] = value
+        entry.serObject[ENTRY_KEY] = key
+        serObject += entry
+        return entry
+    }
+
+    private fun remove(key: ClassBuilder?): Boolean {
+        val entry = get(key) ?: return false
+        serObject.remove(key)
+        return serObject.remove(entry)
+    }
 
     override fun toView(parent: EventTarget, controller: ObjectEditorController): Node {
 
-        return parent.splitpane {
-            setDividerPositions(0.25)
-            val con = ObjectEditorController(type, this@MapClassBuilder, controller)
-            this += vbox {
-                button("Add element") {
-                    action {
-                        val key = getClassBuilder(type.keyType, "key #${serObject.size}".toCb()) ?: return@action
-                        val value =
-                            getClassBuilder(type.contentType, "value #${serObject.size}".toCb()) ?: return@action
-                        serObject[key] = value
-                        controller.reloadView()
-                    }
-                }
-                for ((key, value) in serObject) {
-                    hbox {
-                        style { addClass(Styles.parent) }
+        return parent.borderpane {
+            center = button("Add entry") {
+                action {
 
-                        fun name(cb: ClassBuilder<*>?): String {
-                            return cb?.key?.getPreviewValue() ?: "null"
-                        }
-
-                        button(name(key)) {
-
-                            this.textProperty().bindCbText(key, ::name)
-
-                            action {
-                                con.select(key)
-                            }
-                        }
-                        button(name(value)) {
-                            if (value != null) {
-                                this.textProperty().bindCbText(value, ::name)
-                                action {
-                                    con.select(value)
-                                }
-                            } else {
-                                //TODO is this the correct thing to do?
-                                isDisable = true
-                            }
-                        }
-                    }
+                    val key = getClassBuilder(type.keyType, keyCb) ?: return@action
+                    val value = getClassBuilder(type.contentType, valueCb) ?: return@action
+                    create(key, value)
+                    controller.reloadView()
                 }
             }
-            this += find<PropertyEditor>(params = *arrayOf("controller" to con)).root
         }
     }
 
-    override fun createClassBuilderFor(key: ClassBuilder<*>, init: ClassBuilder<*>?): ClassBuilder<*>? {
+    override fun createClassBuilderFor(key: ClassBuilder, init: ClassBuilder?): ClassBuilder {
         require(init == null || init.type == getChildType(key)) {
             "Given initial value have different type than expected. expected ${getChildType(key)} got ${init?.type}"
         }
-        return serObject.computeIfAbsent(key) { init }
+        return if (!contains(key)) {
+            create(key, init)
+        } else {
+            get(key)!!
+        }
     }
 
-    override fun getChild(key: ClassBuilder<*>): ClassBuilder<*>? {
-        return serObject[key]
+    override fun getChild(key: ClassBuilder): ClassBuilder? {
+        return get(key)
     }
 
     override fun resetChild(
-        key: ClassBuilder<*>,
-        element: ClassBuilder<*>?,
+        key: ClassBuilder,
+        element: ClassBuilder?,
         restoreDefault: Boolean
-    ) {
+    ): ClassBuilderNode? {
         //The map must have the given key
-        require(serObject.containsKey(key)) { "Given key does not exist in this map class builder" }
+        require(contains(key)) { "Given key does not exist in this map class builder" }
         //But does the given element is allowed to be null,
-        require(element == null || serObject[key] == element) { "Given value does not match with this map class builder's value of given key" }
+        require(element == null || get(key) == element) { "Given value does not match with this map class builder's value of given key" }
 
-        serObject.remove(key)
+        remove(key)
+        return null
     }
-
 
     override fun getPreviewValue(): String {
-        return serObject.map { it.key.getPreviewValue() + " -> " + it.value?.getPreviewValue() }
-            .joinToString(", ")
+        return "Map<${type.keyType}, ${type.contentType}> of size ${serObject.size}"
     }
 
-    override fun getChildType(cb: ClassBuilder<*>): JavaType? {
-        //TODO what if we want to reference a key?
-        return type.contentType
+    override fun getChildType(cb: ClassBuilder): JavaType? {
+        return entryType
     }
 
-    override fun getSubClassBuilders(): Map<ClassBuilder<*>, ClassBuilder<*>?> = serObject
+    override fun getSubClassBuilders(): Map<ClassBuilder, ClassBuilder?> {
+        //TODO fix this somehow. It does not really follow the interface requirement, can can never do so as the key is nullable
+        // However as it is only used by the interface in getChildren and getTreeItems those are for now overwritten
+        // but this is of course not maintainable free
+        return serObject.mapIndexed { index, cb -> index.toCb() to cb }.toMap()
+    }
 
-    override fun isLeaf(): Boolean = false
+    override fun getChildren(): List<ClassBuilder> {
+        return serObject.toList()
+    }
+
+    override fun getTreeItems(): List<ClassBuilderNode> {
+        return serObject.map { FilledClassBuilderNode(entryCb, it, this) }
+    }
 
     override fun isImmutable(): Boolean = false
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is MapClassBuilder<*, *>) return false
-
-        if (type != other.type) return false
-        if (parent != other.parent) return false
-        if (key != other.key) return false
-        if (property != other.property) return false
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = type.hashCode()
-        result = 31 * result + (parent?.hashCode() ?: 0)
-        result = 31 * result + key.hashCode()
-        result = 31 * result + (property?.hashCode() ?: 0)
-        return result
-    }
 
     override fun toString(): String {
         return "Map CB; key type=${type.keyType}, contained type=${type.contentType})"

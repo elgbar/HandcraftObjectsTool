@@ -1,12 +1,11 @@
 package no.uib.inf219.gui.view
 
 import javafx.scene.control.TreeItem
+import javafx.scene.control.TreeView
 import javafx.scene.input.MouseButton
-import no.uib.inf219.extra.toCb
-import no.uib.inf219.gui.backend.ClassBuilder
-import no.uib.inf219.gui.backend.ReferenceClassBuilder
+import no.uib.inf219.gui.backend.ParentClassBuilder
+import no.uib.inf219.gui.controllers.ClassBuilderNode
 import no.uib.inf219.gui.controllers.ObjectEditorController
-import org.apache.commons.lang3.tuple.MutableTriple
 import tornadofx.*
 
 /**
@@ -17,56 +16,39 @@ class NodeExplorerView(private val controller: ObjectEditorController) : Fragmen
     override val root = scrollpane(
         fitToWidth = true,
         fitToHeight = true
-    ).treeview<MutableTriple<String, ClassBuilder<*>?, ClassBuilder<*>>> {
-        root = TreeItem(controller.rootSel)
+    ).treeview<ClassBuilderNode> {
+        root = controller.rootCb.item
         root.isExpanded = true
+        controller.tree = this
 
-        @Suppress("UNCHECKED_CAST")
-        fun childFactory(it: TreeItem<MutableTriple<String, ClassBuilder<*>?, ClassBuilder<*>>>): Iterable<MutableTriple<String, ClassBuilder<*>?, ClassBuilder<*>>>? {
-            val cb = it.value.middle
-            return when {
-                cb == null -> null
-                cb.isLeaf() -> null
-                cb is ReferenceClassBuilder -> null //break cycles
-                else -> cb.getSubClassBuilders().map { (key, child) -> MutableTriple(key.getPreviewValue(), child, cb) }
+        repopulate()
+
+        onUserSelect {
+            controller.currSel = it
+        }
+
+        setOnMouseClicked { event ->
+            //note that "isPrimaryButtonDown" and "isSecondaryButtonDown" is not used as it does not work
+            if (event.clickCount == 1 && event.button == MouseButton.PRIMARY) {
+
+                val oldItem = selectedValue?.ensurePresentClassBuilder()
+//                repopulate()
+
+//                fun recFind(parent: TreeItem<ClassBuilderNode>): TreeItem<ClassBuilderNode>{
+//                    for (child in parent.children) {
+//                        if(parent == child)
+//                    }
+//                }
+
+//                root.children.forEach { it == selectedValue }
+//                selectionModel.selectFirst()
+                refresh()
             }
         }
-        populate { childFactory(it) }
 
         cellFormat {
-            text = it.left
-
-            tooltip("Class: ${it.middle?.type ?: it.right.getChildType(it.left.toCb())}")
-
-            setOnMouseClicked { event ->
-                //note that "isPrimaryButtonDown" and "isSecondaryButtonDown" is not used as it does not work
-                if (event.clickCount == 1 && event.button == MouseButton.PRIMARY) {
-                    //double left click on an item
-
-                    //first time we click it we want to create it
-                    if (it.middle == null && !it.right.isLeaf()) {
-
-                        val cb = it.right.createClassBuilderFor(it.left.toCb())
-                        it.middle = cb
-                        if (cb != null) {
-
-                            //when creating a sub class builder for the first time we need to find all possible
-                            // properties that can be edited
-                            this.treeItem.children.addAll(
-                                cb.getSubClassBuilders().map { elem ->
-                                    TreeItem(
-                                        MutableTriple<String, ClassBuilder<*>?, ClassBuilder<*>>(
-                                            elem.key.getPreviewValue(), elem.value, cb
-                                        )
-                                    )
-                                }
-                            )
-                            this@treeview.refresh()
-                        }
-                    }
-                    controller.currSel = it
-                }
-            }
+            text = it.key.getPreviewValue()
+            tooltip("Class: ${it.cb?.type ?: it.parent.getChildType(it.key)}")
         }
 
         contextmenu {
@@ -75,16 +57,16 @@ class NodeExplorerView(private val controller: ObjectEditorController) : Fragmen
                 val item = this@treeview.selectionModel.selectedItem ?: return@action
                 if (item == root) return@action
                 val value = item.value
-                if (value.right.isLeaf()) return@action
+                if (value.parent.isLeaf()) return@action
 
-                val key = value.left.toCb()
-                val type = value.right.getChildType(key)
+                val key = value.key
+                val type = value.parent.getChildType(key)
                 if (type == null) {
-                    OutputArea.logln("Failed to find a the type of the child ${value.left} for ${value.right}")
+                    OutputArea.logln("Failed to find a the type of the child ${value.key} for ${value.parent}")
                     return@action
                 }
                 val selector: ReferenceSelectorView = find("controller" to controller)
-                val ref = selector.createReference(type, key, value.right)
+                val ref = selector.createReference(type, key, value.parent)
 
                 if (ref == null) {
                     warning(
@@ -95,51 +77,111 @@ class NodeExplorerView(private val controller: ObjectEditorController) : Fragmen
                 }
 
                 //register the new reference but first null out any old reference
-                value.right.resetChild(key, restoreDefault = false)
-                value.right.createClassBuilderFor(key, ref)
+                value.parent.resetChild(key, restoreDefault = false)
+                value.parent.createClassBuilderFor(key, ref)
 
                 //reload parent view (or this view if root controller)
                 (controller.parentController ?: controller).reloadView()
             }
 
-            fun resetClicked(restoreDefault: Boolean) {
-                val item = this@treeview.selectionModel.selectedItem ?: return
-                val value = item.value
+            item("Restore to default") {
 
-                val key = value.left.toCb()
-
-                //reset the clicked item
-                value.right.resetChild(key, value.middle, restoreDefault)
-
-                //Now get the new instance of it (if any)
-                val newCb = value.right.getChild(key)
-
-                //If we are resetting the root we need to make sure we select the correct parent
-                val parent = if (value.right == controller.rootCb.parent) controller.rootCb else value.right
-
-                //we must update the property editor area otherwise we will be editing a stale object
-                controller.currSel = MutableTriple(value.left, newCb, parent)
-
-                //remove all children from the tree view
-                item.children.clear()
-                if (newCb != null) {
-
-                    //and replace them with the new children if the new class builder have a default value
-                    val children = newCb.getSubClassBuilders().map { (k, cb) ->
-                        TreeItem(MutableTriple(k.getPreviewValue(), cb, parent))
-                    }
-                    item.children.setAll(children)
+                action {
+                    this@treeview.selectionModel.selectedItem?.resetClicked(this@treeview, true)
                 }
             }
 
-            item("Restore to default") {
-                action { resetClicked(true) }
-            }
-
-
             item("Set to null") {
-                action { resetClicked(false) }
+                action {
+                    this@treeview.selectionModel.selectedItem?.resetClicked(this@treeview, false)
+                }
             }
         }
+    }
+
+    companion object {
+
+        fun TreeView<ClassBuilderNode>.repopulate() {
+            root.children.clear()
+            populate({ it.item }) {
+                val cb = it.value.cb
+                when {
+                    cb == null || cb.isLeaf() -> null
+                    (cb is ParentClassBuilder) -> cb.getTreeItems()
+                    else -> null
+                }
+            }
+        }
+
+        fun TreeItem<ClassBuilderNode>.resetClicked(
+            treeView: TreeView<ClassBuilderNode>,
+            restoreDefault: Boolean
+        ) {
+
+
+            //reset the clicked item
+            value = value.resetClassBuilder(restoreDefault)
+
+
+//        treeView.root.children.clear()
+//        treeView.populate { childFactory(treeView.root) }
+//
+            treeView.repopulate()
+//        treeView.selectFirst()
+
+//        reloadCell(treeView)
+//            .reloadCell()
+            //If we are resetting the root we need to make sure we select the correct parent
+//                val parent = if (value.parent == controller.rootCb.parent) controller.rootCb else value.parent
+//
+//                //we must update the property editor area otherwise we will be editing a stale object
+//                controller.currSel = null//MutableTriple(value.name, newCb, parent)
+//
+//                //remove all children from the tree view
+//                item.children.clear()
+//                if (newCb != null) {
+//
+//                    //and replace them with the new children if the new class builder have a default value
+//                    val children = newCb.getSubClassBuilders().map { (k, cb) ->
+//                        ClassBuilderNode(k.getPreviewValue(), cb, parent).toTreeItem()
+//                    }
+//                    item.children.addAll(children)
+//                }
+        }
+
+
+//    /**
+//     * Recalculate all child tree items recursively
+//     */
+//    private fun TreeItem<ClassBuilderNode>.reloadChildren(treeView: TreeView<ClassBuilderNode>) {
+//        if (!value.parent.isLeaf()) {
+//
+//            value = value.ensurePresentClassBuilder()
+//
+//            //find all possible properties that can be edited
+//            fun setAllChildren(item: TreeItem<ClassBuilderNode>) {
+//                val childCb = item.value.cb ?: return
+//                if (childCb.isLeaf()) return
+//
+//                println("childCB $childCb")
+//
+//                val childItem = childCb.toTreeItem()
+//                item.parent.children.add(childItem)
+//                for (_ in childCb.getTreeItems()) {
+//                    setAllChildren(childItem)
+//                }
+//            }
+//            children.clear()
+//
+//            for (cbn in value.cb!!.getTreeItems()) {
+//                val item = cbn.toTreeItem()
+//                children.add(item)
+//                setAllChildren(item)
+//            }
+//        }
+//
+//        controller.currSel = value.parent.toCBN()
+//        treeView.refresh()
+//    }
     }
 }

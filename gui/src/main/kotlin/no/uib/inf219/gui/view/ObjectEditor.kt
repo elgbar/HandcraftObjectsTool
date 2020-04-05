@@ -36,7 +36,6 @@ class ObjectEditor : View() {
             this += NodeExplorerView(controller).root
             this += createPropEditor()
 //            openInternalBuilderWindow("test", owner = FX.primaryStage.borderpane()) {
-//
 //            }
         }
 
@@ -88,7 +87,7 @@ class ObjectEditor : View() {
                     val file = files[0]
 
                     ControlPanelView.runAsync {
-                        mapper.writeValue(file, mapper.convertValue(controller.rootCb, controller.rootCb.type))
+                        file.writeText(obj)
                         OutputArea.logln("Saved object to file ${file.canonicalPath}")
                     }
                 }

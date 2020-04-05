@@ -2,16 +2,18 @@ package no.uib.inf219.gui.controllers
 
 import com.fasterxml.jackson.databind.JavaType
 import javafx.beans.property.ObjectProperty
+import javafx.beans.property.SimpleObjectProperty
 import javafx.event.EventTarget
+import javafx.scene.control.TreeItem
+import javafx.scene.control.TreeView
 import no.uib.inf219.extra.toCb
 import no.uib.inf219.extra.type
 import no.uib.inf219.gui.backend.ClassBuilder
-import no.uib.inf219.gui.loader.ClassInformation
-import org.apache.commons.lang3.tuple.MutableTriple
+import no.uib.inf219.gui.backend.ParentClassBuilder
+import no.uib.inf219.gui.view.NodeExplorerView.Companion.repopulate
 import tornadofx.getProperty
 import tornadofx.property
 import tornadofx.text
-import tornadofx.toProperty
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
@@ -21,7 +23,6 @@ import kotlin.reflect.KProperty
  */
 class ObjectEditorController(
     rootType: JavaType,
-    initRoot: ClassBuilder<*>?,
 
     /**
      * Parent controller, if any
@@ -29,42 +30,37 @@ class ObjectEditorController(
     val parentController: ObjectEditorController? = null
 ) {
 
-    var rootCb: ClassBuilder<*> by RootDelegator(rootType, initRoot, this)
-        private set
+    lateinit var tree: TreeView<ClassBuilderNode>
 
     /**
-     * Left type is name of selected
+     * The fake root.
      *
-     * middle is current type
-     *
-     * Right is parent type
+     * @see RootDelegator
      */
-    var currSel: MutableTriple<String, ClassBuilder<*>?, ClassBuilder<*>>? by property<MutableTriple<String, ClassBuilder<*>?, ClassBuilder<*>>>()
+    val rootCb by RootDelegator(rootType)
 
-    var currProp: ObjectProperty<MutableTriple<String, ClassBuilder<*>?, ClassBuilder<*>>?> =
-        getProperty(ObjectEditorController::currSel)
+    /**
+     * The currently selected node. Should only be set node explorer
+     */
+    var currSel: ClassBuilderNode? by property<ClassBuilderNode>()
 
-    val rootSel: MutableTriple<String, ClassBuilder<*>?, ClassBuilder<*>> =
-        MutableTriple(rootType.rawClass?.simpleName ?: rootType.typeName, rootCb, rootCb.parent!!)
+    val currProp: ObjectProperty<ClassBuilderNode?> = getProperty(ObjectEditorController::currSel)
 
-    init {
-        currSel = rootSel
-    }
+    val rootSel: ClassBuilderNode = rootCb.toCBN()
 
     fun reloadView() {
 
         //To visually display the newly created element we need to rebuild the TreeView in NodeExplorerView
         // It is rebuilt when controller.currSel, so we change the currently viewed to the root then back to this view
         // In other words we turn it off then on again
-        val curr = currSel
         currSel = null
-        currSel = curr
+        currSel = rootSel
+        tree.repopulate()
+
     }
 
-    fun select(classBuilder: ClassBuilder<*>) {
-        currSel = MutableTriple<String, ClassBuilder<*>?, ClassBuilder<*>>(
-            classBuilder.key!!.getPreviewValue(), classBuilder, classBuilder.parent!!
-        )
+    fun select(cb: ClassBuilder) {
+        currSel = cb.toCBN()
     }
 
     /**
@@ -72,101 +68,87 @@ class ObjectEditorController(
      */
     fun findRootController(): ObjectEditorController = parentController?.findRootController() ?: this
 
-    fun updateRoot() {
-        @Suppress("UNNECESSARY_SAFE_CALL") //not unnecessary as this will be called by the root cb delegator before being initialized
-        rootSel?.middle = rootCb
-    }
-
     companion object {
         val fakeRootKey = "root".toCb()
+
+        fun ClassBuilder.toCBN(): ClassBuilderNode {
+            val key = this.key
+            val parent = this.parent
+
+            return FilledClassBuilderNode(key, this, parent)
+        }
     }
 
-    private class RootDelegator(
-        private val realRootType: JavaType,
-        private var realRoot: ClassBuilder<*>? = null,
-        private val controller: ObjectEditorController
-    ) :
-        ClassBuilder<Any>,
-        ReadWriteProperty<Any?, ClassBuilder<*>> {
+    /**
+     * Delegator that handles resetting of our real root. It acts as any other class builder is expected to behave: It is a parent class builder with one child with key [fakeRootKey] and the value [serObject]. The real root can never be `null` so when asked to reset it ignores `restoreDefault` and behaves as if it is always `true`. The default value of the root is what is returned when calling [ClassBuilder.createClassBuilder] with type [realRootType].
+     */
+    private class RootDelegator(private val realRootType: JavaType) : ParentClassBuilder(),
+        ReadWriteProperty<Any?, ClassBuilder> {
 
-        private val rootKey: ClassBuilder<*>
-        private val rootParent: ClassBuilder<*>
-
-        init {
-            val initRoot = realRoot
-            if (initRoot != null) {
-                rootKey = initRoot.key ?: error("Object editor controller was given an initial root, but it had no key")
-                rootParent =
-                    initRoot.parent ?: error("Object editor controller was given an initial root, but it had no parent")
-                require(rootParent.getChild(rootKey) === realRoot) {
-                    "Object editor controller was given an initial root with non-null parent and key, " +
-                            "but the given parent does not return the given root when using it's key!. " +
-                            "Expected $initRoot, but got ${rootParent.getChild(rootKey)} from parent"
-                }
-            } else {
-                rootKey = fakeRootKey
-                rootParent = this
-            }
-        }
-
-        private fun getOrCreateRoot(): ClassBuilder<*> {
-            return realRoot ?: createClassBuilderFor(fakeRootKey)
+        /**
+         * (re)create the root class builder
+         */
+        private fun createRealRoot(): ClassBuilder {
+            val cb = ClassBuilder.createClassBuilder(realRootType, fakeRootKey, this, null)
+                ?: error("failed to create a root class builder")
+            this@RootDelegator.serObject = cb
+            return cb
         }
 
         //////////////////////
         // Delegate methods //
         //////////////////////
 
-
-        override fun getValue(thisRef: Any?, property: KProperty<*>): ClassBuilder<*> {
-            return getOrCreateRoot()
+        override fun getValue(thisRef: Any?, property: KProperty<*>): ClassBuilder {
+            return serObject
         }
 
-        override fun setValue(thisRef: Any?, property: KProperty<*>, value: ClassBuilder<*>) {
+        override fun setValue(thisRef: Any?, property: KProperty<*>, value: ClassBuilder) {
             throw IllegalArgumentException("Cannot set class builder root directly")
         }
 
-        /////////////////////
-        //   CB  methods   //
-        /////////////////////
+        ///////////////////////////
+        // Class Builder methods //
+        ///////////////////////////
 
-        override val serObject = getOrCreateRoot()
-        override val serObjectObservable = getOrCreateRoot().toProperty()
+        override val serObjectObservable = SimpleObjectProperty<ClassBuilder>()
+        override var serObject: ClassBuilder
+            get() = serObjectObservable.value ?: createRealRoot()
+            private set(value) {
+                serObjectObservable.value = value
+            }
+
+        override val item: TreeItem<ClassBuilderNode> = TreeItem(FilledClassBuilderNode(fakeRootKey, this, this))
         override val type = Any::class.type()
-        override val parent: ClassBuilder<*>? = null
-        override val key: ClassBuilder<*>? = null
-        override val property: ClassInformation.PropertyMetadata? = null
+        override val parent = this
+        override val key = fakeRootKey
+        override val property = null
 
-        override fun isLeaf(): Boolean = false
-        override fun getPreviewValue() = "null"
-        override fun getChildType(cb: ClassBuilder<*>) = getOrCreateRoot().type
-        override fun getChild(key: ClassBuilder<*>) = getOrCreateRoot()
+        /**
+         * Key to the real root
+         */
+        val realRootKey = (realRootType.rawClass?.simpleName ?: realRootType.typeName).toCb()
+        private var realRootCBN = FilledClassBuilderNode(realRootKey, serObject, this)
+
+        override fun resetChild(
+            key: ClassBuilder,
+            element: ClassBuilder?,
+            restoreDefault: Boolean
+        ): ClassBuilderNode {
+            realRootCBN = FilledClassBuilderNode(realRootKey, createRealRoot(), this)
+            return realRootCBN
+        }
+
+        override fun createClassBuilderFor(key: ClassBuilder, init: ClassBuilder?) = serObject
+        override fun isRequired() = true // it's kinda hard to create something without this
         override fun isImmutable() = true
+        override fun getPreviewValue() = "null"
+        override fun getChildType(cb: ClassBuilder) = serObject.type
+        override fun getChild(key: ClassBuilder): ClassBuilder? = if (key == realRootKey) serObject else null
+        override fun getSubClassBuilders(): Map<ClassBuilder, ClassBuilder?> = mapOf(realRootKey to serObject)
+
         override fun toView(parent: EventTarget, controller: ObjectEditorController) =
-            parent.text("Fake root cannot be displayed")
+            parent.text("Fake root should be displayed")
 
-        override fun createClassBuilderFor(key: ClassBuilder<*>, init: ClassBuilder<*>?): ClassBuilder<*> {
-            if (init == null && realRoot == null) {
-                realRoot = ClassBuilder.getClassBuilder(realRootType, fakeRootKey, this, null)
-                    ?: error("failed to create a root class builder")
-                controller.updateRoot()
-            }
-            return realRoot!!
-        }
-
-        override fun resetChild(key: ClassBuilder<*>, element: ClassBuilder<*>?, restoreDefault: Boolean) {
-            if (restoreDefault) realRoot = null
-            else {
-                val root = getOrCreateRoot()
-                for ((childKey, value) in root.getSubClassBuilders()) {
-                    root.resetChild(childKey, value, false)
-                }
-            }
-            controller.updateRoot()
-        }
-
-        override fun getSubClassBuilders(): Map<ClassBuilder<*>, ClassBuilder<*>?> {
-            return mapOf(fakeRootKey to getOrCreateRoot())
-        }
     }
 }

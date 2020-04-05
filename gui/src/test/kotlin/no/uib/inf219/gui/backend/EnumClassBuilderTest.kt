@@ -1,6 +1,7 @@
 package no.uib.inf219.gui.backend
 
 import com.fasterxml.jackson.annotation.JsonEnumDefaultValue
+import no.uib.inf219.extra.toCb
 import no.uib.inf219.extra.type
 import no.uib.inf219.gui.backend.simple.EnumClassBuilder
 import no.uib.inf219.test.Weather
@@ -21,12 +22,20 @@ class EnumClassBuilderTest {
 
     @BeforeEach
     internal fun setUp() {
-        cb = ClassBuilder.getClassBuilder(Weather::class.type())!! as EnumClassBuilder<Weather>
+        cb = ClassBuilder.createClassBuilder(
+            Weather::class.type(),
+            key = "key".toCb(),
+            parent = SimpleClassBuilder.FAKE_ROOT
+        )!! as EnumClassBuilder<Weather>
     }
 
     @Test
     internal fun canSerializeEnum() {
-        val cb = ClassBuilder.getClassBuilder(Weather::class.type(), value = Weather.SUNNY)
+        val cb = ClassBuilder.createClassBuilder(
+            Weather::class.type(), value = Weather.SUNNY,
+            key = "key".toCb(),
+            parent = SimpleClassBuilder.FAKE_ROOT
+        )
         assertNotNull(cb)
 
         assertEquals(Weather.SUNNY, cb!!.toObject())
@@ -34,7 +43,11 @@ class EnumClassBuilderTest {
 
     @Test
     internal fun canSerializeEnum_firstSelectedByName() {
-        val cb = ClassBuilder.getClassBuilder(Weather::class.type())
+        val cb = ClassBuilder.createClassBuilder(
+            Weather::class.type(),
+            key = "key".toCb(),
+            parent = SimpleClassBuilder.FAKE_ROOT
+        )
         assertNotNull(cb)
 
         val defaultSel = Weather.values().apply { sortBy { it.name } }.first()
@@ -52,7 +65,11 @@ class EnumClassBuilderTest {
 
     @Test
     internal fun canSerializeEnum_firstSelectedByAnnotation() {
-        val cb = ClassBuilder.getClassBuilder(Weather2::class.type())
+        val cb = ClassBuilder.createClassBuilder(
+            Weather2::class.type(),
+            key = "key".toCb(),
+            parent = SimpleClassBuilder.FAKE_ROOT
+        )
         assertNotNull(cb)
 
         assertEquals(Weather2.RAIN, cb!!.toObject())

@@ -1,7 +1,9 @@
 package no.uib.inf219.gui.backend.enumclassbuilder
 
+import no.uib.inf219.extra.toCb
 import no.uib.inf219.extra.type
 import no.uib.inf219.gui.backend.ClassBuilder
+import no.uib.inf219.gui.backend.SimpleClassBuilder
 import no.uib.inf219.gui.backend.simple.EnumClassBuilder
 import no.uib.inf219.test.Weather
 import org.junit.jupiter.api.Assertions
@@ -21,7 +23,11 @@ class EnumConverterTest {
 
     @BeforeEach
     internal fun setUp() {
-        cb = ClassBuilder.getClassBuilder(Weather::class.type())!! as EnumClassBuilder<Weather>
+        cb = ClassBuilder.createClassBuilder(
+            Weather::class.type(),
+            key = "key".toCb(),
+            parent = SimpleClassBuilder.FAKE_ROOT
+        )!! as EnumClassBuilder<Weather>
     }
 
     //basic check

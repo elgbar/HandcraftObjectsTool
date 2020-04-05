@@ -4,11 +4,14 @@ import com.fasterxml.jackson.annotation.JsonEnumDefaultValue
 import javafx.collections.transformation.FilteredList
 import javafx.scene.Node
 import javafx.scene.control.SelectionMode
+import javafx.scene.control.TreeItem
 import javafx.scene.layout.Pane
 import javafx.util.StringConverter
 import no.uib.inf219.gui.Styles
 import no.uib.inf219.gui.backend.ClassBuilder
+import no.uib.inf219.gui.backend.ParentClassBuilder
 import no.uib.inf219.gui.backend.SimpleClassBuilder
+import no.uib.inf219.gui.controllers.ClassBuilderNode
 import no.uib.inf219.gui.loader.ClassInformation
 import tornadofx.*
 import java.lang.reflect.Field
@@ -19,17 +22,19 @@ import java.lang.reflect.Field
 class EnumClassBuilder<T : Enum<*>>(
     clazz: Class<T>,
     initialValue: T? = null,
-    name: ClassBuilder<*>? = null,
-    parent: ClassBuilder<*>? = null,
-    property: ClassInformation.PropertyMetadata? = null
+    key: ClassBuilder,
+    parent: ParentClassBuilder,
+    property: ClassInformation.PropertyMetadata? = null,
+    item: TreeItem<ClassBuilderNode>
 ) : SimpleClassBuilder<T>(
-    clazz,
+    clazz.kotlin,
     initialValue ?: getDefaultEnumValue(clazz),
-    name,
+    key,
     parent,
     property,
     false,
-    EnumConverter(clazz)
+    EnumConverter(clazz),
+    item
 ) {
 
     private val enumValues = findEnumValues(clazz).asObservable()

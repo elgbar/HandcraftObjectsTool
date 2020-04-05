@@ -5,9 +5,11 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import javafx.event.EventTarget
 import javafx.geometry.Pos
 import javafx.scene.Node
+import javafx.scene.control.TreeItem
 import no.uib.inf219.extra.onChange
 import no.uib.inf219.extra.textCb
 import no.uib.inf219.gui.backend.serializers.ParentClassBuilderSerializer
+import no.uib.inf219.gui.controllers.ClassBuilderNode
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.loader.ClassInformation
 import tornadofx.hbox
@@ -21,13 +23,14 @@ import tornadofx.toProperty
  */
 @JsonSerialize(using = ParentClassBuilderSerializer::class)
 class ReferenceClassBuilder(
-    private val refKey: ClassBuilder<*>,
-    private val refParent: ClassBuilder<*>,
-    override val key: ClassBuilder<*>,
-    override val parent: ClassBuilder<*>
-) : ClassBuilder<Any> {
+    private val refKey: ClassBuilder,
+    private val refParent: ParentClassBuilder,
+    override val key: ClassBuilder,
+    override val parent: ParentClassBuilder,
+    override val item: TreeItem<ClassBuilderNode>
+) : ClassBuilder {
 
-    override var serObject: ClassBuilder<*> = refParent.getChild(refKey)
+    override var serObject: ClassBuilder = refParent.getChild(refKey)
         ?: error("Failed to find a serObject with the given reference parent and ref key. Cannot make a reference to a null class builder")
         private set
 
@@ -83,23 +86,8 @@ class ReferenceClassBuilder(
 
     override fun getPreviewValue() = "Ref to " + serObject.getPreviewValue()
 
-    override fun getSubClassBuilders(): Map<ClassBuilder<*>, ClassBuilder<*>?> = emptyMap()
-
     override fun isLeaf(): Boolean = true
-
-    override fun createClassBuilderFor(key: ClassBuilder<*>, init: ClassBuilder<*>?): ClassBuilder<*>? =
-        serObject.createClassBuilderFor(key, init)
-
-    override fun resetChild(key: ClassBuilder<*>, element: ClassBuilder<*>?, restoreDefault: Boolean) =
-        serObject.resetChild(key, element, restoreDefault)
-
-    override fun getChildType(cb: ClassBuilder<*>): JavaType? = serObject.getChildType(cb)
-
-    override fun getChild(key: ClassBuilder<*>): ClassBuilder<*>? {
-        return serObject.getChild(key)
-    }
-
-    override fun isImmutable() = serObject.isImmutable()
+    override fun isImmutable() = true
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

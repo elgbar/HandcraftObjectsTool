@@ -53,13 +53,14 @@ object ControlPanelView : View("Control Panel") {
 
     internal var useMrBeanProperty = booleanProperty().apply {
         onChange {
+            //this forces an call to #updateMapper()
             mapper = orgMapper
         }
     }
     var useMrBean by useMrBeanProperty
 
-    var useAfterburnerProp = booleanProperty(true)
-    var useAfterburner by useAfterburnerProp
+    private var useAfterburnerProp = booleanProperty(true)
+    private var useAfterburner by useAfterburnerProp
 
     var unsafeSerialization = false.toProperty()
 
@@ -133,6 +134,9 @@ object ControlPanelView : View("Control Panel") {
                         val files = folder?.listFiles(FileFilter { it.extension == "jar" })
                         if (files.isNullOrEmpty()) {
                             if (files != null) {
+                                ui {
+                                    warning("No jar files found in ${folder.path}")
+                                }
                                 OutputArea.logln("No jar files found in ${folder.path}")
                             }
                             return@runAsync
@@ -148,7 +152,7 @@ object ControlPanelView : View("Control Panel") {
                 setOnAction {
                     val inp = MethodHandles.lookup().lookupClass().getResourceAsStream("/example.jar")
                     if (inp == null) {
-                        OutputArea.logln("Failed to find example jar")
+                        error("Failed to find example jar")
                         return@setOnAction
                     }
                     runAsync {
@@ -194,7 +198,7 @@ object ControlPanelView : View("Control Panel") {
 
                         ui {
                             OutputArea.logln("Found $clazz")
-                            createTab(ClassInformation.toJavaType(clazz))
+                            createTab(clazz.type())
                         }
                     }
                 }
@@ -233,11 +237,16 @@ object ControlPanelView : View("Control Panel") {
                     spacing = 0.333.ems
                 }
 
-                tooltip("Change what object mapper to use.\n$closeTabsWarningMsg")
-
                 combobox(
                     values = possibleMappers
                 ) {
+
+                    tooltip(
+                        "Change what object mapper to use. It is possible to have your own object mapper loaded from\n" +
+                                "any loaded files. To find more information see the README." +
+                                "\n" +
+                                closeTabsWarningMsg
+                    )
 
                     selectionModel.selectedItemProperty().onChange {
                         OutputArea.logln("Changing object mapper to ${it?.first}")
@@ -264,14 +273,21 @@ object ControlPanelView : View("Control Panel") {
                 }
                 checkbox("Use MrBean Module", useMrBeanProperty) {
                     tooltip(
-                        "Mr Bean is an extension that implements support for \"POJO type materialization\"; ability for databinder to construct implementation classes for Java interfaces and abstract classes, as part of deserialization. This will not work with classes that are polymorphic and is annotated with @JsonTypeInfo. Enabling this will allow you to select interfaces and abstract classes in the class selection interface.\n$closeTabsWarningMsg"
+                        "Mr Bean is an extension that implements support for \"POJO type materialization\"; ability for databinder to\n" +
+                                "construct implementation classes for Java interfaces and abstract classes, as part of deserialization.\n" +
+                                "This will not work with classes that are polymorphic and is annotated with @JsonTypeInfo.\n" +
+                                "Enabling this will allow you to select interfaces and abstract classes in the class selection interface.\n" +
+                                "\n" +
+                                closeTabsWarningMsg
                     )
                 }
 
                 checkbox("Use Afterburner Module", useAfterburnerProp) {
                     tooltip(
-                        "Module that will add dynamic bytecode generation for standard Jackson POJO serializers and deserializers, eliminating majority of remaining data binding overhead.\n" +
-                                "It is recommenced to have this enabled, but can be disabled if there are any problems with it\n" +
+                        "Module that will add dynamic bytecode generation for standard Jackson POJO serializers and deserializers,\n" +
+                                "eliminating majority of remaining data binding overhead. It is recommenced to have this enabled, \n" +
+                                "but can be disabled if there are any problems with it\n" +
+                                "\n" +
                                 closeTabsWarningMsg
                     )
                 }
@@ -284,7 +300,10 @@ object ControlPanelView : View("Control Panel") {
             }
 
             checkbox("Unsafe Serialization", unsafeSerialization) {
-                tooltip("If the objects should be serialized without checking if they can be deserialized again.")
+                tooltip(
+                    "If the objects should be serialized without checking if it can be deserialized.\n" +
+                            "Sometimes is not possible to check if an object can be deserialized in this GUI."
+                )
             }
         }
 
@@ -308,11 +327,12 @@ object ControlPanelView : View("Control Panel") {
             editor = find(ObjectEditor::class, Scope(), "controller" to ObjectEditorController(type, null))
         } catch (e: Throwable) {
             OutputArea.logln { "Failed to open tab due to an error $e" }
+            e.printStackTrace()
             error(
                 "Can not serialize ${type.rawClass}",
-                "failed to create an editor for the given class\n" +
+                "Failed to create an editor for the given class.\n" +
                         "\n" +
-                        "${e.message}"
+                        "Threw ${e.javaClass.simpleName}: ${e.message}"
             )
             return
         }
