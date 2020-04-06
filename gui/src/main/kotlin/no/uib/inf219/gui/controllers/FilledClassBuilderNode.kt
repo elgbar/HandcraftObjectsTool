@@ -1,8 +1,10 @@
 package no.uib.inf219.gui.controllers
 
 import javafx.scene.control.TreeItem
+import javafx.scene.control.TreeView
 import no.uib.inf219.gui.backend.ClassBuilder
 import no.uib.inf219.gui.backend.ParentClassBuilder
+import no.uib.inf219.gui.controllers.ObjectEditorController.Companion.reload
 
 /**
  * @author Elg
@@ -14,12 +16,17 @@ data class FilledClassBuilderNode(
     override val item: TreeItem<ClassBuilderNode> = cb.item
 ) : ClassBuilderNode {
 
-    override fun ensurePresentClassBuilder(): FilledClassBuilderNode {
+    override fun ensurePresentClassBuilder(tree: TreeView<ClassBuilderNode>): FilledClassBuilderNode {
         return this
     }
 
-    override fun resetClassBuilder(restoreDefault: Boolean): ClassBuilderNode? {
-        return parent.resetChild(key, cb, restoreDefault)
+    override fun resetClassBuilder(
+        restoreDefault: Boolean,
+        tree: TreeView<ClassBuilderNode>
+    ): ClassBuilderNode? {
+        val cb = parent.resetChild(key, cb, restoreDefault)
+        tree.reload()
+        return cb
     }
 
     override fun toString(): String {

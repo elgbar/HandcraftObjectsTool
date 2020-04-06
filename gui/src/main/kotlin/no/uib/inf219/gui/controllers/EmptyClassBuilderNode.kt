@@ -1,8 +1,10 @@
 package no.uib.inf219.gui.controllers
 
 import javafx.scene.control.TreeItem
+import javafx.scene.control.TreeView
 import no.uib.inf219.gui.backend.ClassBuilder
 import no.uib.inf219.gui.backend.ParentClassBuilder
+import no.uib.inf219.gui.controllers.ObjectEditorController.Companion.reload
 
 /**
  * A class builder node where the class builder is always null aka empty
@@ -15,12 +17,16 @@ data class EmptyClassBuilderNode(
     override val item: TreeItem<ClassBuilderNode> = TreeItem(this)
     override val cb: Nothing? = null
 
-    override fun ensurePresentClassBuilder(): FilledClassBuilderNode {
+    override fun ensurePresentClassBuilder(tree: TreeView<ClassBuilderNode>): FilledClassBuilderNode {
         val cb = parent.createChildClassBuilder(key, item = item)
+        tree.reload()
         return cb.node
     }
 
-    override fun resetClassBuilder(restoreDefault: Boolean): EmptyClassBuilderNode {
+    override fun resetClassBuilder(
+        restoreDefault: Boolean,
+        tree: TreeView<ClassBuilderNode>
+    ): EmptyClassBuilderNode {
         //nothing to reset the cb is always null
         return this
     }

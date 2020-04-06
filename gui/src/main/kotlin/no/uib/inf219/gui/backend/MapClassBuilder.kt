@@ -88,7 +88,6 @@ class MapClassBuilder(
                     val key = getClassBuilder(type.keyType, keyCb) ?: return@action
                     val value = getClassBuilder(type.contentType, valueCb) ?: return@action
                     create(key, value, item)
-                    controller.reloadView()
                 }
             }
         }

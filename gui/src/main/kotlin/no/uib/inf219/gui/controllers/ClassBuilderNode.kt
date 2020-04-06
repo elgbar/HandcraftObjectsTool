@@ -1,6 +1,7 @@
 package no.uib.inf219.gui.controllers
 
 import javafx.scene.control.TreeItem
+import javafx.scene.control.TreeView
 import no.uib.inf219.gui.backend.ClassBuilder
 import no.uib.inf219.gui.backend.ParentClassBuilder
 
@@ -31,16 +32,12 @@ interface ClassBuilderNode {
     /**
      * Ensure this node has a class builder present. Calling this with a [FilledClassBuilderNode] will return `this`
      */
-    fun ensurePresentClassBuilder(): FilledClassBuilderNode
+    fun ensurePresentClassBuilder(tree: TreeView<ClassBuilderNode>): FilledClassBuilderNode
 
     /**
      * Reset the given class builder
      */
-    fun resetClassBuilder(restoreDefault: Boolean): ClassBuilderNode?
-
-    fun asEmpty(): EmptyClassBuilderNode {
-        return EmptyClassBuilderNode(key, parent)
-    }
+    fun resetClassBuilder(restoreDefault: Boolean, tree: TreeView<ClassBuilderNode>): ClassBuilderNode?
 
     companion object {
 

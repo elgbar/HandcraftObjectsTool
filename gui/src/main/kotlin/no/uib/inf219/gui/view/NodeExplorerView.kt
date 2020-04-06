@@ -18,19 +18,12 @@ class NodeExplorerView(private val controller: ObjectEditorController) : Fragmen
     ).treeview(controller.realRoot.item) {
         controller.tree = this
         root.isExpanded = true
-//        isShowRoot = false
-
-//        repopulate()
-
-//        populate({it.item}) {
-//
-//        }
 
         setOnMouseClicked { event ->
             //note that "isPrimaryButtonDown" and "isSecondaryButtonDown" is not used as it does not work
             if (event.clickCount == 1 && event.button == MouseButton.PRIMARY) {
-                selectedValue?.ensurePresentClassBuilder()
-//                refresh()
+                selectedValue?.ensurePresentClassBuilder(this)
+
             }
         }
 
@@ -67,9 +60,7 @@ class NodeExplorerView(private val controller: ObjectEditorController) : Fragmen
                 //register the new reference but first null out any old reference
                 value.parent.resetChild(key, restoreDefault = false)
                 value.parent.createChildClassBuilder(key, ref, item)
-
-                //reload parent view (or this view if root controller)
-                (controller.parentController ?: controller).reloadView()
+                refresh()
             }
 
             item("Restore to default") {
@@ -94,7 +85,7 @@ class NodeExplorerView(private val controller: ObjectEditorController) : Fragmen
             restoreDefault: Boolean
         ) {
             //reset the clicked item
-            value = value.resetClassBuilder(restoreDefault)
+            value = value.resetClassBuilder(restoreDefault, treeView)
         }
     }
 }

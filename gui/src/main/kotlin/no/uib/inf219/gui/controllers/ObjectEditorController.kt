@@ -37,11 +37,6 @@ class ObjectEditorController(
     val fakeRoot by RootDelegator(rootType)
     val realRoot: ClassBuilder get() = fakeRoot.serObject as ClassBuilder
 
-
-    fun reloadView() {
-//        tree.repopulate()
-    }
-
     fun select(cb: ClassBuilder) {
         tree.selectionModel.select(cb.item)
     }
@@ -54,6 +49,15 @@ class ObjectEditorController(
     companion object {
         val fakeRootKey = "root".toCb()
 
+        /**
+         * Refreshes and call select event again
+         */
+        fun TreeView<ClassBuilderNode>.reload() {
+            this.refresh()
+            val oldSel = selectionModel.selectedItem
+            selectionModel.clearSelection()
+            selectionModel.select(oldSel)
+        }
     }
 
     /**
