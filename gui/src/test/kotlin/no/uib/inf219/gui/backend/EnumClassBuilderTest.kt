@@ -32,9 +32,10 @@ class EnumClassBuilderTest {
     @Test
     internal fun canSerializeEnum() {
         val cb = ClassBuilder.createClassBuilder(
-            Weather::class.type(), value = Weather.SUNNY,
-            key = "key".toCb(),
-            parent = SimpleClassBuilder.FAKE_ROOT
+            Weather::class.type(), key = "key".toCb(),
+            parent = SimpleClassBuilder.FAKE_ROOT,
+            value = Weather.SUNNY,
+            item = item
         )
         assertNotNull(cb)
 

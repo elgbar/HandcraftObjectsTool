@@ -125,7 +125,7 @@ class ReferenceSelectorView : View("Reference") {
         tornadofx.runAsync {
             searching = true
             searchResult.setAll(
-                findInstancesOf(type, controller.findRootController().rootCb).filter { it != parent.getChild(key) })
+                findInstancesOf(type, controller.findRootController().fakeRoot).filter { it != parent.getChild(key) })
             searching = false
         }
         openModal(block = true)

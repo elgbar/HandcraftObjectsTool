@@ -4,6 +4,7 @@ package no.uib.inf219.gui.backend
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.databind.JavaType
+import javafx.scene.control.TreeItem
 import no.uib.inf219.gui.controllers.ClassBuilderNode
 import no.uib.inf219.gui.controllers.EmptyClassBuilderNode
 import no.uib.inf219.gui.loader.ClassInformation
@@ -52,7 +53,11 @@ abstract class ParentClassBuilder : ClassBuilder {
      *
      * @throws IllegalArgumentException If the given [key] is not valid or [init] is invalid
      */
-    abstract fun createClassBuilderFor(key: ClassBuilder, init: ClassBuilder? = null): ClassBuilder
+    abstract fun createChildClassBuilder(
+        key: ClassBuilder,
+        init: ClassBuilder? = null,
+        item: TreeItem<ClassBuilderNode> = TreeItem()
+    ): ClassBuilder
 
     /**
      * Reset the given property for the [key] provided. If it has a default value this value will be restored otherwise it will be removed.
@@ -75,7 +80,7 @@ abstract class ParentClassBuilder : ClassBuilder {
     /**
      * @return The java type of of the given child
      */
-    abstract fun getChildType(cb: ClassBuilder): JavaType?
+    abstract fun getChildType(key: ClassBuilder): JavaType?
 
 
     /**
@@ -90,9 +95,10 @@ abstract class ParentClassBuilder : ClassBuilder {
         type: JavaType,
         key: ClassBuilder,
         value: Any? = null,
-        prop: ClassInformation.PropertyMetadata? = null
+        prop: ClassInformation.PropertyMetadata? = null,
+        item: TreeItem<ClassBuilderNode> = TreeItem()
     ): ClassBuilder? {
-        return ClassBuilder.createClassBuilder(type, key, this, value, prop)
+        return ClassBuilder.createClassBuilder(type, key, this, value, prop, item)
     }
 
     /**
@@ -101,7 +107,7 @@ abstract class ParentClassBuilder : ClassBuilder {
     open fun isParentOf(to: ClassBuilder?): Boolean {
         if (to == null) return false
         return when (to.parent) {
-            to -> false
+            to -> false //to's parent is it self (recursive assignment, denotes root cb)
             this -> true
             else -> this.isParentOf(to.parent)
         }

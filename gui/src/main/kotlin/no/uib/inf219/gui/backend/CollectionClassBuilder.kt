@@ -12,10 +12,8 @@ import no.uib.inf219.gui.backend.simple.IntClassBuilder
 import no.uib.inf219.gui.controllers.ClassBuilderNode
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.loader.ClassInformation
-import tornadofx.action
-import tornadofx.asObservable
-import tornadofx.borderpane
-import tornadofx.button
+import tornadofx.*
+import kotlin.error
 
 
 /**
@@ -34,9 +32,9 @@ class CollectionClassBuilder(
         require(type.isContainerType)
     }
 
-    override val serObject = ArrayList<ClassBuilder>()
+    override val serObjectObservable = ArrayList<ClassBuilder>().toProperty()
+    override val serObject: ArrayList<ClassBuilder> by serObjectObservable
 
-    override val serObjectObservable = serObject.asObservable()
 
     override fun toView(
         parent: EventTarget,
@@ -45,8 +43,7 @@ class CollectionClassBuilder(
         return parent.borderpane {
             center = button("Add element") {
                 action {
-                    val newCb = createClassBuilderFor(serObject.size.toCb())
-                    item.children.add(newCb.item)
+                    val newCb = createChildClassBuilder(serObject.size.toCb())
 
                     controller.tree.refresh()
                 }
@@ -58,15 +55,22 @@ class CollectionClassBuilder(
         return if (cb !is IntClassBuilder) null else cb.serObject
     }
 
-    override fun createClassBuilderFor(key: ClassBuilder, init: ClassBuilder?): ClassBuilder {
+    override fun createChildClassBuilder(
+        key: ClassBuilder,
+        init: ClassBuilder?,
+        item: TreeItem<ClassBuilderNode>
+    ): ClassBuilder {
         val index = cbToInt(key)
             ?: error("Failed to create a new entry in a collection class builder at the given key is not an int")
         require(init == null || init.type == getChildType(key)) {
             "Given initial value have different type than expected. expected ${getChildType(key)} got ${init?.type}"
         }
-        val elem = init ?: (getClassBuilder(type.contentType, key)
+        val elem = init ?: (getClassBuilder(type.contentType, key, item = item)
             ?: error("Failed to create class builder for $key"))
         serObject.add(index, elem)
+
+        this.item.children.add(elem.item)
+
         return elem
     }
 
@@ -104,7 +108,7 @@ class CollectionClassBuilder(
             .joinToString("\n")
     }
 
-    override fun getChildType(cb: ClassBuilder): JavaType {
+    override fun getChildType(key: ClassBuilder): JavaType {
         return type.contentType
     }
 

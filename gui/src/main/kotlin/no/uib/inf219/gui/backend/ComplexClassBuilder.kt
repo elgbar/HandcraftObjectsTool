@@ -67,7 +67,7 @@ class ComplexClassBuilder(
             if (propDefaults[key] != null || v.type.isPrimitive) {
                 //only create a class builder for properties that has a default value
                 // or is primitive (which always have default values)
-                createClassBuilderFor(key.toCb())
+                createChildClassBuilder(key.toCb())
             } else {
                 this.serObject[key] = null
             }
@@ -79,7 +79,11 @@ class ComplexClassBuilder(
             ?: kotlin.error("Wrong type of key was given. Expected a ClassBuilder but got $cb")
     }
 
-    override fun createClassBuilderFor(key: ClassBuilder, init: ClassBuilder?): ClassBuilder {
+    override fun createChildClassBuilder(
+        key: ClassBuilder,
+        init: ClassBuilder?,
+        item: TreeItem<ClassBuilderNode>
+    ): ClassBuilder {
         val propName = cbToString(key)
 
         val prop = propInfo[propName]
@@ -88,7 +92,7 @@ class ComplexClassBuilder(
             "Given initial value have different type than expected. Expected a subclass of ${getChildType(key)} got ${init?.type}"
         }
         return serObjectObservable.computeIfAbsent(propName) {
-            createChild(key, init, prop)
+            createChild(key, init, prop, item)
         } ?: kotlin.error("Failed to create class builder")
     }
 
@@ -111,7 +115,7 @@ class ComplexClassBuilder(
             //must be set to null to trigger the change event!
             // stupid javafx
             serObject[propName] = null //use non observable map to to trigger on change event
-            createChild(key, null, prop)
+            createChild(key, null, prop, item)
         } else {
             null
         }
@@ -122,9 +126,15 @@ class ComplexClassBuilder(
     private fun createChild(
         key: ClassBuilder,
         init: ClassBuilder?,
-        prop: ClassInformation.PropertyMetadata
+        prop: ClassInformation.PropertyMetadata,
+        item: TreeItem<ClassBuilderNode>
     ): ClassBuilder? {
-        return init ?: getClassBuilder(prop.type, key, propDefaults[key.serObject], prop)
+        return if (init != null) {
+            require(init.item == item) { "Given item does not match init's item, given $item init's item ${init.item}" }
+            require(init.property == prop) { "Given property does not match init's property, given $property init's property ${init.property}" }
+            require(init.key == key) { "Given key does not match init's key, given $key init's key ${init.key}" }
+            init
+        } else getClassBuilder(prop.type, key, propDefaults[key.serObject], prop, item)
     }
 
     override fun getChild(key: ClassBuilder): ClassBuilder? {
@@ -184,7 +194,7 @@ class ComplexClassBuilder(
                                 if (child == null) {
                                     //This should never be null as we are using the name of a property
                                     // well, if it is something has gone wrong, but not here!
-                                    cb = createClassBuilderFor(name.toCb())
+                                    cb = createChildClassBuilder(name.toCb())
                                         ?: kotlin.error("Failed to create a class builder for property $name in $this")
 
                                     //update fold title before editing
@@ -208,8 +218,8 @@ class ComplexClassBuilder(
         }
     }
 
-    override fun getChildType(cb: ClassBuilder): JavaType? {
-        return propInfo[cbToString(cb)]?.type
+    override fun getChildType(key: ClassBuilder): JavaType? {
+        return propInfo[cbToString(key)]?.type
     }
 
     override fun getPreviewValue(): String {

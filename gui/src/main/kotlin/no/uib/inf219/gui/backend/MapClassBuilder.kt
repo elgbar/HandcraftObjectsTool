@@ -61,9 +61,9 @@ class MapClassBuilder(
 
     private fun create(
         key: ClassBuilder,
-        value: ClassBuilder?
+        value: ClassBuilder?,
+        item: TreeItem<ClassBuilderNode>
     ): ComplexClassBuilder {
-        val item = TreeItem<ClassBuilderNode>()
         val entry = ComplexClassBuilder(entryType, entryCb, this@MapClassBuilder, item = item)
         item.value = FilledClassBuilderNode(key, entry, parent)
 
@@ -87,19 +87,23 @@ class MapClassBuilder(
 
                     val key = getClassBuilder(type.keyType, keyCb) ?: return@action
                     val value = getClassBuilder(type.contentType, valueCb) ?: return@action
-                    create(key, value)
+                    create(key, value, item)
                     controller.reloadView()
                 }
             }
         }
     }
 
-    override fun createClassBuilderFor(key: ClassBuilder, init: ClassBuilder?): ClassBuilder {
+    override fun createChildClassBuilder(
+        key: ClassBuilder,
+        init: ClassBuilder?,
+        item: TreeItem<ClassBuilderNode>
+    ): ClassBuilder {
         require(init == null || init.type == getChildType(key)) {
             "Given initial value have different type than expected. expected ${getChildType(key)} got ${init?.type}"
         }
         return if (!contains(key)) {
-            create(key, init)
+            create(key, init, item)
         } else {
             get(key)!!
         }

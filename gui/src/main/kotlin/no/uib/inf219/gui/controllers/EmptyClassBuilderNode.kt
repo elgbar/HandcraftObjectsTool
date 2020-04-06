@@ -16,7 +16,7 @@ data class EmptyClassBuilderNode(
     override val cb: Nothing? = null
 
     override fun ensurePresentClassBuilder(): FilledClassBuilderNode {
-        val cb = parent.createClassBuilderFor(key)
+        val cb = parent.createChildClassBuilder(key, item = item)
         return cb.node
     }
 

@@ -134,9 +134,10 @@ interface ClassBuilder {
             type: JavaType,
             key: ClassBuilder,
             parent: ParentClassBuilder,
-            prop: PropertyMetadata? = null
+            prop: PropertyMetadata? = null,
+            item: TreeItem<ClassBuilderNode>
         ): ClassBuilder? {
-            return createClassBuilder(type, key, parent, null, prop)
+            return createClassBuilder(type, key, parent, null, prop, item)
         }
 
         /**
@@ -152,10 +153,12 @@ interface ClassBuilder {
             parent: ParentClassBuilder,
             value: T? = null,
             prop: PropertyMetadata? = null,
+            item: TreeItem<ClassBuilderNode>,
             allowAbstractType: Boolean = false
         ): ClassBuilder? {
 
             require(!parent.isLeaf()) { "Parent cannot be a leaf" }
+            require(item !== parent.item) { "Cyclic dependencies not allowed for items" }
 
             if (value != null) {
                 val clazz: Class<*> = if (type.isPrimitive) value::class.javaPrimitiveType!! else value::class.java
@@ -164,9 +167,7 @@ interface ClassBuilder {
                 }
             }
 
-            val item = TreeItem<ClassBuilderNode>()
-
-            val cb = if (type.isPrimitive) {
+            val cb = (if (type.isPrimitive) {
                 val kotlinType = type.rawClass.kotlin
                 when {
                     kotlinType.isSuperclassOf(Int::class) -> {
@@ -287,6 +288,10 @@ interface ClassBuilder {
                  * Nothing can be abstract if mr bean module is not enabled
                  * and only types that does not have type information can be abstract.
                  */
+                /**
+                 * Nothing can be abstract if mr bean module is not enabled
+                 * and only types that does not have type information can be abstract.
+                 */
                 fun canBeAbstract(type: JavaType): Boolean {
                     if (ControlPanelView.useMrBean) {
                         val typeInfo = ClassInformation.serializableProperties(type)
@@ -320,7 +325,7 @@ interface ClassBuilder {
                                 if (!allowAbstractNextTime) {
                                     displayWarning()
                                 }
-                                return createClassBuilder(type, key, parent, value, prop, allowAbstractNextTime)
+                                return createClassBuilder(type, key, parent, value, prop, item, allowAbstractNextTime)
                             }
                         }
                     )
@@ -333,14 +338,17 @@ interface ClassBuilder {
                     displayWarning()
                 }
 
-                createClassBuilder(subtype, key, parent, value, prop, allowAbstractNextTime)
+                createClassBuilder(subtype, key, parent, value, prop, item, allowAbstractNextTime)
             } else {
 
                 //it's not a primitive type so let's just make a complex type for it
                 ComplexClassBuilder(type, key = key, parent = parent, property = prop, item = item)
-            }
-            if (cb == null) return null
+            }) ?: return null
+
             item.value = FilledClassBuilderNode(key, cb, parent)
+            if (cb is ParentClassBuilder) {
+                item.children.setAll(cb.getTreeItems().map { it.item })
+            }
             return cb
         }
     }

@@ -10,10 +10,9 @@ import no.uib.inf219.gui.backend.ParentClassBuilder
 data class FilledClassBuilderNode(
     override val key: ClassBuilder,
     override val cb: ClassBuilder,
-    override val parent: ParentClassBuilder
+    override val parent: ParentClassBuilder,
+    override val item: TreeItem<ClassBuilderNode> = cb.item
 ) : ClassBuilderNode {
-
-    override val item: TreeItem<ClassBuilderNode> = TreeItem(this)
 
     override fun ensurePresentClassBuilder(): FilledClassBuilderNode {
         return this
@@ -24,7 +23,7 @@ data class FilledClassBuilderNode(
     }
 
     override fun toString(): String {
-        return "FilledClassBuilderNode(key=$key, parent=$parent)"
+        return "FilledClassBuilderNode(key=${key.getPreviewValue()}, cb=${cb.getPreviewValue()} parent=${parent.getPreviewValue()})"
     }
 
     override fun equals(other: Any?): Boolean {

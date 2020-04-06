@@ -20,6 +20,10 @@ interface ClassBuilderNode {
      * The class builder this node references.
      */
     val cb: ClassBuilder?
+
+    /**
+     * The parent of this node
+     */
     val parent: ParentClassBuilder
 
     val item: TreeItem<ClassBuilderNode>

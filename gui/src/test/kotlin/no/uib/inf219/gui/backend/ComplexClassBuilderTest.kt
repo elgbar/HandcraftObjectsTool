@@ -73,7 +73,7 @@ internal class ComplexClassBuilderTest {
                 val prop = props[key]
                 assertNotNull(prop)
 
-                val created = cb.getClassBuilder(prop!!.type, key.toCb(), def, prop) ?: fail()
+                val created = cb.getClassBuilder(prop!!.type, key.toCb(), def, prop, item) ?: fail()
 
                 assertEquals(created, cb.serObject[key]) {
                     "Complex cb does not contain the correct default value for key '$key'"
@@ -189,7 +189,7 @@ internal class ComplexClassBuilderTest {
 
         val invalid = 1.toCb()
         assertThrows(IllegalArgumentException::class.java) {
-            cb.createClassBuilderFor(propKey.toCb(), invalid)
+            cb.createChildClassBuilder(propKey.toCb(), invalid, item)
         }
     }
 
@@ -202,7 +202,7 @@ internal class ComplexClassBuilderTest {
             item = TreeItem()
         )
         assertThrows(IllegalArgumentException::class.java) {
-            cb.createClassBuilderFor("invalid key".toCb())
+            cb.createChildClassBuilder("invalid key".toCb(), item = item)
         }
     }
 
@@ -218,7 +218,7 @@ internal class ComplexClassBuilderTest {
 
         var created: ClassBuilder? = null
         assertDoesNotThrow {
-            created = cb.createClassBuilderFor(propKey.toCb(), null)
+            created = cb.createChildClassBuilder(propKey.toCb(), null, item)
         }
         assertNotNull(created)
     }
@@ -244,7 +244,7 @@ internal class ComplexClassBuilderTest {
 
         var created: ClassBuilder? = null
         assertDoesNotThrow {
-            created = cb.createClassBuilderFor(propKey.toCb(), init.toCb())
+            created = cb.createChildClassBuilder(propKey.toCb(), init.toCb(), item)
         }
         assertEquals(init.toCb(), created)
     }
@@ -266,7 +266,7 @@ internal class ComplexClassBuilderTest {
         var created: ClassBuilder? = null
 
         assertDoesNotThrow {
-            created = cb.createClassBuilderFor(propKey.toCb(), "wowo".toCb())
+            created = cb.createChildClassBuilder(propKey.toCb(), "wowo".toCb(), item)
         }
 
         assertTrue(orgProp === created)

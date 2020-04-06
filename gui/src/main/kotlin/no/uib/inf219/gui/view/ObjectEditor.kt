@@ -23,7 +23,7 @@ class ObjectEditor : View() {
 
     private fun createPropEditor(): BorderPane {
         val editor: PropertyEditor = find("controller" to controller)
-        editor.root.center = controller.rootCb.toView(this, controller)
+        editor.root.center = controller.realRoot.toView(this, controller)
         return editor.root
     }
 
@@ -113,9 +113,9 @@ class ObjectEditor : View() {
     private fun toJson(): String? {
         try {
             return if (ControlPanelView.unsafeSerialization.value) {
-                mapper.writeValueAsString(controller.rootCb)
+                mapper.writeValueAsString(controller.realRoot)
             } else {
-                val obj = mapper.convertValue<Any>(controller.rootCb, controller.rootCb.type)!!
+                val obj = mapper.convertValue<Any>(controller.realRoot, controller.realRoot.type)!!
                 mapper.writeValueAsString(obj)
             }
         } catch (e: MissingPropertyException) {

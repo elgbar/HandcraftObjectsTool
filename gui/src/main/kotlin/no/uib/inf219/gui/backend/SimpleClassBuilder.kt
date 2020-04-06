@@ -87,7 +87,11 @@ abstract class SimpleClassBuilder<T : Any> constructor(
                 kotlin.error("Dummy parent")
             }
 
-            override fun createClassBuilderFor(key: ClassBuilder, init: ClassBuilder?): ClassBuilder {
+            override fun createChildClassBuilder(
+                key: ClassBuilder,
+                init: ClassBuilder?,
+                item: TreeItem<ClassBuilderNode>
+            ): ClassBuilder {
                 kotlin.error("Dummy parent")
             }
 
