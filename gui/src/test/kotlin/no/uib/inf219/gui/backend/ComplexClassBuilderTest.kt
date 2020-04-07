@@ -73,7 +73,7 @@ internal class ComplexClassBuilderTest {
                 val prop = props[key]
                 assertNotNull(prop)
 
-                val created = cb.getClassBuilder(prop!!.type, key.toCb(), def, prop, item) ?: fail()
+                val created = cb.getClassBuilder(prop!!.type, key.toCb(), def, prop) ?: fail()
 
                 assertEquals(created, cb.serObject[key]) {
                     "Complex cb does not contain the correct default value for key '$key'"
@@ -189,7 +189,7 @@ internal class ComplexClassBuilderTest {
 
         val invalid = 1.toCb()
         assertThrows(IllegalArgumentException::class.java) {
-            cb.createChildClassBuilder(propKey.toCb(), invalid, item)
+            cb.createChildClassBuilder(propKey.toCb(), invalid)
         }
     }
 
@@ -202,7 +202,7 @@ internal class ComplexClassBuilderTest {
             item = TreeItem()
         )
         assertThrows(IllegalArgumentException::class.java) {
-            cb.createChildClassBuilder("invalid key".toCb(), item = item)
+            cb.createChildClassBuilder("invalid key".toCb())
         }
     }
 
@@ -218,7 +218,7 @@ internal class ComplexClassBuilderTest {
 
         var created: ClassBuilder? = null
         assertDoesNotThrow {
-            created = cb.createChildClassBuilder(propKey.toCb(), null, item)
+            created = cb.createChildClassBuilder(propKey.toCb(), null)
         }
         assertNotNull(created)
     }
@@ -233,6 +233,7 @@ internal class ComplexClassBuilderTest {
         )
 
         val propKey = Conversation::name.name
+        val propKeyCb = Conversation::name.name.toCb()
         //make sure this test makes sense with a real property
         assertNotNull(cb.serObject[propKey]) { "Property key is wrong. Change it to one of ${cb.propDefaults.filterValues { it != null }.keys}" }
 
@@ -241,12 +242,13 @@ internal class ComplexClassBuilderTest {
         assertNull(cb.serObject[propKey])
 
         val init = "wowo"
+        val initCB = init.toCb(key = propKeyCb, parent = cb, property = cb.propInfo[propKey])
 
         var created: ClassBuilder? = null
         assertDoesNotThrow {
-            created = cb.createChildClassBuilder(propKey.toCb(), init.toCb(), item)
+            created = cb.createChildClassBuilder(propKeyCb, initCB)
         }
-        assertEquals(init.toCb(), created)
+        assertTrue(initCB === created)
     }
 
     @Test
@@ -266,7 +268,7 @@ internal class ComplexClassBuilderTest {
         var created: ClassBuilder? = null
 
         assertDoesNotThrow {
-            created = cb.createChildClassBuilder(propKey.toCb(), "wowo".toCb(), item)
+            created = cb.createChildClassBuilder(propKey.toCb(), "wowo".toCb())
         }
 
         assertTrue(orgProp === created)

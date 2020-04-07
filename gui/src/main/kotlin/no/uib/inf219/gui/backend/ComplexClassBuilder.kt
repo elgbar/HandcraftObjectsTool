@@ -115,7 +115,7 @@ class ComplexClassBuilder(
             //must be set to null to trigger the change event!
             // stupid javafx
             serObject[propName] = null //use non observable map to to trigger on change event
-            createChild(key, null, prop, item)
+            createChild(key, null, prop)
         } else {
             null
         }
@@ -127,12 +127,13 @@ class ComplexClassBuilder(
         key: ClassBuilder,
         init: ClassBuilder?,
         prop: ClassInformation.PropertyMetadata,
-        item: TreeItem<ClassBuilderNode>
+        item: TreeItem<ClassBuilderNode> = TreeItem()
     ): ClassBuilder? {
         return if (init != null) {
-            require(init.item == item) { "Given item does not match init's item, given $item init's item ${init.item}" }
-            require(init.property == prop) { "Given property does not match init's property, given $property init's property ${init.property}" }
-            require(init.key == key) { "Given key does not match init's key, given $key init's key ${init.key}" }
+            require(init.item == item) { "Given item does not match init's item, expected $item init's item ${init.item}" }
+            require(init.property == prop) { "Given property does not match init's property, expected '$prop' init's property '${init.property}'" }
+            require(init.key == key) { "Given key does not match init's key, expected $key init's key ${init.key}" }
+            require(init.parent == this) { "Given initial class builder does not have this ($this) as it's parent, but rather ${init.parent}" }
             init
         } else getClassBuilder(prop.type, key, propDefaults[key.serObject], prop, item)
     }
