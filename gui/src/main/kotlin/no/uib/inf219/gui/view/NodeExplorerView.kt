@@ -36,18 +36,24 @@ class NodeExplorerView(private val controller: ObjectEditorController) : Fragmen
 
             item("Make reference to...").action {
                 val item = this@treeview.selectionModel.selectedItem ?: return@action
-                if (item == root) return@action
-                val value = item.value
-                if (value.parent.isLeaf()) return@action
-
-                val key = value.key
-                val type = value.parent.getChildType(key)
-                if (type == null) {
-                    OutputArea.logln("Failed to find a the type of the child ${value.key} for ${value.parent}")
+                if (item == root) {
+                    warning("Cannot overwrite root with a reference")
                     return@action
                 }
+                val value = item.value
+
+                val key = value.key
+                val parent = value.parent
+
+                val type = parent.getChildType(key)
+                if (type == null) {
+                    information("Failed to find a the type of the child $key for $parent")
+                    return@action
+                }
+                val prop = parent.getChildPropertyMetadata(key)
+
                 val selector: ReferenceSelectorView = find("controller" to controller)
-                val ref = selector.createReference(type, key, value!!.parent)
+                val ref = selector.createReference(type, key, parent, prop)
 
                 if (ref == null) {
                     warning(
@@ -57,9 +63,7 @@ class NodeExplorerView(private val controller: ObjectEditorController) : Fragmen
                     return@action
                 }
 
-                //register the new reference but first null out any old reference
-                value.parent.resetChild(key, restoreDefault = false)
-                value.parent.createChildClassBuilder(key, ref, item)
+                parent[key] = ref
                 refresh()
             }
 

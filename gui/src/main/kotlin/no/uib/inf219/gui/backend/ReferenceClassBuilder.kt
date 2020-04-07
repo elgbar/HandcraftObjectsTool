@@ -27,6 +27,7 @@ class ReferenceClassBuilder(
     private val refParent: ParentClassBuilder,
     override val key: ClassBuilder,
     override val parent: ParentClassBuilder,
+    override val property: ClassInformation.PropertyMetadata?,
     override val item: TreeItem<ClassBuilderNode>
 ) : ClassBuilder {
 
@@ -35,7 +36,6 @@ class ReferenceClassBuilder(
         private set
 
     override val type: JavaType = serObject.type
-    override val property: ClassInformation.PropertyMetadata? = serObject.property
     override val serObjectObservable = serObject.toProperty()
 
     init {

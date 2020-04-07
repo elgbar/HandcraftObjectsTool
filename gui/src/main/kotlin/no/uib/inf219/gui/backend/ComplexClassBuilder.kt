@@ -76,7 +76,7 @@ class ComplexClassBuilder(
 
     private fun cbToString(cb: ClassBuilder?): String {
         return cb?.serObject as? String
-            ?: kotlin.error("Wrong type of key was given. Expected a ClassBuilder but got $cb")
+            ?: kotlin.error("Wrong type of key was given. Expected a StringClassBuilder but got $cb")
     }
 
     override fun createChildClassBuilder(
@@ -221,6 +221,10 @@ class ComplexClassBuilder(
 
     override fun getChildType(key: ClassBuilder): JavaType? {
         return propInfo[cbToString(key)]?.type
+    }
+
+    override fun getChildPropertyMetadata(key: ClassBuilder): ClassInformation.PropertyMetadata? {
+        return propInfo[cbToString(key)]
     }
 
     override fun getPreviewValue(): String {

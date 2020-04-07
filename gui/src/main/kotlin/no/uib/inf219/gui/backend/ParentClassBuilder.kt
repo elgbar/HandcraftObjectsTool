@@ -77,11 +77,23 @@ abstract class ParentClassBuilder : ClassBuilder {
         restoreDefault: Boolean = true
     ): ClassBuilderNode?
 
+    /**
+     * Remove the current child at [key] (if any) and set the child at [key] to be [child]
+     */
+    operator fun set(key: ClassBuilder, child: ClassBuilder) {
+        require(child.key == key) { "Key does not match" }
+        require(child.parent == this) { "Given child does not have this a parent" }
+        resetChild(key, restoreDefault = false)
+        createChildClassBuilder(key, child)
+    }
+
 
     /**
      * @return The java type of of the given child
      */
     abstract fun getChildType(key: ClassBuilder): JavaType?
+
+    open fun getChildPropertyMetadata(key: ClassBuilder): ClassInformation.PropertyMetadata? = null
 
 
     /**
