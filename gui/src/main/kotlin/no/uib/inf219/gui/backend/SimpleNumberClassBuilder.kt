@@ -1,14 +1,15 @@
 package no.uib.inf219.gui.backend
 
+import javafx.event.EventTarget
 import javafx.scene.Node
 import javafx.scene.control.TextFormatter
 import javafx.scene.control.TreeItem
 import javafx.scene.input.MouseButton
-import javafx.scene.layout.Pane
 import javafx.util.StringConverter
 import no.uib.inf219.extra.removeNl
 import no.uib.inf219.gui.Styles.Companion.numberChanger
 import no.uib.inf219.gui.controllers.ClassBuilderNode
+import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.loader.ClassInformation
 import no.uib.inf219.gui.view.OutputArea
 import tornadofx.*
@@ -29,7 +30,11 @@ abstract class SimpleNumberClassBuilder<T : Number>(
     item: TreeItem<ClassBuilderNode>
 ) : SimpleClassBuilder<T>(primClass, initialValue, key, parent, property, immutable, converter, item) {
 
-    override fun editView(parent: Pane): Node {
+
+    override fun toView(
+        parent: EventTarget,
+        controller: ObjectEditorController
+    ): Node {
         return parent.hbox {
 
             vbox {

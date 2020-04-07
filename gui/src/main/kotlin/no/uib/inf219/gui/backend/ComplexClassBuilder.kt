@@ -47,7 +47,7 @@ class ComplexClassBuilder(
     internal val propDefaults: MutableMap<String, Any?> = HashMap()
 
     /**
-     * Information about the generics of [T], is `null` when the class does not have a generic type
+     * Information about the generics of [type], is `null` when the class does not have a generic type
      */
     val typeSerializer: TypeSerializer?
 
@@ -151,21 +151,6 @@ class ComplexClassBuilder(
         controller: ObjectEditorController
     ): Node {
         return parent.borderpane {
-
-            top = borderpane {
-                center = vbox {
-                    addClass(Styles.parent)
-                    label("Required? ${isRequired()}")
-                    label("Type: ${type.rawClass}")
-                    val cbParent = this@ComplexClassBuilder.parent
-                    if (cbParent is ComplexClassBuilder) {
-                        val desc = cbParent.propInfo[key.getPreviewValue()]?.description
-                        if (!desc.isNullOrBlank()) {
-                            scrollpane().textarea("Description: $desc")
-                        }
-                    }
-                }
-            }
 
             if (this@ComplexClassBuilder.serObject.isEmpty()) {
                 center = borderpane {

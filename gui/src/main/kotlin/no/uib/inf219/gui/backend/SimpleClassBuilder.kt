@@ -14,12 +14,10 @@ import javafx.event.EventTarget
 import javafx.scene.Node
 import javafx.scene.control.TextFormatter
 import javafx.scene.control.TreeItem
-import javafx.scene.layout.Pane
 import javafx.util.StringConverter
 import javafx.util.converter.*
 import no.uib.inf219.extra.removeNl
 import no.uib.inf219.extra.type
-import no.uib.inf219.gui.Styles
 import no.uib.inf219.gui.controllers.ClassBuilderNode
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.converter.UUIDStringConverter
@@ -155,29 +153,6 @@ abstract class SimpleClassBuilder<T : Any> constructor(
         parent: EventTarget,
         controller: ObjectEditorController
     ): Node {
-        return parent.vbox {
-            addClass(Styles.parent)
-            vbox {
-                addClass(Styles.parent)
-                label("Required? ${isRequired()}")
-                label("Type: ${type.rawClass}")
-                val cbParent = this@SimpleClassBuilder.parent
-                if (cbParent is ComplexClassBuilder) {
-                    val desc = cbParent.propInfo[key.getPreviewValue()]?.description
-                    if (!desc.isNullOrBlank()) {
-                        label("Description: $desc")
-                    }
-                }
-            }
-            this += editView(this)
-        }
-    }
-
-    /**
-     * How to view the edit the value
-     */
-
-    open fun editView(parent: Pane): Node {
         return parent.textfield {
             textFormatter = TextFormatter<T>() {
 

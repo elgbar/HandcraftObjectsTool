@@ -2,16 +2,17 @@ package no.uib.inf219.gui.backend.simple
 
 import com.fasterxml.jackson.annotation.JsonEnumDefaultValue
 import javafx.collections.transformation.FilteredList
+import javafx.event.EventTarget
 import javafx.scene.Node
 import javafx.scene.control.SelectionMode
 import javafx.scene.control.TreeItem
-import javafx.scene.layout.Pane
 import javafx.util.StringConverter
 import no.uib.inf219.gui.Styles
 import no.uib.inf219.gui.backend.ClassBuilder
 import no.uib.inf219.gui.backend.ParentClassBuilder
 import no.uib.inf219.gui.backend.SimpleClassBuilder
 import no.uib.inf219.gui.controllers.ClassBuilderNode
+import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.loader.ClassInformation
 import tornadofx.*
 import java.lang.reflect.Field
@@ -40,7 +41,10 @@ class EnumClassBuilder<T : Enum<*>>(
     private val enumValues = findEnumValues(clazz).asObservable()
     private val filteredValues = FilteredList(enumValues)
 
-    override fun editView(parent: Pane): Node {
+    override fun toView(
+        parent: EventTarget,
+        controller: ObjectEditorController
+    ): Node {
         return parent.vbox {
             addClass(Styles.parent)
             textfield {
