@@ -34,8 +34,7 @@ class EnumClassBuilderTest {
         val cb = ClassBuilder.createClassBuilder(
             Weather::class.type(), key = "key".toCb(),
             parent = SimpleClassBuilder.FAKE_ROOT,
-            value = Weather.SUNNY,
-            item = item
+            value = Weather.SUNNY
         )
         assertNotNull(cb)
 

@@ -70,7 +70,7 @@ internal class ClassBuilderTest {
     internal fun getClassBuilder_failOnTypeMismatch() {
         assertThrows(IllegalArgumentException::class.java) {
             ClassBuilder.createClassBuilder(
-                String::class.type(), key = "key".toCb(), parent = SimpleClassBuilder.FAKE_ROOT, value = 2, item = item
+                String::class.type(), key = "key".toCb(), parent = SimpleClassBuilder.FAKE_ROOT, value = 2
             )
         }
     }
@@ -82,8 +82,7 @@ internal class ClassBuilderTest {
                 Boolean::class.type(),
                 key = "key".toCb(),
                 parent = SimpleClassBuilder.FAKE_ROOT,
-                value = true,
-                item = item
+                value = true
             )
         }
 
@@ -92,8 +91,7 @@ internal class ClassBuilderTest {
                 Boolean::class.javaPrimitiveType!!.type(),
                 key = "key".toCb(),
                 parent = SimpleClassBuilder.FAKE_ROOT,
-                value = true,
-                item = item
+                value = true
             )
         }
     }

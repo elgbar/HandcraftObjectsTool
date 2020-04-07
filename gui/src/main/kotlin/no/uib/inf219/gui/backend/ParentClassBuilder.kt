@@ -47,6 +47,7 @@ abstract class ParentClassBuilder : ClassBuilder {
      *
      * @param key The key to the property to create. All keys from [getSubClassBuilders] are guaranteed to work, others might work but it is up to the implementation to accept or reject keys
      * @param init The value to be placed at the given [key] property
+     * @param item The item to be used when creating a new item, should be identical to the [init]'s item if it is not null
      *
      * @return A class builder for the given property type found at [key].
      *
@@ -56,7 +57,7 @@ abstract class ParentClassBuilder : ClassBuilder {
     abstract fun createChildClassBuilder(
         key: ClassBuilder,
         init: ClassBuilder? = null,
-        item: TreeItem<ClassBuilderNode> = TreeItem()
+        item: TreeItem<ClassBuilderNode> = init?.item ?: TreeItem()
     ): ClassBuilder
 
     /**

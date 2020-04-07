@@ -135,7 +135,7 @@ interface ClassBuilder {
             key: ClassBuilder,
             parent: ParentClassBuilder,
             prop: PropertyMetadata? = null,
-            item: TreeItem<ClassBuilderNode>
+            item: TreeItem<ClassBuilderNode> = TreeItem()
         ): ClassBuilder? {
             return createClassBuilder(type, key, parent, null, prop, item)
         }
@@ -153,7 +153,7 @@ interface ClassBuilder {
             parent: ParentClassBuilder,
             value: T? = null,
             prop: PropertyMetadata? = null,
-            item: TreeItem<ClassBuilderNode>,
+            item: TreeItem<ClassBuilderNode> = TreeItem(),
             allowAbstractType: Boolean = false
         ): ClassBuilder? {
 

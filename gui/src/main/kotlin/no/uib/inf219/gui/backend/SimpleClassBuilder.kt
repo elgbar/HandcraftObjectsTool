@@ -118,7 +118,7 @@ abstract class SimpleClassBuilder<T : Any> constructor(
             override val serObjectObservable: Observable get() = kotlin.error("Dummy parent")
             override val type: JavaType get() = kotlin.error("Dummy parent")
             override val property: ClassInformation.PropertyMetadata? get() = kotlin.error("Dummy parent")
-            override val item: TreeItem<ClassBuilderNode> get() = kotlin.error("Dummy parent")
+            override val item: TreeItem<ClassBuilderNode> get() = TreeItem()
 
             override fun toView(parent: EventTarget, controller: ObjectEditorController): Node {
                 kotlin.error("Dummy parent")
