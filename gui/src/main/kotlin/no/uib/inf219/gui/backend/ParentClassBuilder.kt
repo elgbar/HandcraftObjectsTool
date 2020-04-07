@@ -5,8 +5,8 @@ package no.uib.inf219.gui.backend
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.databind.JavaType
 import javafx.scene.control.TreeItem
+import no.uib.inf219.extra.findChild
 import no.uib.inf219.gui.controllers.ClassBuilderNode
-import no.uib.inf219.gui.controllers.EmptyClassBuilderNode
 import no.uib.inf219.gui.loader.ClassInformation
 
 /**
@@ -57,7 +57,7 @@ abstract class ParentClassBuilder : ClassBuilder {
     abstract fun createChildClassBuilder(
         key: ClassBuilder,
         init: ClassBuilder? = null,
-        item: TreeItem<ClassBuilderNode> = init?.item ?: TreeItem()
+        item: TreeItem<ClassBuilderNode> = this.item.findChild(key)
     ): ClassBuilder
 
     /**
@@ -75,7 +75,7 @@ abstract class ParentClassBuilder : ClassBuilder {
         key: ClassBuilder,
         element: ClassBuilder? = null,
         restoreDefault: Boolean = true
-    ): ClassBuilderNode?
+    )
 
     /**
      * Remove the current child at [key] (if any) and set the child at [key] to be [child]
@@ -87,14 +87,17 @@ abstract class ParentClassBuilder : ClassBuilder {
         createChildClassBuilder(key, child)
     }
 
-
     /**
      * @return The java type of of the given child
      */
     abstract fun getChildType(key: ClassBuilder): JavaType?
 
+    /**
+     * @return The metadata of the child found at [key]
+     *
+     * @see ComplexClassBuilder.getChildPropertyMetadata
+     */
     open fun getChildPropertyMetadata(key: ClassBuilder): ClassInformation.PropertyMetadata? = null
-
 
     /**
      * @return The child at the given location
@@ -102,7 +105,6 @@ abstract class ParentClassBuilder : ClassBuilder {
      * @throws IllegalArgumentException If the [key] is invalid
      */
     abstract fun getChild(key: ClassBuilder): ClassBuilder?
-
 
     fun getClassBuilder(
         type: JavaType,
@@ -117,7 +119,7 @@ abstract class ParentClassBuilder : ClassBuilder {
     /**
      * @return If this is a forefather of the given [ClassBuilder]. Will return `false` if `this` is equal to [to]
      */
-    open fun isParentOf(to: ClassBuilder?): Boolean {
+    fun isParentOf(to: ClassBuilder?): Boolean {
         if (to == null) return false
         return when (to.parent) {
             to -> false //to's parent is it self (recursive assignment, denotes root cb)
@@ -126,11 +128,8 @@ abstract class ParentClassBuilder : ClassBuilder {
         }
     }
 
-    @JsonIgnore
-    open fun getTreeItems(): List<ClassBuilderNode> =
-        getSubClassBuilders().map { elem ->
-            elem.value?.item?.value ?: EmptyClassBuilderNode(elem.key, this)
-        }
+//    @JsonIgnore
+//    open fun getTreeItems(): List<TreeItem<ClassBuilderNode>> = getSubClassBuilders().map { item.findChild(it.key) }
 
     final override fun isLeaf(): Boolean = false
 

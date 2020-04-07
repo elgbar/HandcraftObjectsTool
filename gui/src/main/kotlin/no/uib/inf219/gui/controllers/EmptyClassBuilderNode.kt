@@ -11,24 +11,20 @@ import no.uib.inf219.gui.controllers.ObjectEditorController.Companion.reload
  */
 data class EmptyClassBuilderNode(
     override val key: ClassBuilder,
-    override val parent: ParentClassBuilder
+    override val parent: ParentClassBuilder,
+    override val item: TreeItem<ClassBuilderNode> = TreeItem()
 ) : ClassBuilderNode {
 
-    override val item: TreeItem<ClassBuilderNode> = TreeItem(this)
+    init {
+        item.value = this
+    }
+
     override val cb: Nothing? = null
 
     override fun ensurePresentClassBuilder(tree: TreeView<ClassBuilderNode>): FilledClassBuilderNode {
         val cb = parent.createChildClassBuilder(key, item = item)
         tree.reload()
         return cb.node
-    }
-
-    override fun resetClassBuilder(
-        restoreDefault: Boolean,
-        tree: TreeView<ClassBuilderNode>
-    ): EmptyClassBuilderNode {
-        //nothing to reset the cb is always null
-        return this
     }
 
     override fun toString(): String {

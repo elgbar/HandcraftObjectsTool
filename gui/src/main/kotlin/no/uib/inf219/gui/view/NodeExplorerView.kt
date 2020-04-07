@@ -1,10 +1,9 @@
 package no.uib.inf219.gui.view
 
-import javafx.scene.control.TreeItem
-import javafx.scene.control.TreeView
 import javafx.scene.input.MouseButton
-import no.uib.inf219.gui.controllers.ClassBuilderNode
+import no.uib.inf219.extra.selectedItem
 import no.uib.inf219.gui.controllers.ObjectEditorController
+import no.uib.inf219.gui.controllers.ObjectEditorController.Companion.reload
 import tornadofx.*
 
 /**
@@ -22,8 +21,7 @@ class NodeExplorerView(private val controller: ObjectEditorController) : Fragmen
         setOnMouseClicked { event ->
             //note that "isPrimaryButtonDown" and "isSecondaryButtonDown" is not used as it does not work
             if (event.clickCount == 1 && event.button == MouseButton.PRIMARY) {
-                selectedValue?.ensurePresentClassBuilder(this)
-
+                selectedItem?.value = selectedValue?.ensurePresentClassBuilder(this)
             }
         }
 
@@ -50,10 +48,9 @@ class NodeExplorerView(private val controller: ObjectEditorController) : Fragmen
                     information("Failed to find a the type of the child $key for $parent")
                     return@action
                 }
-                val prop = parent.getChildPropertyMetadata(key)
 
                 val selector: ReferenceSelectorView = find("controller" to controller)
-                val ref = selector.createReference(type, key, parent, prop)
+                val ref = selector.createReference(type, key, parent)
 
                 if (ref == null) {
                     warning(
@@ -64,32 +61,16 @@ class NodeExplorerView(private val controller: ObjectEditorController) : Fragmen
                 }
 
                 parent[key] = ref
-                refresh()
+                reload()
             }
 
-            item("Restore to default") {
-
-                action {
-                    this@treeview.selectionModel.selectedItem?.resetClicked(this@treeview, true)
-                }
+            item("Restore to default").action {
+                this@treeview.selectionModel.selectedItem?.value?.resetClassBuilder(this@treeview, true)
             }
 
-            item("Set to null") {
-                action {
-                    this@treeview.selectionModel.selectedItem?.resetClicked(this@treeview, false)
-                }
+            item("Set to null").action {
+                this@treeview.selectionModel.selectedItem?.value?.resetClassBuilder(this@treeview, false)
             }
-        }
-    }
-
-    companion object {
-
-        fun TreeItem<ClassBuilderNode>.resetClicked(
-            treeView: TreeView<ClassBuilderNode>,
-            restoreDefault: Boolean
-        ) {
-            //reset the clicked item
-            value = value.resetClassBuilder(restoreDefault, treeView)
         }
     }
 }

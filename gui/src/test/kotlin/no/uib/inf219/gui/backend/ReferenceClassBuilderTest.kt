@@ -65,7 +65,12 @@ internal class ReferenceClassBuilderTest {
         //both responses will bring up the same conversation
         resp1.serObject[Response::conv.name] = resp1CB
         resp2.serObject[Response::conv.name] =
-            ReferenceClassBuilder(Response::conv.name.toCb(), resp1, 1.toCb(), responses, item = TreeItem())
+            ReferenceClassBuilder(
+                refKey = Response::conv.name.toCb(),
+                refParent = resp1,
+                key = 1.toCb(),
+                parent = responses, item = TreeItem()
+            )
 
         //Each response lead to a common conversation, now lets try convert this to a real conversation
         var converted: Conversation? = null
@@ -116,12 +121,13 @@ internal class ReferenceClassBuilderTest {
 
     @Test
     internal fun refIsReset_toNull() {
-        val cb = ComplexClassBuilder(
+        val cb = ClassBuilder.createClassBuilder(
             Conversation::class.type(),
-            key = "key".toCb(),
-            parent = SimpleClassBuilder.FAKE_ROOT,
-            item = TreeItem()
-        )
+            "key".toCb(),
+            SimpleClassBuilder.FAKE_ROOT
+        ) as ComplexClassBuilder?
+            ?: fail("Failed to create class builder for Conversation")
+
         //name have default value
         val orgKey = Conversation::name.name
         assertNotNull(cb.serObject[orgKey])

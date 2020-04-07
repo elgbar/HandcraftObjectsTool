@@ -12,9 +12,11 @@ import javafx.scene.Node
 import javafx.scene.control.ButtonBar
 import javafx.scene.control.ButtonType
 import javafx.scene.control.TreeItem
+import no.uib.inf219.extra.findChild
 import no.uib.inf219.gui.backend.serializers.ClassBuilderSerializer
 import no.uib.inf219.gui.backend.simple.*
 import no.uib.inf219.gui.controllers.ClassBuilderNode
+import no.uib.inf219.gui.controllers.EmptyClassBuilderNode
 import no.uib.inf219.gui.controllers.FilledClassBuilderNode
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.loader.ClassInformation
@@ -77,6 +79,7 @@ interface ClassBuilder {
      */
     @get:JsonIgnore
     val item: TreeItem<ClassBuilderNode>
+        get() = parent.item.findChild(key)
 
     val node: FilledClassBuilderNode get() = item.value as FilledClassBuilderNode
 
@@ -347,7 +350,11 @@ interface ClassBuilder {
 
             item.value = FilledClassBuilderNode(key, cb, parent)
             if (cb is ParentClassBuilder) {
-                item.children.setAll(cb.getTreeItems().map { it.item })
+                val childItems = cb.getSubClassBuilders().map { (key, childCb) ->
+                    //use the existing node or create an empty node if the child is null
+                    childCb?.node ?: EmptyClassBuilderNode(key, cb)
+                }.map { it.item }
+                item.children.setAll(childItems)
             }
             return cb
         }

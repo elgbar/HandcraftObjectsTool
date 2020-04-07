@@ -18,7 +18,6 @@ import no.uib.inf219.gui.controllers.ClassBuilderNode
 import no.uib.inf219.gui.controllers.FilledClassBuilderNode
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.ems
-import no.uib.inf219.gui.loader.ClassInformation
 import tornadofx.*
 
 /**
@@ -121,8 +120,7 @@ class ReferenceSelectorView : View("Reference") {
     fun createReference(
         type: JavaType,
         key: ClassBuilder,
-        parent: ParentClassBuilder,
-        prop: ClassInformation.PropertyMetadata?
+        parent: ParentClassBuilder
     ): ReferenceClassBuilder? {
         tornadofx.runAsync {
             searching = true
@@ -134,7 +132,7 @@ class ReferenceSelectorView : View("Reference") {
 
         val ref = result ?: return null
         val item = TreeItem<ClassBuilderNode>()
-        return ReferenceClassBuilder(ref.key, ref.parent, key, parent, prop, item).apply {
+        return ReferenceClassBuilder(ref.key, ref.parent, key, parent, item).apply {
             item.value = FilledClassBuilderNode(key, this, parent)
         }
     }

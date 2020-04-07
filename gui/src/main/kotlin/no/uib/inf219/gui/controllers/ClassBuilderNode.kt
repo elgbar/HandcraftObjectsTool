@@ -2,8 +2,10 @@ package no.uib.inf219.gui.controllers
 
 import javafx.scene.control.TreeItem
 import javafx.scene.control.TreeView
+import no.uib.inf219.extra.findChild
 import no.uib.inf219.gui.backend.ClassBuilder
 import no.uib.inf219.gui.backend.ParentClassBuilder
+import no.uib.inf219.gui.controllers.ObjectEditorController.Companion.reload
 
 /**
  * Represents a node in the tree of [no.uib.inf219.gui.view.NodeExplorerView]
@@ -37,7 +39,14 @@ interface ClassBuilderNode {
     /**
      * Reset the given class builder
      */
-    fun resetClassBuilder(restoreDefault: Boolean, tree: TreeView<ClassBuilderNode>): ClassBuilderNode?
+    fun resetClassBuilder(
+        tree: TreeView<ClassBuilderNode>,
+        restoreDefault: Boolean
+    ) {
+        parent.resetChild(key, cb, restoreDefault)
+        parent.item.findChild(key)
+        tree.reload()
+    }
 
     companion object {
 

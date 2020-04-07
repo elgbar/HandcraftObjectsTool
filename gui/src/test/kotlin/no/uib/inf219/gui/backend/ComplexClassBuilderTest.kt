@@ -1,6 +1,7 @@
 package no.uib.inf219.gui.backend
 
 import javafx.scene.control.TreeItem
+import no.uib.inf219.extra.findChild
 import no.uib.inf219.extra.toCb
 import no.uib.inf219.extra.type
 import no.uib.inf219.gui.backend.simple.StringClassBuilder
@@ -153,26 +154,30 @@ internal class ComplexClassBuilderTest {
 
     @Test
     internal fun resetChild_dontRestore_complex() {
-        val cb = ComplexClassBuilder(
+        val cb = ClassBuilder.createClassBuilder(
             Conversation::class.type(),
-            key = "key".toCb(),
-            parent = SimpleClassBuilder.FAKE_ROOT,
-            item = TreeItem()
-        )
+            "key".toCb(),
+            SimpleClassBuilder.FAKE_ROOT
+        ) as ComplexClassBuilder?
+            ?: fail("Failed to create class builder for Conversation")
+
         val propKey = cb.serObject.filterValues { it != null }.keys.first()
+        val propKeyCb = propKey.toCb()
         val orgProp = cb.serObject[propKey]
 
         assertNotNull(orgProp)
-        val cbn = cb.resetChild(propKey.toCb(), restoreDefault = true)
+        val item = cb.item.findChild(propKeyCb) ?: fail("failed to find child $propKey of $cb")
+        cb.resetChild(propKeyCb, restoreDefault = true)
         val newProp = cb.serObject[propKey]
-        assertTrue(cbn.cb === newProp)
+        assertNotNull(item.value)
+        assertTrue(item.value.cb === newProp)
 
         //default is equal but not same object
         assertEquals(orgProp, newProp)
         assertFalse(orgProp === newProp)
 
         assertNotNull(cb.serObject[propKey])
-        cb.resetChild(propKey.toCb(), restoreDefault = false)
+        cb.resetChild(propKeyCb, restoreDefault = false)
 
         assertNull(cb.serObject[propKey])
     }

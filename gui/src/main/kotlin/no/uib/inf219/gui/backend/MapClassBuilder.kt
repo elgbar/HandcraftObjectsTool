@@ -10,6 +10,7 @@ import javafx.scene.control.TreeItem
 import no.uib.inf219.extra.toCb
 import no.uib.inf219.gui.backend.serializers.MapClassBuilderSerializer
 import no.uib.inf219.gui.controllers.ClassBuilderNode
+import no.uib.inf219.gui.controllers.EmptyClassBuilderNode
 import no.uib.inf219.gui.controllers.FilledClassBuilderNode
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.loader.ClassInformation
@@ -116,21 +117,21 @@ class MapClassBuilder(
         key: ClassBuilder,
         element: ClassBuilder?,
         restoreDefault: Boolean
-    ): ClassBuilderNode? {
+    ) {
         //The map must have the given key
         require(contains(key)) { "Given key does not exist in this map class builder" }
         //But does the given element is allowed to be null,
         require(element == null || get(key) == element) { "Given value does not match with this map class builder's value of given key" }
 
         remove(key)
-        return null
+        item.value = EmptyClassBuilderNode(key, this)
     }
 
     override fun getPreviewValue(): String {
         return "Map<${type.keyType}, ${type.contentType}> of size ${serObject.size}"
     }
 
-    override fun getChildType(cb: ClassBuilder): JavaType? {
+    override fun getChildType(key: ClassBuilder): JavaType? {
         return entryType
     }
 
@@ -138,15 +139,7 @@ class MapClassBuilder(
         //TODO fix this somehow. It does not really follow the interface requirement, can can never do so as the key is nullable
         // However as it is only used by the interface in getChildren and getTreeItems those are for now overwritten
         // but this is of course not maintainable free
-        return serObject.mapIndexed { index, cb -> index.toCb() to cb }.toMap()
-    }
-
-    override fun getChildren(): List<ClassBuilder> {
-        return serObject.toList()
-    }
-
-    override fun getTreeItems(): List<ClassBuilderNode> {
-        return serObject.map { FilledClassBuilderNode(entryCb, it, this) }
+        return serObject.mapIndexed { i, cb -> "entry $i".toCb() to cb }.toMap()
     }
 
     override fun isImmutable(): Boolean = false

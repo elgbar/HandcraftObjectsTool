@@ -10,6 +10,7 @@ import no.uib.inf219.extra.toCb
 import no.uib.inf219.gui.backend.serializers.ParentClassBuilderSerializer
 import no.uib.inf219.gui.backend.simple.IntClassBuilder
 import no.uib.inf219.gui.controllers.ClassBuilderNode
+import no.uib.inf219.gui.controllers.EmptyClassBuilderNode
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.loader.ClassInformation
 import tornadofx.*
@@ -85,7 +86,7 @@ class CollectionClassBuilder(
         key: ClassBuilder,
         element: ClassBuilder?,
         restoreDefault: Boolean
-    ): ClassBuilderNode? {
+    ) {
         val index: Int = cbToInt(key) ?: serObject.indexOf(element)
         require(index in 0 until serObject.size) {
             "Given index is not within the range of the collection"
@@ -96,11 +97,11 @@ class CollectionClassBuilder(
         require(element == null || child == element) { "Given element is not equal to stored element at index $index. given = $element, stored = $child" }
         val removed = serObject.removeAt(index)
         require(element == null || element == removed) { "Element removed was not equal to child element. given = $element, removed = $removed" }
-        return null
+        item.value = EmptyClassBuilderNode(key, this) // not really necessary
     }
 
     override fun getSubClassBuilders(): Map<ClassBuilder, ClassBuilder> {
-        return serObject.mapIndexed { i, cb -> Pair<ClassBuilder, ClassBuilder>(i.toCb(), cb) }.toMap()
+        return serObject.mapIndexed { i, cb -> i.toCb() to cb }.toMap()
     }
 
     override fun getPreviewValue(): String {

@@ -5,6 +5,7 @@ import javafx.beans.property.SimpleObjectProperty
 import javafx.event.EventTarget
 import javafx.scene.control.TreeItem
 import javafx.scene.control.TreeView
+import no.uib.inf219.extra.reselect
 import no.uib.inf219.extra.toCb
 import no.uib.inf219.extra.type
 import no.uib.inf219.gui.backend.ClassBuilder
@@ -54,9 +55,7 @@ class ObjectEditorController(
          */
         fun TreeView<ClassBuilderNode>.reload() {
             this.refresh()
-            val oldSel = selectionModel.selectedItem
-            selectionModel.clearSelection()
-            selectionModel.select(oldSel)
+            reselect()
         }
     }
 
@@ -103,7 +102,7 @@ class ObjectEditorController(
 
         /** Note that the item is not pointing at this class builder, but directly at the real root */
         override val item: TreeItem<ClassBuilderNode> =
-            FilledClassBuilderNode(fakeRootKey, this, this, TreeItem()).item
+            FilledClassBuilderNode(fakeRootKey, this, this, TreeItem()).also { it.item.value = it }.item
 
         override val type = Any::class.type()
         override val parent = this
@@ -115,10 +114,10 @@ class ObjectEditorController(
             key: ClassBuilder,
             element: ClassBuilder?,
             restoreDefault: Boolean
-        ): ClassBuilderNode {
-            require(key == realRootKey) { "Key does not match the real root key '${realRootKey.serObject}'" }
-            require(element == serObject) { "Element does not match the current root '${serObject}'" }
-            return createRealRoot().item.value
+        ) {
+//            require(key == realRootKey) { "Key does not match the real root key '${realRootKey.serObject}'" }
+//            require(element == serObject) { "Element does not match the current root '${serObject}'" }
+//            return createRealRoot().item.value
         }
 
         override fun createChildClassBuilder(
@@ -146,8 +145,6 @@ class ObjectEditorController(
 
         override fun getChild(key: ClassBuilder): ClassBuilder? = if (key == realRootKey) serObject else null
         override fun getSubClassBuilders(): Map<ClassBuilder, ClassBuilder?> = mapOf(realRootKey to serObject)
-        override fun getTreeItems(): List<ClassBuilderNode> = listOf(serObject.item.value)
-        override fun getChildren(): List<ClassBuilder> = listOf(serObject)
 
         override fun toView(parent: EventTarget, controller: ObjectEditorController) =
             parent.text("Fake root should be displayed :o")

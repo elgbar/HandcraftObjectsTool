@@ -27,7 +27,6 @@ class ReferenceClassBuilder(
     private val refParent: ParentClassBuilder,
     override val key: ClassBuilder,
     override val parent: ParentClassBuilder,
-    override val property: ClassInformation.PropertyMetadata?,
     override val item: TreeItem<ClassBuilderNode>
 ) : ClassBuilder {
 
@@ -35,6 +34,7 @@ class ReferenceClassBuilder(
         ?: error("Failed to find a serObject with the given reference parent and ref key. Cannot make a reference to a null class builder")
         private set
 
+    override val property: ClassInformation.PropertyMetadata? = parent.getChildPropertyMetadata(key)
     override val type: JavaType = serObject.type
     override val serObjectObservable = serObject.toProperty()
 

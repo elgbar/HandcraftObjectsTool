@@ -99,7 +99,7 @@ abstract class SimpleClassBuilder<T : Any> constructor(
                 key: ClassBuilder,
                 element: ClassBuilder?,
                 restoreDefault: Boolean
-            ): ClassBuilderNode {
+            ) {
                 kotlin.error("Dummy parent")
             }
 

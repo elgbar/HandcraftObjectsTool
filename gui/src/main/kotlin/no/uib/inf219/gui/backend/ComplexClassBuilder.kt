@@ -8,11 +8,13 @@ import javafx.geometry.Pos
 import javafx.scene.Node
 import javafx.scene.control.TreeItem
 import javafx.scene.text.TextAlignment
+import no.uib.inf219.extra.findChild
 import no.uib.inf219.extra.onChange
 import no.uib.inf219.extra.toCb
 import no.uib.inf219.gui.Styles
 import no.uib.inf219.gui.backend.serializers.ComplexClassBuilderSerializer
 import no.uib.inf219.gui.controllers.ClassBuilderNode
+import no.uib.inf219.gui.controllers.EmptyClassBuilderNode
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.loader.ClassInformation
 import tornadofx.*
@@ -51,23 +53,23 @@ class ComplexClassBuilder(
 
     val isJsonValueDelegator: Boolean
 
-    override val serObject = HashMap<String, ClassBuilder?>()
-    override val serObjectObservable = serObject.asObservable()
+    override val serObject = HashMap<String, ClassBuilder?>().asObservable()
+    override val serObjectObservable = serObject
 
     init {
-        val (typeSer, pinfo, valueDelegator) = ClassInformation.serializableProperties(type)
+        val (typeSer, propInfo, valueDelegator) = ClassInformation.serializableProperties(type)
         isJsonValueDelegator = valueDelegator
         typeSerializer = typeSer
-        propInfo = pinfo
+        this.propInfo = propInfo
 
         //initiate all valid values to null or default
         // to allow for iteration when populating Node explorer
-        for ((key, v) in propInfo) {
+        for ((key, v) in this.propInfo) {
             propDefaults[key] = v.getDefaultInstance()
             if (propDefaults[key] != null || v.type.isPrimitive) {
                 //only create a class builder for properties that has a default value
                 // or is primitive (which always have default values)
-                createChildClassBuilder(key.toCb())
+                createChildClassBuilder(key.toCb(), item = TreeItem())
             } else {
                 this.serObject[key] = null
             }
@@ -91,7 +93,7 @@ class ComplexClassBuilder(
         require(init == null || init.type.isTypeOrSubTypeOf(getChildType(key)?.rawClass)) {
             "Given initial value have different type than expected. Expected a subclass of ${getChildType(key)} got ${init?.type}"
         }
-        return serObjectObservable.computeIfAbsent(propName) {
+        return serObject.computeIfAbsent(propName) {
             createChild(key, init, prop, item)
         } ?: kotlin.error("Failed to create class builder")
     }
@@ -100,7 +102,7 @@ class ComplexClassBuilder(
         key: ClassBuilder,
         element: ClassBuilder?,
         restoreDefault: Boolean
-    ): ClassBuilderNode {
+    ) {
         val propName = cbToString(key)
 
         require(serObject.containsKey(propName)) {
@@ -110,17 +112,19 @@ class ComplexClassBuilder(
             "Given element to reset does not match with the internal element. element: $element, internal ${serObject[propName]}"
         }
 
+        val item = item.findChild(key)
+
         val newProp = if (restoreDefault && propDefaults[propName] != null) {
             val prop: ClassInformation.PropertyMetadata = propInfo[propName] ?: kotlin.error("Given prop name is wrong")
             //must be set to null to trigger the change event!
             // stupid javafx
             serObject[propName] = null //use non observable map to to trigger on change event
-            createChild(key, null, prop)
+            createChild(key, null, prop, item)
         } else {
+            item.value = EmptyClassBuilderNode(key, this, item = item)
             null
         }
-        serObjectObservable[propName] = newProp
-        return ClassBuilderNode.fromValues(key, newProp, this)
+        serObject[propName] = newProp
     }
 
     private fun createChild(
@@ -154,8 +158,8 @@ class ComplexClassBuilder(
                     label("Required? ${isRequired()}")
                     label("Type: ${type.rawClass}")
                     val cbParent = this@ComplexClassBuilder.parent
-                    if (cbParent != null && cbParent is ComplexClassBuilder) {
-                        val desc = cbParent.propInfo[key?.getPreviewValue()]?.description
+                    if (cbParent is ComplexClassBuilder) {
+                        val desc = cbParent.propInfo[key.getPreviewValue()]?.description
                         if (!desc.isNullOrBlank()) {
                             scrollpane().textarea("Description: $desc")
                         }
@@ -196,7 +200,6 @@ class ComplexClassBuilder(
                                     //This should never be null as we are using the name of a property
                                     // well, if it is something has gone wrong, but not here!
                                     cb = createChildClassBuilder(name.toCb())
-                                        ?: kotlin.error("Failed to create a class builder for property $name in $this")
 
                                     //update fold title before editing
                                     this.text = getFoldTitle(cb)
