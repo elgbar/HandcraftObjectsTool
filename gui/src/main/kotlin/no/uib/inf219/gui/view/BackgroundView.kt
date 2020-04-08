@@ -4,6 +4,7 @@ import javafx.geometry.Orientation
 import javafx.scene.control.TabPane
 import javafx.scene.layout.BorderPane
 import javafx.scene.paint.Color
+import javafx.stage.StageStyle
 import no.uib.inf219.extra.applicationHome
 import no.uib.inf219.extra.centeredText
 import no.uib.inf219.extra.close
@@ -89,20 +90,42 @@ class BackgroundView : View("Handcrafted Objects Tool") {
 
                                 center {
                                     centeredText(
-                                        "Open source tool to create JVM objects with Jackson",
-                                        "Jackson is licenced under Apache License 2.0",
-                                        "Author: Karl Henrik Elg Barlinn"
+                                        "Open source tool to create JVM objects",
+                                        "",
+                                        "Author: Karl Henrik Elg Barlinn",
+                                        "Licenced under Apache License 2.0"
                                     ) {
                                         addClass(Styles.parent)
+                                        internetHyperlink(
+                                            "HandcraftObjectsTool on GitHub",
+                                            "https://github.com/kh498/HandcraftObjectsTool"
+                                        )
+
+                                        separator()
 
                                         textflow {
-                                            text("Github: ")
-                                            internetHyperlink("https://github.com/kh498/HandcraftObjectsTool")
+                                            text("Open source software used\n") {
+                                                style {
+                                                    fontSize = 1.5.ems
+                                                }
+                                            }
+                                            text("Jackson, licenced under Apache License 2.0\n")
+                                            text("TornadoFx, licenced under Apache License 2.0\n")
+                                            text("Apache Commons Text, licenced under Apache License 2.0\n")
+                                            text("ClassGraph, licenced under the MIT License\n")
+                                            text("SLF4J source code and binaries are distributed under the MIT license\n")
+                                            text("Ubuntu font, licenced under UBUNTU FONT LICENCE\n")
+                                            text("Icon, licenced under UBUNTU FONT LICENCE\n")
                                         }
                                     }
                                 }
                             }
-                        }.openModal(block = true, owner = currentWindow)
+                        }.openModal(
+                            block = true,
+                            owner = currentWindow,
+                            resizable = false,
+                            stageStyle = StageStyle.UNIFIED
+                        )
                     }
                 }
             }
