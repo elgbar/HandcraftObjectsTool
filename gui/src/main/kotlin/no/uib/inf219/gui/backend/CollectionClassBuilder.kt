@@ -40,9 +40,9 @@ class CollectionClassBuilder(
     override val serObject = ArrayList<ClassBuilder>().asObservable()
     override val serObjectObservable = serObject
 
-
     private fun createNewChild(controller: ObjectEditorController) {
-        createChildClassBuilder(serObject.size.toCb(), item = TreeItem())
+        //make sure the key is mutable to support deletion of elements
+        createChildClassBuilder(serObject.size.toCb(immutable = false), item = TreeItem())
         controller.tree.reload()
         item.isExpanded = true
     }
@@ -68,6 +68,7 @@ class CollectionClassBuilder(
     ) {
         if (event.clickCount == 2 && event.button == MouseButton.PRIMARY) {
             createNewChild(controller)
+            event.consume()
         }
     }
 
@@ -101,9 +102,7 @@ class CollectionClassBuilder(
         val elem = init ?: (getClassBuilder(type.contentType, key, item = item)
             ?: error("Failed to create class builder for $key"))
         serObject.add(index, elem)
-
         this.item.children.add(elem.item)
-
         return elem
     }
 
@@ -113,7 +112,6 @@ class CollectionClassBuilder(
         return serObject[index]
     }
 
-    //TODO Test
     override fun resetChild(
         key: ClassBuilder,
         element: ClassBuilder?,
@@ -126,11 +124,19 @@ class CollectionClassBuilder(
 
         val child = serObject[index]
 
-        require(element == null || child == element) { "Given element is not equal to stored element at index $index. given = $element, stored = $child" }
-        val removed = serObject.removeAt(index)
-        require(element == null || element == removed) { "Element removed was not equal to child element. given = $element, removed = $removed" }
 
+        require(element == null || child == element) { "Given element is not equal to stored element at index $index. given = $element, stored = $child" }
+
+        serObject.remove(child)
         item.children.remove(child.item)
+
+        //decrease the index (key) of all element after the deleted element
+        for (builder in serObject.drop(index)) {
+            //sanity check, just in case and for a nicer error message
+            require(builder.key is IntClassBuilder) { "Key of collection element is not int! it is ${builder.key}" }
+
+            (builder.key as IntClassBuilder).serObject--
+        }
     }
 
     override fun getSubClassBuilders(): Map<ClassBuilder, ClassBuilder> {
