@@ -63,6 +63,14 @@ object ClassInformation {
         val description: String,
         val virtual: Boolean
     ) {
+        private var validDefInst: Boolean? = null
+
+        fun hasValidDefaultInstance(): Boolean {
+            if (validDefInst == null) {
+                validDefInst = getDefaultInstance() != null
+            }
+            return validDefInst!!
+        }
 
         fun getDefaultInstance(): Any? {
             return if (defaultValue.isEmpty()) {
