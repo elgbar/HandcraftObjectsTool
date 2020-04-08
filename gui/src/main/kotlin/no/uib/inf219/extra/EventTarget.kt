@@ -1,14 +1,14 @@
 package no.uib.inf219.extra
 
+import com.sun.deploy.uitoolkit.impl.fx.HostServicesFactory
 import javafx.beans.property.StringProperty
 import javafx.event.EventTarget
 import javafx.geometry.Pos
+import javafx.scene.control.Hyperlink
 import javafx.scene.layout.VBox
 import javafx.scene.text.TextAlignment
 import no.uib.inf219.gui.backend.ClassBuilder
-import tornadofx.text
-import tornadofx.textflow
-import tornadofx.vbox
+import tornadofx.*
 
 /**
  * Create a text object that is dependent on the given class builder.
@@ -41,5 +41,12 @@ fun EventTarget.centeredText(vararg lines: String, op: VBox.() -> Unit = {}) {
             text(lines.last())
         }
         op()
+    }
+}
+
+
+fun EventTarget.internetHyperlink(text: String, url: String = text, op: Hyperlink.() -> Unit = {}) {
+    hyperlink(text, op = op).action {
+        HostServicesFactory.getInstance(FX.application).showDocument(url)
     }
 }

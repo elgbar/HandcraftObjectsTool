@@ -1,5 +1,6 @@
 package no.uib.inf219.gui
 
+import javafx.scene.paint.Color
 import javafx.scene.text.FontWeight
 import javafx.stage.Screen
 import tornadofx.*
@@ -29,6 +30,11 @@ class Styles : Stylesheet() {
 
         button {
             padding = box(0.4.ems, 0.5.ems)
+        }
+
+        hyperlink {
+            borderColor = multi(box(Color.TRANSPARENT))
+            padding = box(0.ems, 0.ems)
         }
 
         headLineLabel {
