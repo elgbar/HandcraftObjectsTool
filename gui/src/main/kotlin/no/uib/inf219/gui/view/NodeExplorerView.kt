@@ -11,7 +11,7 @@ import tornadofx.*
 /**
  * @author Elg
  */
-class NodeExplorerView(private val controller: ObjectEditorController) : Fragment("Tree Explorer") {
+class NodeExplorerView(private val controller: ObjectEditorController) : View("Tree Explorer") {
 
     /**
      * If a warning should be displayed when overwriting a property with a reference
