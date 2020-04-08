@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import javafx.event.EventTarget
 import javafx.scene.Node
 import javafx.scene.control.TreeItem
+import no.uib.inf219.extra.reload
 import no.uib.inf219.extra.toCb
 import no.uib.inf219.gui.backend.serializers.MapClassBuilderSerializer
 import no.uib.inf219.gui.controllers.ClassBuilderNode

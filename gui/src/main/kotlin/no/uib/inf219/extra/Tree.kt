@@ -44,3 +44,11 @@ fun <T> TreeView<T>.reselect() {
         select(oldSel)
     }
 }
+
+/**
+ * Refreshes and call select event again
+ */
+fun TreeView<ClassBuilderNode>.reload() {
+    this.refresh()
+    reselect()
+}

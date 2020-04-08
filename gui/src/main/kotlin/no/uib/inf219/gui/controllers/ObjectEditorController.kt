@@ -5,7 +5,7 @@ import javafx.beans.property.SimpleObjectProperty
 import javafx.event.EventTarget
 import javafx.scene.control.TreeItem
 import javafx.scene.control.TreeView
-import no.uib.inf219.extra.reselect
+import no.uib.inf219.extra.selectedItem
 import no.uib.inf219.extra.toCb
 import no.uib.inf219.extra.type
 import no.uib.inf219.gui.backend.ClassBuilder
@@ -50,13 +50,7 @@ class ObjectEditorController(
     companion object {
         val fakeRootKey = "root".toCb()
 
-        /**
-         * Refreshes and call select event again
-         */
-        fun TreeView<ClassBuilderNode>.reload() {
-            this.refresh()
-            reselect()
-        }
+
     }
 
     /**
