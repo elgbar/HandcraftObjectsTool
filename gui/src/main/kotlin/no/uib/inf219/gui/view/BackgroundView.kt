@@ -3,6 +3,7 @@ package no.uib.inf219.gui.view
 import javafx.geometry.Orientation
 import javafx.scene.control.TabPane
 import javafx.scene.layout.BorderPane
+import no.uib.inf219.extra.closeAll
 import no.uib.inf219.gui.ems
 import tornadofx.*
 
@@ -11,7 +12,7 @@ import tornadofx.*
  */
 class BackgroundView : View("Handcrafted Objects Tool") {
 
-    val tabpane: TabPane
+    val tabPane: TabPane
 
     override val root = splitpane(orientation = Orientation.VERTICAL)
 

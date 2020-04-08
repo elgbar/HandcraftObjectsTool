@@ -6,6 +6,7 @@ import com.fasterxml.jackson.module.afterburner.AfterburnerModule
 import com.fasterxml.jackson.module.mrbean.MrBeanModule
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
+import javafx.scene.control.Tab
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.Priority
 import javafx.stage.FileChooser
@@ -39,6 +40,8 @@ object ControlPanelView : View("Control Panel") {
 
     private var orgMapper: ObjectMapper = mapper
 
+    val tabMap = HashMap<Tab, ObjectEditorBackgroundView>()
+
     /**
      * What object mapper to use for serialization
      */
@@ -48,7 +51,8 @@ object ControlPanelView : View("Control Panel") {
             orgMapper = value
             mapperProperty.set(value.copy())
             updateMapper()
-            FX.find<BackgroundView>().tabpane.closeAll()
+            tabMap.clear()
+            FX.find<BackgroundView>().tabPane.closeAll()
         }
 
     internal var useMrBeanProperty = booleanProperty().apply {
@@ -322,9 +326,10 @@ object ControlPanelView : View("Control Panel") {
     }
 
     private fun createTab(type: JavaType) {
-        val editor: ObjectEditor
+        val editorBackgroundView: ObjectEditorBackgroundView
         try {
-            editor = find(ObjectEditor::class, Scope(), "controller" to ObjectEditorController(type, null))
+            editorBackgroundView =
+                find(ObjectEditorBackgroundView::class, Scope(), "controller" to ObjectEditorController(type, null))
         } catch (e: Throwable) {
             OutputArea.logln { "Failed to open tab due to an error $e" }
             e.printStackTrace()
@@ -336,8 +341,14 @@ object ControlPanelView : View("Control Panel") {
             )
             return
         }
-        FX.find<BackgroundView>().tabpane.tab("Edit ${type.rawClass.simpleName}", BorderPane()) {
-            add(editor.root)
+        FX.find<BackgroundView>().tabPane.tab("Edit ${type.rawClass.simpleName}", BorderPane()) {
+
+            setOnClosed {
+                tabMap[it.target]?.save()
+            }
+
+            this += editorBackgroundView.root
+            tabMap[this] = editorBackgroundView
             tabPane.selectionModel.select(this)
         }
     }
