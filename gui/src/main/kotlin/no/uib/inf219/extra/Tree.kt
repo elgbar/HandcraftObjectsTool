@@ -4,6 +4,7 @@ import javafx.scene.control.TreeItem
 import javafx.scene.control.TreeView
 import no.uib.inf219.gui.backend.ClassBuilder
 import no.uib.inf219.gui.controllers.ClassBuilderNode
+import no.uib.inf219.gui.controllers.EmptyClassBuilderNode
 
 /**
  * @author Elg
@@ -13,6 +14,9 @@ import no.uib.inf219.gui.controllers.ClassBuilderNode
  * Find a child item from [key] for the owning class builder (ie this.value.cb`)
  */
 fun TreeItem<ClassBuilderNode>.findChild(key: ClassBuilder): TreeItem<ClassBuilderNode> {
+    if (value is EmptyClassBuilderNode) {
+        error("Empty Class Builder node cannot have children! Trying to reset child ${key.getPreviewValue()} of ${value.key.getPreviewValue()}")
+    }
     val parent = value?.cb
         ?: error("The owning class builder node does not have a class builder set or the value of this tree item is null")
     for (item in children) {
