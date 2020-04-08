@@ -10,10 +10,10 @@ import javafx.collections.ObservableList
 import javafx.collections.transformation.FilteredList
 import javafx.geometry.Pos
 import javafx.scene.Node
-import javafx.scene.control.ButtonBar
 import javafx.scene.control.ButtonType
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
+import no.uib.inf219.extra.OK_DISABLE_WARNING
 import no.uib.inf219.extra.onChange
 import no.uib.inf219.extra.type
 import no.uib.inf219.gui.Styles
@@ -153,16 +153,14 @@ class ClassSelectorView : View("Select implementation") {
                                 realResult.isAbstract -> {
                                     if (!ControlPanelView.useMrBean) {
                                         if (showMrBeanWarning) {
-                                            val noWarnButton =
-                                                ButtonType("OK do not warn me again", ButtonBar.ButtonData.OK_DONE)
                                             information(
                                                 "Cannot select an abstract class when the Mr Bean module is not enabled.",
                                                 "You will now be asked to select a subclass of ${realResult.rawClass}",
                                                 owner = currentWindow,
-                                                buttons = *arrayOf(ButtonType.OK, noWarnButton),
+                                                buttons = *arrayOf(ButtonType.OK, OK_DISABLE_WARNING),
                                                 actionFn = {
                                                     when (it) {
-                                                        noWarnButton -> showMrBeanWarning = false
+                                                        OK_DISABLE_WARNING -> showMrBeanWarning = false
                                                     }
                                                 }
                                             )
