@@ -8,8 +8,8 @@ import javafx.scene.input.MouseButton
 import javafx.util.StringConverter
 import no.uib.inf219.extra.removeNl
 import no.uib.inf219.gui.Styles.Companion.numberChanger
-import no.uib.inf219.gui.controllers.ClassBuilderNode
 import no.uib.inf219.gui.controllers.ObjectEditorController
+import no.uib.inf219.gui.controllers.classBuilderNode.ClassBuilderNode
 import no.uib.inf219.gui.loader.ClassInformation
 import no.uib.inf219.gui.view.OutputArea
 import tornadofx.*

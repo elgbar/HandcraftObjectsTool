@@ -14,8 +14,8 @@ import no.uib.inf219.extra.reload
 import no.uib.inf219.extra.toCb
 import no.uib.inf219.gui.backend.serializers.ParentClassBuilderSerializer
 import no.uib.inf219.gui.backend.simple.IntClassBuilder
-import no.uib.inf219.gui.controllers.ClassBuilderNode
 import no.uib.inf219.gui.controllers.ObjectEditorController
+import no.uib.inf219.gui.controllers.classBuilderNode.ClassBuilderNode
 import no.uib.inf219.gui.loader.ClassInformation
 import tornadofx.*
 import kotlin.error

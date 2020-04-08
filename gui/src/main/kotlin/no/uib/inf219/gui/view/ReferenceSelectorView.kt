@@ -14,9 +14,9 @@ import no.uib.inf219.gui.Styles
 import no.uib.inf219.gui.backend.ClassBuilder
 import no.uib.inf219.gui.backend.ParentClassBuilder
 import no.uib.inf219.gui.backend.ReferenceClassBuilder
-import no.uib.inf219.gui.controllers.ClassBuilderNode
-import no.uib.inf219.gui.controllers.FilledClassBuilderNode
 import no.uib.inf219.gui.controllers.ObjectEditorController
+import no.uib.inf219.gui.controllers.classBuilderNode.ClassBuilderNode
+import no.uib.inf219.gui.controllers.classBuilderNode.FilledClassBuilderNode
 import no.uib.inf219.gui.ems
 import tornadofx.*
 
@@ -133,7 +133,11 @@ class ReferenceSelectorView : View("Reference") {
         val ref = result ?: return null
         val item = TreeItem<ClassBuilderNode>()
         return ReferenceClassBuilder(ref.key, ref.parent, key, parent, item).apply {
-            item.value = FilledClassBuilderNode(key, this, parent)
+            item.value = FilledClassBuilderNode(
+                key,
+                this,
+                parent
+            )
         }
     }
 

@@ -3,8 +3,8 @@ package no.uib.inf219.extra
 import javafx.scene.control.TreeItem
 import javafx.scene.control.TreeView
 import no.uib.inf219.gui.backend.ClassBuilder
-import no.uib.inf219.gui.controllers.ClassBuilderNode
-import no.uib.inf219.gui.controllers.EmptyClassBuilderNode
+import no.uib.inf219.gui.controllers.classBuilderNode.ClassBuilderNode
+import no.uib.inf219.gui.controllers.classBuilderNode.EmptyClassBuilderNode
 
 /**
  * @author Elg

@@ -6,8 +6,8 @@ import javafx.scene.control.TreeItem
 import no.uib.inf219.gui.backend.ClassBuilder
 import no.uib.inf219.gui.backend.ParentClassBuilder
 import no.uib.inf219.gui.backend.SimpleClassBuilder
-import no.uib.inf219.gui.controllers.ClassBuilderNode
 import no.uib.inf219.gui.controllers.ObjectEditorController
+import no.uib.inf219.gui.controllers.classBuilderNode.ClassBuilderNode
 import no.uib.inf219.gui.converter.StringStringConverter
 import no.uib.inf219.gui.loader.ClassInformation
 import tornadofx.textarea

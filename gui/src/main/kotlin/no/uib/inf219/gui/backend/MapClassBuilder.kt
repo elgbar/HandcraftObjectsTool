@@ -10,10 +10,10 @@ import javafx.scene.control.TreeItem
 import no.uib.inf219.extra.reload
 import no.uib.inf219.extra.toCb
 import no.uib.inf219.gui.backend.serializers.MapClassBuilderSerializer
-import no.uib.inf219.gui.controllers.ClassBuilderNode
-import no.uib.inf219.gui.controllers.EmptyClassBuilderNode
-import no.uib.inf219.gui.controllers.FilledClassBuilderNode
 import no.uib.inf219.gui.controllers.ObjectEditorController
+import no.uib.inf219.gui.controllers.classBuilderNode.ClassBuilderNode
+import no.uib.inf219.gui.controllers.classBuilderNode.EmptyClassBuilderNode
+import no.uib.inf219.gui.controllers.classBuilderNode.FilledClassBuilderNode
 import no.uib.inf219.gui.loader.ClassInformation
 import no.uib.inf219.gui.view.ControlPanelView.mapper
 import tornadofx.action
@@ -68,7 +68,8 @@ class MapClassBuilder(
         item: TreeItem<ClassBuilderNode>
     ): ComplexClassBuilder {
         val entry = ComplexClassBuilder(entryType, entryCb, this@MapClassBuilder, item = item)
-        item.value = FilledClassBuilderNode(key, entry, parent)
+        item.value =
+            FilledClassBuilderNode(key, entry, parent)
 
         entry.serObject[ENTRY_VALUE] = value
         entry.serObject[ENTRY_KEY] = key

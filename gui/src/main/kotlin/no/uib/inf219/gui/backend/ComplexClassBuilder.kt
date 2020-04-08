@@ -13,9 +13,9 @@ import no.uib.inf219.extra.onChange
 import no.uib.inf219.extra.toCb
 import no.uib.inf219.gui.Styles
 import no.uib.inf219.gui.backend.serializers.ComplexClassBuilderSerializer
-import no.uib.inf219.gui.controllers.ClassBuilderNode
-import no.uib.inf219.gui.controllers.EmptyClassBuilderNode
 import no.uib.inf219.gui.controllers.ObjectEditorController
+import no.uib.inf219.gui.controllers.classBuilderNode.ClassBuilderNode
+import no.uib.inf219.gui.controllers.classBuilderNode.EmptyClassBuilderNode
 import no.uib.inf219.gui.loader.ClassInformation
 import tornadofx.*
 import kotlin.collections.component1
@@ -121,7 +121,11 @@ class ComplexClassBuilder(
             serObject[propName] = null //use non observable map to to trigger on change event
             createChild(key, null, prop, item)
         } else {
-            item.value = EmptyClassBuilderNode(key, this, item = item)
+            item.value = EmptyClassBuilderNode(
+                key,
+                this,
+                item = item
+            )
             null
         }
         serObject[propName] = newProp

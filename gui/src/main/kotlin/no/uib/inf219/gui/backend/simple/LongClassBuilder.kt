@@ -5,7 +5,7 @@ import javafx.util.converter.LongStringConverter
 import no.uib.inf219.gui.backend.ClassBuilder
 import no.uib.inf219.gui.backend.ParentClassBuilder
 import no.uib.inf219.gui.backend.SimpleNumberClassBuilder
-import no.uib.inf219.gui.controllers.ClassBuilderNode
+import no.uib.inf219.gui.controllers.classBuilderNode.ClassBuilderNode
 import no.uib.inf219.gui.loader.ClassInformation
 
 class LongClassBuilder(

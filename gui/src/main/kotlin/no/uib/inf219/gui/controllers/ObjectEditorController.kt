@@ -10,6 +10,8 @@ import no.uib.inf219.extra.toCb
 import no.uib.inf219.extra.type
 import no.uib.inf219.gui.backend.ClassBuilder
 import no.uib.inf219.gui.backend.ParentClassBuilder
+import no.uib.inf219.gui.controllers.classBuilderNode.ClassBuilderNode
+import no.uib.inf219.gui.controllers.classBuilderNode.FilledClassBuilderNode
 import no.uib.inf219.gui.loader.ClassInformation.PropertyMetadata
 import tornadofx.selectedValue
 import tornadofx.text
@@ -111,7 +113,12 @@ class ObjectEditorController(
 
         /** Note that the item is not pointing at this class builder, but directly at the real root */
         override val item: TreeItem<ClassBuilderNode> =
-            FilledClassBuilderNode(fakeRootKey, this, this, TreeItem()).also { it.item.value = it }.item
+            FilledClassBuilderNode(
+                fakeRootKey,
+                this,
+                this,
+                TreeItem()
+            ).also { it.item.value = it }.item
 
         override val type = Any::class.type()
         override val parent = this

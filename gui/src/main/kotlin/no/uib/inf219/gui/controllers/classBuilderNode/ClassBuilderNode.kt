@@ -1,4 +1,4 @@
-package no.uib.inf219.gui.controllers
+package no.uib.inf219.gui.controllers.classBuilderNode
 
 import javafx.scene.control.TreeItem
 import javafx.scene.control.TreeView
@@ -69,7 +69,10 @@ interface ClassBuilderNode {
          * Create the correct class builder node class instance from nullable cb
          */
         fun fromValues(key: ClassBuilder, cb: ClassBuilder?, parent: ParentClassBuilder): ClassBuilderNode {
-            return cb?.node ?: EmptyClassBuilderNode(key, parent)
+            return cb?.node ?: EmptyClassBuilderNode(
+                key,
+                parent
+            )
         }
     }
 }

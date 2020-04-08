@@ -17,10 +17,10 @@ import javafx.scene.input.MouseEvent
 import no.uib.inf219.extra.findChild
 import no.uib.inf219.gui.backend.serializers.ClassBuilderSerializer
 import no.uib.inf219.gui.backend.simple.*
-import no.uib.inf219.gui.controllers.ClassBuilderNode
-import no.uib.inf219.gui.controllers.EmptyClassBuilderNode
-import no.uib.inf219.gui.controllers.FilledClassBuilderNode
 import no.uib.inf219.gui.controllers.ObjectEditorController
+import no.uib.inf219.gui.controllers.classBuilderNode.ClassBuilderNode
+import no.uib.inf219.gui.controllers.classBuilderNode.EmptyClassBuilderNode
+import no.uib.inf219.gui.controllers.classBuilderNode.FilledClassBuilderNode
 import no.uib.inf219.gui.loader.ClassInformation
 import no.uib.inf219.gui.loader.ClassInformation.PropertyMetadata
 import no.uib.inf219.gui.view.ClassSelectorView
@@ -352,11 +352,18 @@ interface ClassBuilder {
                 ComplexClassBuilder(type, key = key, parent = parent, property = prop, item = item)
             }) ?: return null
 
-            item.value = FilledClassBuilderNode(key, cb, parent)
+            item.value = FilledClassBuilderNode(
+                key,
+                cb,
+                parent
+            )
             if (cb is ParentClassBuilder) {
                 val childItems = cb.getSubClassBuilders().map { (key, childCb) ->
                     //use the existing node or create an empty node if the child is null
-                    childCb?.node ?: EmptyClassBuilderNode(key, cb)
+                    childCb?.node ?: EmptyClassBuilderNode(
+                        key,
+                        cb
+                    )
                 }.map { it.item }
                 item.children.setAll(childItems)
             }

@@ -9,8 +9,8 @@ import javafx.scene.control.TreeItem
 import no.uib.inf219.extra.onChange
 import no.uib.inf219.extra.textCb
 import no.uib.inf219.gui.backend.serializers.ParentClassBuilderSerializer
-import no.uib.inf219.gui.controllers.ClassBuilderNode
 import no.uib.inf219.gui.controllers.ObjectEditorController
+import no.uib.inf219.gui.controllers.classBuilderNode.ClassBuilderNode
 import no.uib.inf219.gui.loader.ClassInformation
 import tornadofx.hbox
 import tornadofx.onDoubleClick

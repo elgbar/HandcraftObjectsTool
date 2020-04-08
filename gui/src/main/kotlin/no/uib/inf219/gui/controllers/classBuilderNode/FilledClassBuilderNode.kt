@@ -1,45 +1,41 @@
-package no.uib.inf219.gui.controllers
+package no.uib.inf219.gui.controllers.classBuilderNode
 
 import javafx.scene.control.TreeItem
 import javafx.scene.control.TreeView
-import no.uib.inf219.extra.reload
 import no.uib.inf219.gui.backend.ClassBuilder
 import no.uib.inf219.gui.backend.ParentClassBuilder
 
 /**
- * A class builder node where the class builder is always null aka empty
+ * @author Elg
  */
-class EmptyClassBuilderNode(
+data class FilledClassBuilderNode(
     override val key: ClassBuilder,
+    override val cb: ClassBuilder,
     override val parent: ParentClassBuilder,
-    override val item: TreeItem<ClassBuilderNode> = TreeItem()
+    override val item: TreeItem<ClassBuilderNode> = cb.item
 ) : ClassBuilderNode {
 
-    override val cb: ClassBuilder?
-
     init {
-        this.cb = null
-        item.value = this
+        @Suppress("SENSELESS_COMPARISON")
+        require(cb.item == null || cb.item === item)
     }
 
-
     override fun ensurePresentClassBuilder(tree: TreeView<ClassBuilderNode>): FilledClassBuilderNode {
-        val cb = parent.createChildClassBuilder(key, item = item)
-        tree.reload()
-        return cb.node
+        return this
     }
 
     override fun toString(): String {
-        return "EmptyClassBuilderNode(key=$key, parent=$parent)"
+        return "FilledClassBuilderNode(key=${key.getPreviewValue()}, cb=${cb.getPreviewValue()} parent=${parent.getPreviewValue()})"
     }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
-        other as EmptyClassBuilderNode
+        other as FilledClassBuilderNode
 
         if (key != other.key) return false
+        if (cb != other.cb) return false
         if (parent != other.parent) return false
 
         return true
@@ -47,7 +43,10 @@ class EmptyClassBuilderNode(
 
     override fun hashCode(): Int {
         var result = key.hashCode()
+        result = 31 * result + cb.hashCode()
         result = 31 * result + parent.hashCode()
         return result
     }
+
+
 }

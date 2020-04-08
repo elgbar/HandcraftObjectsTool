@@ -18,8 +18,8 @@ import javafx.util.StringConverter
 import javafx.util.converter.*
 import no.uib.inf219.extra.removeNl
 import no.uib.inf219.extra.type
-import no.uib.inf219.gui.controllers.ClassBuilderNode
 import no.uib.inf219.gui.controllers.ObjectEditorController
+import no.uib.inf219.gui.controllers.classBuilderNode.ClassBuilderNode
 import no.uib.inf219.gui.converter.UUIDStringConverter
 import no.uib.inf219.gui.loader.ClassInformation
 import no.uib.inf219.gui.view.OutputArea
