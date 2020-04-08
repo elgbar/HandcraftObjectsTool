@@ -41,7 +41,7 @@ class EnumClassBuilder<T : Enum<*>>(
     private val enumValues = findEnumValues(clazz).asObservable()
     private val filteredValues = FilteredList(enumValues)
 
-    override fun toView(
+    override fun createEditView(
         parent: EventTarget,
         controller: ObjectEditorController
     ): Node {

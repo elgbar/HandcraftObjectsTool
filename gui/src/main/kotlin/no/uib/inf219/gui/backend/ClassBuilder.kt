@@ -102,7 +102,7 @@ interface ClassBuilder {
     /**
      * Visual representation (and possibly modification) of this class builder
      */
-    fun toView(parent: EventTarget, controller: ObjectEditorController): Node
+    fun createEditView(parent: EventTarget, controller: ObjectEditorController): Node
 
 
     /**

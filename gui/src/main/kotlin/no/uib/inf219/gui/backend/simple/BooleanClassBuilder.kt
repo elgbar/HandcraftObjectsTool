@@ -31,7 +31,7 @@ class BooleanClassBuilder(
     item
 ) {
 
-    override fun toView(
+    override fun createEditView(
         parent: EventTarget,
         controller: ObjectEditorController
     ): Node {

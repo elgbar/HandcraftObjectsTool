@@ -35,7 +35,7 @@ class StringClassBuilder(
 ) {
 
 
-    override fun toView(
+    override fun createEditView(
         parent: EventTarget,
         controller: ObjectEditorController
     ): Node {

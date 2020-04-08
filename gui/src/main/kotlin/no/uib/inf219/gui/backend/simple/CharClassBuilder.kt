@@ -38,7 +38,7 @@ class CharClassBuilder(
         return StringEscapeUtils.unescapeJava(text).length == 1
     }
 
-    override fun toView(
+    override fun createEditView(
         parent: EventTarget,
         controller: ObjectEditorController
     ): Node {

@@ -118,7 +118,7 @@ abstract class SimpleClassBuilder<T : Any> constructor(
             override val property: ClassInformation.PropertyMetadata? get() = kotlin.error("Dummy parent")
             override val item: TreeItem<ClassBuilderNode> get() = TreeItem()
 
-            override fun toView(parent: EventTarget, controller: ObjectEditorController): Node {
+            override fun createEditView(parent: EventTarget, controller: ObjectEditorController): Node {
                 kotlin.error("Dummy parent")
             }
 
@@ -149,7 +149,7 @@ abstract class SimpleClassBuilder<T : Any> constructor(
         }
     }
 
-    override fun toView(
+    override fun createEditView(
         parent: EventTarget,
         controller: ObjectEditorController
     ): Node {

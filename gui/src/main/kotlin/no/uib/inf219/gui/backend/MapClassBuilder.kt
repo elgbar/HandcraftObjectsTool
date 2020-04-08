@@ -81,7 +81,7 @@ class MapClassBuilder(
         return serObject.remove(entry)
     }
 
-    override fun toView(parent: EventTarget, controller: ObjectEditorController): Node {
+    override fun createEditView(parent: EventTarget, controller: ObjectEditorController): Node {
 
         return parent.borderpane {
             center = button("Add entry") {

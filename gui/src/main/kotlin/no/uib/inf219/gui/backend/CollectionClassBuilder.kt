@@ -37,7 +37,7 @@ class CollectionClassBuilder(
     override val serObject: ArrayList<ClassBuilder> by serObjectObservable
 
 
-    override fun toView(
+    private fun createNewChild(controller: ObjectEditorController) {
         parent: EventTarget,
         controller: ObjectEditorController
     ): Node {

@@ -31,7 +31,7 @@ abstract class SimpleNumberClassBuilder<T : Number>(
 ) : SimpleClassBuilder<T>(primClass, initialValue, key, parent, property, immutable, converter, item) {
 
 
-    override fun toView(
+    override fun createEditView(
         parent: EventTarget,
         controller: ObjectEditorController
     ): Node {

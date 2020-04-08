@@ -70,7 +70,7 @@ class ReferenceClassBuilder(
         }
     }
 
-    override fun toView(parent: EventTarget, controller: ObjectEditorController): Node {
+    override fun createEditView(parent: EventTarget, controller: ObjectEditorController): Node {
         return parent.hbox {
             alignment = Pos.CENTER
 

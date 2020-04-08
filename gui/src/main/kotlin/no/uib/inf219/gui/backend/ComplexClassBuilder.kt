@@ -146,7 +146,7 @@ class ComplexClassBuilder(
         return serObject[cbToString(key)]
     }
 
-    override fun toView(
+    override fun createEditView(
         parent: EventTarget,
         controller: ObjectEditorController
     ): Node {
@@ -192,7 +192,7 @@ class ComplexClassBuilder(
                                     cb = child
                                 }
 
-                                cb.toView(this, controller)
+                                cb.createEditView(this, controller)
 
                                 //reflect changes in the title of the fold
                                 cb.serObjectObservable.onChange {
