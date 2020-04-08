@@ -4,6 +4,7 @@ import javafx.geometry.Orientation
 import javafx.scene.control.TabPane
 import javafx.scene.layout.BorderPane
 import javafx.scene.paint.Color
+import no.uib.inf219.extra.applicationHome
 import no.uib.inf219.extra.centeredText
 import no.uib.inf219.extra.close
 import no.uib.inf219.extra.closeAll
@@ -55,6 +56,18 @@ class BackgroundView : View("Handcrafted Objects Tool") {
                         val oebv = ControlPanelView.tabMap[tab] ?: return@action
 
                         oebv.save()
+                    }
+                    separator()
+                    item("Settings").action {
+
+                        object : View("Application Settings") {
+                            override val root = vbox {
+                                addClass(Styles.parent)
+                                button("Reset settings").action {
+                                    applicationHome().deleteRecursively()
+                                }
+                            }
+                        }.openModal(block = true, owner = currentWindow)
                     }
                 }
 
