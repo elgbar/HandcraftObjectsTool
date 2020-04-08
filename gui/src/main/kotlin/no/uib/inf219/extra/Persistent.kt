@@ -16,7 +16,7 @@ import kotlin.reflect.KProperty
  *
  * @author Elg
  */
-class Persistent<T : Serializable> {
+class Persistent<T : Serializable>(val default: T? = null) {
 
     private var cache: T? = null
     private var haveBeenRead = false
@@ -30,7 +30,7 @@ class Persistent<T : Serializable> {
             if (haveBeenRead) return cache
 
             val file = getFile(thisRef, property)
-            if (!file.exists()) return null
+            if (!file.exists()) return default
 
             haveBeenRead = true
 
