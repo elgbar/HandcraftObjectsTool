@@ -11,7 +11,9 @@ import javafx.event.EventTarget
 import javafx.scene.Node
 import javafx.scene.control.ButtonBar
 import javafx.scene.control.ButtonType
+import javafx.scene.control.ContextMenu
 import javafx.scene.control.TreeItem
+import javafx.scene.input.MouseEvent
 import no.uib.inf219.extra.findChild
 import no.uib.inf219.gui.backend.serializers.ClassBuilderSerializer
 import no.uib.inf219.gui.backend.simple.*
@@ -25,9 +27,10 @@ import no.uib.inf219.gui.view.ClassSelectorView
 import no.uib.inf219.gui.view.ControlPanelView
 import tornadofx.find
 import tornadofx.information
-import tornadofx.property
 import tornadofx.warning
 import java.util.*
+import kotlin.collections.component1
+import kotlin.collections.component2
 import kotlin.reflect.full.isSuperclassOf
 
 /**
@@ -104,21 +107,11 @@ interface ClassBuilder {
      */
     fun createEditView(parent: EventTarget, controller: ObjectEditorController): Node
 
-
     /**
      * Preview of the value of this class builder
      */
     @JsonIgnore
     fun getPreviewValue(): String
-
-
-    /**
-     * If this class builder is required to be valid. If [property] is `null` this is assumed to be required.
-     */
-    @JsonIgnore
-    fun isRequired(): Boolean {
-        return property?.required ?: false
-    }
 
     /**
      * @return `true` if this class builder cannot change value
@@ -126,6 +119,17 @@ interface ClassBuilder {
     @JsonIgnore
     fun isImmutable(): Boolean
 
+    /**
+     * When the node of this class builder got a mouse event
+     */
+    fun onNodeClick(event: MouseEvent, controller: ObjectEditorController) {}
+
+    /**
+     * Allow class builder to customize what is displayed when right clicking on it's node.
+     *
+     * @return if a separator should be added before the items added here
+     */
+    fun createContextMenu(menu: ContextMenu, controller: ObjectEditorController): Boolean = false
 
     companion object {
 

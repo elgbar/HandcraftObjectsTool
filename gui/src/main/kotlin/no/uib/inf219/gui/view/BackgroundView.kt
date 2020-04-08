@@ -3,6 +3,7 @@ package no.uib.inf219.gui.view
 import javafx.geometry.Orientation
 import javafx.scene.control.TabPane
 import javafx.scene.layout.BorderPane
+import no.uib.inf219.extra.close
 import no.uib.inf219.extra.closeAll
 import no.uib.inf219.gui.ems
 import tornadofx.*
@@ -14,24 +15,54 @@ class BackgroundView : View("Handcrafted Objects Tool") {
 
     val tabPane: TabPane
 
-    override val root = splitpane(orientation = Orientation.VERTICAL)
+    override val root = borderpane()
+
+    companion object {
+        const val CONTROL_PANEL_TAB_NAME = "Control Panel"
+    }
 
     init {
-        with(root) {
-            style {
-                minWidth = 110.ems
-                minHeight = 60.ems
+        tabPane = tabpane {
+            tab(CONTROL_PANEL_TAB_NAME, BorderPane()) {
+                this += ControlPanelView
+                this.isClosable = false
             }
-            setDividerPositions(0.75)
-            tabpane = tabpane {
+        }
 
-                tab("Select Conversation", BorderPane()) {
-                    add(ControlPanelView)
-                    this.isClosable = false
+        with(root) {
+            top = menubar {
+                menu("File") {
+                    item("Close Tab", "Ctrl+W").action {
+
+                        val tab = tabPane.selectionModel.selectedItem
+                        if (tab.isClosable) {
+                            tab.close()
+                        }
+                    }
+                    item("Close All Tab", "Ctrl+Shift+W").action {
+                        tabPane.closeAll()
+                    }
+
+                    separator()
+
+                    item("Save", "Ctrl+S").action {
+                        val tab = tabPane.selectionModel.selectedItem
+                        if (tab.text == CONTROL_PANEL_TAB_NAME) return@action //cannot save control panel
+                        val oebv = ControlPanelView.tabMap[tab] ?: return@action
+
+                        oebv.save()
+                    }
                 }
             }
-            
-            this += OutputArea
+            center = splitpane(orientation = Orientation.VERTICAL) {
+                style {
+                    minWidth = 110.ems
+                    minHeight = 60.ems
+                }
+                setDividerPositions(0.75)
+                this += tabPane
+                this += OutputArea
+            }
         }
     }
 }

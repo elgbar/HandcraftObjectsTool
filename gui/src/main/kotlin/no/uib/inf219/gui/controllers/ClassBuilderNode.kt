@@ -36,6 +36,10 @@ interface ClassBuilderNode {
      */
     fun ensurePresentClassBuilder(tree: TreeView<ClassBuilderNode>): FilledClassBuilderNode
 
+    fun getPropertyMeta(): ClassInformation.PropertyMetadata? {
+        return parent.getChildPropertyMetadata(key)
+    }
+
     /**
      * Reset the given class builder
      */
@@ -44,8 +48,19 @@ interface ClassBuilderNode {
         restoreDefault: Boolean
     ) {
         parent.resetChild(key, cb, restoreDefault)
-        parent.item.findChild(key)
         tree.reload()
+    }
+
+    operator fun component1(): ClassBuilder {
+        return key
+    }
+
+    operator fun component2(): ClassBuilder? {
+        return cb
+    }
+
+    operator fun component3(): ParentClassBuilder {
+        return parent
     }
 
     companion object {

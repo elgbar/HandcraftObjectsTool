@@ -9,17 +9,19 @@ import no.uib.inf219.gui.backend.ParentClassBuilder
 /**
  * A class builder node where the class builder is always null aka empty
  */
-data class EmptyClassBuilderNode(
+class EmptyClassBuilderNode(
     override val key: ClassBuilder,
     override val parent: ParentClassBuilder,
     override val item: TreeItem<ClassBuilderNode> = TreeItem()
 ) : ClassBuilderNode {
 
+    override val cb: ClassBuilder?
+
     init {
+        this.cb = null
         item.value = this
     }
 
-    override val cb: Nothing? = null
 
     override fun ensurePresentClassBuilder(tree: TreeView<ClassBuilderNode>): FilledClassBuilderNode {
         val cb = parent.createChildClassBuilder(key, item = item)

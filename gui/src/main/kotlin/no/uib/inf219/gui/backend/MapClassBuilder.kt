@@ -34,8 +34,9 @@ class MapClassBuilder(
     override val item: TreeItem<ClassBuilderNode>
 ) : ParentClassBuilder() {
 
-    override val serObject = HashSet<ComplexClassBuilder>()
-    override val serObjectObservable = serObject.asObservable()
+
+    override val serObject = HashSet<ComplexClassBuilder>().asObservable()
+    override val serObjectObservable = serObject
 
     companion object {
         const val ENTRY_KEY = "key"
@@ -89,7 +90,8 @@ class MapClassBuilder(
 
                     val key = getClassBuilder(type.keyType, keyCb) ?: return@action
                     val value = getClassBuilder(type.contentType, valueCb) ?: return@action
-                    create(key, value, item)
+                    create(key, value, TreeItem())
+                    controller.tree.reload()
                 }
             }
         }

@@ -4,10 +4,15 @@ package no.uib.inf219.gui.backend
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.databind.JavaType
+import javafx.scene.control.ContextMenu
 import javafx.scene.control.TreeItem
 import no.uib.inf219.extra.findChild
 import no.uib.inf219.gui.controllers.ClassBuilderNode
+import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.loader.ClassInformation
+import tornadofx.action
+import tornadofx.item
+import tornadofx.separator
 
 /**
  * TODO move all the overwritten methods here from ClassBuilder
@@ -67,7 +72,7 @@ abstract class ParentClassBuilder : ClassBuilder {
      * @param element The instance of the child to reset. Must be identical to the class builder found with [key] or be `null`
      * @param restoreDefault If the default value (if none default is `null`) should be restored. If `false` the child found at [key] will be `null` after this method
      *
-     * @return The node to show. If null is returned the node will be removed
+     * @return if the node was completely removed
      *
      * @throws IllegalArgumentException If child found with [key] does not match [element]. Will not be thrown if [element] is `null`
      */
@@ -128,10 +133,41 @@ abstract class ParentClassBuilder : ClassBuilder {
         }
     }
 
-//    @JsonIgnore
-//    open fun getTreeItems(): List<TreeItem<ClassBuilderNode>> = getSubClassBuilders().map { item.findChild(it.key) }
+    /**
+     * Create the context menu items that are displayed when right clicking a child node
+     */
+    fun createChildContextItems(
+        key: ClassBuilder,
+        menu: ContextMenu,
+        controller: ObjectEditorController
+    ) {
+        val childMeta = getChildPropertyMetadata(key)
+        val childCBN = item.findChild(key).value
+
+        with(menu) {
+
+            if (childCBN.cb?.createContextMenu(menu, controller) == true) {
+                separator()
+            }
+
+            //Display reset action if it does have a reset element
+            if (childMeta?.hasValidDefaultInstance() == true) {
+                item("Restore default").action {
+                    childCBN.resetClassBuilder(controller.tree, true)
+                }
+            }
+
+            //only allow deletion when there are something to delete
+            if (childCBN.cb != null) {
+                item("Delete").action {
+                    childCBN.resetClassBuilder(controller.tree, false)
+                }
+            }
+        }
+    }
 
     final override fun isLeaf(): Boolean = false
+
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

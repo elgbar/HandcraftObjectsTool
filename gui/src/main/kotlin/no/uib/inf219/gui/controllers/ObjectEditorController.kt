@@ -11,6 +11,7 @@ import no.uib.inf219.extra.type
 import no.uib.inf219.gui.backend.ClassBuilder
 import no.uib.inf219.gui.backend.ParentClassBuilder
 import no.uib.inf219.gui.loader.ClassInformation.PropertyMetadata
+import tornadofx.selectedValue
 import tornadofx.text
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
@@ -42,6 +43,12 @@ class ObjectEditorController(
         tree.selectionModel.select(cb.item)
     }
 
+    fun createSelected() {
+        with(tree) {
+            selectedItem?.value = selectedValue?.ensurePresentClassBuilder(this)
+        }
+    }
+
     /**
      * Find the top level root OE controller
      */
@@ -63,7 +70,15 @@ class ObjectEditorController(
          * (re)create the root class builder
          */
         private fun createRealRoot(): ClassBuilder {
-            val cb = ClassBuilder.createClassBuilder(realRootType, realRootKey, this, null, TreeItem())
+            val rootPropMeta = PropertyMetadata(
+                realRootKey.serObject,
+                realRootType,
+                "",
+                true,
+                "The object that is currently being created",
+                false
+            )
+            val cb = ClassBuilder.createClassBuilder(realRootType, realRootKey, this, rootPropMeta, TreeItem())
                 ?: error("failed to create a root class builder")
             item.children.setAll(cb.item)
 
@@ -126,7 +141,6 @@ class ObjectEditorController(
             }
         }
 
-        override fun isRequired() = true // it's kinda hard to create something without this
         override fun isImmutable() = true
         override fun getPreviewValue() = "null"
         override fun getChildType(key: ClassBuilder): JavaType? {
@@ -137,10 +151,18 @@ class ObjectEditorController(
             }
         }
 
+        override fun getChildPropertyMetadata(key: ClassBuilder): PropertyMetadata? {
+            return when (key) {
+                realRootKey -> serObject.property
+                fakeRootKey -> null
+                else -> error("Key supplied ($key) not real root key ($realRootKey) or fake root key $fakeRootKey")
+            }
+        }
+
         override fun getChild(key: ClassBuilder): ClassBuilder? = if (key == realRootKey) serObject else null
         override fun getSubClassBuilders(): Map<ClassBuilder, ClassBuilder?> = mapOf(realRootKey to serObject)
 
-        override fun toView(parent: EventTarget, controller: ObjectEditorController) =
+        override fun createEditView(parent: EventTarget, controller: ObjectEditorController) =
             parent.text("Fake root should be displayed :o")
     }
 }
