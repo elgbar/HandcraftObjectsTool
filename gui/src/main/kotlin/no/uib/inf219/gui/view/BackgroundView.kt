@@ -104,7 +104,7 @@ class BackgroundView : View("Handcrafted Objects Tool") {
                                         separator()
 
                                         textflow {
-                                            text("Open source software used\n") {
+                                            text("Software, tools, and graphics used\n") {
                                                 style {
                                                     fontSize = 1.5.ems
                                                 }
@@ -115,7 +115,7 @@ class BackgroundView : View("Handcrafted Objects Tool") {
                                             text("ClassGraph, licenced under the MIT License\n")
                                             text("SLF4J source code and binaries are distributed under the MIT license\n")
                                             text("Ubuntu font, licenced under UBUNTU FONT LICENCE\n")
-                                            text("Icon, licenced under UBUNTU FONT LICENCE\n")
+                                            text("Icon, licenced under Pixabay License\n")
                                         }
                                     }
                                 }
