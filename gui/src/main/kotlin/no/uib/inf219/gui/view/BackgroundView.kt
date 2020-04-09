@@ -101,22 +101,74 @@ class BackgroundView : View("Handcrafted Objects Tool") {
                                             "https://github.com/kh498/HandcraftObjectsTool"
                                         )
 
+
+                                        label("Open Source Resources used\n") {
+                                            style {
+                                                fontSize = 1.5.ems
+                                            }
+                                        }
                                         separator()
 
-                                        textflow {
-                                            text("Software, tools, and graphics used\n") {
-                                                style {
-                                                    fontSize = 1.5.ems
-                                                }
+                                        fun hyperWeblinkLabel(text: String, vararg links: Pair<String, String>) {
+                                            hyperlinklabel(text).action {
+                                                val url = links.toMap()[this.text] ?: return@action
+                                                openWebPage(url)
                                             }
-                                            text("Jackson, licenced under Apache License 2.0\n")
-                                            text("TornadoFx, licenced under Apache License 2.0\n")
-                                            text("Apache Commons Text, licenced under Apache License 2.0\n")
-                                            text("ClassGraph, licenced under the MIT License\n")
-                                            text("SLF4J source code and binaries are distributed under the MIT license\n")
-                                            text("Ubuntu font, licenced under UBUNTU FONT LICENCE\n")
-                                            text("Icon, licenced under Pixabay License\n")
                                         }
+
+                                        hyperWeblinkLabel(
+                                            "[Jackson], licenced under [Apache License 2.0]",
+                                            "Jackson" to "https://github.com/FasterXML/jackson",
+                                            "Apache License 2.0" to "http://www.apache.org/licenses/LICENSE-2.0"
+                                        )
+
+                                        hyperWeblinkLabel(
+                                            "[TornadoFx], licenced under [Apache License 2.0]",
+                                            "TornadoFx" to "https://github.com/edvin/tornadofx",
+                                            "Apache License 2.0" to "https://github.com/edvin/tornadofx/blob/master/LICENSE"
+                                        )
+
+                                        hyperWeblinkLabel(
+                                            "[Apache Commons Text], licenced under [Apache License 2.0]",
+                                            "Apache Commons Text" to "https://commons.apache.org/proper/commons-text/",
+                                            "Apache License 2.0" to "https://www.apache.org/licenses/LICENSE-2.0"
+                                        )
+
+                                        hyperWeblinkLabel(
+                                            "[SLF4J] source code and binaries are distributed under [the MIT license]",
+                                            "SLF4J" to "http://www.slf4j.org/",
+                                            "the MIT license" to "http://www.slf4j.org/license.html"
+                                        )
+
+                                        hyperWeblinkLabel(
+                                            "[ClassGraph], licenced under [the MIT license]",
+                                            "ClassGraph" to "https://github.com/classgraph/classgraph",
+                                            "the MIT license" to "https://github.com/classgraph/classgraph/blob/master/LICENSE-ClassGraph.txt"
+                                        )
+
+                                        hyperWeblinkLabel(
+                                            "[Ubuntu fonts], licenced under [UBUNTU FONT LICENCE Version 1.0]",
+                                            "Ubuntu fonts" to "https://design.ubuntu.com/font/",
+                                            "UBUNTU FONT LICENCE Version 1.0" to "https://ubuntu.com/legal/font-licence"
+                                        )
+
+                                        hyperWeblinkLabel(
+                                            "[Chicle Icon], licenced under [Pixabay License]",
+                                            "Chicle Icon" to "https://pixabay.com/vectors/blade-chisel-gouge-sculpture-tool-2027204/",
+                                            "Pixabay License" to "https://pixabay.com/service/license/"
+                                        )
+
+                                        hyperWeblinkLabel(
+                                            "[ControlsFX], licenced under [BSD 3-Clause License]",
+                                            "ControlsFX" to "https://github.com/controlsfx/controlsfx",
+                                            "BSD 3-Clause License" to "https://github.com/controlsfx/controlsfx/blob/master/license.txt"
+                                        )
+
+                                        hyperWeblinkLabel(
+                                            "[TornadoFX-ControlsFX], licenced under [Apache License 2.0]",
+                                            "TornadoFX-ControlsFX" to "https://github.com/edvin/tornadofx-controlsfx",
+                                            "Apache License 2.0" to "https://github.com/edvin/tornadofx-controlsfx/blob/master/LICENSE"
+                                        )
                                     }
                                 }
                             }
