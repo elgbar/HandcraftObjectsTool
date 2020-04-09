@@ -47,6 +47,10 @@ fun EventTarget.centeredText(vararg lines: String, op: VBox.() -> Unit = {}) {
 
 fun EventTarget.internetHyperlink(text: String, url: String = text, op: Hyperlink.() -> Unit = {}) {
     hyperlink(text, op = op).action {
-        HostServicesFactory.getInstance(FX.application).showDocument(url)
+        openWebPage(url)
     }
+}
+
+fun openWebPage(url: String) {
+    HostServicesFactory.getInstance(FX.application).showDocument(url)
 }

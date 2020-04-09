@@ -2,13 +2,13 @@ package no.uib.inf219.gui.view
 
 import javafx.scene.layout.BorderPane
 import javafx.stage.FileChooser
-import no.uib.inf219.extra.Persistent
 import no.uib.inf219.gui.Styles
 import no.uib.inf219.gui.backend.exceptions.MissingPropertyException
 import no.uib.inf219.gui.controllers.ObjectEditorController
+import no.uib.inf219.gui.controllers.Settings
 import no.uib.inf219.gui.view.ControlPanelView.mapper
+import no.uib.inf219.gui.view.ControlPanelView.unsafeSerialization
 import tornadofx.*
-import java.io.File
 
 
 /**
@@ -19,7 +19,6 @@ import java.io.File
 class ObjectEditorBackgroundView : View("Object Editor Background") {
 
     val controller: ObjectEditorController by param()
-    private var lastFile: File? by Persistent()
 
     private fun createPropEditor(): BorderPane {
         val editor: PropertyEditor = find("controller" to controller)
@@ -61,7 +60,7 @@ class ObjectEditorBackgroundView : View("Object Editor Background") {
 
     private fun toJson(): String? {
         try {
-            return if (ControlPanelView.unsafeSerialization.value) {
+            return if (unsafeSerialization) {
                 mapper.writeValueAsString(controller.realRoot)
             } else {
                 val obj = mapper.convertValue<Any>(controller.realRoot, controller.realRoot.type)!!
@@ -119,7 +118,7 @@ class ObjectEditorBackgroundView : View("Object Editor Background") {
                 ),
                 FileChooser.ExtensionFilter("All files", "*")
             ),
-            lastFile,
+            Settings.lastFolderSaved,
             FileChooserMode.Save
         ) {
             initialFileName = controller.realRoot.type.rawClass.simpleName
@@ -127,6 +126,7 @@ class ObjectEditorBackgroundView : View("Object Editor Background") {
 
         if (files.isEmpty()) return
         val file = files[0]
+        Settings.lastFolderSaved = file.parentFile
 
         ControlPanelView.runAsync {
             file.writeText(obj)

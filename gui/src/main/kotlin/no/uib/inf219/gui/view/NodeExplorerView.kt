@@ -3,20 +3,15 @@ package no.uib.inf219.gui.view
 import javafx.scene.control.ButtonType
 import javafx.scene.input.MouseButton
 import no.uib.inf219.extra.OK_DISABLE_WARNING
-import no.uib.inf219.extra.Persistent
 import no.uib.inf219.extra.reload
 import no.uib.inf219.gui.controllers.ObjectEditorController
+import no.uib.inf219.gui.controllers.Settings.showOverwriteWithRefWarning
 import tornadofx.*
 
 /**
  * @author Elg
  */
 class NodeExplorerView(private val controller: ObjectEditorController) : View("Tree Explorer") {
-
-    /**
-     * If a warning should be displayed when overwriting a property with a reference
-     */
-    private var warnWhenOverwriteRef by Persistent(true)
 
     override val root = scrollpane(
         fitToWidth = true,
@@ -52,7 +47,7 @@ class NodeExplorerView(private val controller: ObjectEditorController) : View("T
                             return@action
                         }
 
-                        if (cb != null && warnWhenOverwriteRef != false) {
+                        if (cb != null && showOverwriteWithRefWarning != false) {
                             warning(
                                 "Do you want to overwrite it with a reference to another object?",
                                 "This property is already defined: $cb",
@@ -63,7 +58,7 @@ class NodeExplorerView(private val controller: ObjectEditorController) : View("T
                                     if (button == ButtonType.CANCEL) {
                                         return@action
                                     } else if (button == OK_DISABLE_WARNING) {
-                                        warnWhenOverwriteRef = false
+                                        showOverwriteWithRefWarning = false
                                     }
                                 }
                             )

@@ -1,9 +1,11 @@
 package no.uib.inf219.gui.view
 
 import com.fasterxml.jackson.databind.JavaType
+import com.fasterxml.jackson.databind.Module
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.afterburner.AfterburnerModule
 import com.fasterxml.jackson.module.mrbean.MrBeanModule
+import javafx.beans.property.BooleanProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
 import javafx.scene.control.Tab
@@ -11,11 +13,11 @@ import javafx.scene.layout.BorderPane
 import javafx.scene.layout.Priority
 import javafx.stage.FileChooser
 import no.uib.inf219.api.serialization.SerializationManager
-import no.uib.inf219.extra.Persistent
 import no.uib.inf219.extra.closeAll
 import no.uib.inf219.extra.type
 import no.uib.inf219.gui.Styles
 import no.uib.inf219.gui.controllers.ObjectEditorController
+import no.uib.inf219.gui.controllers.Settings.lastFolderLoaded
 import no.uib.inf219.gui.ems
 import no.uib.inf219.gui.loader.ClassInformation
 import no.uib.inf219.gui.loader.DynamicClassLoader
@@ -34,13 +36,25 @@ import java.lang.invoke.MethodHandles
  */
 object ControlPanelView : View("Control Panel") {
 
-    private val mapperProperty by lazy { SimpleObjectProperty(SerializationManager.kotlinJson) }
-
-    private var lastFile: File? by Persistent()
-
-    private var orgMapper: ObjectMapper = mapper
-
+    /**
+     * tab to editor map
+     */
     val tabMap = HashMap<Tab, ObjectEditorBackgroundView>()
+
+    /**
+     * List of known mappers
+     */
+    private val knownObjectMappers =
+        SerializationManager.StdObjectMapper.values().mapTo(ArrayList()) { it.toString() to it.getObjectMapper() }
+            .asObservable()
+
+    //////////////////////
+    // mapper variables //
+    //////////////////////
+
+
+    private val mapperProperty by lazy { SimpleObjectProperty(SerializationManager.kotlinJson) }
+    private var orgMapper: ObjectMapper = mapper
 
     /**
      * What object mapper to use for serialization
@@ -55,48 +69,55 @@ object ControlPanelView : View("Control Panel") {
             FX.find<BackgroundView>().tabPane.closeAll()
         }
 
-    internal var useMrBeanProperty = booleanProperty().apply {
-        onChange {
+
+    /////////////////////
+    // Module Settings //
+    /////////////////////
+
+    var mrBeanModuleEnabledProp = booleanProperty(false)
+    var mrBeanModuleEnabled by mrBeanModuleEnabledProp
+
+    var afterburnerModuleEnabledProp = booleanProperty(true)
+    var afterburnerModuleEnabled by afterburnerModuleEnabledProp
+
+
+    ////////////////////
+    // Other settings //
+    ////////////////////
+
+
+    var unsafeSerializationProp = booleanProperty(false)
+    var unsafeSerialization by unsafeSerializationProp
+
+
+    init {
+        updateMapper()
+
+        fun reloadMapper() {
             //this forces an call to #updateMapper()
             mapper = orgMapper
         }
+
+        mrBeanModuleEnabledProp.onChange { reloadMapper() }
+        afterburnerModuleEnabledProp.onChange { reloadMapper() }
     }
-    var useMrBean by useMrBeanProperty
-
-    private var useAfterburnerProp = booleanProperty(true)
-    private var useAfterburner by useAfterburnerProp
-
-    var unsafeSerialization = false.toProperty()
 
     private fun updateMapper() {
         ClassInformation.updateMapper()
 
-        val beanModule = MrBeanModule()
+        fun checkEnabled(module: Module, boolProp: BooleanProperty) {
 
-        if (mapper.registeredModuleIds.contains(beanModule.typeId) && !useMrBean) {
-            //It is enabled for the current ObjectMapper already do not enable it again
-            useMrBean = true
-        } else if (useMrBean) {
-            mapper.registerModule(beanModule)
+            if (mapper.registeredModuleIds.contains(module.typeId) && !boolProp.value) {
+                //It is enabled for the current ObjectMapper already do not enable it again
+                boolProp.set(true)
+            } else if (mrBeanModuleEnabled) {
+                mapper.registerModule(module)
+            }
         }
-
-        val afterBurnerModule = AfterburnerModule()
-
-        if (mapper.registeredModuleIds.contains(afterBurnerModule.typeId) && !useAfterburner) {
-            //It is enabled for the current ObjectMapper already do not enable it again
-            useAfterburner = true
-        } else if (useAfterburner) {
-            mapper.registerModule(afterBurnerModule)
-        }
+        
+        checkEnabled(MrBeanModule(), mrBeanModuleEnabledProp)
+        checkEnabled(AfterburnerModule(), afterburnerModuleEnabledProp)
     }
-
-    init {
-        updateMapper()
-    }
-
-    private val possibleMappers =
-        SerializationManager.StdObjectMapper.values().mapTo(ArrayList()) { it.toString() to it.getObjectMapper() }
-            .asObservable()
 
     override val root = vbox {
         val classNameProperty = SimpleStringProperty("")
@@ -113,11 +134,11 @@ object ControlPanelView : View("Control Panel") {
                             FileChooser.ExtensionFilter("Jvm zip files", "*.jar", "*.zip"),
                             FileChooser.ExtensionFilter("All files", "*")
                         ),
-                        lastFile,
+                        lastFolderLoaded,
                         FileChooserMode.Multi
                     )
                     if (files.isNotEmpty()) {
-                        lastFile = files[0].parentFile
+                        lastFolderLoaded = files[0].parentFile
                     }
                     runAsync {
                         for (file in files) {
@@ -130,9 +151,9 @@ object ControlPanelView : View("Control Panel") {
                 text = "Import jars"
                 tooltip("Import all jar files from a directory")
                 setOnAction {
-                    val folder = chooseDirectory("Choose jar to load", lastFile)
+                    val folder = chooseDirectory("Choose jar to load", lastFolderLoaded)
                     if (folder != null) {
-                        lastFile = folder
+                        lastFolderLoaded = folder
                     }
                     runAsync {
                         val files = folder?.listFiles(FileFilter { it.extension == "jar" })
@@ -242,7 +263,7 @@ object ControlPanelView : View("Control Panel") {
                 }
 
                 combobox(
-                    values = possibleMappers
+                    values = knownObjectMappers
                 ) {
 
                     tooltip(
@@ -275,7 +296,7 @@ object ControlPanelView : View("Control Panel") {
                 style {
                     spacing = 0.333.ems
                 }
-                checkbox("Use MrBean Module", useMrBeanProperty) {
+                checkbox("Use MrBean Module", mrBeanModuleEnabledProp) {
                     tooltip(
                         "Mr Bean is an extension that implements support for \"POJO type materialization\"; ability for databinder to\n" +
                                 "construct implementation classes for Java interfaces and abstract classes, as part of deserialization.\n" +
@@ -286,7 +307,7 @@ object ControlPanelView : View("Control Panel") {
                     )
                 }
 
-                checkbox("Use Afterburner Module", useAfterburnerProp) {
+                checkbox("Use Afterburner Module", afterburnerModuleEnabledProp) {
                     tooltip(
                         "Module that will add dynamic bytecode generation for standard Jackson POJO serializers and deserializers,\n" +
                                 "eliminating majority of remaining data binding overhead. It is recommenced to have this enabled, \n" +
@@ -303,7 +324,7 @@ object ControlPanelView : View("Control Panel") {
                 }
             }
 
-            checkbox("Unsafe Serialization", unsafeSerialization) {
+            checkbox("Unsafe Serialization", unsafeSerializationProp) {
                 tooltip(
                     "If the objects should be serialized without checking if it can be deserialized.\n" +
                             "Sometimes is not possible to check if an object can be deserialized in this GUI."
@@ -366,7 +387,7 @@ object ControlPanelView : View("Control Panel") {
         OutputArea.logln("Successfully loaded jar file ${file.absolutePath}")
 
         val mapper = ObjectMapperLoader.findObjectMapper(file) ?: return
-        possibleMappers.add(file.nameWithoutExtension to mapper)
+        knownObjectMappers.add(file.nameWithoutExtension to mapper)
     }
 
     private fun File.copyInputStreamToFile(inputStream: InputStream) {

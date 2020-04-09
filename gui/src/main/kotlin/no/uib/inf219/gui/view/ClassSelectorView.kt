@@ -17,8 +17,10 @@ import no.uib.inf219.extra.OK_DISABLE_WARNING
 import no.uib.inf219.extra.onChange
 import no.uib.inf219.extra.type
 import no.uib.inf219.gui.Styles
+import no.uib.inf219.gui.controllers.Settings.showMrBeanWarning
 import no.uib.inf219.gui.ems
 import no.uib.inf219.gui.loader.DynamicClassLoader
+import no.uib.inf219.gui.view.ControlPanelView.mrBeanModuleEnabled
 import tornadofx.*
 import java.lang.reflect.Modifier
 
@@ -57,9 +59,6 @@ class ClassSelectorView : View("Select implementation") {
     private val superClassProperty = SimpleStringProperty()
     private var superClass by superClassProperty
 
-    private val showMrBeanWarningProperty = booleanProperty(true)
-    private var showMrBeanWarning by showMrBeanWarningProperty
-
     private val label: Node
     private lateinit var textLabelProperty: StringProperty
     private val resultList: Node
@@ -68,7 +67,7 @@ class ClassSelectorView : View("Select implementation") {
 
     init {
 
-        ControlPanelView.useMrBeanProperty.onChange { useMrBean ->
+        ControlPanelView.mrBeanModuleEnabledProp.onChange { useMrBean ->
             //reset the warning when mr bean is disabled
             if (!useMrBean) showMrBeanWarning = true
         }
@@ -151,8 +150,8 @@ class ClassSelectorView : View("Select implementation") {
 
                             when {
                                 realResult.isAbstract -> {
-                                    if (!ControlPanelView.useMrBean) {
-                                        if (showMrBeanWarning) {
+                                    if (!mrBeanModuleEnabled) {
+                                        if (showMrBeanWarning == true) {
                                             information(
                                                 "Cannot select an abstract class when the Mr Bean module is not enabled.",
                                                 "You will now be asked to select a subclass of ${realResult.rawClass}",

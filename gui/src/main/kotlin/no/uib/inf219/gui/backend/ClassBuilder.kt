@@ -25,6 +25,7 @@ import no.uib.inf219.gui.loader.ClassInformation
 import no.uib.inf219.gui.loader.ClassInformation.PropertyMetadata
 import no.uib.inf219.gui.view.ClassSelectorView
 import no.uib.inf219.gui.view.ControlPanelView
+import no.uib.inf219.gui.view.ControlPanelView.mrBeanModuleEnabled
 import tornadofx.find
 import tornadofx.information
 import tornadofx.warning
@@ -300,7 +301,7 @@ interface ClassBuilder {
                  * and only types that does not have type information can be abstract.
                  */
                 fun canBeAbstract(type: JavaType): Boolean {
-                    if (ControlPanelView.useMrBean) {
+                    if (mrBeanModuleEnabled) {
                         val typeInfo = ClassInformation.serializableProperties(type)
                         return typeInfo.first == null
                     }
@@ -317,7 +318,7 @@ interface ClassBuilder {
 
                 var allowAbstractNextTime = canBeAbstract(type)
 
-                if (ControlPanelView.useMrBean) {
+                if (mrBeanModuleEnabled) {
                     //users might want to create the selected class not a subclass
 
                     val createThis = ButtonType("Create this", ButtonBar.ButtonData.OK_DONE)
@@ -341,7 +342,7 @@ interface ClassBuilder {
                 val subtype = find<ClassSelectorView>().subtypeOf(type, true) ?: return null
 
                 allowAbstractNextTime = canBeAbstract(subtype)
-                if (ControlPanelView.useMrBean && !allowAbstractNextTime) {
+                if (mrBeanModuleEnabled && !allowAbstractNextTime) {
                     displayWarning()
                 }
 

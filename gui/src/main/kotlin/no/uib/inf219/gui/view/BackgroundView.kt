@@ -5,14 +5,16 @@ import javafx.scene.control.TabPane
 import javafx.scene.layout.BorderPane
 import javafx.scene.paint.Color
 import javafx.stage.StageStyle
-import no.uib.inf219.extra.applicationHome
-import no.uib.inf219.extra.centeredText
+import no.uib.inf219.extra.*
 import no.uib.inf219.extra.close
-import no.uib.inf219.extra.closeAll
-import no.uib.inf219.extra.internetHyperlink
 import no.uib.inf219.gui.Styles
+import no.uib.inf219.gui.controllers.Settings
 import no.uib.inf219.gui.ems
+import org.controlsfx.control.PropertySheet
 import tornadofx.*
+import tornadofx.controlsfx.action
+import tornadofx.controlsfx.hyperlinklabel
+import tornadofx.controlsfx.propertysheet
 
 /**
  * @author Elg
@@ -64,7 +66,11 @@ class BackgroundView : View("Handcrafted Objects Tool") {
                         object : View("Application Settings") {
                             override val root = vbox {
                                 addClass(Styles.parent)
-                                button("Reset settings").action {
+
+                                propertysheet(Settings, mode = PropertySheet.Mode.NAME)
+
+                                button("Reset All Settings").action {
+                                    tooltip("A restart is required for the changes to take effect")
                                     applicationHome().deleteRecursively()
                                 }
                             }
