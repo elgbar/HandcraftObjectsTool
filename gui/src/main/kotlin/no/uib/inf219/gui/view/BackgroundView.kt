@@ -141,12 +141,6 @@ class BackgroundView : View("Handcrafted Objects Tool") {
                                         )
 
                                         hyperWeblinkLabel(
-                                            "[SLF4J] source code and binaries are distributed under [the MIT license]",
-                                            "SLF4J" to "http://www.slf4j.org/",
-                                            "the MIT license" to "http://www.slf4j.org/license.html"
-                                        )
-
-                                        hyperWeblinkLabel(
                                             "[ClassGraph], licenced under [the MIT license]",
                                             "ClassGraph" to "https://github.com/classgraph/classgraph",
                                             "the MIT license" to "https://github.com/classgraph/classgraph/blob/master/LICENSE-ClassGraph.txt"
