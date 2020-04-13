@@ -11,3 +11,4 @@ import javafx.scene.control.ButtonType
  * Let the user never see this warning again
  */
 val OK_DISABLE_WARNING = ButtonType("OK do not warn me again", ButtonBar.ButtonData.OK_DONE)
+val OK_ENABLE_MODULE = ButtonType("OK enable this module\nWill close all current editors", ButtonBar.ButtonData.OK_DONE)

@@ -14,6 +14,7 @@ import javafx.scene.control.ButtonType
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
 import no.uib.inf219.extra.OK_DISABLE_WARNING
+import no.uib.inf219.extra.OK_ENABLE_MODULE
 import no.uib.inf219.extra.onChange
 import no.uib.inf219.extra.type
 import no.uib.inf219.gui.Styles
@@ -156,10 +157,16 @@ class ClassSelectorView : View("Select implementation") {
                                                 "Cannot select an abstract class when the Mr Bean module is not enabled.",
                                                 "You will now be asked to select a subclass of ${realResult.rawClass}",
                                                 owner = currentWindow,
-                                                buttons = *arrayOf(ButtonType.OK, OK_DISABLE_WARNING),
+                                                buttons = *arrayOf(ButtonType.OK, OK_DISABLE_WARNING, OK_ENABLE_MODULE),
                                                 actionFn = {
                                                     when (it) {
                                                         OK_DISABLE_WARNING -> showMrBeanWarning = false
+                                                        OK_ENABLE_MODULE -> {
+                                                            this@ClassSelectorView.result = null
+                                                            returnSelectedType()
+                                                            mrBeanModuleEnabled = true
+                                                            return
+                                                        }
                                                     }
                                                 }
                                             )
@@ -261,7 +268,7 @@ class ClassSelectorView : View("Select implementation") {
             tornadofx.runAsync {
                 searchForSubtypes(result!!, showAbstract)
             }
-            openModal(block = true)
+            openModal(block = true, owner = currentWindow)
         } while (result != null && !finishedSearching.value)
         return result
     }
