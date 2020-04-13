@@ -32,9 +32,9 @@ interface ClassBuilderNode {
     val item: TreeItem<ClassBuilderNode>
 
     /**
-     * Ensure this node has a class builder present. Calling this with a [FilledClassBuilderNode] will return `this`
+     * Ensure this node has a class builder present. If null is returned the user somehow failed to to create a child class builder
      */
-    fun ensurePresentClassBuilder(tree: TreeView<ClassBuilderNode>): FilledClassBuilderNode
+    fun ensurePresentClassBuilder(tree: TreeView<ClassBuilderNode>): FilledClassBuilderNode?
 
     fun getPropertyMeta(): ClassInformation.PropertyMetadata? {
         return parent.getChildPropertyMetadata(key)

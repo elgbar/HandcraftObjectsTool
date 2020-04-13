@@ -63,7 +63,7 @@ abstract class ParentClassBuilder : ClassBuilder {
         key: ClassBuilder,
         init: ClassBuilder? = null,
         item: TreeItem<ClassBuilderNode> = this.item.findChild(key)
-    ): ClassBuilder
+    ): ClassBuilder?
 
     /**
      * Reset the given property for the [key] provided. If it has a default value this value will be restored otherwise it will be removed.
@@ -85,9 +85,9 @@ abstract class ParentClassBuilder : ClassBuilder {
     /**
      * Remove the current child at [key] (if any) and set the child at [key] to be [child]
      */
-    operator fun set(key: ClassBuilder, child: ClassBuilder) {
-        require(child.key == key) { "Key does not match" }
-        require(child.parent == this) { "Given child does not have this a parent" }
+    open operator fun set(key: ClassBuilder, child: ClassBuilder) {
+        checkChildValidity(key, child)
+
         resetChild(key, restoreDefault = false)
         createChildClassBuilder(key, child)
     }
@@ -130,6 +130,18 @@ abstract class ParentClassBuilder : ClassBuilder {
             to -> false //to's parent is it self (recursive assignment, denotes root cb)
             this -> true
             else -> this.isParentOf(to.parent)
+        }
+    }
+
+    protected fun checkChildValidity(key: ClassBuilder, child: ClassBuilder) {
+        require(key == child.key) { "The key does not match the key of the child. key $key | child's key ${child.key}" }
+        require(this === child.parent) { "Given child does not have this a parent" }
+
+        require(key !== child) { "The key and child cannot be the same object" }
+
+        require(getChildType(key) == child.type) { "Wrong child type given. Expected type ${getChildType(key)} | child's type ${child.type}" }
+        require(getChildPropertyMetadata(key) == child.property) {
+            "Wrong property metadata given. Expected type ${getChildPropertyMetadata(key)} | child's type ${child.property}"
         }
     }
 

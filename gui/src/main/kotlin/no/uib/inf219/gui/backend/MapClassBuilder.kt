@@ -68,8 +68,7 @@ class MapClassBuilder(
         item: TreeItem<ClassBuilderNode>
     ): ComplexClassBuilder {
         val entry = ComplexClassBuilder(entryType, entryCb, this@MapClassBuilder, item = item)
-        item.value =
-            FilledClassBuilderNode(key, entry, parent)
+        item.value = FilledClassBuilderNode(key, entry, parent)
 
         entry.serObject[ENTRY_VALUE] = value
         entry.serObject[ENTRY_KEY] = key
@@ -102,14 +101,14 @@ class MapClassBuilder(
         key: ClassBuilder,
         init: ClassBuilder?,
         item: TreeItem<ClassBuilderNode>
-    ): ClassBuilder {
+    ): ClassBuilder? {
         require(init == null || init.type == getChildType(key)) {
             "Given initial value have different type than expected. expected ${getChildType(key)} got ${init?.type}"
         }
         return if (!contains(key)) {
             create(key, init, item)
         } else {
-            get(key)!!
+            get(key)
         }
     }
 

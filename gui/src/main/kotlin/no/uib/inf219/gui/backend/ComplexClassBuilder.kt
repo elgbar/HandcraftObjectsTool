@@ -10,6 +10,7 @@ import javafx.scene.control.TreeItem
 import javafx.scene.text.TextAlignment
 import no.uib.inf219.extra.findChild
 import no.uib.inf219.extra.onChange
+import no.uib.inf219.extra.onChangeUntil
 import no.uib.inf219.extra.toCb
 import no.uib.inf219.gui.Styles
 import no.uib.inf219.gui.backend.serializers.ComplexClassBuilderSerializer
@@ -85,7 +86,7 @@ class ComplexClassBuilder(
         key: ClassBuilder,
         init: ClassBuilder?,
         item: TreeItem<ClassBuilderNode>
-    ): ClassBuilder {
+    ): ClassBuilder? {
         val propName = cbToString(key)
 
         val prop = propInfo[propName]
@@ -95,7 +96,7 @@ class ComplexClassBuilder(
         }
         return serObject.computeIfAbsent(propName) {
             createChild(key, init, prop, item)
-        } ?: kotlin.error("Failed to create class builder")
+        }
     }
 
     override fun resetChild(
@@ -138,10 +139,8 @@ class ComplexClassBuilder(
         item: TreeItem<ClassBuilderNode> = TreeItem()
     ): ClassBuilder? {
         return if (init != null) {
-            require(init.item == item) { "Given item does not match init's item, expected $item init's item ${init.item}" }
-            require(init.property == prop) { "Given property does not match init's property, expected '$prop' init's property '${init.property}'" }
-            require(init.key == key) { "Given key does not match init's key, expected $key init's key ${init.key}" }
-            require(init.parent == this) { "Given initial class builder does not have this ($this) as it's parent, but rather ${init.parent}" }
+            require(init.item === item) { "Given item does not match init's item, expected $item init's item ${init.item}" }
+            checkChildValidity(key, init)
             init
         } else getClassBuilder(prop.type, key, propDefaults[key.serObject], prop, item)
     }
@@ -183,15 +182,20 @@ class ComplexClassBuilder(
                         fold(getFoldTitle(child)) {
 
                             //Wait for the fold to be expanded for the first time to create the view, cb etc
-                            expandedProperty().onChangeOnce {
+                            expandedProperty().onChangeUntil({ this.isExpanded }) {
                                 val cb: ClassBuilder
                                 if (child == null) {
                                     //This should never be null as we are using the name of a property
                                     // well, if it is something has gone wrong, but not here!
-                                    cb = createChildClassBuilder(name.toCb())
+                                    val newCb = createChildClassBuilder(name.toCb())
+                                    if (newCb == null) {
+                                        this@fold.isExpanded = false
+                                        return@onChangeUntil
+                                    }
+                                    cb = newCb
 
                                     //update fold title before editing
-                                    this.text = getFoldTitle(cb)
+                                    this.text = getFoldTitle(newCb)
                                 } else {
                                     cb = child
                                 }

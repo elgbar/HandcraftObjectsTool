@@ -23,14 +23,15 @@ class EmptyClassBuilderNode(
     }
 
 
-    override fun ensurePresentClassBuilder(tree: TreeView<ClassBuilderNode>): FilledClassBuilderNode {
+    override fun ensurePresentClassBuilder(tree: TreeView<ClassBuilderNode>): FilledClassBuilderNode? {
         val cb = parent.createChildClassBuilder(key, item = item)
-        tree.reload()
-        return cb.node
+        if (cb != null)
+            tree.reload()
+        return cb?.node
     }
 
     override fun toString(): String {
-        return "EmptyClassBuilderNode(key=$key, parent=$parent)"
+        return "EmptyClassBuilderNode(key=${key.getPreviewValue()}, parent=${parent.getPreviewValue()})"
     }
 
     override fun equals(other: Any?): Boolean {

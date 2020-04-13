@@ -296,10 +296,6 @@ interface ClassBuilder {
                  * Nothing can be abstract if mr bean module is not enabled
                  * and only types that does not have type information can be abstract.
                  */
-                /**
-                 * Nothing can be abstract if mr bean module is not enabled
-                 * and only types that does not have type information can be abstract.
-                 */
                 fun canBeAbstract(type: JavaType): Boolean {
                     if (mrBeanModuleEnabled) {
                         val typeInfo = ClassInformation.serializableProperties(type)
@@ -327,13 +323,24 @@ interface ClassBuilder {
                         "You you want to create ${type.rawClass} or a sub class of it?",
                         "The class you want to create is an abstract class or an interface." +
                                 "\nDo you want to create this abstract type or find a sub class of it?",
-                        buttons = *arrayOf(createThis, findSubclass),
+                        buttons = *arrayOf(createThis, findSubclass, ButtonType.CANCEL),
                         actionFn = {
-                            if (it == createThis) {
-                                if (!allowAbstractNextTime) {
-                                    displayWarning()
+                            when (it) {
+                                ButtonType.CANCEL -> return null
+                                createThis -> {
+                                    if (!allowAbstractNextTime) {
+                                        displayWarning()
+                                    }
+                                    return createClassBuilder(
+                                        type,
+                                        key,
+                                        parent,
+                                        value,
+                                        prop,
+                                        item,
+                                        allowAbstractNextTime
+                                    )
                                 }
-                                return createClassBuilder(type, key, parent, value, prop, item, allowAbstractNextTime)
                             }
                         }
                     )
@@ -353,11 +360,7 @@ interface ClassBuilder {
                 ComplexClassBuilder(type, key = key, parent = parent, property = prop, item = item)
             }) ?: return null
 
-            item.value = FilledClassBuilderNode(
-                key,
-                cb,
-                parent
-            )
+            item.value = FilledClassBuilderNode(key, cb, parent)
             if (cb is ParentClassBuilder) {
                 val childItems = cb.getSubClassBuilders().map { (key, childCb) ->
                     //use the existing node or create an empty node if the child is null

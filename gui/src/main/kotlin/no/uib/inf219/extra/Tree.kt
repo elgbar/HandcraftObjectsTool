@@ -20,7 +20,7 @@ fun TreeItem<ClassBuilderNode>.findChild(key: ClassBuilder): TreeItem<ClassBuild
     val parent = value?.cb
         ?: error("The owning class builder node does not have a class builder set or the value of this tree item is null")
     for (item in children) {
-        val cbn = item.value
+        val cbn = item.value ?: error("No CBN have been set for child $key of $parent")
         if (cbn.key == key && cbn.parent == parent) {
             require(cbn.item === item) {
                 "Found child with matching key and parent but it's item is not the same object!\n" +

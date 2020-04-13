@@ -93,14 +93,16 @@ class CollectionClassBuilder(
         key: ClassBuilder,
         init: ClassBuilder?,
         item: TreeItem<ClassBuilderNode>
-    ): ClassBuilder {
+    ): ClassBuilder? {
         val index = cbToInt(key)
             ?: error("Failed to create a new entry in a collection class builder at the given key is not an int")
         require(init == null || init.type == getChildType(key)) {
             "Given initial value have different type than expected. expected ${getChildType(key)} got ${init?.type}"
         }
-        val elem = init ?: (getClassBuilder(type.contentType, key, item = item)
-            ?: error("Failed to create class builder for $key"))
+        if (init != null) {
+            checkChildValidity(key, init)
+        }
+        val elem = init ?: getClassBuilder(type.contentType, key, item = item) ?: return null
         serObject.add(index, elem)
         this.item.children.add(elem.item)
         return elem

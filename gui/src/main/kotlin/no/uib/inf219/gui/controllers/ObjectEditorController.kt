@@ -13,7 +13,6 @@ import no.uib.inf219.gui.backend.ParentClassBuilder
 import no.uib.inf219.gui.controllers.classBuilderNode.ClassBuilderNode
 import no.uib.inf219.gui.controllers.classBuilderNode.FilledClassBuilderNode
 import no.uib.inf219.gui.loader.ClassInformation.PropertyMetadata
-import tornadofx.selectedValue
 import tornadofx.text
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
@@ -45,9 +44,15 @@ class ObjectEditorController(
         tree.selectionModel.select(cb.item)
     }
 
-    fun createSelected() {
+    /**
+     * @return if the selected value is non-null
+     */
+    fun createSelected(): ClassBuilderNode? {
         with(tree) {
-            selectedItem?.value = selectedValue?.ensurePresentClassBuilder(this)
+            val item = selectedItem ?: return null
+            val newCbn = item.value.ensurePresentClassBuilder(this) ?: return null
+            item.value = newCbn
+            return newCbn
         }
     }
 
