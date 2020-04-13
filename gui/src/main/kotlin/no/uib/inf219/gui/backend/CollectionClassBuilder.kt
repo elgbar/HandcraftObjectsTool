@@ -124,7 +124,6 @@ class CollectionClassBuilder(
 
         val child = serObject[index]
 
-
         require(element == null || child == element) { "Given element is not equal to stored element at index $index. given = $element, stored = $child" }
 
         serObject.remove(child)
@@ -143,10 +142,8 @@ class CollectionClassBuilder(
         return serObject.mapIndexed { i, cb -> i.toCb() to cb }.toMap()
     }
 
-    override fun getPreviewValue(): String {
-        return serObject.filter { !this.isParentOf(it) }.mapIndexed { i, cb -> "- $i: ${cb.getPreviewValue()}" }
-            .joinToString("\n")
-    }
+    override fun getPreviewValue() = "Collection of ${type.rawClass.simpleName}"
+    
 
     override fun getChildType(key: ClassBuilder): JavaType {
         return type.contentType
@@ -168,6 +165,6 @@ class CollectionClassBuilder(
     override fun isImmutable() = false
 
     override fun toString(): String {
-        return "Collection CB; value=${getPreviewValue()}, contained type=${type.contentType})"
+        return "Collection CB; containing=${type.contentType}, value=${serObject}"
     }
 }

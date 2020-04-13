@@ -84,7 +84,8 @@ class ReferenceClassBuilder(
         }
     }
 
-    override fun getPreviewValue() = "Ref to " + serObject.getPreviewValue()
+    override fun getPreviewValue() =
+        "Ref to ${serObject.key.getPreviewValue()} property of ${serObject.parent.key.getPreviewValue()}"
 
     override fun isLeaf(): Boolean = true
     override fun isImmutable() = true

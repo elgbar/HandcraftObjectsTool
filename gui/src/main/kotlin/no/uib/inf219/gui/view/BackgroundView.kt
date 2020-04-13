@@ -135,15 +135,15 @@ class BackgroundView : View("Handcrafted Objects Tool") {
                                         )
 
                                         hyperWeblinkLabel(
-                                            "[Apache Commons Text], licenced under [Apache License 2.0]",
-                                            "Apache Commons Text" to "https://commons.apache.org/proper/commons-text/",
-                                            "Apache License 2.0" to "https://www.apache.org/licenses/LICENSE-2.0"
-                                        )
-
-                                        hyperWeblinkLabel(
                                             "[ClassGraph], licenced under [the MIT license]",
                                             "ClassGraph" to "https://github.com/classgraph/classgraph",
                                             "the MIT license" to "https://github.com/classgraph/classgraph/blob/master/LICENSE-ClassGraph.txt"
+                                        )
+
+                                        hyperWeblinkLabel(
+                                            "[Apache Commons Text], licenced under [Apache License 2.0]",
+                                            "Apache Commons Text" to "https://commons.apache.org/proper/commons-text/",
+                                            "Apache License 2.0" to "https://www.apache.org/licenses/LICENSE-2.0"
                                         )
 
                                         hyperWeblinkLabel(

@@ -220,7 +220,7 @@ class ComplexClassBuilder(
     }
 
     override fun getPreviewValue(): String {
-        return "Complex class of type ${type.rawClass.typeName}. Child $key of ${parent.getPreviewValue()}"
+        return "Class of type ${type.rawClass.simpleName}"
     }
 
     override fun getSubClassBuilders(): Map<ClassBuilder, ClassBuilder?> =
