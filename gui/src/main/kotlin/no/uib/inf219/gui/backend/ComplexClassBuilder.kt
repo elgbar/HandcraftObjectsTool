@@ -88,6 +88,8 @@ class ComplexClassBuilder(
         require(init == null || init.type.isTypeOrSubTypeOf(getChildType(key)?.rawClass)) {
             "Given initial value have different type than expected. Expected a subclass of ${getChildType(key)} got ${init?.type}"
         }
+        require(init == null || init.item === item) { "Wrong item. expected $item got ${init?.item}" }
+
         return serObject.computeIfAbsent(propName) {
             createChild(key, init, prop, item)
         }
@@ -112,14 +114,18 @@ class ComplexClassBuilder(
             val prop: ClassInformation.PropertyMetadata = propInfo[propName] ?: kotlin.error("Given prop name is wrong")
             createChild(key, null, prop, item)
         } else {
-            item.value = EmptyClassBuilderNode(
-                key,
-                this,
-                item = item
-            )
+            item.value = EmptyClassBuilderNode(key, this, item = item)
             null
         }
         serObject[propName] = newProp
+    }
+
+    override fun set(key: ClassBuilder, child: ClassBuilder) {
+        checkChildValidity(key, child)
+        checkItemValidity(child, item.findChild(key))
+
+        val propName = cbToString(key)
+        serObject[propName] = child
     }
 
     private fun createChild(
