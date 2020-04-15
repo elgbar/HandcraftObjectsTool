@@ -22,12 +22,7 @@ import kotlin.reflect.KProperty
  * @author Elg
  */
 class ObjectEditorController(
-    rootType: JavaType,
-
-    /**
-     * Parent controller, if any
-     */
-    val parentController: ObjectEditorController? = null
+    rootType: JavaType
 ) {
 
     lateinit var tree: TreeView<ClassBuilderNode>
@@ -37,8 +32,8 @@ class ObjectEditorController(
      *
      * @see RootDelegator
      */
-    val fakeRoot by RootDelegator(rootType)
-    val realRoot: ClassBuilder get() = fakeRoot.serObject as ClassBuilder
+    private val fakeRoot by RootDelegator(rootType)
+    val root: ClassBuilder get() = fakeRoot.serObject as ClassBuilder
 
     fun select(cb: ClassBuilder) {
         tree.selectionModel.select(cb.item)
@@ -56,15 +51,8 @@ class ObjectEditorController(
         }
     }
 
-    /**
-     * Find the top level root OE controller
-     */
-    fun findRootController(): ObjectEditorController = parentController?.findRootController() ?: this
-
     companion object {
         val fakeRootKey = "root".toCb()
-
-
     }
 
     /**

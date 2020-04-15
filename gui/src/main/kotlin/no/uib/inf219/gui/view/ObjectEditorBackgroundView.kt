@@ -22,7 +22,7 @@ class ObjectEditorBackgroundView : View("Object Editor Background") {
 
     private fun createPropEditor(): BorderPane {
         val editor: PropertyEditor = find("controller" to controller)
-        editor.root.center = controller.realRoot.createEditView(this, controller)
+        editor.root.center = controller.root.createEditView(this, controller)
         return editor.root
     }
 
@@ -61,9 +61,9 @@ class ObjectEditorBackgroundView : View("Object Editor Background") {
     private fun toJson(): String? {
         try {
             return if (unsafeSerialization) {
-                mapper.writeValueAsString(controller.realRoot)
+                mapper.writeValueAsString(controller.root)
             } else {
-                val obj = mapper.convertValue<Any>(controller.realRoot, controller.realRoot.type)!!
+                val obj = mapper.convertValue<Any>(controller.root, controller.root.type)!!
                 mapper.writeValueAsString(obj)
             }
         } catch (e: MissingPropertyException) {
@@ -83,7 +83,7 @@ class ObjectEditorBackgroundView : View("Object Editor Background") {
         val obj = toJson()
         if (obj == null) {
             warning(
-                "Failed to save ${controller.realRoot}",
+                "Failed to save ${controller.root}",
                 "Cannot save object as it is not valid. Please validate it first",
                 owner = currentWindow
             )
@@ -121,7 +121,7 @@ class ObjectEditorBackgroundView : View("Object Editor Background") {
             Settings.lastFolderSaved,
             FileChooserMode.Save
         ) {
-            initialFileName = controller.realRoot.type.rawClass.simpleName
+            initialFileName = controller.root.type.rawClass.simpleName
         }
 
         if (files.isEmpty()) return

@@ -16,7 +16,7 @@ class NodeExplorerView(private val controller: ObjectEditorController) : View("T
     override val root = scrollpane(
         fitToWidth = true,
         fitToHeight = true
-    ).treeview(controller.realRoot.item) {
+    ).treeview(controller.root.item) {
         controller.tree = this
         root.isExpanded = true
 
