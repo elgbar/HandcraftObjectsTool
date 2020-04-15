@@ -104,7 +104,7 @@ class CollectionClassBuilder(
         }
         val elem = init ?: getClassBuilder(type.contentType, key, item = item) ?: return null
         serObject.add(index, elem)
-        this.item.children.add(elem.item)
+        this.item.children.add(index, elem.item)
         return elem
     }
 
@@ -112,6 +112,21 @@ class CollectionClassBuilder(
         val index = cbToInt(key)
         require(index != null)
         return serObject[index]
+    }
+
+    override fun set(key: ClassBuilder, child: ClassBuilder) {
+        val index: Int = cbToInt(key) ?: serObject.indexOf(child)
+        require(index in 0 until serObject.size) {
+            "Given index is not within the range of the collection"
+        }
+
+        if (index == serObject.size) {
+            //we're adding a new object use the normal method
+            createChildClassBuilder(key, child)
+        }
+        checkChildValidity(key, child)
+        serObject[index] = child
+        item.children[index] = child.item
     }
 
     override fun resetChild(
@@ -145,22 +160,17 @@ class CollectionClassBuilder(
     }
 
     override fun getPreviewValue() = "Collection of ${type.rawClass.simpleName}"
-    
 
-    override fun getChildType(key: ClassBuilder): JavaType {
-        return type.contentType
-    }
+    override fun getChildType(key: ClassBuilder): JavaType = type.contentType
 
-    override fun getChildPropertyMetadata(key: ClassBuilder): ClassInformation.PropertyMetadata? {
-        return ClassInformation.PropertyMetadata(
-            key.getPreviewValue(),
-            type.contentType,
-            "",
-            false,
-            "An entry in a collection",
-            true
-        )
-    }
+    override fun getChildPropertyMetadata(key: ClassBuilder) = ClassInformation.PropertyMetadata(
+        key.getPreviewValue(),
+        type.contentType,
+        "",
+        false,
+        "An entry in a collection",
+        true
+    )
 
     override fun getChildren(): List<ClassBuilder> = serObject
 
