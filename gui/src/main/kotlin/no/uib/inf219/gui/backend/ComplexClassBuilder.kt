@@ -105,7 +105,7 @@ class ComplexClassBuilder(
             ?: kotlin.error("The class $type does not have a property with the name '$propName'. Expected one of the following: ${propInfo.keys}")
 
         require(element == null || element === serObject[propName]) {
-            "Given element to reset does not match with the internal element. element: $element, internal ${serObject[propName]}"
+            "Given element to reset does not match with the internal element. Given: $element | internal ${serObject[propName]}"
         }
 
         val item = item.findChild(key)

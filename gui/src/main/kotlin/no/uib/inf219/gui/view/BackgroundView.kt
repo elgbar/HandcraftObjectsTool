@@ -83,6 +83,7 @@ class BackgroundView : View("Handcrafted Objects Tool") {
 
                         object : View("About HOT") {
                             override val root = borderpane {
+
                                 style {
                                     backgroundColor = multi(Color.WHITE)
                                 }

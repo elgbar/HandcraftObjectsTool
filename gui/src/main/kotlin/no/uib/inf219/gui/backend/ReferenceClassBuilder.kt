@@ -59,7 +59,6 @@ class ReferenceClassBuilder(
                 //it was completely removed, this should be removed from the parent
                 refParent.serObjectObservable.removeListener(this)
                 parent.resetChild(key, this@ReferenceClassBuilder, restoreDefault = true)
-                println("removed parent")
             }
         }
     }
