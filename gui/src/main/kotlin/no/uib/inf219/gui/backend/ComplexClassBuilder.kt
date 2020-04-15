@@ -43,11 +43,6 @@ class ComplexClassBuilder(
     internal val propInfo: Map<String, ClassInformation.PropertyMetadata>
 
     /**
-     * Holds the default value for the given property
-     */
-    internal val propDefaults: MutableMap<String, Any?> = HashMap()
-
-    /**
      * Information about the generics of [type], is `null` when the class does not have a generic type
      */
     val typeSerializer: TypeSerializer?
@@ -66,8 +61,7 @@ class ComplexClassBuilder(
         //initiate all valid values to null or default
         // to allow for iteration when populating Node explorer
         for ((key, v) in this.propInfo) {
-            propDefaults[key] = v.getDefaultInstance()
-            if (propDefaults[key] != null || v.type.isPrimitive) {
+            if (v.hasValidDefaultInstance()) {
                 //only create a class builder for properties that has a default value
                 // or is primitive (which always have default values)
                 createChildClassBuilder(key.toCb(), item = TreeItem())
@@ -105,17 +99,16 @@ class ComplexClassBuilder(
         restoreDefault: Boolean
     ) {
         val propName = cbToString(key)
+        val meta: ClassInformation.PropertyMetadata = propInfo[propName]
+            ?: kotlin.error("The class $type does not have a property with the name '$propName'. Expected one of the following: ${propInfo.keys}")
 
-        require(serObject.containsKey(propName)) {
-            "The class $type does not have a property with the name '$propName'. Expected one of the following: ${propInfo.keys}"
-        }
         require(element == null || element === serObject[propName]) {
             "Given element to reset does not match with the internal element. element: $element, internal ${serObject[propName]}"
         }
 
         val item = item.findChild(key)
 
-        val newProp = if (restoreDefault && propDefaults[propName] != null) {
+        val newProp = if (restoreDefault && meta.hasValidDefaultInstance()) {
             val prop: ClassInformation.PropertyMetadata = propInfo[propName] ?: kotlin.error("Given prop name is wrong")
             //must be set to null to trigger the change event!
             // stupid javafx
@@ -136,13 +129,16 @@ class ComplexClassBuilder(
         key: ClassBuilder,
         init: ClassBuilder?,
         prop: ClassInformation.PropertyMetadata,
-        item: TreeItem<ClassBuilderNode> = TreeItem()
+        item: TreeItem<ClassBuilderNode>
     ): ClassBuilder? {
         return if (init != null) {
-            require(init.item === item) { "Given item does not match init's item, expected $item init's item ${init.item}" }
+            checkItemValidity(init, item)
             checkChildValidity(key, init)
             init
-        } else getClassBuilder(prop.type, key, propDefaults[key.serObject], prop, item)
+        } else {
+            val meta = propInfo[cbToString(key)] ?: kotlin.error("Failed to find meta for ${key.getPreviewValue()}")
+            getClassBuilder(prop.type, key, meta.getDefaultInstance(), prop, item)
+        }
     }
 
     override fun getChild(key: ClassBuilder): ClassBuilder? {
