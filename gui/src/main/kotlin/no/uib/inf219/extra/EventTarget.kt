@@ -24,7 +24,7 @@ fun EventTarget.textCb(cb: ClassBuilder, value: ClassBuilder.() -> String) {
 
 fun StringProperty.bindCbText(cb: ClassBuilder, value: ClassBuilder.() -> String) {
     cb.serObjectObservable.onChange {
-        this.set(value(cb))
+        this@bindCbText.set(value(cb))
     }
 }
 

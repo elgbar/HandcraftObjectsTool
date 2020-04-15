@@ -205,7 +205,7 @@ class ComplexClassBuilder(
                                 //reflect changes in the title of the fold
                                 cb.serObjectObservable.onChange {
                                     //text means title in this context
-                                    this.text = getFoldTitle(cb)
+                                    this@fold.text = getFoldTitle(cb)
                                 }
                             }
                         }
