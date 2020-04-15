@@ -97,6 +97,9 @@ class ReferenceSelectorView : View("Reference") {
                     addEventHandler(KeyEvent.ANY) { event ->
                         if (event.code == KeyCode.ENTER && result != null) {
                             close()
+                        } else if (event.code == KeyCode.ESCAPE) {
+                            result = null
+                            close()
                         }
                     }
                 }
@@ -129,7 +132,7 @@ class ReferenceSelectorView : View("Reference") {
                 findInstancesOf(type, controller.root).filter { it != parent.getChild(key) })
             searching = false
         }
-        openModal(block = true)
+        openModal(block = true, escapeClosesWindow = false)
 
         val ref = result ?: return null
         val item = parent.item.findChild(key)
