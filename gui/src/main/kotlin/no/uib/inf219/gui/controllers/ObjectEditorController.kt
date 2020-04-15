@@ -75,7 +75,6 @@ class ObjectEditorController(
             )
             val cb = ClassBuilder.createClassBuilder(realRootType, realRootKey, this, rootPropMeta, TreeItem())
                 ?: error("failed to create a root class builder")
-            item.children.setAll(cb.item)
 
             this@RootDelegator.serObject = cb
             return cb
@@ -154,7 +153,7 @@ class ObjectEditorController(
             return when (key) {
                 realRootKey -> serObject.property
                 fakeRootKey -> null
-                else -> error("Key supplied ($key) not real root key ($realRootKey) or fake root key $fakeRootKey")
+                else -> error("Key supplied '${key.getPreviewValue()}' not real root key '${realRootKey.getPreviewValue()}' or fake root key '${fakeRootKey.getPreviewValue()}'")
             }
         }
 

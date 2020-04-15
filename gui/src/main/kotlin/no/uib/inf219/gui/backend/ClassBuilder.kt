@@ -360,16 +360,16 @@ interface ClassBuilder {
                 ComplexClassBuilder(type, key = key, parent = parent, property = prop, item = item)
             }) ?: return null
 
-            item.value = FilledClassBuilderNode(key, cb, parent)
+            require(cb.item == item)
+
+            item.value = FilledClassBuilderNode(key, cb, parent, item)
+            
+
             if (cb is ParentClassBuilder) {
-                val childItems = cb.getSubClassBuilders().map { (key, childCb) ->
+                item.children.setAll(cb.getSubClassBuilders().map { (key, childCb) ->
                     //use the existing node or create an empty node if the child is null
-                    childCb?.node ?: EmptyClassBuilderNode(
-                        key,
-                        cb
-                    )
-                }.map { it.item }
-                item.children.setAll(childItems)
+                    childCb?.node ?: EmptyClassBuilderNode(key, cb)
+                }.map { it.item })
             }
             return cb
         }

@@ -5,6 +5,7 @@ package no.uib.inf219.gui.backend
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.databind.JavaType
 import javafx.scene.control.ContextMenu
+import javafx.scene.control.SeparatorMenuItem
 import javafx.scene.control.TreeItem
 import no.uib.inf219.extra.findChild
 import no.uib.inf219.gui.controllers.ObjectEditorController
@@ -12,10 +13,9 @@ import no.uib.inf219.gui.controllers.classBuilderNode.ClassBuilderNode
 import no.uib.inf219.gui.loader.ClassInformation
 import tornadofx.action
 import tornadofx.item
-import tornadofx.separator
 
 /**
- * TODO move all the overwritten methods here from ClassBuilder
+ * TODO move all meta information about children to Class Builder Node
  *
  * @author Elg
  */
@@ -69,7 +69,7 @@ abstract class ParentClassBuilder : ClassBuilder {
      * Reset the given property for the [key] provided. If it has a default value this value will be restored otherwise it will be removed.
      *
      * @param key Specify which child class builder to reset
-     * @param element The instance of the child to reset. Must be identical to the class builder found with [key] or be `null`
+     * @param element The instance of the child to reset. Must be identical to the class builder found with [key] or be `null`. Essentially used as a check that the correct element is being reset.
      * @param restoreDefault If the default value (if none default is `null`) should be restored. If `false` the child found at [key] will be `null` after this method
      *
      * @return if the node was completely removed
@@ -89,6 +89,7 @@ abstract class ParentClassBuilder : ClassBuilder {
         checkChildValidity(key, child)
 
         resetChild(key, restoreDefault = false)
+
         createChildClassBuilder(key, child)
     }
 
@@ -98,6 +99,8 @@ abstract class ParentClassBuilder : ClassBuilder {
     abstract fun getChildType(key: ClassBuilder): JavaType?
 
     /**
+     * TODO make sure this can not return null
+     *
      * @return The metadata of the child found at [key]
      *
      * @see ComplexClassBuilder.getChildPropertyMetadata

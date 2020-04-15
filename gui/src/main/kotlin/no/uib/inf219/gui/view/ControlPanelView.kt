@@ -114,7 +114,7 @@ object ControlPanelView : View("Control Panel") {
                 mapper.registerModule(module)
             }
         }
-        
+
         checkEnabled(MrBeanModule(), mrBeanModuleEnabledProp)
         checkEnabled(AfterburnerModule(), afterburnerModuleEnabledProp)
     }
@@ -350,7 +350,7 @@ object ControlPanelView : View("Control Panel") {
         val editorBackgroundView: ObjectEditorBackgroundView
         try {
             editorBackgroundView =
-                find(ObjectEditorBackgroundView::class, Scope(), "controller" to ObjectEditorController(type, null))
+                find(ObjectEditorBackgroundView::class, Scope(), "controller" to ObjectEditorController(type))
         } catch (e: Throwable) {
             OutputArea.logln { "Failed to open tab due to an error $e" }
             e.printStackTrace()

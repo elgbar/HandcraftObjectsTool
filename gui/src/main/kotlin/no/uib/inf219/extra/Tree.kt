@@ -39,11 +39,12 @@ val <T> TreeView<T>.selectedItem: TreeItem<T>?
 
 fun <T> TreeView<T>.reselect() {
     with(selectionModel) {
-        val oldSel = selectedIndex
+        val oldSel = selectedItem
         clearSelection()
         select(oldSel)
     }
 }
+
 
 /**
  * Refreshes and call select event again
