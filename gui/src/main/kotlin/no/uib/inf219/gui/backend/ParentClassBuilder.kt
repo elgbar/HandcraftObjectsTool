@@ -158,9 +158,7 @@ abstract class ParentClassBuilder : ClassBuilder {
 
         with(menu) {
 
-            if (childCBN.cb?.createContextMenu(menu, controller) == true) {
-                separator()
-            }
+            var prevSize = items.size
 
             //Display reset action if it does have a reset element
             if (childMeta?.hasValidDefaultInstance() == true) {
@@ -174,6 +172,18 @@ abstract class ParentClassBuilder : ClassBuilder {
                 item("Delete").action {
                     childCBN.resetClassBuilder(controller.tree, false)
                 }
+            }
+
+            if (items.size != prevSize) {
+                //if we've added any new items add a separator
+                items.add(prevSize, SeparatorMenuItem())
+            }
+
+            prevSize = items.size
+
+            if (childCBN.cb?.createContextMenu(menu, controller) == true) {
+                //add a separator before the child nodes elements
+                items.add(prevSize, SeparatorMenuItem())
             }
         }
     }

@@ -21,67 +21,74 @@ class NodeExplorerView(private val controller: ObjectEditorController) : View("T
         root.isExpanded = true
 
         setOnMouseClicked { event ->
-            //note that "isPrimaryButtonDown" and "isSecondaryButtonDown" is not used as it does not work
+            //note that "isPrimaryButtonDown" and "isSecondaryButtonDown" does not work
             if (event.clickCount == 2 && event.button == MouseButton.PRIMARY) {
                 val cbn = controller.createSelected()
-                if (cbn != null) {
-                    this.contextMenu = null
-                    contextmenu {
-                        if (cbn.item !== root) {
-
-                            cbn.parent.createChildContextItems(cbn.key, this, controller)
-
-                            item("Make reference to...").action {
-
-                                val (key, cb, parent) = cbn
-
-                                val type = parent.getChildType(key)
-                                if (type == null) {
-                                    information("Failed to find a the type of the child $key for $parent")
-                                    return@action
-                                }
-
-                                if (cb != null && showOverwriteWithRefWarning != false) {
-                                    warning(
-                                        "Do you want to overwrite it with a reference to another object?",
-                                        "This property is already defined: $cb",
-                                        owner = currentWindow,
-                                        buttons = *arrayOf(ButtonType.OK, OK_DISABLE_WARNING, ButtonType.CANCEL),
-                                        actionFn = { button ->
-                                            //hitting esc/closing window also counts as cancel
-                                            if (button == ButtonType.CANCEL) {
-                                                return@action
-                                            } else if (button == OK_DISABLE_WARNING) {
-                                                showOverwriteWithRefWarning = false
-                                            }
-                                        }
-                                    )
-                                }
-
-                                val selector: ReferenceSelectorView = find("controller" to controller)
-                                val ref = selector.createReference(type, key, parent)
-
-                                if (ref == null) {
-                                    warning(
-                                        "No reference returned",
-                                        "No reference was returned from the search. This could be because you canceled the search (pressed escape) or because the chosen class builder was invalid."
-                                    )
-                                    return@action
-                                }
-
-                                parent[key] = ref
-                                reload()
-                            }
-                        }
-                    }
-                }
             }
             selectedValue?.cb?.onNodeClick(event, controller)
         }
 
-        cellFormat {
-            text = it.key.getPreviewValue()
-            tooltip("Class: ${it.cb?.type ?: it.parent.getChildType(it.key)}")
+        cellFormat { cbn ->
+            text = cbn.key.getPreviewValue()
+            tooltip("Class: ${cbn.cb?.type ?: cbn.parent.getChildType(cbn.key)}")
+            this.contextMenu = null
+            contextmenu {
+                if (cbn.item !== root) {
+
+                    val refItem = item("Make reference to...").apply {
+                        action {
+
+                            val (key, cb, parent) = cbn
+
+                            val type = parent.getChildType(key)
+                            if (type == null) {
+                                information("Failed to find a the type of the child $key for $parent")
+                                return@action
+                            }
+
+                            if (cb != null && showOverwriteWithRefWarning != false) {
+                                warning(
+                                    "Do you want to overwrite it with a reference to another object?",
+                                    "This property is already defined: $cb",
+                                    owner = currentWindow,
+                                    buttons = *arrayOf(ButtonType.OK, OK_DISABLE_WARNING, ButtonType.CANCEL),
+                                    actionFn = { button ->
+                                        //hitting esc/closing window also counts as cancel
+                                        if (button == ButtonType.CANCEL) {
+                                            return@action
+                                        } else if (button == OK_DISABLE_WARNING) {
+                                            showOverwriteWithRefWarning = false
+                                        }
+                                    }
+                                )
+                            }
+
+                            val selector: ReferenceSelectorView = find("controller" to controller)
+                            val ref = selector.createReference(type, key, parent)
+
+                            if (ref == null) {
+                                warning(
+                                    "No reference returned",
+                                    "No reference was returned from the search. This could be because you canceled the search (pressed escape) or because the chosen class builder was invalid."
+                                )
+                                return@action
+                            }
+
+                            parent[key] = ref
+                            reload()
+                        }
+                    }
+
+                    setOnHiding {
+                        this.items.setAll(refItem)
+                    }
+
+                    setOnShowing {
+                        cbn.parent.createChildContextItems(cbn.key, this, controller)
+                    }
+
+                }
+            }
         }
 
 
