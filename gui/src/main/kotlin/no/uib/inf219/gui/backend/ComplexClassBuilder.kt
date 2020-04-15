@@ -110,9 +110,6 @@ class ComplexClassBuilder(
 
         val newProp = if (restoreDefault && meta.hasValidDefaultInstance()) {
             val prop: ClassInformation.PropertyMetadata = propInfo[propName] ?: kotlin.error("Given prop name is wrong")
-            //must be set to null to trigger the change event!
-            // stupid javafx
-            serObject[propName] = null //use non observable map to to trigger on change event
             createChild(key, null, prop, item)
         } else {
             item.value = EmptyClassBuilderNode(
