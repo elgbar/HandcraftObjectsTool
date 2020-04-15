@@ -7,15 +7,14 @@ import javafx.collections.ObservableList
 import javafx.collections.transformation.FilteredList
 import javafx.geometry.Pos
 import javafx.scene.Node
-import javafx.scene.control.TreeItem
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
+import no.uib.inf219.extra.findChild
 import no.uib.inf219.gui.Styles
 import no.uib.inf219.gui.backend.ClassBuilder
 import no.uib.inf219.gui.backend.ParentClassBuilder
 import no.uib.inf219.gui.backend.ReferenceClassBuilder
 import no.uib.inf219.gui.controllers.ObjectEditorController
-import no.uib.inf219.gui.controllers.classBuilderNode.ClassBuilderNode
 import no.uib.inf219.gui.controllers.classBuilderNode.FilledClassBuilderNode
 import no.uib.inf219.gui.ems
 import tornadofx.*
@@ -131,13 +130,10 @@ class ReferenceSelectorView : View("Reference") {
         openModal(block = true)
 
         val ref = result ?: return null
-        val item = TreeItem<ClassBuilderNode>()
-        return ReferenceClassBuilder(ref.key, ref.parent, key, parent, item).apply {
-            item.value = FilledClassBuilderNode(
-                key,
-                this,
-                parent
-            )
+        val item = parent.item.findChild(key)
+
+        return ReferenceClassBuilder(ref.key, ref.parent, key, parent, item).also {
+            item.value = FilledClassBuilderNode(key, it, parent, item = item)
         }
     }
 
