@@ -146,6 +146,20 @@ abstract class ParentClassBuilder : ClassBuilder {
     }
 
     /**
+     * Some checks to make sure the given item, when updating internal structure, is correct
+     */
+    protected fun checkItemValidity(
+        cb: ClassBuilder,
+        expectedItem: TreeItem<ClassBuilderNode>,
+        checkCB: Boolean = true
+    ) {
+        require(cb.item === expectedItem) { "Given item does not match init's item, expected $item init's item ${cb.item}" }
+        require(!checkCB || expectedItem.value.cb === cb) { "Item's cbn class builder does is not identical to given cb | item cbn cb: ${expectedItem.value.cb} | given cb $cb" }
+        require(expectedItem.value.key == cb.key) { "Item's cbn  key does is not equal to given cb key | item cbn cb: ${expectedItem.value.key} | given cb ${cb.key}" }
+        require(expectedItem.value.parent === cb.parent) { "Item's cbn parent does is not identical to given cb's parent | item cbn cb: ${expectedItem.value.parent} | given cb ${cb.parent}" }
+    }
+
+    /**
      * Create the context menu items that are displayed when right clicking a child node
      */
     fun createChildContextItems(
