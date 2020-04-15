@@ -30,9 +30,9 @@ class ReferenceClassBuilder(
     override val item: TreeItem<ClassBuilderNode>
 ) : ClassBuilder {
 
-    override var serObject: ClassBuilder = refParent.getChild(refKey)
-        ?: error("Failed to find a serObject with the given reference parent and ref key. Cannot make a reference to a null class builder")
-        private set
+    override val serObject: ClassBuilder
+        get() = refParent.getChild(refKey)
+            ?: error("Failed to find a serObject with the given reference parent and ref key. Cannot make a reference to a null class builder")
 
     override val property: ClassInformation.PropertyMetadata? = parent.getChildPropertyMetadata(key)
     override val type: JavaType = serObject.type
@@ -42,7 +42,7 @@ class ReferenceClassBuilder(
         //TODO test if reference get reconnected if the referencing object is reset
         // test: If ref is nulled out this should also be nulled out
 
-        require(serObject !== this) {
+        require(refKey != key || refParent !== parent) {
             "Direct cycle detected, the object we're serializing is this!"
         }
 
@@ -54,18 +54,12 @@ class ReferenceClassBuilder(
 //            //run this later, the parent need to have time to assign this as a child to it self
 //            require(parent.getChild(key) === this) { "Parent with given key does not give this class builder" }
 
-
-        //TODO what if we reference root (ie null)?
         refParent.serObjectObservable.onChange {
-            val newRef = refParent.getChild(refKey)
-            if (newRef !== serObject) {
-                if (newRef == null) {
-                    //it was completely removed, this should be removed from out parent
-                    // but should this be restored or nulled out? The safest is probably to restore it
-                    parent.resetChild(key, restoreDefault = true)
-                } else {
-                    serObject = newRef
-                }
+            if (refParent.getChild(refKey) == null) {
+                //it was completely removed, this should be removed from the parent
+                refParent.serObjectObservable.removeListener(this)
+                parent.resetChild(key, this@ReferenceClassBuilder, restoreDefault = true)
+                println("removed parent")
             }
         }
     }
@@ -108,6 +102,6 @@ class ReferenceClassBuilder(
     }
 
     override fun toString(): String {
-        return "Ref CB; ref=$serObject)"
+        return "Ref CB; ref child $refKey of $refParent)"
     }
 }
