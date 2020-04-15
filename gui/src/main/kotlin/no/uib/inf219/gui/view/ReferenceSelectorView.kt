@@ -121,8 +121,10 @@ class ReferenceSelectorView : View("Reference") {
         key: ClassBuilder,
         parent: ParentClassBuilder
     ): ReferenceClassBuilder? {
+        result = null
+        searching = true
+        searchResult.clear()
         tornadofx.runAsync {
-            searching = true
             searchResult.setAll(
                 findInstancesOf(type, controller.root).filter { it != parent.getChild(key) })
             searching = false
