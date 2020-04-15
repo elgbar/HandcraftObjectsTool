@@ -105,13 +105,12 @@ class ObjectEditorController(
         val realRootKey = (realRootType.rawClass?.simpleName ?: realRootType.typeName).toCb()
 
         /** Note that the item is not pointing at this class builder, but directly at the real root */
-        override val item: TreeItem<ClassBuilderNode> =
-            FilledClassBuilderNode(
-                fakeRootKey,
-                this,
-                this,
-                TreeItem()
-            ).also { it.item.value = it }.item
+        override val item: TreeItem<ClassBuilderNode> by lazy {
+            val item = TreeItem<ClassBuilderNode>()
+            val cbn = FilledClassBuilderNode(fakeRootKey, this, this, item)
+            item.value = cbn
+            return@lazy item
+        }
 
         override val type = Any::class.type()
         override val parent = this
@@ -142,7 +141,7 @@ class ObjectEditorController(
         }
 
         override fun isImmutable() = true
-        override fun getPreviewValue() = "null"
+        override fun getPreviewValue() = "fake root"
         override fun getChildType(key: ClassBuilder): JavaType? {
             return when (key) {
                 realRootKey -> serObject.type

@@ -15,11 +15,6 @@ data class FilledClassBuilderNode(
     override val item: TreeItem<ClassBuilderNode> = cb.item
 ) : ClassBuilderNode {
 
-    init {
-        @Suppress("SENSELESS_COMPARISON")
-        require(cb.item == null || cb.item === item)
-    }
-
     override fun ensurePresentClassBuilder(tree: TreeView<ClassBuilderNode>): FilledClassBuilderNode {
         return this
     }
