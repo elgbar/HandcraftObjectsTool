@@ -1,6 +1,5 @@
-package no.uib.inf219.gui.view
+package no.uib.inf219.gui.view.select
 
-import com.fasterxml.jackson.databind.JavaType
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.StringProperty
 import javafx.collections.ObservableList
@@ -9,35 +8,39 @@ import javafx.geometry.Pos
 import javafx.scene.Node
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
-import no.uib.inf219.extra.findChild
+import javafx.scene.layout.VBox
+import no.uib.inf219.extra.onChange
 import no.uib.inf219.gui.Styles
-import no.uib.inf219.gui.backend.ClassBuilder
-import no.uib.inf219.gui.backend.ParentClassBuilder
-import no.uib.inf219.gui.backend.ReferenceClassBuilder
 import no.uib.inf219.gui.controllers.ObjectEditorController
-import no.uib.inf219.gui.controllers.classBuilderNode.FilledClassBuilderNode
 import no.uib.inf219.gui.ems
 import tornadofx.*
 
 /**
  * @author Elg
  */
-class ReferenceSelectorView : View("Reference") {
+abstract class SelectorView<T>(title: String) : View(title) {
 
-    private val searchResult: ObservableList<ClassBuilder> = ArrayList<ClassBuilder>().asObservable()
-    private val filteredData = FilteredList(searchResult)
+    protected val searchResult: ObservableList<T> = ArrayList<T>().asObservable()
+    protected val filteredData = FilteredList(searchResult)
 
-    private var result: ClassBuilder? = null
+    /**
+     * The [T] selected by the use when closing the dialog
+     */
+    protected var result: T? = null
 
     val controller: ObjectEditorController by param()
 
-    private val searchingProperty = SimpleBooleanProperty()
-    private var searching by searchingProperty
-    private val label: Node
-    private lateinit var textLabelProperty: StringProperty
-    private val resultList: Node
+    protected val searchingProperty = SimpleBooleanProperty()
+    protected var searching by searchingProperty
+    protected val label: Node
+    protected lateinit var textLabelProperty: StringProperty
+    protected val resultList: VBox
 
-    override val root = borderpane()
+    final override val root = borderpane()
+
+    abstract fun cellText(elem: T): String
+    abstract val promptText: String
+    abstract fun confirmAndClose()
 
     init {
         with(root) {
@@ -65,14 +68,14 @@ class ReferenceSelectorView : View("Reference") {
                 addClass(Styles.parent)
 
                 textfield {
-                    promptText = "Class builder name"
+                    promptText = this@SelectorView.promptText
                     textLabelProperty = textProperty()
                     textProperty().onChange {
                         if (text.isNullOrBlank()) {
                             filteredData.predicate = null
                         } else {
                             filteredData.setPredicate {
-                                it.getPreviewValue().contains(text, ignoreCase = true)
+                                cellText(it).contains(text, ignoreCase = true)
                             }
                         }
                     }
@@ -87,16 +90,16 @@ class ReferenceSelectorView : View("Reference") {
                     //close when pressing enter and something is selected or double clicking
                     onUserSelect(2) {
                         result = it
-                        close()
+                        confirmAndClose()
                     }
 
                     cellFormat() {
-                        text = it.getPreviewValue()
+                        text = cellText(it)
                     }
 
                     addEventHandler(KeyEvent.ANY) { event ->
                         if (event.code == KeyCode.ENTER && result != null) {
-                            close()
+                            confirmAndClose()
                         } else if (event.code == KeyCode.ESCAPE) {
                             result = null
                             close()
@@ -109,59 +112,14 @@ class ReferenceSelectorView : View("Reference") {
                 runLater {
                     if (searching) {
                         center.replaceWith(label, sizeToScene = true, centerOnScreen = true)
+                        this@SelectorView.title = "Searching..."
                     } else {
                         center.replaceWith(resultList, sizeToScene = true, centerOnScreen = true)
+                        this@SelectorView.title = promptText
                     }
                 }
             }
             center = label
-        }
-    }
-
-
-    fun createReference(
-        type: JavaType,
-        key: ClassBuilder,
-        parent: ParentClassBuilder
-    ): ReferenceClassBuilder? {
-        result = null
-        searching = true
-        searchResult.clear()
-        tornadofx.runAsync {
-            searchResult.setAll(
-                findInstancesOf(type, controller.root).filter { it != parent.getChild(key) })
-            searching = false
-        }
-        openModal(block = true, escapeClosesWindow = false)
-
-        val ref = result ?: return null
-        val item = parent.item.findChild(key)
-
-        return ReferenceClassBuilder(ref.key, ref.parent, key, parent, item).also {
-            item.value = FilledClassBuilderNode(key, it, parent, item = item)
-        }
-    }
-
-    companion object {
-
-        internal fun findInstancesOf(
-            type: JavaType,
-            cb: ClassBuilder
-        ): Set<ClassBuilder> {
-
-            //the set to hold all children of this class builder. Use set to prevent duplicates
-            val allChildren = HashSet<ClassBuilder>()
-            allChildren.add(cb) //remember to also add the parent
-            if (cb is ParentClassBuilder) {
-                for (child in cb.getChildren()) {
-                    allChildren.addAll(findInstancesOf(type, child))
-                }
-            }
-
-            //find all children that is the correct type
-            // and isn't a ReferenceClassBuilder to prevent cycles
-            return allChildren.filter { it.type.isTypeOrSubTypeOf(type.rawClass) && it !is ReferenceClassBuilder }
-                .toSet()
         }
     }
 }

@@ -22,6 +22,7 @@ import no.uib.inf219.gui.ems
 import no.uib.inf219.gui.loader.ClassInformation
 import no.uib.inf219.gui.loader.DynamicClassLoader
 import no.uib.inf219.gui.loader.ObjectMapperLoader
+import no.uib.inf219.gui.view.select.ClassSelectorView
 import tornadofx.*
 import java.io.File
 import java.io.FileFilter

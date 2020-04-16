@@ -23,9 +23,9 @@ import no.uib.inf219.gui.controllers.classBuilderNode.EmptyClassBuilderNode
 import no.uib.inf219.gui.controllers.classBuilderNode.FilledClassBuilderNode
 import no.uib.inf219.gui.loader.ClassInformation
 import no.uib.inf219.gui.loader.ClassInformation.PropertyMetadata
-import no.uib.inf219.gui.view.ClassSelectorView
 import no.uib.inf219.gui.view.ControlPanelView
 import no.uib.inf219.gui.view.ControlPanelView.mrBeanModuleEnabled
+import no.uib.inf219.gui.view.select.ClassSelectorView
 import tornadofx.find
 import tornadofx.information
 import tornadofx.warning
