@@ -1,6 +1,5 @@
 package no.uib.inf219.extra
 
-import com.sun.deploy.uitoolkit.impl.fx.HostServicesFactory
 import javafx.beans.property.StringProperty
 import javafx.event.EventTarget
 import javafx.geometry.Pos
@@ -9,6 +8,8 @@ import javafx.scene.layout.VBox
 import javafx.scene.text.TextAlignment
 import no.uib.inf219.gui.backend.ClassBuilder
 import tornadofx.*
+import java.awt.Desktop
+import java.net.URI
 
 /**
  * Create a text object that is dependent on the given class builder.
@@ -52,5 +53,6 @@ fun EventTarget.internetHyperlink(text: String, url: String = text, op: Hyperlin
 }
 
 fun openWebPage(url: String) {
-    HostServicesFactory.getInstance(FX.application).showDocument(url)
+    Desktop.getDesktop().browse(URI(url));
+//    HostServicesFactory.getInstance(FX.application).showDocument(url)
 }
