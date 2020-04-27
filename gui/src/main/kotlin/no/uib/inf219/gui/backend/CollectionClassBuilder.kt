@@ -10,6 +10,7 @@ import javafx.scene.input.MouseButton
 import javafx.scene.input.MouseEvent
 import javafx.scene.layout.Region
 import no.uib.inf219.extra.centeredText
+import no.uib.inf219.extra.findChild
 import no.uib.inf219.extra.reload
 import no.uib.inf219.extra.toCb
 import no.uib.inf219.gui.backend.serializers.ParentClassBuilderSerializer
@@ -99,10 +100,13 @@ class CollectionClassBuilder(
         require(init == null || init.type == getChildType(key)) {
             "Given initial value have different type than expected. expected ${getChildType(key)} got ${init?.type}"
         }
-        if (init != null) {
-            checkChildValidity(key, init)
-        }
-        val elem = init ?: getClassBuilder(type.contentType, key, item = item) ?: return null
+
+        val elem = init ?: getClassBuilder(type.contentType, key, prop = getChildPropertyMetadata(key), item = item)
+        ?: return null
+
+        checkChildValidity(key, elem)
+        checkItemValidity(elem, item)
+
         serObject.add(index, elem)
         this.item.children.add(index, elem.item)
         return elem
@@ -125,6 +129,8 @@ class CollectionClassBuilder(
             createChildClassBuilder(key, child)
         }
         checkChildValidity(key, child)
+        checkItemValidity(child, item.findChild(key))
+
         serObject[index] = child
         item.children[index] = child.item
     }
