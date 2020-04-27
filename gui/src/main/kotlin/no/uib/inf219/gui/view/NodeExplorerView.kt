@@ -76,6 +76,8 @@ class NodeExplorerView(private val controller: ObjectEditorController) : View("T
                             }
 
                             parent[key] = ref
+                            
+                            cbn.item.children.clear()
                             reload()
                         }
                     }
