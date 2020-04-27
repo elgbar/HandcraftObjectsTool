@@ -2,13 +2,13 @@ package no.uib.inf219.gui.view.select
 
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.StringProperty
-import javafx.collections.ObservableList
-import javafx.collections.transformation.FilteredList
 import javafx.geometry.Pos
 import javafx.scene.Node
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
 import javafx.scene.layout.VBox
+import me.xdrop.fuzzywuzzy.FuzzySearch
+import me.xdrop.fuzzywuzzy.model.BoundExtractedResult
 import no.uib.inf219.extra.onChange
 import no.uib.inf219.gui.Styles
 import no.uib.inf219.gui.controllers.ObjectEditorController
@@ -20,8 +20,8 @@ import tornadofx.*
  */
 abstract class SelectorView<T>(title: String) : View(title) {
 
-    protected val searchResult: ObservableList<T> = ArrayList<T>().asObservable()
-    protected val filteredData = FilteredList(searchResult)
+    protected val searchResult = ArrayList<T>().asObservable()
+    private val filteredData = SortedFilteredList(searchResult)
 
     /**
      * The [T] selected by the use when closing the dialog
@@ -70,13 +70,29 @@ abstract class SelectorView<T>(title: String) : View(title) {
                 textfield {
                     promptText = this@SelectorView.promptText
                     textLabelProperty = textProperty()
+
                     textProperty().onChange {
-                        if (text.isNullOrBlank()) {
-                            filteredData.predicate = null
-                        } else {
-                            filteredData.setPredicate {
-                                cellText(it).contains(text, ignoreCase = true)
+                        if (text.length >= 3) {
+
+                            val sorted: List<BoundExtractedResult<T>> = FuzzySearch.extractAll(
+                                textLabelProperty.value,
+                                filteredData,
+                                { cellText(it) },
+                                60
+                            )
+                            val map: Map<T, BoundExtractedResult<T>> = sorted.map { it.referent to it }.toMap()
+
+                            filteredData.predicate = {
+                                map.containsKey(it)
                             }
+
+                            filteredData.sortedItems.setComparator { a, b ->
+                                val aScore = map[a]?.score ?: -1
+                                val bScore = map[b]?.score ?: -1
+                                return@setComparator bScore - aScore
+                            }
+                        } else {
+                            filteredData.predicate = { _ -> true }
                         }
                     }
                 }

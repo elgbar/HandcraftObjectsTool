@@ -170,6 +170,11 @@ class BackgroundView : View("Handcrafted Objects Tool") {
                                             "TornadoFX-ControlsFX" to "https://github.com/edvin/tornadofx-controlsfx",
                                             "Apache License 2.0" to "https://github.com/edvin/tornadofx-controlsfx/blob/master/LICENSE"
                                         )
+                                        hyperWeblinkLabel(
+                                            "[JavaWuzzy], licenced under [GNU General Public License v2.0]",
+                                            "JavaWuzzy" to "https://github.com/xdrop/fuzzywuzzy",
+                                            "GNU General Public License v2.0" to "https://github.com/xdrop/fuzzywuzzy/blob/master/LICENSE"
+                                        )
                                     }
                                 }
                             }
