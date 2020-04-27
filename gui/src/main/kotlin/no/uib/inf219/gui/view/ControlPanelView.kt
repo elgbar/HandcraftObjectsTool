@@ -8,16 +8,19 @@ import com.fasterxml.jackson.module.mrbean.MrBeanModule
 import javafx.beans.property.BooleanProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
+import javafx.scene.control.ButtonType
 import javafx.scene.control.Tab
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.Priority
 import javafx.stage.FileChooser
 import no.uib.inf219.api.serialization.SerializationManager
+import no.uib.inf219.extra.YES_DISABLE_WARNING
 import no.uib.inf219.extra.closeAll
 import no.uib.inf219.extra.type
 import no.uib.inf219.gui.Styles
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.controllers.Settings.lastFolderLoaded
+import no.uib.inf219.gui.controllers.Settings.showCloseAllTabsOnModuleChangeWarning
 import no.uib.inf219.gui.ems
 import no.uib.inf219.gui.loader.ClassInformation
 import no.uib.inf219.gui.loader.DynamicClassLoader
@@ -94,13 +97,45 @@ object ControlPanelView : View("Control Panel") {
     init {
         updateMapper()
 
-        fun reloadMapper() {
-            //this forces an call to #updateMapper()
-            mapper = orgMapper
+        fun warnAndUpdateMapper(prop: BooleanProperty) {
+
+            var ignoreNext = false
+
+            prop.addListener { _, oldValue, newValue ->
+                if (ignoreNext) {
+                    ignoreNext = false
+                    return@addListener
+                }
+
+                if (showCloseAllTabsOnModuleChangeWarning != false && FX.find<BackgroundView>().tabPane.tabs.size > 1) {
+                    warning(
+                        "Changing this setting will close all currently open tabs",
+                        "Are you sure you want to close all currently opened tabs?",
+                        ButtonType.YES, YES_DISABLE_WARNING, ButtonType.NO,
+                        owner = currentWindow
+                    ) { button ->
+                        when (button) {
+                            //return old value
+                            ButtonType.NO -> {
+                                ignoreNext = true
+                                runLater {
+                                    prop.set(oldValue)
+                                }
+                                return@addListener
+                            }
+                            YES_DISABLE_WARNING -> {
+                                showCloseAllTabsOnModuleChangeWarning = false
+                            }
+                        }
+                    }
+                }
+                //this forces an call to #updateMapper()
+                mapper = orgMapper
+            }
         }
 
-        mrBeanModuleEnabledProp.onChange { reloadMapper() }
-        afterburnerModuleEnabledProp.onChange { reloadMapper() }
+        warnAndUpdateMapper(mrBeanModuleEnabledProp)
+        warnAndUpdateMapper(afterburnerModuleEnabledProp)
     }
 
     private fun updateMapper() {
@@ -206,9 +241,9 @@ object ControlPanelView : View("Control Panel") {
                 setOnAction {
                     runAsync {
                         val className = classNameProperty.value
-                        val clazz: Class<*>
+                        val type: JavaType
                         try {
-                            clazz = DynamicClassLoader.loadClass(className)
+                            type = DynamicClassLoader.loadType(className)
                         } catch (e: Throwable) {
                             OutputArea.logln { "Failed to load class $className due to an error $e" }
                             ui {
@@ -223,8 +258,8 @@ object ControlPanelView : View("Control Panel") {
                         }
 
                         ui {
-                            OutputArea.logln("Found $clazz")
-                            createTab(clazz.type())
+                            OutputArea.logln("Found $type")
+                            createTab(type)
                         }
                     }
                 }

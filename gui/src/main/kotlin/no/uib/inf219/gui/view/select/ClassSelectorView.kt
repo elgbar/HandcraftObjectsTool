@@ -55,7 +55,7 @@ class ClassSelectorView : SelectorView<String>("Select implementation") {
 
         ControlPanelView.mrBeanModuleEnabledProp.onChange { useMrBean ->
             //reset the warning when mr bean is disabled
-            if (!useMrBean) showMrBeanWarning = true
+            if (useMrBean != true) showMrBeanWarning = true
         }
 
         with(root) {

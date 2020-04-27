@@ -36,7 +36,12 @@ object Settings {
     var showOverwriteWithRefWarning by Persistent(true)
 
     /**
-     *
+     * If a warning hinting that the mrbean module is not enabled
      */
     var showMrBeanWarning by Persistent(true)
+
+    /**
+     * If a warning should be displayed when changing what modules are active
+     */
+    var showCloseAllTabsOnModuleChangeWarning by Persistent(true)
 }
