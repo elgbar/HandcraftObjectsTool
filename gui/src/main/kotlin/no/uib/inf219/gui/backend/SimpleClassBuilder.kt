@@ -101,7 +101,7 @@ abstract class SimpleClassBuilder<T : Any> constructor(
                 kotlin.error("Dummy parent")
             }
 
-            override fun getChildType(cb: ClassBuilder): JavaType? {
+            override fun getChildType(key: ClassBuilder): JavaType? {
                 kotlin.error("Dummy parent")
             }
 

@@ -23,7 +23,7 @@ object ParentClassBuilderSerializer : AbstractClassBuilderSerializer<ClassBuilde
         val ser: JsonSerializer<Any> = provider.findValueSerializer(cb.serObject::class.type())
             ?: error("Failed to find serializer for ${cb.serObject}")
 
-        if (cb.serObject == cb) {
+        if (cb.serObject === cb) {
             error("Endless cycle detected. class builder is referencing it self")
         }
 

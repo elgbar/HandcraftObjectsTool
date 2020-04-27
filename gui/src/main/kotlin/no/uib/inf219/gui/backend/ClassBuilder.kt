@@ -39,8 +39,6 @@ import kotlin.reflect.full.isSuperclassOf
  *
  * This is a a way to create classes by holding all included attributes as keys and their values as value in an internal map.
  *
- * TODO extract methods that should only be available for class builder that has children (ie NOT simple cb)
- *
  * @author Elg
  */
 @JsonIdentityInfo(generator = ObjectIdGenerators.UUIDGenerator::class)
@@ -363,7 +361,7 @@ interface ClassBuilder {
             require(cb.item == item)
 
             item.value = FilledClassBuilderNode(key, cb, parent, item)
-            
+
 
             if (cb is ParentClassBuilder) {
                 item.children.setAll(cb.getSubClassBuilders().map { (key, childCb) ->

@@ -177,7 +177,7 @@ class BackgroundView : View("Handcrafted Objects Tool") {
                             block = true,
                             owner = currentWindow,
                             resizable = false,
-                            stageStyle = StageStyle.UNIFIED
+                            stageStyle = StageStyle.UNDECORATED
                         )
                     }
                 }
