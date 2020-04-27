@@ -6,6 +6,8 @@ import no.uib.inf219.gui.backend.ClassBuilder
 import no.uib.inf219.gui.backend.ParentClassBuilder
 import no.uib.inf219.gui.backend.ReferenceClassBuilder
 import no.uib.inf219.gui.controllers.classBuilderNode.FilledClassBuilderNode
+import java.util.*
+import kotlin.collections.HashSet
 
 /**
  * @author Elg
@@ -13,7 +15,28 @@ import no.uib.inf219.gui.controllers.classBuilderNode.FilledClassBuilderNode
 class ReferenceSelectorView : SelectorView<ClassBuilder>("Reference") {
 
     override val promptText = "Class builder name"
-    override fun cellText(elem: ClassBuilder) = elem.getPreviewValue()
+
+
+    override fun cellText(elem: ClassBuilder): String {
+        val list = LinkedList<ClassBuilder>()
+        list.add(elem)
+
+        while (true) {
+            val curr = list[0]
+            val parent = curr.parent
+            if (curr === parent) {
+                break
+            }
+
+            list.add(0, parent)
+        }
+        list.removeAt(0)
+        
+        val path = list.joinToString(separator = " | ") { it.key.getPreviewValue() }
+
+        return "${elem.getPreviewValue()} [$path]"
+    }
+
     override fun confirmAndClose() {
         close()
     }
