@@ -74,25 +74,31 @@ abstract class SelectorView<T>(title: String) : View(title) {
                     textProperty().onChange {
                         if (text.length >= 3) {
 
-                            val sorted: List<BoundExtractedResult<T>> = FuzzySearch.extractAll(
-                                textLabelProperty.value,
-                                filteredData,
-                                { cellText(it) },
-                                60
-                            )
-                            val map: Map<T, BoundExtractedResult<T>> = sorted.map { it.referent to it }.toMap()
+                            runAsync {
+                                val sorted: List<BoundExtractedResult<T>> = FuzzySearch.extractAll(
+                                    textLabelProperty.value,
+                                    filteredData,
+                                    { cellText(it) },
+                                    60
+                                )
+                                val map: Map<T, BoundExtractedResult<T>> = sorted.map { it.referent to it }.toMap()
 
-                            filteredData.predicate = {
-                                map.containsKey(it)
-                            }
+                                runLater {
+                                    filteredData.predicate = {
+                                        map.containsKey(it)
+                                    }
 
-                            filteredData.sortedItems.setComparator { a, b ->
-                                val aScore = map[a]?.score ?: -1
-                                val bScore = map[b]?.score ?: -1
-                                return@setComparator bScore - aScore
+                                    filteredData.sortedItems.setComparator { a, b ->
+                                        val aScore = map[a]?.score ?: -1
+                                        val bScore = map[b]?.score ?: -1
+                                        return@setComparator bScore - aScore
+                                    }
+                                }
                             }
                         } else {
-                            filteredData.predicate = { _ -> true }
+                            runLater {
+                                filteredData.predicate = { _ -> true }
+                            }
                         }
                     }
                 }

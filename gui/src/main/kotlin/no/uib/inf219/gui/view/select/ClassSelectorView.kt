@@ -52,10 +52,9 @@ class ClassSelectorView : SelectorView<String>("Select implementation") {
     private val resultType get() = DynamicClassLoader.loadType(result)
 
     init {
-
         ControlPanelView.mrBeanModuleEnabledProp.onChange { useMrBean ->
             //reset the warning when mr bean is disabled
-            if (useMrBean != true) showMrBeanWarning = true
+            if (!useMrBean) showMrBeanWarning = true
         }
 
         with(root) {
