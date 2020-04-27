@@ -59,13 +59,6 @@ class ClassSelectorView : SelectorView<String>("Select implementation") {
         }
 
         with(root) {
-
-//            contextmenu {
-//                checkmenuitem("Select implementation of selected") {
-//                    bind(finishedSearching)
-//                }
-//            }
-
             resultList.children.add(0, textflow().apply {
                 fun updateText(): String {
                     return "Choose subclass of $superClass (${searchResult.size} found)"
@@ -77,64 +70,6 @@ class ClassSelectorView : SelectorView<String>("Select implementation") {
                     searchResult.onChange { text = updateText() }
                 }
             })
-
-//            resultList = vbox {
-//
-//                addClass(Styles.parent)
-//
-//
-//
-//
-//                textfield {
-//                    promptText =
-//                        textLabelProperty = textProperty()
-//                    textProperty().onChange {
-//                        if (text.isNullOrBlank()) {
-//                            filteredData.predicate = null
-//                        } else {
-//                            filteredData.setPredicate {
-//                                it.contains(text, ignoreCase = true)
-//                            }
-//                        }
-//                    }
-//                }
-
-//            listview(filteredData) {
-//
-//
-//                onUserSelect {
-//                    result = it
-//                }
-//
-//                //close when pressing enter and something is selected or double clicking
-//                onUserSelect(2) {
-//                    confirmAbstractClose()
-//                }
-//
-//                addEventHandler(KeyEvent.ANY) { event ->
-//                    if (event.code == KeyCode.ESCAPE) {
-//                        result = null
-//                        close()
-//                    } else if (event.code == KeyCode.ENTER && result != null) {
-//                        confirmAbstractClose()
-//                    }
-//                }
-//
-//            }
-////            }
-//
-////            searchingProperty.onChange {
-////                runLater {
-////                    if (searching) {
-////                        center.replaceWith(label, sizeToScene = true, centerOnScreen = true)
-////                        this@ClassSelectorView.title = "Searching for subclasses of $superClass"
-////                    } else {
-////                        center.replaceWith(resultList, sizeToScene = true, centerOnScreen = true)
-////                        this@ClassSelectorView.title = "Select a subclass of $superClass"
-////                    }
-////                }
-////            }
-//            center = label
         }
     }
 

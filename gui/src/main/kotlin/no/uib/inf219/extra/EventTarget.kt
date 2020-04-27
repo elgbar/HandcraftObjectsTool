@@ -54,5 +54,4 @@ fun EventTarget.internetHyperlink(text: String, url: String = text, op: Hyperlin
 
 fun openWebPage(url: String) {
     Desktop.getDesktop().browse(URI(url));
-//    HostServicesFactory.getInstance(FX.application).showDocument(url)
 }
