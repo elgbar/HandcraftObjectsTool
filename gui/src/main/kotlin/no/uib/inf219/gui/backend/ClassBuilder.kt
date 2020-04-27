@@ -342,6 +342,9 @@ interface ClassBuilder {
                             }
                         }
                     )
+                } else {
+//                    displayWarning()
+//                    return null
                 }
 
                 val subtype = find<ClassSelectorView>().subtypeOf(type, true) ?: return null

@@ -16,6 +16,7 @@ import javafx.stage.FileChooser
 import no.uib.inf219.api.serialization.SerializationManager
 import no.uib.inf219.extra.YES_DISABLE_WARNING
 import no.uib.inf219.extra.closeAll
+import no.uib.inf219.extra.copyInputStreamToFile
 import no.uib.inf219.extra.type
 import no.uib.inf219.gui.Styles
 import no.uib.inf219.gui.controllers.ObjectEditorController
@@ -29,7 +30,6 @@ import no.uib.inf219.gui.view.select.ClassSelectorView
 import tornadofx.*
 import java.io.File
 import java.io.FileFilter
-import java.io.InputStream
 import java.lang.invoke.MethodHandles
 
 
@@ -424,11 +424,5 @@ object ControlPanelView : View("Control Panel") {
 
         val mapper = ObjectMapperLoader.findObjectMapper(file) ?: return
         knownObjectMappers.add(file.nameWithoutExtension to mapper)
-    }
-
-    private fun File.copyInputStreamToFile(inputStream: InputStream) {
-        this.outputStream().use { fileOut ->
-            inputStream.copyTo(fileOut)
-        }
     }
 }

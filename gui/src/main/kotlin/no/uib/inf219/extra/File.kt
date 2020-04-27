@@ -1,9 +1,6 @@
 package no.uib.inf219.extra
 
-import java.io.File
-import java.io.FileNotFoundException
-import java.io.ObjectInputStream
-import java.io.ObjectOutputStream
+import java.io.*
 
 /**
  * @author Elg
@@ -35,4 +32,10 @@ fun File.objectOutputStream(): ObjectOutputStream {
  */
 fun File.objectInputStream(): ObjectInputStream {
     return ObjectInputStream(inputStream())
+}
+
+fun File.copyInputStreamToFile(inputStream: InputStream) {
+    this.outputStream().use { fileOut ->
+        inputStream.copyTo(fileOut)
+    }
 }

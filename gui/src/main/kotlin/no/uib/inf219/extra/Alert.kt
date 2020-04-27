@@ -1,14 +1,19 @@
 package no.uib.inf219.extra
 
-import javafx.scene.control.ButtonBar
 import javafx.scene.control.ButtonType
 
 /**
  * @author Elg
  */
 
+val dontWarn = "do not warn me again"
+val enableModule = "enable this module\n" +
+        "Will close all current editors"
+
 /**
  * Let the user never see this warning again
  */
-val OK_DISABLE_WARNING = ButtonType("OK do not warn me again", ButtonBar.ButtonData.OK_DONE)
-val OK_ENABLE_MODULE = ButtonType("OK enable this module\nWill close all current editors", ButtonBar.ButtonData.OK_DONE)
+val OK_DISABLE_WARNING = ButtonType("OK $dontWarn")
+val YES_DISABLE_WARNING = ButtonType("Yes $dontWarn")
+
+val OK_ENABLE_MODULE = ButtonType("OK $enableModule")
