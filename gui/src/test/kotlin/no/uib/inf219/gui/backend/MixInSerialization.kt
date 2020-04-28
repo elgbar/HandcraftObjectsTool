@@ -5,7 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import javafx.scene.control.TreeItem
+import no.uib.inf219.extra.FAKE_ROOT
 import no.uib.inf219.extra.toCb
+import no.uib.inf219.extra.toObject
 import no.uib.inf219.extra.type
 import no.uib.inf219.gui.view.ControlPanelView.mapper
 import org.junit.jupiter.api.AfterEach
@@ -78,7 +80,7 @@ class MixInSerialization {
         val cb = ComplexClassBuilder(
             UnmodifiableClass::class.type(),
             key = "key".toCb(),
-            parent = SimpleClassBuilder.FAKE_ROOT,
+            parent = FAKE_ROOT,
             item = TreeItem()
         )
         assertEquals(UnmodifiableClassMixIn.KEY, cb.propInfo.keys.first())
@@ -111,7 +113,7 @@ class MixInSerialization {
         val cb = ComplexClassBuilder(
             UnmodifiableChildClass::class.type(),
             key = "key".toCb(),
-            parent = SimpleClassBuilder.FAKE_ROOT,
+            parent = FAKE_ROOT,
             item = TreeItem()
         )
 //        assertEquals(UnmodifiableClassMixIn.KEY, cb.propInfo.keys.first())

@@ -23,7 +23,6 @@ import no.uib.inf219.gui.controllers.classBuilderNode.EmptyClassBuilderNode
 import no.uib.inf219.gui.controllers.classBuilderNode.FilledClassBuilderNode
 import no.uib.inf219.gui.loader.ClassInformation
 import no.uib.inf219.gui.loader.ClassInformation.PropertyMetadata
-import no.uib.inf219.gui.view.ControlPanelView
 import no.uib.inf219.gui.view.ControlPanelView.mrBeanModuleEnabled
 import no.uib.inf219.gui.view.select.ClassSelectorView
 import tornadofx.find
@@ -84,14 +83,6 @@ interface ClassBuilder {
         get() = parent.item.findChild(key)
 
     val node: FilledClassBuilderNode get() = item.value as FilledClassBuilderNode
-
-    /**
-     * Convert this object to an instance of [type].
-     * The returned object must not change unless there are changes further down the class builder change
-     */
-    fun toObject(): Any? {
-        return ControlPanelView.mapper.convertValue(this, type)
-    }
 
     /**
      * If this is an end to the class builder tree. Usually this means that [getSubClassBuilders] is empty, but it is not guaranteed.

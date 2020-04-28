@@ -4,7 +4,9 @@ import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.annotation.JsonValue
 import javafx.scene.control.TreeItem
+import no.uib.inf219.extra.FAKE_ROOT
 import no.uib.inf219.extra.toCb
+import no.uib.inf219.extra.toObject
 import no.uib.inf219.extra.type
 import no.uib.inf219.gui.backend.simple.UUIDClassBuilder
 import no.uib.inf219.gui.loader.ClassInformation
@@ -61,13 +63,13 @@ class JsonValueSerialization {
         val cb = ComplexClassBuilder(
             JsonValueExample::class.type(),
             key = "key".toCb(),
-            parent = SimpleClassBuilder.FAKE_ROOT,
+            parent = FAKE_ROOT,
             item = TreeItem()
         ).apply {
             serObject[ClassInformation.VALUE_DELEGATOR_NAME] = UUIDClassBuilder(
                 uuid,
                 key = "key".toCb(),
-                parent = SimpleClassBuilder.FAKE_ROOT,
+                parent = FAKE_ROOT,
                 item = TreeItem()
             )
         }
@@ -93,7 +95,7 @@ class JsonValueSerialization {
         val cb = ComplexClassBuilder(
             JsonValueExample::class.type(),
             key = "key".toCb(),
-            parent = SimpleClassBuilder.FAKE_ROOT,
+            parent = FAKE_ROOT,
             item = TreeItem()
         ).apply {
             serObject[ClassInformation.VALUE_DELEGATOR_NAME] = null
@@ -122,13 +124,13 @@ class JsonValueSerialization {
         val cb = ComplexClassBuilder(
             TypedJsonValueExample::class.type(),
             key = "key".toCb(),
-            parent = SimpleClassBuilder.FAKE_ROOT,
+            parent = FAKE_ROOT,
             item = TreeItem()
         ).apply {
             serObject[ClassInformation.VALUE_DELEGATOR_NAME] = UUIDClassBuilder(
                 uuid,
                 key = "key".toCb(),
-                parent = SimpleClassBuilder.FAKE_ROOT,
+                parent = FAKE_ROOT,
                 item = TreeItem()
             )
         }

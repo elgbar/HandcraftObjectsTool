@@ -2,7 +2,9 @@ package no.uib.inf219.gui.backend
 
 import com.fasterxml.jackson.databind.type.CollectionLikeType
 import javafx.scene.control.TreeItem
+import no.uib.inf219.extra.FAKE_ROOT
 import no.uib.inf219.extra.toCb
+import no.uib.inf219.extra.toObject
 import no.uib.inf219.extra.type
 import no.uib.inf219.gui.controllers.classBuilderNode.FilledClassBuilderNode
 import no.uib.inf219.gui.view.ControlPanelView
@@ -27,7 +29,7 @@ internal class ReferenceClassBuilderTest {
         val cb = ClassBuilder.createClassBuilder(
             Conversation::class.type(),
             key = "key".toCb(),
-            parent = SimpleClassBuilder.FAKE_ROOT,
+            parent = FAKE_ROOT,
             item = TreeItem()
         ) as ComplexClassBuilder
         cb.serObject[Conversation::name.name] = "Root conv name".toCb(Conversation::name.name.toCb(), cb)
@@ -92,7 +94,7 @@ internal class ReferenceClassBuilderTest {
         val cb = ClassBuilder.createClassBuilder(
             Conversation::class.type(),
             key = "key".toCb(),
-            parent = SimpleClassBuilder.FAKE_ROOT,
+            parent = FAKE_ROOT,
             item = TreeItem()
         ) as ComplexClassBuilder
         //name have default value
@@ -129,7 +131,7 @@ internal class ReferenceClassBuilderTest {
         val cb = ClassBuilder.createClassBuilder(
             Conversation::class.type(),
             "key".toCb(),
-            SimpleClassBuilder.FAKE_ROOT
+            FAKE_ROOT
         ) as ComplexClassBuilder?
             ?: fail("Failed to create class builder for Conversation")
 

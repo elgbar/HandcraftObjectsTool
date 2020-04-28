@@ -1,7 +1,9 @@
 package no.uib.inf219.gui.backend
 
 import javafx.scene.control.TreeItem
+import no.uib.inf219.extra.FAKE_ROOT
 import no.uib.inf219.extra.toCb
+import no.uib.inf219.extra.toObject
 import no.uib.inf219.extra.type
 import no.uib.inf219.gui.view.ControlPanelView
 import no.uib.inf219.test.UselessRecursiveObject
@@ -54,7 +56,7 @@ class RecursiveClassBuilderTest {
         val cb = ComplexClassBuilder(
             UselessRecursiveObject::class.type(),
             key = "key".toCb(),
-            parent = SimpleClassBuilder.FAKE_ROOT,
+            parent = FAKE_ROOT,
             item = TreeItem()
         )
 

@@ -5,7 +5,6 @@ package no.uib.inf219.gui.backend
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.databind.JavaType
-import javafx.beans.Observable
 import javafx.beans.property.Property
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.StringProperty
@@ -16,6 +15,7 @@ import javafx.scene.control.TextFormatter
 import javafx.scene.control.TreeItem
 import javafx.util.StringConverter
 import javafx.util.converter.*
+import no.uib.inf219.extra.FAKE_ROOT
 import no.uib.inf219.extra.removeNl
 import no.uib.inf219.extra.type
 import no.uib.inf219.gui.controllers.ObjectEditorController
@@ -78,61 +78,6 @@ abstract class SimpleClassBuilder<T : Any> constructor(
             }
             @Suppress("UNCHECKED_CAST")
             return p as Property<E>
-        }
-
-        val FAKE_ROOT = object : ParentClassBuilder() {
-            override fun getSubClassBuilders(): Map<ClassBuilder, ClassBuilder?> {
-                kotlin.error("Dummy parent")
-            }
-
-            override fun createChildClassBuilder(
-                key: ClassBuilder,
-                init: ClassBuilder?,
-                item: TreeItem<ClassBuilderNode>
-            ): ClassBuilder {
-                kotlin.error("Dummy parent")
-            }
-
-            override fun resetChild(
-                key: ClassBuilder,
-                element: ClassBuilder?,
-                restoreDefault: Boolean
-            ) {
-                kotlin.error("Dummy parent")
-            }
-
-            override fun getChildType(key: ClassBuilder): JavaType? {
-                kotlin.error("Dummy parent")
-            }
-
-            override fun getChild(key: ClassBuilder): ClassBuilder? {
-                kotlin.error("Dummy parent")
-            }
-
-            override val parent = this
-            override val key: ClassBuilder = this
-
-            override val serObject: Any get() = kotlin.error("Dummy parent")
-            override val serObjectObservable: Observable get() = kotlin.error("Dummy parent")
-            override val type: JavaType get() = kotlin.error("Dummy parent")
-            override val property: ClassInformation.PropertyMetadata? get() = kotlin.error("Dummy parent")
-            override val item: TreeItem<ClassBuilderNode> get() = TreeItem()
-
-            override fun createEditView(parent: EventTarget, controller: ObjectEditorController): Node {
-                kotlin.error("Dummy parent")
-            }
-
-            override fun getPreviewValue(): String {
-                kotlin.error("Dummy parent")
-            }
-
-            override fun isImmutable(): Boolean {
-                kotlin.error("Dummy parent")
-            }
-
-            override fun hashCode() = 0
-            override fun equals(other: Any?) = this === other
-
         }
     }
 

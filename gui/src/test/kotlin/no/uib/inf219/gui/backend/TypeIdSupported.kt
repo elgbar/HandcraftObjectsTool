@@ -2,7 +2,9 @@ package no.uib.inf219.gui.backend
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import javafx.scene.control.TreeItem
+import no.uib.inf219.extra.FAKE_ROOT
 import no.uib.inf219.extra.toCb
+import no.uib.inf219.extra.toObject
 import no.uib.inf219.extra.type
 import no.uib.inf219.gui.view.ControlPanelView
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -34,7 +36,7 @@ class TypeIdSupported {
             ComplexClassBuilder(
                 UseClassAsPropertyProperty::class.type(),
                 key = "key".toCb(),
-                parent = SimpleClassBuilder.FAKE_ROOT,
+                parent = FAKE_ROOT,
                 item = TreeItem()
             ).toObject()
         val json = ControlPanelView.mapper.writeValueAsString(obj)
@@ -52,7 +54,7 @@ class TypeIdSupported {
             ComplexClassBuilder(
                 UseMinimalClassAsPropertyProperty::class.type(),
                 key = "key".toCb(),
-                parent = SimpleClassBuilder.FAKE_ROOT,
+                parent = FAKE_ROOT,
                 item = TreeItem()
             ).toObject()
         val json = ControlPanelView.mapper.writeValueAsString(obj)
@@ -70,7 +72,7 @@ class TypeIdSupported {
             ComplexClassBuilder(
                 UseNameAsPropertyProperty::class.type(),
                 key = "key".toCb(),
-                parent = SimpleClassBuilder.FAKE_ROOT,
+                parent = FAKE_ROOT,
                 item = TreeItem()
             ).toObject()
         val json = ControlPanelView.mapper.writeValueAsString(obj)

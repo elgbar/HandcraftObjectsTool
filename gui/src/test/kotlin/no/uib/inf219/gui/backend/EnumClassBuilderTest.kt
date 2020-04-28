@@ -1,7 +1,9 @@
 package no.uib.inf219.gui.backend
 
 import com.fasterxml.jackson.annotation.JsonEnumDefaultValue
+import no.uib.inf219.extra.FAKE_ROOT
 import no.uib.inf219.extra.toCb
+import no.uib.inf219.extra.toObject
 import no.uib.inf219.extra.type
 import no.uib.inf219.gui.backend.simple.EnumClassBuilder
 import no.uib.inf219.test.Weather
@@ -25,7 +27,7 @@ class EnumClassBuilderTest {
         cb = ClassBuilder.createClassBuilder(
             Weather::class.type(),
             key = "key".toCb(),
-            parent = SimpleClassBuilder.FAKE_ROOT
+            parent = FAKE_ROOT
         )!! as EnumClassBuilder<Weather>
     }
 
@@ -33,7 +35,7 @@ class EnumClassBuilderTest {
     internal fun canSerializeEnum() {
         val cb = ClassBuilder.createClassBuilder(
             Weather::class.type(), key = "key".toCb(),
-            parent = SimpleClassBuilder.FAKE_ROOT,
+            parent = FAKE_ROOT,
             value = Weather.SUNNY
         )
         assertNotNull(cb)
@@ -46,7 +48,7 @@ class EnumClassBuilderTest {
         val cb = ClassBuilder.createClassBuilder(
             Weather::class.type(),
             key = "key".toCb(),
-            parent = SimpleClassBuilder.FAKE_ROOT
+            parent = FAKE_ROOT
         )
         assertNotNull(cb)
 
@@ -68,7 +70,7 @@ class EnumClassBuilderTest {
         val cb = ClassBuilder.createClassBuilder(
             Weather2::class.type(),
             key = "key".toCb(),
-            parent = SimpleClassBuilder.FAKE_ROOT
+            parent = FAKE_ROOT
         )
         assertNotNull(cb)
 

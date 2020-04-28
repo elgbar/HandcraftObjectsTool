@@ -15,7 +15,7 @@ import java.net.URI
  * Create a text object that is dependent on the given class builder.
  * Every time the given [cb] changes the text will be updated.
  */
-fun EventTarget.textCb(cb: ClassBuilder, value: ClassBuilder.() -> String) {
+fun <T : ClassBuilder> EventTarget.textCb(cb: T, value: T.() -> String) {
 
     text(value(cb)) {
         this.textProperty().bindCbText(cb, value)
@@ -23,7 +23,7 @@ fun EventTarget.textCb(cb: ClassBuilder, value: ClassBuilder.() -> String) {
 }
 
 
-fun StringProperty.bindCbText(cb: ClassBuilder, value: ClassBuilder.() -> String) {
+fun <T : ClassBuilder> StringProperty.bindCbText(cb: T, value: T.() -> String) {
     cb.serObjectObservable.onChange {
         this@bindCbText.set(value(cb))
     }

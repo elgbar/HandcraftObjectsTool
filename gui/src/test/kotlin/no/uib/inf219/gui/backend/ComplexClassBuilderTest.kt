@@ -1,9 +1,7 @@
 package no.uib.inf219.gui.backend
 
 import javafx.scene.control.TreeItem
-import no.uib.inf219.extra.findChild
-import no.uib.inf219.extra.toCb
-import no.uib.inf219.extra.type
+import no.uib.inf219.extra.*
 import no.uib.inf219.gui.backend.simple.StringClassBuilder
 import no.uib.inf219.test.PrimitiveDefaultValueShowcase
 import no.uib.inf219.test.conv.Conversation
@@ -30,7 +28,7 @@ internal class ComplexClassBuilderTest {
         val created = ComplexClassBuilder(
             AlwaysTruePrecondition::class.type(),
             key = "key".toCb(),
-            parent = SimpleClassBuilder.FAKE_ROOT,
+            parent = FAKE_ROOT,
             item = TreeItem()
         ).toObject()
         assertEquals(AlwaysTruePrecondition(), created)
@@ -41,7 +39,7 @@ internal class ComplexClassBuilderTest {
         val created = ComplexClassBuilder(
             PrimitiveDefaultValueShowcase::class.type(),
             key = "key".toCb(),
-            parent = SimpleClassBuilder.FAKE_ROOT,
+            parent = FAKE_ROOT,
             item = TreeItem()
         ).toObject()
         assertEquals(PrimitiveDefaultValueShowcase(42, 46, 0.1, 0.1f, true, 6, 1, 'a', "abc"), created)
@@ -57,14 +55,15 @@ internal class ComplexClassBuilderTest {
         val cb = ComplexClassBuilder(
             Conversation::class.type(),
             key = "key".toCb(),
-            parent = SimpleClassBuilder.FAKE_ROOT,
+            parent = FAKE_ROOT,
             item = TreeItem()
         )
         val props = cb.propInfo
-        for ((key, def) in cb.propDefaults) {
+        for ((key, meta) in cb.propInfo) {
             assertTrue(cb.serObject.containsKey(key)) {
                 "Complex class builder does not contain the expected key $key"
             }
+            val def = meta.getDefaultInstance()
             if (def == null) {
                 assertNull(cb.serObject[key])
             } else {
@@ -88,13 +87,13 @@ internal class ComplexClassBuilderTest {
         val cb = ComplexClassBuilder(
             Conversation::class.type(),
             key = "key".toCb(),
-            parent = SimpleClassBuilder.FAKE_ROOT,
+            parent = FAKE_ROOT,
             item = TreeItem()
         )
 
         val propKey = Conversation::name.name
         //make sure this test makes sense with a real property
-        assertNotNull(cb.serObject[propKey]) { "Property key is wrong. Change it to one of ${cb.propDefaults.filterValues { it != null }.keys}" }
+        assertNotNull(cb.serObject[propKey]) { "Property key is wrong. Change it to one of ${cb.propInfo.keys}" }
 
         val prop: StringClassBuilder = cb.serObject[propKey] as StringClassBuilder
         val orgPropValue = prop.serObject
@@ -117,7 +116,7 @@ internal class ComplexClassBuilderTest {
         val cb = ComplexClassBuilder(
             Conversation::class.type(),
             key = "key".toCb(),
-            parent = SimpleClassBuilder.FAKE_ROOT,
+            parent = FAKE_ROOT,
             item = TreeItem()
         )
 
@@ -135,7 +134,7 @@ internal class ComplexClassBuilderTest {
         val cb = ComplexClassBuilder(
             Conversation::class.type(),
             key = "key".toCb(),
-            parent = SimpleClassBuilder.FAKE_ROOT,
+            parent = FAKE_ROOT,
             item = TreeItem()
         )
 
@@ -157,7 +156,7 @@ internal class ComplexClassBuilderTest {
         val cb = ClassBuilder.createClassBuilder(
             Conversation::class.type(),
             "key".toCb(),
-            SimpleClassBuilder.FAKE_ROOT
+            FAKE_ROOT
         ) as ComplexClassBuilder?
             ?: fail("Failed to create class builder for Conversation")
 
@@ -187,7 +186,7 @@ internal class ComplexClassBuilderTest {
         val cb = ComplexClassBuilder(
             Conversation::class.type(),
             key = "key".toCb(),
-            parent = SimpleClassBuilder.FAKE_ROOT,
+            parent = FAKE_ROOT,
             item = TreeItem()
         )
         val propKey = cb.serObject.filterValues { it == null }.keys.first()
@@ -203,7 +202,7 @@ internal class ComplexClassBuilderTest {
         val cb = ComplexClassBuilder(
             Conversation::class.type(),
             key = "key".toCb(),
-            parent = SimpleClassBuilder.FAKE_ROOT,
+            parent = FAKE_ROOT,
             item = TreeItem()
         )
         assertThrows(IllegalArgumentException::class.java) {
@@ -216,7 +215,7 @@ internal class ComplexClassBuilderTest {
         val cb = ComplexClassBuilder(
             Conversation::class.type(),
             key = "key".toCb(),
-            parent = SimpleClassBuilder.FAKE_ROOT,
+            parent = FAKE_ROOT,
             item = TreeItem()
         )
         val propKey = cb.serObject.filterValues { it == null }.keys.first()
@@ -233,14 +232,14 @@ internal class ComplexClassBuilderTest {
         val cb = ComplexClassBuilder(
             Conversation::class.type(),
             key = "key".toCb(),
-            parent = SimpleClassBuilder.FAKE_ROOT,
+            parent = FAKE_ROOT,
             item = TreeItem()
         )
 
         val propKey = Conversation::name.name
         val propKeyCb = Conversation::name.name.toCb()
         //make sure this test makes sense with a real property
-        assertNotNull(cb.serObject[propKey]) { "Property key is wrong. Change it to one of ${cb.propDefaults.filterValues { it != null }.keys}" }
+        assertNotNull(cb.serObject[propKey]) { "Property key is wrong. Change it to one of ${cb.propInfo.keys}" }
 
         //force the class to be recreated otherwise it will not be
         cb.resetChild(propKey.toCb(), restoreDefault = false)
@@ -261,7 +260,7 @@ internal class ComplexClassBuilderTest {
         val cb = ComplexClassBuilder(
             Conversation::class.type(),
             key = "key".toCb(),
-            parent = SimpleClassBuilder.FAKE_ROOT,
+            parent = FAKE_ROOT,
             item = TreeItem()
         )
 
