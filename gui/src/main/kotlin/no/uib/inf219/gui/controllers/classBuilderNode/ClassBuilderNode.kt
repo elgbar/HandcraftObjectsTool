@@ -5,6 +5,8 @@ import javafx.scene.control.TreeView
 import no.uib.inf219.extra.reload
 import no.uib.inf219.gui.backend.ClassBuilder
 import no.uib.inf219.gui.backend.ParentClassBuilder
+import no.uib.inf219.gui.backend.events.ClassBuilderResetEvent
+import no.uib.inf219.gui.backend.events.resetEvent
 import no.uib.inf219.gui.loader.ClassInformation
 
 /**
@@ -47,6 +49,7 @@ interface ClassBuilderNode {
         tree: TreeView<ClassBuilderNode>,
         restoreDefault: Boolean
     ) {
+        resetEvent(ClassBuilderResetEvent(this, restoreDefault))
         parent.resetChild(key, cb, restoreDefault)
         tree.reload()
     }

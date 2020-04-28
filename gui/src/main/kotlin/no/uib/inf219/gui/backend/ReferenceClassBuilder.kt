@@ -6,8 +6,11 @@ import javafx.event.EventTarget
 import javafx.geometry.Pos
 import javafx.scene.Node
 import javafx.scene.control.TreeItem
-import no.uib.inf219.extra.onChange
+import no.uib.inf219.extra.isDescendantOf
+import no.uib.inf219.extra.path
 import no.uib.inf219.extra.textCb
+import no.uib.inf219.gui.backend.events.ClassBuilderResetEvent
+import no.uib.inf219.gui.backend.events.resetEvent
 import no.uib.inf219.gui.backend.serializers.ParentClassBuilderSerializer
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.controllers.classBuilderNode.ClassBuilderNode
@@ -38,9 +41,9 @@ class ReferenceClassBuilder(
     override val type: JavaType = serObject.type
     override val serObjectObservable = serObject.toProperty()
 
+    private val event: (ClassBuilderResetEvent) -> Unit
+
     init {
-        //TODO test if reference get reconnected if the referencing object is reset
-        // test: If ref is nulled out this should also be nulled out
 
         require(refKey != key || refParent !== parent) {
             "Direct cycle detected, the object we're serializing is this!"
@@ -51,16 +54,18 @@ class ReferenceClassBuilder(
             "Chain of cb references is not supported as of now"
         }
 
-//            //run this later, the parent need to have time to assign this as a child to it self
-//            require(parent.getChild(key) === this) { "Parent with given key does not give this class builder" }
-
-        refParent.serObjectObservable.onChange {
-            if (refParent.getChild(refKey) == null) {
-                //it was completely removed, this should be removed from the parent
-                refParent.serObjectObservable.removeListener(this)
-                parent.resetChild(key, this@ReferenceClassBuilder, restoreDefault = true)
+        event = { (cbn, restoreDefault) ->
+            if (!restoreDefault && (cbn.parent === refParent && cbn.key === refKey) || refParent.isDescendantOf(cbn)) {
+                onReset()
             }
         }
+        resetEvent += event
+    }
+
+    private fun onReset() {
+        //it was completely removed, this should be removed from the parent
+        resetEvent -= event
+        parent.resetChild(key, this@ReferenceClassBuilder, restoreDefault = true)
     }
 
     override fun createEditView(parent: EventTarget, controller: ObjectEditorController): Node {
@@ -72,7 +77,7 @@ class ReferenceClassBuilder(
             }
 
             textCb(serObject) {
-                "This class builder is only a reference to ${getPreviewValue()}. Double click to edit the referenced class builder."
+                "This class builder is only a reference to object at ${this.path}.\nDouble click to edit the referenced class builder.\n\npreview: ${this.getPreviewValue()}"
             }
         }
     }
@@ -101,6 +106,6 @@ class ReferenceClassBuilder(
     }
 
     override fun toString(): String {
-        return "Ref CB; ref child $refKey of $refParent)"
+        return "Ref CB; ref child ${refKey.getPreviewValue()} of ${refParent.getPreviewValue()})"
     }
 }
