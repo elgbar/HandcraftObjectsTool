@@ -142,7 +142,9 @@ abstract class ParentClassBuilder : ClassBuilder {
 
         require(key !== child) { "The key and child cannot be the same object" }
 
-        require(getChildType(key) == child.type) { "Wrong child type given. Expected type ${getChildType(key)} | child's type ${child.type}" }
+        require(getChildType(key)!!.isTypeOrSuperTypeOf(child.type.rawClass)) {
+            "Wrong child type given. Expected type ${getChildType(key)} | child's type ${child.type}"
+        }
         require(getChildPropertyMetadata(key) == child.property) {
             "Wrong property metadata given. Expected type ${getChildPropertyMetadata(key)} | child's type ${child.property}"
         }
