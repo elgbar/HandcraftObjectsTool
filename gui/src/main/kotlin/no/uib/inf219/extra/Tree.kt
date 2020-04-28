@@ -12,6 +12,9 @@ import no.uib.inf219.gui.controllers.classBuilderNode.EmptyClassBuilderNode
 
 /**
  * Find a child item from [key] for the owning class builder (ie this.value.cb`)
+ *
+ * @throws IllegalStateException If the [TreeItem.value] is [EmptyClassBuilderNode], The class builder of the [TreeItem.value] is `null`, [ClassBuilderNode.item] does not match the item in this tree items children, but the key and value does
+ * @throws IllegalArgumentException if no child with the given [key] and correct parent can be found
  */
 fun TreeItem<ClassBuilderNode>.findChild(key: ClassBuilder): TreeItem<ClassBuilderNode> {
     if (value is EmptyClassBuilderNode) {
@@ -22,7 +25,7 @@ fun TreeItem<ClassBuilderNode>.findChild(key: ClassBuilder): TreeItem<ClassBuild
     for (item in children) {
         val cbn = item.value ?: error("No CBN have been set for child $key of $parent")
         if (cbn.key == key && cbn.parent == parent) {
-            require(cbn.item === item) {
+            check(cbn.item === item) {
                 "Found child with matching key and parent but it's item is not the same object!\n" +
                         "Are they equal? ${cbn.item == item}\n" +
                         "child item: ${cbn.item} (hash ${Integer.toHexString(cbn.item.hashCode())})\n" +
@@ -31,7 +34,7 @@ fun TreeItem<ClassBuilderNode>.findChild(key: ClassBuilder): TreeItem<ClassBuild
             return item
         }
     }
-    error("Failed to find a child with the key $key where the parent is also equal")
+    throw IllegalArgumentException("Failed to find a child with the key $key where the parent is also equal")
 }
 
 val <T> TreeView<T>.selectedItem: TreeItem<T>?

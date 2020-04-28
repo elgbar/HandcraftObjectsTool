@@ -2,10 +2,12 @@ package no.uib.inf219.gui.backend
 
 import com.fasterxml.jackson.databind.type.CollectionLikeType
 import javafx.scene.control.TreeItem
-import no.uib.inf219.extra.FAKE_ROOT
 import no.uib.inf219.extra.toCb
 import no.uib.inf219.extra.toObject
 import no.uib.inf219.extra.type
+import no.uib.inf219.gui.backend.events.ClassBuilderResetEvent
+import no.uib.inf219.gui.backend.events.resetEvent
+import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.controllers.classBuilderNode.FilledClassBuilderNode
 import no.uib.inf219.gui.view.ControlPanelView
 import no.uib.inf219.test.conv.Conversation
@@ -26,12 +28,7 @@ internal class ReferenceClassBuilderTest {
     @Test
     internal fun resolveReference() {
 
-        val cb = ClassBuilder.createClassBuilder(
-            Conversation::class.type(),
-            key = "key".toCb(),
-            parent = FAKE_ROOT,
-            item = TreeItem()
-        ) as ComplexClassBuilder
+        val cb = ObjectEditorController(Conversation::class.type()).root as ComplexClassBuilder
         cb.serObject[Conversation::name.name] = "Root conv name".toCb(Conversation::name.name.toCb(), cb)
         cb.serObject[Conversation::text.name] = "Root conv response".toCb(Conversation::text.name.toCb(), cb)
 
@@ -91,30 +88,24 @@ internal class ReferenceClassBuilderTest {
 
     @Test
     internal fun refIsReset_toDefault() {
-        val cb = ClassBuilder.createClassBuilder(
-            Conversation::class.type(),
-            key = "key".toCb(),
-            parent = FAKE_ROOT,
-            item = TreeItem()
-        ) as ComplexClassBuilder
+        val cb = ObjectEditorController(Conversation::class.type()).root as ComplexClassBuilder
+
         //name have default value
         val orgKey = Conversation::name.name
-        val org = cb.serObject[orgKey] ?: fail("org is null")
+        val org = cb.serObject[orgKey]
+        assertNotNull(org)
+        val orgKeyCb = org!!.key
+
+        assertTrue(cb === org.parent)
+        assertTrue(orgKeyCb === org.key)
 
         //text property is a reference to the name property in this example
         val refKey = Conversation::text.name
-        val ref = ReferenceClassBuilder(
-            Conversation::name.name.toCb(),
-            cb,
-            Conversation::text.name.toCb(),
-            cb,
-            item = TreeItem()
-        ).also {
-            it.item.value = FilledClassBuilderNode(it.key, it, it.parent)
-        }
 
-        cb.createChildClassBuilder(refKey.toCb(), ref)
-        assertTrue(cb.getChild(refKey.toCb()) === ref)
+        val ref = ReferenceClassBuilder(orgKeyCb, cb, refKey.toCb(), cb, item = TreeItem())
+        ref.item.value = FilledClassBuilderNode(ref.key, ref, ref.parent)
+
+        cb.serObject[refKey] = ref
 
         //then we remove the original
         cb.resetChild(orgKey.toCb(), restoreDefault = true) //<-- we create a new default
@@ -128,29 +119,28 @@ internal class ReferenceClassBuilderTest {
 
     @Test
     internal fun refIsReset_toNull() {
-        val cb = ClassBuilder.createClassBuilder(
-            Conversation::class.type(),
-            "key".toCb(),
-            FAKE_ROOT
-        ) as ComplexClassBuilder?
-            ?: fail("Failed to create class builder for Conversation")
+        val cb = ObjectEditorController(Conversation::class.type()).root as ComplexClassBuilder
 
         //name have default value
         val orgKey = Conversation::name.name
-        assertNotNull(cb.serObject[orgKey])
+        val org = cb.serObject[orgKey]
+        assertNotNull(org)
+        val orgKeyCb = org!!.key
+
+        assertTrue(cb === org.parent)
+        assertTrue(orgKeyCb === org.key)
 
         //text property is a reference to the name property in this example
         val refKey = Conversation::text.name
-        val ref = ReferenceClassBuilder(
-            Conversation::name.name.toCb(),
-            cb,
-            Conversation::text.name.toCb(),
-            cb,
-            item = TreeItem()
-        )
+
+        val ref = ReferenceClassBuilder(orgKeyCb, cb, refKey.toCb(), cb, item = TreeItem())
+        ref.item.value = FilledClassBuilderNode(ref.key, ref, ref.parent)
+
         cb.serObject[refKey] = ref
 
         //then we remove the original
+
+        resetEvent(ClassBuilderResetEvent(org.item.value, false))
         cb.resetChild(orgKey.toCb(), restoreDefault = false) //<-- we remove the original
         assertNull(cb.serObject[orgKey])
 

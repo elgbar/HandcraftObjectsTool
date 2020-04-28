@@ -84,11 +84,9 @@ class ComplexClassBuilder(
         val propName = cbToString(key)
 
         val prop = propInfo[propName]
-        require(prop != null) { "The class $type does not have a property with the name '$propName'. Expected one of the following: ${propInfo.keys}" }
-        require(init == null || init.type.isTypeOrSubTypeOf(getChildType(key)?.rawClass)) {
-            "Given initial value have different type than expected. Expected a subclass of ${getChildType(key)} got ${init?.type}"
+        require(prop != null) {
+            "The class $type does not have a property with the name '$propName'. Expected one of the following: ${propInfo.keys}"
         }
-        require(init == null || init.item === item) { "Wrong item. expected $item got ${init?.item}" }
 
         return serObject.computeIfAbsent(propName) {
             createChild(key, init, prop, item)
@@ -102,7 +100,7 @@ class ComplexClassBuilder(
     ) {
         val propName = cbToString(key)
         val meta: ClassInformation.PropertyMetadata = propInfo[propName]
-            ?: kotlin.error("The class $type does not have a property with the name '$propName'. Expected one of the following: ${propInfo.keys}")
+            ?: throw IllegalArgumentException("The class $type does not have a property with the name '$propName'. Expected one of the following: ${propInfo.keys}")
 
         require(element == null || element === serObject[propName]) {
             "Given element to reset does not match with the internal element. Given: $element | internal ${serObject[propName]}"
@@ -135,8 +133,8 @@ class ComplexClassBuilder(
         item: TreeItem<ClassBuilderNode>
     ): ClassBuilder? {
         return if (init != null) {
-            checkItemValidity(init, item)
             checkChildValidity(key, init)
+            checkItemValidity(init, item)
             init
         } else {
             val meta = propInfo[cbToString(key)] ?: kotlin.error("Failed to find meta for ${key.getPreviewValue()}")
