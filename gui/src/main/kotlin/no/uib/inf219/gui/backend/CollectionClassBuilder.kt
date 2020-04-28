@@ -112,10 +112,13 @@ class CollectionClassBuilder(
         return elem
     }
 
-    override fun getChild(key: ClassBuilder): ClassBuilder? {
-        val index = cbToInt(key)
-        require(index != null)
-        return serObject[index]
+    override fun getChild(key: ClassBuilder): ClassBuilder {
+        val index = cbToInt(key) ?: error("Given index cannot be null")
+        try {
+            return serObject[index]
+        } catch (e: IndexOutOfBoundsException) {
+            throw IllegalArgumentException(e)
+        }
     }
 
     override fun set(key: ClassBuilder, child: ClassBuilder) {
@@ -147,7 +150,7 @@ class CollectionClassBuilder(
 
         val child = serObject[index]
 
-        require(element == null || child == element) { "Given element is not equal to stored element at index $index. given = $element, stored = $child" }
+        require(element == null || child === element) { "Given element is not equal to stored element at index $index. given = $element, stored = $child" }
 
         serObject.remove(child)
         item.children.remove(child.item)

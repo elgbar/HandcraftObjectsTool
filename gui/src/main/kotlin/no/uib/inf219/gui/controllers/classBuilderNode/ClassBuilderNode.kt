@@ -66,17 +66,4 @@ interface ClassBuilderNode {
     operator fun component3(): ParentClassBuilder {
         return parent
     }
-
-    companion object {
-
-        /**
-         * Create the correct class builder node class instance from nullable cb
-         */
-        fun fromValues(key: ClassBuilder, cb: ClassBuilder?, parent: ParentClassBuilder): ClassBuilderNode {
-            return cb?.node ?: EmptyClassBuilderNode(
-                key,
-                parent
-            )
-        }
-    }
 }

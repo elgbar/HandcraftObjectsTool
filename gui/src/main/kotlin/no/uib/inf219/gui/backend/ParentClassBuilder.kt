@@ -47,7 +47,6 @@ abstract class ParentClassBuilder : ClassBuilder {
         return list
     }
 
-
     /**
      *
      * @param key The key to the property to create. All keys from [getSubClassBuilders] are guaranteed to work, others might work but it is up to the implementation to accept or reject keys
@@ -125,14 +124,14 @@ abstract class ParentClassBuilder : ClassBuilder {
     }
 
     /**
-     * @return If this is a forefather of the given [ClassBuilder]. Will return `false` if `this` is equal to [to]
+     * @return If this is a forefather of the given [ClassBuilder]. Will return `false` if `this` is equal to [it]
      */
-    fun isParentOf(to: ClassBuilder?): Boolean {
-        if (to == null) return false
-        return when (to.parent) {
-            to -> false //to's parent is it self (recursive assignment, denotes root cb)
+    fun isParentOf(it: ClassBuilder?): Boolean {
+        if (it == null) return false
+        return when (it.parent) {
+            it -> false //to's parent is it self (recursive assignment, denotes root cb)
             this -> true
-            else -> this.isParentOf(to.parent)
+            else -> this.isParentOf(it.parent)
         }
     }
 
