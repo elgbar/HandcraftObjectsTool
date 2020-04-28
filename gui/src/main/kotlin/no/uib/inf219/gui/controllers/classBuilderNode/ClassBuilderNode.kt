@@ -50,6 +50,7 @@ interface ClassBuilderNode {
         restoreDefault: Boolean
     ) {
         resetEvent(ClassBuilderResetEvent(this, restoreDefault))
+        item.children.clear()
         parent.resetChild(key, cb, restoreDefault)
         tree.reload()
     }
