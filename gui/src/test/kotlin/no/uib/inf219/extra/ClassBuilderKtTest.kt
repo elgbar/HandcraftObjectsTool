@@ -26,50 +26,6 @@ internal class ClassBuilderKtTest {
     }
 
     @Test
-    internal fun isParent_self() {
-        val parent = listCB()
-        val child = listCB(parent)
-
-        assertFalse(parent.isParentOf(parent))
-        assertFalse(child.isParentOf(parent))
-    }
-
-    @Test
-    internal fun isParent_sibling() {
-        val parent = listCB()
-        val childA = listCB(parent)
-        val childB = listCB(parent)
-
-        assertFalse(childA.isParentOf(childB))
-        assertFalse(childB.isParentOf(childA))
-    }
-
-    @Test
-    internal fun isParent_direct() {
-        val parent = listCB()
-        val child = listCB(parent)
-
-        assertTrue(parent.isParentOf(child))
-        assertFalse(child.isParentOf(parent))
-    }
-
-    @Test
-    internal fun isParent_grandChild() {
-        val parent = listCB()
-        val child = listCB(parent)
-        val grandChild = listCB(child)
-
-        assertTrue(parent.isParentOf(child))
-        assertTrue(child.isParentOf(grandChild))
-
-        //make sure this is transitive
-        assertTrue(parent.isParentOf(grandChild))
-
-        //sanity check
-        assertFalse(grandChild.isParentOf(parent))
-    }
-
-    @Test
     internal fun isDescendantOf_legitChild() {
         val parent = ObjectEditorController(listStrType).root as CollectionClassBuilder
 

@@ -123,18 +123,6 @@ abstract class ParentClassBuilder : ClassBuilder {
         return ClassBuilder.createClassBuilder(type, key, this, value, prop, item)
     }
 
-    /**
-     * @return If this is a forefather of the given [ClassBuilder]. Will return `false` if `this` is equal to [it]
-     */
-    fun isParentOf(it: ClassBuilder?): Boolean {
-        if (it == null) return false
-        return when (it.parent) {
-            it -> false //to's parent is it self (recursive assignment, denotes root cb)
-            this -> true
-            else -> this.isParentOf(it.parent)
-        }
-    }
-
     protected fun checkChildValidity(key: ClassBuilder, child: ClassBuilder) {
         require(key == child.key) { "The key does not match the key of the child. key $key | child's key ${child.key}" }
         require(this === child.parent) { "Given child does not have this a parent" }
