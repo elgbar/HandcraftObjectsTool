@@ -136,9 +136,9 @@ class BackgroundView : View("Handcrafted Objects Tool") {
                                         )
 
                                         hyperWeblinkLabel(
-                                            "[ClassGraph], licenced under [the MIT license]",
+                                            "[ClassGraph], licenced under the [MIT license]",
                                             "ClassGraph" to "https://github.com/classgraph/classgraph",
-                                            "the MIT license" to "https://github.com/classgraph/classgraph/blob/master/LICENSE-ClassGraph.txt"
+                                            "MIT license" to "https://github.com/classgraph/classgraph/blob/master/LICENSE-ClassGraph.txt"
                                         )
 
                                         hyperWeblinkLabel(
@@ -175,6 +175,11 @@ class BackgroundView : View("Handcrafted Objects Tool") {
                                             "JavaWuzzy" to "https://github.com/xdrop/fuzzywuzzy",
                                             "GNU General Public License v2.0" to "https://github.com/xdrop/fuzzywuzzy/blob/master/LICENSE"
                                         )
+                                        hyperWeblinkLabel(
+                                            "[Kotlin events], licenced under the [MIT License]",
+                                            "Kotlin events" to "https://github.com/stuhlmeier/kotlin-events",
+                                            "MIT License" to "https://github.com/stuhlmeier/kotlin-events/blob/master/LICENSE"
+                                        )
                                     }
                                 }
                             }
@@ -182,7 +187,7 @@ class BackgroundView : View("Handcrafted Objects Tool") {
                             block = true,
                             owner = currentWindow,
                             resizable = false,
-                            stageStyle = StageStyle.UNDECORATED
+                            stageStyle = StageStyle.UNIFIED
                         )
                     }
                 }
