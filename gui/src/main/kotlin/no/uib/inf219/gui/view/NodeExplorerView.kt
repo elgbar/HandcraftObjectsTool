@@ -54,14 +54,15 @@ class NodeExplorerView(private val controller: ObjectEditorController) : View("T
                                         "Do you want to overwrite it with a reference to another object?",
                                         "This property is already defined: $cb",
                                         owner = currentWindow,
-                                        buttons = *arrayOf(ButtonType.OK, OK_DISABLE_WARNING, ButtonType.CANCEL),
+                                        buttons = *arrayOf(ButtonType.YES, YES_DISABLE_WARNING, ButtonType.CANCEL),
                                         actionFn = { button ->
                                             //hitting esc/closing window also counts as cancel
                                             if (button == ButtonType.CANCEL) {
                                                 return@action
-                                            } else if (button == OK_DISABLE_WARNING) {
+                                            } else if (button == YES_DISABLE_WARNING) {
                                                 showOverwriteWithRefWarning = false
                                             }
+                                            //ButtonType.YES falls through
                                         }
                                     )
                                 }
