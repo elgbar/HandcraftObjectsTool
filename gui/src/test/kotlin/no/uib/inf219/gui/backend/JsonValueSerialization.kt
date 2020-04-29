@@ -9,10 +9,10 @@ import no.uib.inf219.extra.toCb
 import no.uib.inf219.extra.toObject
 import no.uib.inf219.extra.type
 import no.uib.inf219.gui.backend.simple.UUIDClassBuilder
+import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.loader.ClassInformation
 import no.uib.inf219.gui.view.ControlPanelView
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.testfx.framework.junit5.ApplicationExtension
@@ -110,7 +110,6 @@ class JsonValueSerialization {
         assertEquals(expectedObj, obj)
     }
 
-    @Disabled //FIXME!!
     @Test
     internal fun serializeTypedJsonValue() {
 
@@ -121,27 +120,20 @@ class JsonValueSerialization {
         val expected = ControlPanelView.mapper.writeValueAsString(jsonValueInstance)
         println("expected = $expected")
 
-        val cb = ComplexClassBuilder(
-            TypedJsonValueExample::class.type(),
-            key = "key".toCb(),
-            parent = FAKE_ROOT,
-            item = TreeItem()
-        ).apply {
-            serObject[ClassInformation.VALUE_DELEGATOR_NAME] = UUIDClassBuilder(
-                uuid,
-                key = "key".toCb(),
-                parent = FAKE_ROOT,
-                item = TreeItem()
-            )
-        }
 
-        val json = ControlPanelView.mapper.writeValueAsString(cb)
+        val cb = ObjectEditorController(TypedJsonValueExample::class.type()).root as ComplexClassBuilder
+
+        val uuidCb =
+            cb.createChildClassBuilder(ClassInformation.VALUE_DELEGATOR_NAME.toCb()) as UUIDClassBuilder
+        uuidCb.serObject = uuid
+
+        val json = ControlPanelView.mapper.writeValueAsString(cb.toObject())
         println("got = $json")
 
-        val obj = cb.toObject()
+        val obj: TypedJsonValueExample = cb.toObject() as TypedJsonValueExample
 
         assertEquals(expected, json)
-        assertEquals(jsonValueInstance, obj)
+        assertEquals(jsonValueInstance.uid, obj.uid)
     }
 
 
