@@ -23,8 +23,9 @@ class NodeExplorerView(private val controller: ObjectEditorController) : View("T
 
         setOnMouseClicked { event ->
             //note that "isPrimaryButtonDown" and "isSecondaryButtonDown" does not work
-            if (event.clickCount == 2 && event.button == MouseButton.PRIMARY) {
-                val cbn = controller.createSelected()
+            if (selectedValue?.cb == null && event.clickCount == 2 && event.button == MouseButton.PRIMARY) {
+                controller.createSelected()
+                return@setOnMouseClicked
             }
             selectedValue?.cb?.onNodeClick(event, controller)
         }
