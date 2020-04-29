@@ -127,8 +127,22 @@ object ClassInformation {
                     val valueType = getType("_valueType")
 
 
-                    map[MAP_ENTRY_KEY_NAME] = PropertyMetadata(MAP_ENTRY_KEY_NAME, keyType, "", false, "", true)
-                    map[MAP_ENTRY_VALUE_NAME] = PropertyMetadata(MAP_ENTRY_VALUE_NAME, valueType, "", false, "", true)
+                    map[MAP_ENTRY_VALUE_NAME] = PropertyMetadata(
+                        MAP_ENTRY_VALUE_NAME,
+                        valueType,
+                        "",
+                        false,
+                        "Value found with it's corresponding key",
+                        true
+                    )
+                    map[MAP_ENTRY_KEY_NAME] = PropertyMetadata(
+                        MAP_ENTRY_KEY_NAME,
+                        keyType,
+                        "",
+                        true,
+                        "The unique key to a value in a map",
+                        true
+                    )
                 }
                 else -> {
                     valueDelegator = false

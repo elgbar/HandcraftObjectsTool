@@ -20,12 +20,11 @@ import tornadofx.action
 import tornadofx.asObservable
 import tornadofx.borderpane
 import tornadofx.button
-import kotlin.collections.set
 
 /**
  * @author Elg
  */
-@JsonSerialize(using = MapClassBuilderSerializer::class)
+@JsonSerialize(using = MapClassBuilderSerializer::class, keyUsing = MapClassBuilderSerializer::class)
 class MapClassBuilder(
     override val type: JavaType,
     override val key: ClassBuilder,
@@ -34,21 +33,25 @@ class MapClassBuilder(
     override val item: TreeItem<ClassBuilderNode>
 ) : ParentClassBuilder() {
 
+    override val serObject = HashSet<ComplexClassBuilder>()
+    override val serObjectObservable = serObject.asObservable()
 
-    override val serObject = HashSet<ComplexClassBuilder>().asObservable()
-    override val serObjectObservable = serObject
+    private val entryType =
+        mapper.typeFactory.constructMapLikeType(MapEntry::class.java, type.keyType, type.contentType)
 
     companion object {
+        const val ENTRY = "entry"
         const val ENTRY_KEY = "key"
         const val ENTRY_VALUE = "value"
+
         val keyCb = ENTRY_KEY.toCb()
         val valueCb = ENTRY_VALUE.toCb()
 
-        val entryCb = "entry".toCb()
-
-        val entryType = mapper.typeFactory.constructType(object :
+        val entryTypeCB = mapper.typeFactory.constructType(object :
             TypeReference<Map.Entry<ClassBuilder?, ClassBuilder?>>() {})
             ?: error("Failed to construct map entry type")
+
+        data class MapEntry<K, V>(override val key: K?, override val value: V?) : Map.Entry<K?, V?> {}
     }
 
     private fun get(key: ClassBuilder?): ClassBuilder? {
@@ -63,16 +66,21 @@ class MapClassBuilder(
     }
 
     private fun create(
-        key: ClassBuilder,
-        value: ClassBuilder?,
         item: TreeItem<ClassBuilderNode>
     ): ComplexClassBuilder {
-        val entry = ComplexClassBuilder(entryType, entryCb, this@MapClassBuilder, item = item)
-        item.value = FilledClassBuilderNode(key, entry, parent)
+        val entryCb = "$ENTRY ${serObject.size}".toCb()
+        val entry = ComplexClassBuilder(
+            entryType, entryCb, this, getChildPropertyMetadata(entryCb), item
+        )
+        item.value = FilledClassBuilderNode(entryCb, entry, this)
 
-        entry.serObject[ENTRY_VALUE] = value
-        entry.serObject[ENTRY_KEY] = key
+        item.children.setAll(entry.getSubClassBuilders().map { (key, childCb) ->
+            //use the existing node or create an empty node if the child is null
+            childCb?.node ?: EmptyClassBuilderNode(key, entry)
+        }.map { it.item })
+
         serObject += entry
+        this.item.children.add(entry.item)
         return entry
     }
 
@@ -83,15 +91,14 @@ class MapClassBuilder(
     }
 
     override fun createEditView(parent: EventTarget, controller: ObjectEditorController): Node {
-
         return parent.borderpane {
             center = button("Add entry") {
                 action {
-
                     val key = getClassBuilder(type.keyType, keyCb) ?: return@action
                     val value = getClassBuilder(type.contentType, valueCb) ?: return@action
-                    create(key, value, TreeItem())
+                    create(TreeItem())
                     controller.tree.reload()
+                    item.isExpanded = true
                 }
             }
         }
@@ -106,7 +113,7 @@ class MapClassBuilder(
             "Given initial value have different type than expected. expected ${getChildType(key)} got ${init?.type}"
         }
         return if (!contains(key)) {
-            create(key, init, item)
+            create(item)
         } else {
             get(key)
         }
@@ -133,6 +140,15 @@ class MapClassBuilder(
     override fun getPreviewValue(): String {
         return "Map<${type.keyType}, ${type.contentType}> of size ${serObject.size}"
     }
+
+    override fun getChildPropertyMetadata(key: ClassBuilder) = ClassInformation.PropertyMetadata(
+        key.getPreviewValue(),
+        entryType,
+        "",
+        false,
+        "An entry in a map",
+        true
+    )
 
     override fun getChildType(key: ClassBuilder): JavaType? {
         return entryType
