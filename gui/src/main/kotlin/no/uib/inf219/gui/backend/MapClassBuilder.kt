@@ -7,6 +7,8 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import javafx.event.EventTarget
 import javafx.scene.Node
 import javafx.scene.control.TreeItem
+import javafx.scene.input.MouseButton
+import javafx.scene.input.MouseEvent
 import no.uib.inf219.extra.reload
 import no.uib.inf219.extra.toCb
 import no.uib.inf219.gui.backend.serializers.MapClassBuilderSerializer
@@ -39,6 +41,8 @@ class MapClassBuilder(
     private val entryType =
         mapper.typeFactory.constructMapLikeType(MapEntry::class.java, type.keyType, type.contentType)
 
+    private var entriesCreated = 0
+
     companion object {
         const val ENTRY = "entry"
         const val ENTRY_KEY = "key"
@@ -68,16 +72,16 @@ class MapClassBuilder(
     private fun create(
         item: TreeItem<ClassBuilderNode>
     ): ComplexClassBuilder {
-        val entryCb = "$ENTRY ${serObject.size}".toCb()
+        val entryCb = "$ENTRY ${entriesCreated++}".toCb()
         val entry = ComplexClassBuilder(
             entryType, entryCb, this, getChildPropertyMetadata(entryCb), item
         )
-        item.value = FilledClassBuilderNode(entryCb, entry, this)
+        item.value = FilledClassBuilderNode(entryCb, entry, this, allowReference = false)
 
-        item.children.setAll(entry.getSubClassBuilders().map { (key, childCb) ->
-            //use the existing node or create an empty node if the child is null
-            childCb?.node ?: EmptyClassBuilderNode(key, entry)
-        }.map { it.item })
+        val keyNode = EmptyClassBuilderNode(keyCb, entry, allowReference = false)
+        val valueNode = EmptyClassBuilderNode(valueCb, entry, allowReference = true)
+        
+        item.children.setAll(listOf(keyNode, valueNode).map { it.item })
 
         serObject += entry
         this.item.children.add(entry.item)
@@ -90,15 +94,28 @@ class MapClassBuilder(
         return serObject.remove(entry)
     }
 
+    private fun createNewChild(controller: ObjectEditorController) {
+        val created = create(TreeItem())
+        controller.tree.reload()
+        item.isExpanded = true
+        created.item.isExpanded = true
+    }
+
+    override fun onNodeClick(
+        event: MouseEvent,
+        controller: ObjectEditorController
+    ) {
+        if (event.clickCount == 2 && event.button == MouseButton.PRIMARY) {
+            createNewChild(controller)
+            event.consume()
+        }
+    }
+
     override fun createEditView(parent: EventTarget, controller: ObjectEditorController): Node {
         return parent.borderpane {
             center = button("Add entry") {
                 action {
-                    val key = getClassBuilder(type.keyType, keyCb) ?: return@action
-                    val value = getClassBuilder(type.contentType, valueCb) ?: return@action
-                    create(TreeItem())
-                    controller.tree.reload()
-                    item.isExpanded = true
+                    createNewChild(controller)
                 }
             }
         }
@@ -133,8 +150,9 @@ class MapClassBuilder(
         //But does the given element is allowed to be null,
         require(element == null || get(key) == element) { "Given value does not match with this map class builder's value of given key" }
 
+        val childItem = get(key)!!.item
         remove(key)
-        item.value = EmptyClassBuilderNode(key, this)
+        item.children.remove(childItem)
     }
 
     override fun getPreviewValue(): String {
@@ -158,7 +176,7 @@ class MapClassBuilder(
         //TODO fix this somehow. It does not really follow the interface requirement, can can never do so as the key is nullable
         // However as it is only used by the interface in getChildren and getTreeItems those are for now overwritten
         // but this is of course not maintainable free
-        return serObject.mapIndexed { i, cb -> "entry $i".toCb() to cb }.toMap()
+        return serObject.map { cb -> cb.key to cb }.toMap()
     }
 
     override fun isImmutable(): Boolean = false
