@@ -106,7 +106,7 @@ class ObjectEditorController(
         /** Note that the item is not pointing at this class builder, but directly at the real root */
         override val item: TreeItem<ClassBuilderNode> by lazy {
             val item = TreeItem<ClassBuilderNode>()
-            val cbn = FilledClassBuilderNode(fakeRootKey, this, this, item)
+            val cbn = FilledClassBuilderNode(fakeRootKey, this, this, item, false)
             item.value = cbn
             return@lazy item
         }

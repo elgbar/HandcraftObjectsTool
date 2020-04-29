@@ -62,7 +62,7 @@ val FAKE_ROOT = object : ParentClassBuilder() {
     override val item: TreeItem<ClassBuilderNode> = TreeItem()
 
     init {
-        item.value = FilledClassBuilderNode(this, this, this)
+        item.value = FilledClassBuilderNode(this, this, this, allowReference = false)
     }
 
     override fun createEditView(parent: EventTarget, controller: ObjectEditorController): Node {

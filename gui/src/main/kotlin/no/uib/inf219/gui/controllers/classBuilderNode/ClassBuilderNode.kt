@@ -34,6 +34,13 @@ interface ClassBuilderNode {
     val item: TreeItem<ClassBuilderNode>
 
     /**
+     * It it is allowed to create a reference ([no.uib.inf219.gui.backend.ReferenceClassBuilder]) to this node.
+     *
+     * @see no.uib.inf219.gui.backend.MapClassBuilder
+     */
+    val allowReference: Boolean
+
+    /**
      * Ensure this node has a class builder present. If null is returned the user somehow failed to to create a child class builder
      */
     fun ensurePresentClassBuilder(tree: TreeView<ClassBuilderNode>): FilledClassBuilderNode?

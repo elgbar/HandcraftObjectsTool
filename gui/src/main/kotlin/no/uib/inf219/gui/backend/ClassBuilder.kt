@@ -355,7 +355,8 @@ interface ClassBuilder {
 
             require(cb.item === item)
 
-            item.value = FilledClassBuilderNode(key, cb, parent)
+            item.value =
+                FilledClassBuilderNode(key, cb, parent, allowReference = cb.item.value?.allowReference ?: true)
 
 
             if (cb is ParentClassBuilder) {

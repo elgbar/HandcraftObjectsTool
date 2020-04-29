@@ -37,48 +37,52 @@ class NodeExplorerView(private val controller: ObjectEditorController) : View("T
                 if (cbn.item !== root) {
 
                     val refItem = item("Make reference to...").apply {
-                        action {
+                        if (cbn.allowReference) {
+                            action {
 
-                            val (key, cb, parent) = cbn
+                                val (key, cb, parent) = cbn
 
-                            val type = parent.getChildType(key)
-                            if (type == null) {
-                                information("Failed to find a the type of the child $key for $parent")
-                                return@action
-                            }
+                                val type = parent.getChildType(key)
+                                if (type == null) {
+                                    information("Failed to find a the type of the child $key for $parent")
+                                    return@action
+                                }
 
-                            if (cb != null && showOverwriteWithRefWarning != false) {
-                                warning(
-                                    "Do you want to overwrite it with a reference to another object?",
-                                    "This property is already defined: $cb",
-                                    owner = currentWindow,
-                                    buttons = *arrayOf(ButtonType.OK, OK_DISABLE_WARNING, ButtonType.CANCEL),
-                                    actionFn = { button ->
-                                        //hitting esc/closing window also counts as cancel
-                                        if (button == ButtonType.CANCEL) {
-                                            return@action
-                                        } else if (button == OK_DISABLE_WARNING) {
-                                            showOverwriteWithRefWarning = false
+                                if (cb != null && showOverwriteWithRefWarning != false) {
+                                    warning(
+                                        "Do you want to overwrite it with a reference to another object?",
+                                        "This property is already defined: $cb",
+                                        owner = currentWindow,
+                                        buttons = *arrayOf(ButtonType.OK, OK_DISABLE_WARNING, ButtonType.CANCEL),
+                                        actionFn = { button ->
+                                            //hitting esc/closing window also counts as cancel
+                                            if (button == ButtonType.CANCEL) {
+                                                return@action
+                                            } else if (button == OK_DISABLE_WARNING) {
+                                                showOverwriteWithRefWarning = false
+                                            }
                                         }
-                                    }
-                                )
+                                    )
+                                }
+
+                                val selector: ReferenceSelectorView = find("controller" to controller)
+                                val ref = selector.createReference(type, key, parent)
+
+                                if (ref == null) {
+                                    warning(
+                                        "No reference returned",
+                                        "No reference was returned from the search. This could be because you canceled the search (pressed escape) or because the chosen class builder was invalid."
+                                    )
+                                    return@action
+                                }
+
+                                parent[key] = ref
+
+                                cbn.item.children.clear()
+                                reload()
                             }
-
-                            val selector: ReferenceSelectorView = find("controller" to controller)
-                            val ref = selector.createReference(type, key, parent)
-
-                            if (ref == null) {
-                                warning(
-                                    "No reference returned",
-                                    "No reference was returned from the search. This could be because you canceled the search (pressed escape) or because the chosen class builder was invalid."
-                                )
-                                return@action
-                            }
-
-                            parent[key] = ref
-                            
-                            cbn.item.children.clear()
-                            reload()
+                        } else {
+                            isDisable = true
                         }
                     }
 

@@ -12,7 +12,8 @@ data class FilledClassBuilderNode(
     override val key: ClassBuilder,
     override val cb: ClassBuilder,
     override val parent: ParentClassBuilder,
-    override val item: TreeItem<ClassBuilderNode> = cb.item
+    override val item: TreeItem<ClassBuilderNode> = cb.item,
+    override val allowReference: Boolean = true
 ) : ClassBuilderNode {
 
     override fun ensurePresentClassBuilder(tree: TreeView<ClassBuilderNode>): FilledClassBuilderNode {

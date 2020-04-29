@@ -42,16 +42,17 @@ class ReferenceSelectorView : SelectorView<ClassBuilder>("Reference") {
 
         val ref = result ?: return null
         val item = parent.item.findChild(key)
+        require(item.value.allowReference) { "Somehow you selected a value that does not allow references! $ref" }
 
         return ReferenceClassBuilder(ref.key, ref.parent, key, parent, item).also {
-            item.value = FilledClassBuilderNode(key, it, parent, item = item)
+            item.value = FilledClassBuilderNode(key, it, parent, item, true)
         }
     }
 
     companion object {
 
         internal fun findInstancesOf(
-            type: JavaType,
+            wantedType: JavaType,
             cb: ClassBuilder
         ): Set<ClassBuilder> {
 
@@ -62,7 +63,7 @@ class ReferenceSelectorView : SelectorView<ClassBuilder>("Reference") {
                 for (child in cb.getChildren()) {
                     allChildren.addAll(
                         findInstancesOf(
-                            type,
+                            wantedType,
                             child
                         )
                     )
@@ -71,7 +72,7 @@ class ReferenceSelectorView : SelectorView<ClassBuilder>("Reference") {
 
             //find all children that is the correct type
             // and isn't a ReferenceClassBuilder to prevent cycles
-            return allChildren.filter { it.type.isTypeOrSubTypeOf(type.rawClass) && it !is ReferenceClassBuilder }
+            return allChildren.filter { it.type.isTypeOrSubTypeOf(wantedType.rawClass) && it.node.allowReference }
                 .toSet()
         }
     }
