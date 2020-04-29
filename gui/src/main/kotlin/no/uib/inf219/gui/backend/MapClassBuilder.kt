@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import javafx.event.EventTarget
 import javafx.scene.Node
+import javafx.scene.control.ContextMenu
 import javafx.scene.control.TreeItem
 import javafx.scene.input.MouseButton
 import javafx.scene.input.MouseEvent
@@ -18,10 +19,8 @@ import no.uib.inf219.gui.controllers.classBuilderNode.EmptyClassBuilderNode
 import no.uib.inf219.gui.controllers.classBuilderNode.FilledClassBuilderNode
 import no.uib.inf219.gui.loader.ClassInformation
 import no.uib.inf219.gui.view.ControlPanelView.mapper
-import tornadofx.action
-import tornadofx.asObservable
-import tornadofx.borderpane
-import tornadofx.button
+import tornadofx.*
+import kotlin.error
 
 /**
  * @author Elg
@@ -80,7 +79,7 @@ class MapClassBuilder(
 
         val keyNode = EmptyClassBuilderNode(keyCb, entry, allowReference = false)
         val valueNode = EmptyClassBuilderNode(valueCb, entry, allowReference = true)
-        
+
         item.children.setAll(listOf(keyNode, valueNode).map { it.item })
 
         serObject += entry
@@ -109,6 +108,19 @@ class MapClassBuilder(
             createNewChild(controller)
             event.consume()
         }
+    }
+
+    override fun createContextMenu(menu: ContextMenu, controller: ObjectEditorController): Boolean {
+        with(menu) {
+            item("Add new entry").action { createNewChild(controller) }
+            item("Clear").action {
+                serObject.clear()
+                item.children.clear()
+                controller.tree.reload()
+                item.isExpanded = false
+            }
+        }
+        return true
     }
 
     override fun createEditView(parent: EventTarget, controller: ObjectEditorController): Node {
