@@ -3,23 +3,15 @@ package no.uib.inf219.gui.backend
 
 import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
-import javafx.event.EventTarget
-import javafx.scene.control.ContextMenu
 import javafx.scene.control.TreeItem
-import javafx.scene.input.MouseButton
-import javafx.scene.input.MouseEvent
-import javafx.scene.layout.Region
-import no.uib.inf219.extra.centeredText
 import no.uib.inf219.extra.findChild
-import no.uib.inf219.extra.reload
 import no.uib.inf219.extra.toCb
 import no.uib.inf219.gui.backend.serializers.ParentClassBuilderSerializer
 import no.uib.inf219.gui.backend.simple.IntClassBuilder
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.controllers.classBuilderNode.ClassBuilderNode
 import no.uib.inf219.gui.loader.ClassInformation
-import tornadofx.*
-import kotlin.error
+import tornadofx.asObservable
 
 
 /**
@@ -32,7 +24,7 @@ class CollectionClassBuilder(
     override val parent: ParentClassBuilder,
     override val property: ClassInformation.PropertyMetadata? = null,
     override val item: TreeItem<ClassBuilderNode>
-) : ParentClassBuilder() {
+) : VariableSizedParentClassBuilder() {
 
     init {
         require(type.isContainerType)
@@ -41,50 +33,20 @@ class CollectionClassBuilder(
     override val serObject = ArrayList<ClassBuilder>().asObservable()
     override val serObjectObservable = serObject
 
-    private fun createNewChild(controller: ObjectEditorController) {
+    ////////////////////////////////////////
+    //Variable sized parent class builder //
+    ////////////////////////////////////////
+
+    override fun createNewChild(controller: ObjectEditorController): ClassBuilder? {
         //make sure the key is mutable to support deletion of elements
-        createChildClassBuilder(serObject.size.toCb(immutable = false), item = TreeItem())
-        controller.tree.reload()
-        item.isExpanded = true
+        return createChildClassBuilder(serObject.size.toCb(immutable = false), item = TreeItem())
     }
 
-    override fun createEditView(
-        parent: EventTarget,
-        controller: ObjectEditorController
-    ): Region {
-        return parent.borderpane {
-            center {
-                centeredText("There are ${serObject.size} elements in this collection\n") {
-                    button("Add new element").action {
-                        createNewChild(controller)
-                    }
-                }
-            }
-        }
-    }
+    override fun clear() = serObject.clear()
 
-    override fun onNodeClick(
-        event: MouseEvent,
-        controller: ObjectEditorController
-    ) {
-        if (event.clickCount == 2 && event.button == MouseButton.PRIMARY) {
-            createNewChild(controller)
-            event.consume()
-        }
-    }
-
-    override fun createContextMenu(menu: ContextMenu, controller: ObjectEditorController): Boolean {
-        with(menu) {
-            item("Add new element").action { createNewChild(controller) }
-            item("Clear").action {
-                serObject.clear()
-                item.children.clear()
-                controller.tree.reload()
-                item.isExpanded = false
-            }
-        }
-        return true
-    }
+    //////////////////////////
+    // parent class builder //
+    //////////////////////////
 
     private fun cbToInt(cb: ClassBuilder?): Int? {
         return if (cb !is IntClassBuilder) null else cb.serObject
@@ -182,8 +144,6 @@ class CollectionClassBuilder(
     )
 
     override fun getChildren(): List<ClassBuilder> = serObject
-
-    override fun isImmutable() = false
 
     override fun toString(): String {
         return "Collection CB; containing=${type.contentType}, value=${serObject}"

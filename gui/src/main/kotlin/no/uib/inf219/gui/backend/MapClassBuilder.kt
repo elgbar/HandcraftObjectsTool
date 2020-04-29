@@ -1,16 +1,9 @@
 package no.uib.inf219.gui.backend
 
 
-import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
-import javafx.event.EventTarget
-import javafx.scene.Node
-import javafx.scene.control.ContextMenu
 import javafx.scene.control.TreeItem
-import javafx.scene.input.MouseButton
-import javafx.scene.input.MouseEvent
-import no.uib.inf219.extra.reload
 import no.uib.inf219.extra.toCb
 import no.uib.inf219.gui.backend.serializers.MapClassBuilderSerializer
 import no.uib.inf219.gui.controllers.ObjectEditorController
@@ -19,8 +12,7 @@ import no.uib.inf219.gui.controllers.classBuilderNode.EmptyClassBuilderNode
 import no.uib.inf219.gui.controllers.classBuilderNode.FilledClassBuilderNode
 import no.uib.inf219.gui.loader.ClassInformation
 import no.uib.inf219.gui.view.ControlPanelView.mapper
-import tornadofx.*
-import kotlin.error
+import tornadofx.asObservable
 
 /**
  * @author Elg
@@ -32,7 +24,7 @@ class MapClassBuilder(
     override val parent: ParentClassBuilder,
     override val property: ClassInformation.PropertyMetadata?,
     override val item: TreeItem<ClassBuilderNode>
-) : ParentClassBuilder() {
+) : VariableSizedParentClassBuilder() {
 
     override val serObject = HashSet<ComplexClassBuilder>()
     override val serObjectObservable = serObject.asObservable()
@@ -49,10 +41,6 @@ class MapClassBuilder(
 
         val keyCb = ENTRY_KEY.toCb()
         val valueCb = ENTRY_VALUE.toCb()
-
-        val entryTypeCB = mapper.typeFactory.constructType(object :
-            TypeReference<Map.Entry<ClassBuilder?, ClassBuilder?>>() {})
-            ?: error("Failed to construct map entry type")
 
         data class MapEntry<K, V>(override val key: K?, override val value: V?) : Map.Entry<K?, V?> {}
     }
@@ -93,45 +81,16 @@ class MapClassBuilder(
         return serObject.remove(entry)
     }
 
-    private fun createNewChild(controller: ObjectEditorController) {
-        val created = create(TreeItem())
-        controller.tree.reload()
-        item.isExpanded = true
-        created.item.isExpanded = true
-    }
+    ////////////////////////////////////////
+    //Variable sized parent class builder //
+    ////////////////////////////////////////
 
-    override fun onNodeClick(
-        event: MouseEvent,
-        controller: ObjectEditorController
-    ) {
-        if (event.clickCount == 2 && event.button == MouseButton.PRIMARY) {
-            createNewChild(controller)
-            event.consume()
-        }
-    }
+    override fun createNewChild(controller: ObjectEditorController) = create(TreeItem())
+    override fun clear() = serObject.clear()
 
-    override fun createContextMenu(menu: ContextMenu, controller: ObjectEditorController): Boolean {
-        with(menu) {
-            item("Add new entry").action { createNewChild(controller) }
-            item("Clear").action {
-                serObject.clear()
-                item.children.clear()
-                controller.tree.reload()
-                item.isExpanded = false
-            }
-        }
-        return true
-    }
-
-    override fun createEditView(parent: EventTarget, controller: ObjectEditorController): Node {
-        return parent.borderpane {
-            center = button("Add entry") {
-                action {
-                    createNewChild(controller)
-                }
-            }
-        }
-    }
+    //////////////////////////
+    // parent class builder //
+    //////////////////////////
 
     override fun createChildClassBuilder(
         key: ClassBuilder,
@@ -167,10 +126,6 @@ class MapClassBuilder(
         item.children.remove(childItem)
     }
 
-    override fun getPreviewValue(): String {
-        return "Map<${type.keyType}, ${type.contentType}> of size ${serObject.size}"
-    }
-
     override fun getChildPropertyMetadata(key: ClassBuilder) = ClassInformation.PropertyMetadata(
         key.getPreviewValue(),
         entryType,
@@ -180,18 +135,22 @@ class MapClassBuilder(
         true
     )
 
+
     override fun getChildType(key: ClassBuilder): JavaType? {
         return entryType
     }
 
     override fun getSubClassBuilders(): Map<ClassBuilder, ClassBuilder?> {
-        //TODO fix this somehow. It does not really follow the interface requirement, can can never do so as the key is nullable
-        // However as it is only used by the interface in getChildren and getTreeItems those are for now overwritten
-        // but this is of course not maintainable free
         return serObject.map { cb -> cb.key to cb }.toMap()
     }
 
-    override fun isImmutable(): Boolean = false
+    ///////////////////
+    // Class Builder //
+    ///////////////////
+
+    override fun getPreviewValue(): String {
+        return "Map<${type.keyType}, ${type.contentType}> of size ${serObject.size}"
+    }
 
     override fun toString(): String {
         return "Map CB; key type=${type.keyType}, contained type=${type.contentType})"
