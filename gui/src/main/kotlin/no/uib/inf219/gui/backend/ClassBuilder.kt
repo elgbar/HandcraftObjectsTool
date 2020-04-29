@@ -13,6 +13,8 @@ import javafx.scene.control.ButtonBar
 import javafx.scene.control.ButtonType
 import javafx.scene.control.ContextMenu
 import javafx.scene.control.TreeItem
+import javafx.scene.input.KeyCode
+import javafx.scene.input.KeyEvent
 import javafx.scene.input.MouseEvent
 import no.uib.inf219.extra.findChild
 import no.uib.inf219.gui.backend.serializers.ClassBuilderSerializer
@@ -112,7 +114,13 @@ interface ClassBuilder {
     /**
      * When the node of this class builder got a mouse event
      */
-    fun onNodeClick(event: MouseEvent, controller: ObjectEditorController) {}
+    fun onNodeMouseEvent(event: MouseEvent, controller: ObjectEditorController) {}
+
+    fun onNodeKeyEvent(event: KeyEvent, controller: ObjectEditorController) {
+        if (event.code == KeyCode.DELETE || event.code == KeyCode.DELETE) {
+            controller.deleteSelected(!event.isShiftDown)
+        }
+    }
 
     /**
      * Allow class builder to customize what is displayed when right clicking on it's node.

@@ -29,7 +29,19 @@ class NodeExplorerView(private val controller: ObjectEditorController) : View("T
                 controller.createSelected()
                 return@setOnMouseClicked
             }
-            selectedValue?.cb?.onNodeClick(event, controller)
+            if (selectedValue !== root) {
+                selectedValue?.cb?.onNodeMouseEvent(event, controller)
+            }
+        }
+        setOnKeyPressed { event ->
+            //note that "isPrimaryButtonDown" and "isSecondaryButtonDown" does not work
+            if (selectedValue?.cb == null && (event.code == KeyCode.ENTER || event.code == KeyCode.SPACE)) {
+                controller.createSelected()
+                return@setOnKeyPressed
+            }
+            if (selectedValue !== root) {
+                selectedValue?.cb?.onNodeKeyEvent(event, controller)
+            }
         }
 
         cellFormat { cbn ->

@@ -45,9 +45,18 @@ class ObjectEditorController(
     fun createSelected(): ClassBuilderNode? {
         with(tree) {
             val item = selectedItem ?: return null
+            if (item == root) return null
             val newCbn = item.value.ensurePresentClassBuilder(this) ?: return null
             item.value = newCbn
             return newCbn
+        }
+    }
+
+    fun deleteSelected(restoreDefault: Boolean) {
+        with(tree) {
+            val item = selectedItem ?: return
+            if (item == root) return
+            item.value.resetClassBuilder(this, restoreDefault)
         }
     }
 
