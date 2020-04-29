@@ -167,17 +167,18 @@ abstract class ParentClassBuilder : ClassBuilder {
             var prevSize = items.size
 
             //Display reset action if it does have a reset element
-            if (childMeta?.hasValidDefaultInstance() == true) {
-                item("Restore default").action {
-                    childCBN.resetClassBuilder(controller.tree, true)
-                }
+            item("Restore default") {
+                isDisable = childMeta?.hasValidDefaultInstance() != true
+            }.action {
+                childCBN.resetClassBuilder(controller.tree, true)
             }
 
+
             //only allow deletion when there are something to delete
-            if (childCBN.cb != null) {
-                item("Delete").action {
-                    childCBN.resetClassBuilder(controller.tree, false)
-                }
+            item("Delete") {
+                isDisable = childCBN.cb == null
+            }.action {
+                childCBN.resetClassBuilder(controller.tree, false)
             }
 
             if (items.size != prevSize) {
