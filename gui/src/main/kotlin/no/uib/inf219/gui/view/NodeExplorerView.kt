@@ -1,10 +1,12 @@
 package no.uib.inf219.gui.view
 
 import javafx.scene.control.ButtonType
+import javafx.scene.input.KeyCode
 import javafx.scene.input.MouseButton
-import no.uib.inf219.extra.OK_DISABLE_WARNING
+import no.uib.inf219.extra.YES_DISABLE_WARNING
 import no.uib.inf219.extra.reload
 import no.uib.inf219.gui.controllers.ObjectEditorController
+import no.uib.inf219.gui.controllers.Settings
 import no.uib.inf219.gui.controllers.Settings.showOverwriteWithRefWarning
 import no.uib.inf219.gui.view.select.ReferenceSelectorView
 import tornadofx.*
@@ -34,6 +36,11 @@ class NodeExplorerView(private val controller: ObjectEditorController) : View("T
             text = cbn.key.getPreviewValue()
             tooltip("Class: ${cbn.cb?.type ?: cbn.parent.getChildType(cbn.key)}")
             this.contextMenu = null
+            cbn.item.expandedProperty().addListener { _, _, newValue ->
+                if (!newValue && Settings.collapseChildren == true) {
+                    cbn.item.children.forEach { it.isExpanded = false }
+                }
+            }
             contextmenu {
                 if (cbn.item !== root) {
 
@@ -87,9 +94,13 @@ class NodeExplorerView(private val controller: ObjectEditorController) : View("T
                             isDisable = true
                         }
                     }
+                    val coll = this.checkmenuitem("Collapse All Children") {
+                        selectedProperty().addListener { _, _, newValue -> Settings.collapseChildren = newValue }
+                        isSelected = Settings.collapseChildren!!
+                    }
 
                     setOnHiding {
-                        this.items.setAll(refItem)
+                        this.items.setAll(refItem, coll)
                     }
 
                     setOnShowing {
@@ -99,7 +110,5 @@ class NodeExplorerView(private val controller: ObjectEditorController) : View("T
                 }
             }
         }
-
-
     }
 }

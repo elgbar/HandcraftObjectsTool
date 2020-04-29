@@ -21,6 +21,10 @@ object Settings {
      */
     var lastFolderSaved: File? by Persistent()
 
+    /**
+     * Should all children be collapsed when parent tree item is
+     */
+    var collapseChildren by Persistent(true)
 
     ///////////////////////
     // Disabled Warnings //
