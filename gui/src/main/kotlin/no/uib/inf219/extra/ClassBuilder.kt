@@ -84,6 +84,7 @@ val FAKE_ROOT = object : ParentClassBuilder() {
  * The returned object must not change unless there are changes further down the class builder change
  */
 fun ClassBuilder.toObject(): Any? {
+
     return ControlPanelView.mapper.convertValue(this, type)
 }
 
@@ -158,7 +159,8 @@ fun String.toCb(
     key: ClassBuilder? = null,
     parent: ParentClassBuilder? = null,
     property: ClassInformation.PropertyMetadata? = null,
-    immutable: Boolean = true
+    immutable: Boolean = true,
+    item: TreeItem<ClassBuilderNode> = TreeItem()
 ): SimpleClassBuilder<String> {
     return StringClassBuilder(
         this,
@@ -166,7 +168,7 @@ fun String.toCb(
         parent,
         property,
         immutable,
-        TreeItem()
+        item
     )
 }
 
@@ -179,7 +181,8 @@ fun Int.toCb(
     key: ClassBuilder? = null,
     parent: ParentClassBuilder? = null,
     property: ClassInformation.PropertyMetadata? = null,
-    immutable: Boolean = true
+    immutable: Boolean = true,
+    item: TreeItem<ClassBuilderNode> = TreeItem()
 ): SimpleClassBuilder<Int> {
     return IntClassBuilder(
         this,
@@ -187,6 +190,6 @@ fun Int.toCb(
         parent,
         property,
         immutable,
-        TreeItem()
+        item
     )
 }
