@@ -159,7 +159,8 @@ interface ClassBuilder {
 
             if (value != null) {
                 val clazz: Class<*> = if (type.isPrimitive) value::class.javaPrimitiveType!! else value::class.java
-                require((type.rawClass == clazz) || type.rawClass.isAssignableFrom(clazz)) {
+
+                require(type.isTypeOrSuperTypeOf(clazz)) {
                     "Mismatch between given java type and the initial value. Given java type $type, initial value type $clazz"
                 }
             }
@@ -352,9 +353,9 @@ interface ClassBuilder {
                 ComplexClassBuilder(type, key = key, parent = parent, property = prop, item = item)
             }) ?: return null
 
-            require(cb.item == item)
+            require(cb.item === item)
 
-            item.value = FilledClassBuilderNode(key, cb, parent, item)
+            item.value = FilledClassBuilderNode(key, cb, parent)
 
 
             if (cb is ParentClassBuilder) {

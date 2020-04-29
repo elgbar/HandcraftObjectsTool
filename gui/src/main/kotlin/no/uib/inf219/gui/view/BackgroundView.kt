@@ -118,7 +118,8 @@ class BackgroundView : View("Handcrafted Objects Tool") {
 
                                         fun hyperWeblinkLabel(text: String, vararg links: Pair<String, String>) {
                                             hyperlinklabel(text).action {
-                                                val url = links.toMap()[this.text] ?: return@action
+                                                @Suppress("LABEL_NAME_CLASH") val url =
+                                                    links.toMap()[this.text] ?: return@action
                                                 openWebPage(url)
                                             }
                                         }

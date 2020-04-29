@@ -101,7 +101,7 @@ object ControlPanelView : View("Control Panel") {
 
             var ignoreNext = false
 
-            prop.addListener { _, oldValue, newValue ->
+            prop.addListener { _, oldValue, _ ->
                 if (ignoreNext) {
                     ignoreNext = false
                     return@addListener
@@ -267,7 +267,7 @@ object ControlPanelView : View("Control Panel") {
             textfield {
                 bind(classNameProperty)
                 promptText = "Full class name"
-                text = "no.uib.inf219.example.data.Conversation" //TODO remove
+                text = "no.uib.inf219.example.data.showcase.MapExample" //TODO remove
                 hgrow = Priority.ALWAYS
             }
         }
