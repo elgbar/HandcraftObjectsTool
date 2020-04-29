@@ -2,6 +2,8 @@ package no.uib.inf219.gui.backend
 
 import javafx.scene.control.TreeItem
 import no.uib.inf219.extra.toCb
+import no.uib.inf219.extra.toObject
+import no.uib.inf219.gui.backend.simple.StringClassBuilder
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.view.ControlPanelView
 import org.junit.jupiter.api.Assertions.*
@@ -32,5 +34,41 @@ internal class CollectionClassBuilderTest {
 
         assertTrue(parent.serObject.isEmpty())
         assertFalse(parent.serObject.contains(child))
+    }
+
+    @Test
+    internal fun serialization_twoElems() {
+        val parent = ObjectEditorController(listStrType).root as CollectionClassBuilder
+
+        assertTrue(parent.serObject.isEmpty())
+
+        val child =
+            parent.createChildClassBuilder(0.toCb(immutable = false), item = TreeItem()) as StringClassBuilder
+        child.serObject = "hello"
+
+        val child2 =
+            parent.createChildClassBuilder(1.toCb(immutable = false), item = TreeItem()) as StringClassBuilder
+        child2.serObject = "world!"
+
+        assertEquals(listOf("hello", "world!"), parent.toObject())
+    }
+
+    @Test
+    internal fun serialization_oneElem() {
+        val parent = ObjectEditorController(listStrType).root as CollectionClassBuilder
+
+        assertTrue(parent.serObject.isEmpty())
+
+        val child =
+            parent.createChildClassBuilder(0.toCb(immutable = false), item = TreeItem()) as StringClassBuilder
+        child.serObject = "hello!"
+
+        assertEquals(listOf("hello!"), parent.toObject())
+    }
+
+    @Test
+    internal fun serialization_empty() {
+        val parent = ObjectEditorController(listStrType).root as CollectionClassBuilder
+        assertEquals(emptyList<Any>(), parent.toObject())
     }
 }
