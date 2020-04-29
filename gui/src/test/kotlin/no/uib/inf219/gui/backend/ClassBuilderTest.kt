@@ -5,7 +5,6 @@ import no.uib.inf219.extra.toCb
 import no.uib.inf219.extra.type
 import org.junit.jupiter.api.Assertions.assertDoesNotThrow
 import org.junit.jupiter.api.Assertions.assertThrows
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.testfx.framework.junit5.ApplicationExtension
@@ -42,17 +41,5 @@ internal class ClassBuilderTest {
                 value = true
             )
         }
-    }
-
-    @Disabled
-    @Test
-    internal fun resetChild_dontRestore_collection() {
-        TODO("not implemented")
-    }
-
-    @Disabled
-    @Test
-    internal fun resetChild_dontRestore_map() {
-        TODO("not implemented")
     }
 }
