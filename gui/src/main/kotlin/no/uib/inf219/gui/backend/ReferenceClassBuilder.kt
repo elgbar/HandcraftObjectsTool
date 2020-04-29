@@ -33,25 +33,27 @@ class ReferenceClassBuilder(
     override val item: TreeItem<ClassBuilderNode>
 ) : ClassBuilder {
 
+    private var lastSeenSerObj = serObject
+
     override val serObject: ClassBuilder
-        get() = refParent.getChild(refKey)
-            ?: error("Failed to find a serObject with the given reference parent and ref key. Cannot make a reference to a null class builder")
+        get() {
+            val so = refParent.getChild(refKey)
+                ?: error("Failed to find a serObject with the given reference parent and ref key. Cannot make a reference to a null class builder")
+            if (so !== lastSeenSerObj) {
+                lastSeenSerObj = so
+            }
+            return so
+        }
 
     override val property: ClassInformation.PropertyMetadata? = parent.getChildPropertyMetadata(key)
-    override val type: JavaType = serObject.type
-    override val serObjectObservable = serObject.toProperty()
+    override val type: JavaType get() = serObject.type
+    override val serObjectObservable = lastSeenSerObj.toProperty()
 
     private val event: (ClassBuilderResetEvent) -> Unit
 
     init {
-
         require(refKey != key || refParent !== parent) {
             "Direct cycle detected, the object we're serializing is this!"
-        }
-
-        require(serObject !is ReferenceClassBuilder || !parent.isLeaf()) {
-            //TODO find out if reference chaining should be allowed. If not update this message with why.
-            "Chain of cb references is not supported as of now"
         }
 
         event = { (cbn, restoreDefault) ->
