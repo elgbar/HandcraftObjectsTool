@@ -42,18 +42,7 @@ class ObjectEditorBackgroundView : View("Object Editor Background") {
             addClass(Styles.parent)
 
             button("Save").action { save() }
-
-            button("Validate").action {
-                OutputArea.logln("Validating...")
-                runAsync {
-
-                    val obj = toJson()
-                    if (obj != null) {
-                        OutputArea.logln("Successfully created object!")
-                        OutputArea.logln("json=$obj")
-                    }
-                }
-            }
+            button("Validate").action { validate() }
             this += OutputArea.clearButton()
         }
     }
@@ -131,6 +120,18 @@ class ObjectEditorBackgroundView : View("Object Editor Background") {
         ControlPanelView.runAsync {
             file.writeText(obj)
             OutputArea.logln("Saved object to file ${file.canonicalPath}")
+        }
+    }
+
+    fun validate() {
+        OutputArea.logln("Validating...")
+        runAsync {
+
+            val obj = toJson()
+            if (obj != null) {
+                OutputArea.logln("Successfully created object!")
+                OutputArea.logln("json=$obj")
+            }
         }
     }
 }

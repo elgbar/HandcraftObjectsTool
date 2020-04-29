@@ -60,6 +60,14 @@ class BackgroundView : View("Handcrafted Objects Tool") {
 
                         oebv.save()
                     }
+                    //use Ctrl+D as Ctrl+V is used for pasting when in an editor
+                    item("Validate", "Ctrl+D").action {
+                        val tab = tabPane.selectionModel.selectedItem
+                        if (tab.text == CONTROL_PANEL_TAB_NAME) return@action //cannot save control panel
+                        val oebv = ControlPanelView.tabMap[tab] ?: return@action
+
+                        oebv.validate()
+                    }
                     separator()
                     item("Settings").action {
 
