@@ -14,6 +14,7 @@ import no.uib.inf219.gui.Styles
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.ems
 import tornadofx.*
+import kotlin.math.max
 
 /**
  * @author Elg
@@ -21,7 +22,7 @@ import tornadofx.*
 abstract class SelectorView<T>(title: String) : View(title) {
 
     protected val searchResult = ArrayList<T>().asObservable()
-    private val filteredData = SortedFilteredList(searchResult)
+    protected val filteredData = SortedFilteredList(searchResult)
 
     /**
      * The [T] selected by the use when closing the dialog
@@ -74,25 +75,27 @@ abstract class SelectorView<T>(title: String) : View(title) {
                     textProperty().onChange {
                         if (text.length >= 3) {
 
-                            runAsync {
-                                val sorted: List<BoundExtractedResult<T>> = FuzzySearch.extractAll(
+                            val sorted: List<BoundExtractedResult<T>> =
+                                FuzzySearch.extractTop(
                                     textLabelProperty.value,
                                     filteredData,
-                                    { cellText(it) },
-                                    60
+                                    { cellText(it).replace('.', ' ') },
+                                    max(filteredData.size * 0.10, 500.0).toInt()
                                 )
-                                val map: Map<T, BoundExtractedResult<T>> = sorted.map { it.referent to it }.toMap()
+                                    ?: return@onChange
 
-                                runLater {
-                                    filteredData.predicate = {
-                                        map.containsKey(it)
-                                    }
+                            val map: Map<T, BoundExtractedResult<T>> =
+                                sorted.map { it.referent to it }.toMap()
 
-                                    filteredData.sortedItems.setComparator { a, b ->
-                                        val aScore = map[a]?.score ?: -1
-                                        val bScore = map[b]?.score ?: -1
-                                        return@setComparator bScore - aScore
-                                    }
+                            runLater {
+                                filteredData.predicate = {
+                                    map.containsKey(it)
+                                }
+
+                                filteredData.sortedItems.setComparator { a, b ->
+                                    val aScore = map[a]?.score ?: -1
+                                    val bScore = map[b]?.score ?: -1
+                                    return@setComparator bScore - aScore
                                 }
                             }
                         } else {
@@ -103,7 +106,7 @@ abstract class SelectorView<T>(title: String) : View(title) {
                     }
                 }
 
-                listview(filteredData) {
+                listview(filteredData.sortedItems) {
 
                     onUserSelect {
                         result = it
