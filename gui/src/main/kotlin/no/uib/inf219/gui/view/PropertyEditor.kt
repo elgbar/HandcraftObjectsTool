@@ -1,6 +1,7 @@
 package no.uib.inf219.gui.view
 
 import javafx.geometry.Orientation
+import javafx.scene.input.KeyCode
 import no.uib.inf219.extra.centeredText
 import no.uib.inf219.gui.Styles
 import no.uib.inf219.gui.controllers.ObjectEditorController
@@ -46,6 +47,11 @@ class PropertyEditor : Fragment("Property Editor") {
                         center {
                             onDoubleClick {
                                 controller.createSelected()
+                            }
+                            setOnKeyPressed { event ->
+                                if ((event.code == KeyCode.ENTER || event.code == KeyCode.SPACE)) {
+                                    controller.createSelected()
+                                }
                             }
                             centeredText(
                                 "Double click a property to edit it. You can also double click anywhere here to create this property.",
