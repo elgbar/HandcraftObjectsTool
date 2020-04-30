@@ -2,13 +2,16 @@ package no.uib.inf219.gui.backend
 
 import com.fasterxml.jackson.databind.type.CollectionLikeType
 import javafx.scene.control.TreeItem
-import no.uib.inf219.extra.toCb
-import no.uib.inf219.extra.toObject
 import no.uib.inf219.extra.type
+import no.uib.inf219.gui.backend.cb.parents.CollectionClassBuilder
+import no.uib.inf219.gui.backend.cb.parents.ComplexClassBuilder
+import no.uib.inf219.gui.backend.cb.reference.ReferenceClassBuilder
+import no.uib.inf219.gui.backend.cb.toCb
+import no.uib.inf219.gui.backend.cb.toObject
 import no.uib.inf219.gui.backend.events.ClassBuilderResetEvent
 import no.uib.inf219.gui.backend.events.resetEvent
 import no.uib.inf219.gui.controllers.ObjectEditorController
-import no.uib.inf219.gui.controllers.classBuilderNode.FilledClassBuilderNode
+import no.uib.inf219.gui.controllers.cbn.FilledClassBuilderNode
 import no.uib.inf219.gui.view.ControlPanelView
 import no.uib.inf219.test.conv.Conversation
 import no.uib.inf219.test.conv.Response
@@ -41,11 +44,21 @@ internal class ReferenceClassBuilderTest {
         cb.serObject[no.uib.inf219.test.conv.Conversation::responses.name] = responses
 
         //create two responses
-        val resp1 = ComplexClassBuilder(Response::class.type(), "#1".toCb(), responses, item = TreeItem())
+        val resp1 = ComplexClassBuilder(
+            Response::class.type(),
+            "#1".toCb(),
+            responses,
+            item = TreeItem()
+        )
         resp1.serObject[Response::name.name] = "resp 1 name".toCb(Response::name.name.toCb(), resp1)
         resp1.serObject[Response::response.name] = "resp 1 response".toCb(Response::response.name.toCb(), resp1)
 
-        val resp2 = ComplexClassBuilder(Response::class.type(), "#2".toCb(), responses, item = TreeItem())
+        val resp2 = ComplexClassBuilder(
+            Response::class.type(),
+            "#2".toCb(),
+            responses,
+            item = TreeItem()
+        )
         resp2.serObject[Response::name.name] = "resp 2 name".toCb(Response::name.name.toCb(), resp2)
         resp2.serObject[Response::response.name] = "resp 2 response".toCb(Response::response.name.toCb(), resp2)
 
@@ -55,7 +68,12 @@ internal class ReferenceClassBuilderTest {
 
 
         val resp1CB =
-            ComplexClassBuilder(Conversation::class.type(), Response::conv.name.toCb(), responses, item = TreeItem())
+            ComplexClassBuilder(
+                Conversation::class.type(),
+                Response::conv.name.toCb(),
+                responses,
+                item = TreeItem()
+            )
         resp1CB.serObject[Conversation::name.name] =
             "response conv name".toCb(Conversation::name.name.toCb(), resp1CB)
         resp1CB.serObject[Conversation::text.name] =
@@ -102,7 +120,13 @@ internal class ReferenceClassBuilderTest {
         //text property is a reference to the name property in this example
         val refKey = Conversation::text.name
 
-        val ref = ReferenceClassBuilder(orgKeyCb, cb, refKey.toCb(), cb, item = TreeItem())
+        val ref = ReferenceClassBuilder(
+            orgKeyCb,
+            cb,
+            refKey.toCb(),
+            cb,
+            item = TreeItem()
+        )
         ref.item.value = FilledClassBuilderNode(ref.key, ref, ref.parent)
 
         cb.serObject[refKey] = ref
@@ -133,7 +157,13 @@ internal class ReferenceClassBuilderTest {
         //text property is a reference to the name property in this example
         val refKey = Conversation::text.name
 
-        val ref = ReferenceClassBuilder(orgKeyCb, cb, refKey.toCb(), cb, item = TreeItem())
+        val ref = ReferenceClassBuilder(
+            orgKeyCb,
+            cb,
+            refKey.toCb(),
+            cb,
+            item = TreeItem()
+        )
         ref.item.value = FilledClassBuilderNode(ref.key, ref, ref.parent)
 
         cb.serObject[refKey] = ref

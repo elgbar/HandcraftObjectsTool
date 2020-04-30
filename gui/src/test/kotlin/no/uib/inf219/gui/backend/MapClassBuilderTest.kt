@@ -2,15 +2,18 @@ package no.uib.inf219.gui.backend
 
 import javafx.scene.control.TreeItem
 import no.uib.inf219.extra.findChild
-import no.uib.inf219.extra.toCb
-import no.uib.inf219.extra.toObject
 import no.uib.inf219.extra.type
-import no.uib.inf219.gui.backend.MapClassBuilder.Companion.ENTRY_KEY
-import no.uib.inf219.gui.backend.MapClassBuilder.Companion.ENTRY_VALUE
-import no.uib.inf219.gui.backend.MapClassBuilder.Companion.keyCb
-import no.uib.inf219.gui.backend.MapClassBuilder.Companion.valueCb
+import no.uib.inf219.gui.backend.cb.parents.ComplexClassBuilder
+import no.uib.inf219.gui.backend.cb.parents.MapClassBuilder
+import no.uib.inf219.gui.backend.cb.parents.MapClassBuilder.Companion.ENTRY_KEY
+import no.uib.inf219.gui.backend.cb.parents.MapClassBuilder.Companion.ENTRY_VALUE
+import no.uib.inf219.gui.backend.cb.parents.MapClassBuilder.Companion.keyCb
+import no.uib.inf219.gui.backend.cb.parents.MapClassBuilder.Companion.valueCb
+import no.uib.inf219.gui.backend.cb.reference.ReferenceClassBuilder
+import no.uib.inf219.gui.backend.cb.toCb
+import no.uib.inf219.gui.backend.cb.toObject
 import no.uib.inf219.gui.controllers.ObjectEditorController
-import no.uib.inf219.gui.controllers.classBuilderNode.FilledClassBuilderNode
+import no.uib.inf219.gui.controllers.cbn.FilledClassBuilderNode
 import no.uib.inf219.gui.view.ControlPanelView.mapper
 import no.uib.inf219.test.UselessRecursiveObject
 import org.junit.jupiter.api.Assertions.*

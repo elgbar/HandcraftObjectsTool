@@ -2,11 +2,11 @@ package no.uib.inf219.gui.view.select
 
 import com.fasterxml.jackson.databind.JavaType
 import no.uib.inf219.extra.findChild
-import no.uib.inf219.extra.path
-import no.uib.inf219.gui.backend.ClassBuilder
-import no.uib.inf219.gui.backend.ParentClassBuilder
-import no.uib.inf219.gui.backend.ReferenceClassBuilder
-import no.uib.inf219.gui.controllers.classBuilderNode.FilledClassBuilderNode
+import no.uib.inf219.gui.backend.cb.api.ClassBuilder
+import no.uib.inf219.gui.backend.cb.api.ParentClassBuilder
+import no.uib.inf219.gui.backend.cb.path
+import no.uib.inf219.gui.backend.cb.reference.ReferenceClassBuilder
+import no.uib.inf219.gui.controllers.cbn.FilledClassBuilderNode
 
 /**
  * @author Elg
@@ -44,7 +44,13 @@ class ReferenceSelectorView : SelectorView<ClassBuilder>("Reference") {
         val item = parent.item.findChild(key)
         require(item.value.allowReference) { "Somehow you selected a value that does not allow references! $ref" }
 
-        return ReferenceClassBuilder(ref.key, ref.parent, key, parent, item).also {
+        return ReferenceClassBuilder(
+            ref.key,
+            ref.parent,
+            key,
+            parent,
+            item
+        ).also {
             item.value = FilledClassBuilderNode(key, it, parent, item, true)
         }
     }

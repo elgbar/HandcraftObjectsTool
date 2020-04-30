@@ -6,12 +6,13 @@ import javafx.event.EventTarget
 import javafx.scene.control.TreeItem
 import javafx.scene.control.TreeView
 import no.uib.inf219.extra.selectedItem
-import no.uib.inf219.extra.toCb
 import no.uib.inf219.extra.type
-import no.uib.inf219.gui.backend.ClassBuilder
-import no.uib.inf219.gui.backend.ParentClassBuilder
-import no.uib.inf219.gui.controllers.classBuilderNode.ClassBuilderNode
-import no.uib.inf219.gui.controllers.classBuilderNode.FilledClassBuilderNode
+import no.uib.inf219.gui.backend.cb.api.ClassBuilder
+import no.uib.inf219.gui.backend.cb.api.ParentClassBuilder
+import no.uib.inf219.gui.backend.cb.createClassBuilder
+import no.uib.inf219.gui.backend.cb.toCb
+import no.uib.inf219.gui.controllers.cbn.ClassBuilderNode
+import no.uib.inf219.gui.controllers.cbn.FilledClassBuilderNode
 import no.uib.inf219.gui.loader.ClassInformation.PropertyMetadata
 import tornadofx.text
 import kotlin.properties.ReadOnlyProperty
@@ -82,7 +83,7 @@ class ObjectEditorController(
                 "The object that is currently being created",
                 false
             )
-            val cb = ClassBuilder.createClassBuilder(realRootType, realRootKey, this, rootPropMeta, TreeItem())
+            val cb = createClassBuilder(realRootType, realRootKey, this, rootPropMeta, TreeItem())
                 ?: error("failed to create a root class builder")
 
             this@RootDelegator.serObject = cb

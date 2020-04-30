@@ -4,11 +4,12 @@ import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.annotation.JsonValue
 import javafx.scene.control.TreeItem
-import no.uib.inf219.extra.FAKE_ROOT
-import no.uib.inf219.extra.toCb
-import no.uib.inf219.extra.toObject
 import no.uib.inf219.extra.type
-import no.uib.inf219.gui.backend.simple.UUIDClassBuilder
+import no.uib.inf219.gui.backend.cb.FAKE_ROOT
+import no.uib.inf219.gui.backend.cb.parents.ComplexClassBuilder
+import no.uib.inf219.gui.backend.cb.simple.UUIDClassBuilder
+import no.uib.inf219.gui.backend.cb.toCb
+import no.uib.inf219.gui.backend.cb.toObject
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.loader.ClassInformation
 import no.uib.inf219.gui.view.ControlPanelView

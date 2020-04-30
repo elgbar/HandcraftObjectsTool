@@ -6,7 +6,7 @@ import javafx.geometry.Pos
 import javafx.scene.control.Hyperlink
 import javafx.scene.layout.VBox
 import javafx.scene.text.TextAlignment
-import no.uib.inf219.gui.backend.ClassBuilder
+import no.uib.inf219.gui.backend.cb.api.ClassBuilder
 import tornadofx.*
 import java.awt.Desktop
 import java.net.URI

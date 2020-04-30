@@ -1,9 +1,10 @@
 package no.uib.inf219.gui.backend
 
 import javafx.scene.control.TreeItem
-import no.uib.inf219.extra.toCb
-import no.uib.inf219.extra.toObject
-import no.uib.inf219.gui.backend.simple.StringClassBuilder
+import no.uib.inf219.gui.backend.cb.parents.CollectionClassBuilder
+import no.uib.inf219.gui.backend.cb.simple.StringClassBuilder
+import no.uib.inf219.gui.backend.cb.toCb
+import no.uib.inf219.gui.backend.cb.toObject
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.view.ControlPanelView
 import org.junit.jupiter.api.Assertions.*

@@ -1,8 +1,9 @@
 package no.uib.inf219.gui.backend
 
-import no.uib.inf219.extra.FAKE_ROOT
-import no.uib.inf219.extra.toCb
 import no.uib.inf219.extra.type
+import no.uib.inf219.gui.backend.cb.FAKE_ROOT
+import no.uib.inf219.gui.backend.cb.createClassBuilder
+import no.uib.inf219.gui.backend.cb.toCb
 import org.junit.jupiter.api.Assertions.assertDoesNotThrow
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
@@ -16,7 +17,7 @@ internal class ClassBuilderTest {
     @Test
     internal fun getClassBuilder_failOnTypeMismatch() {
         assertThrows(IllegalArgumentException::class.java) {
-            ClassBuilder.createClassBuilder(
+            createClassBuilder(
                 String::class.type(), key = "key".toCb(), parent = FAKE_ROOT, value = 2
             )
         }
@@ -25,7 +26,7 @@ internal class ClassBuilderTest {
     @Test
     internal fun getClassBuilder_worksForPrimitives() {
         assertDoesNotThrow {
-            ClassBuilder.createClassBuilder(
+            createClassBuilder(
                 Boolean::class.type(),
                 key = "key".toCb(),
                 parent = FAKE_ROOT,
@@ -34,7 +35,7 @@ internal class ClassBuilderTest {
         }
 
         assertDoesNotThrow {
-            ClassBuilder.createClassBuilder(
+            createClassBuilder(
                 Boolean::class.javaPrimitiveType!!.type(),
                 key = "key".toCb(),
                 parent = FAKE_ROOT,
