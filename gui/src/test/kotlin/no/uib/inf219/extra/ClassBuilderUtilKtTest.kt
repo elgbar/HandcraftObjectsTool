@@ -22,7 +22,7 @@ internal class ClassBuilderUtilKtTest {
     internal fun isDescendantOf_legitChild() {
         val parent = ObjectEditorController(listStrType).root as CollectionClassBuilder
 
-        val child = parent.createChildClassBuilder(0.toCb(immutable = false), item = TreeItem())
+        val child = parent.createChild(0.toCb(immutable = false), item = TreeItem())
         assertNotNull(child)
 
         assertTrue(child!!.isDescendantOf(parent))
@@ -36,12 +36,12 @@ internal class ClassBuilderUtilKtTest {
 
         val parent = ObjectEditorController(listListType).root as CollectionClassBuilder
 
-        val child = parent.createChildClassBuilder(
+        val child = parent.createChild(
             0.toCb(immutable = false),
             item = TreeItem()
         ) as ParentClassBuilder
 
-        val grandChild = child.createChildClassBuilder(
+        val grandChild = child.createChild(
             0.toCb(immutable = false),
             item = TreeItem()
         ) as ClassBuilder
@@ -57,7 +57,7 @@ internal class ClassBuilderUtilKtTest {
     internal fun isDescendantOf_illegitimateChild() {
         val parent = ObjectEditorController(listStrType).root as CollectionClassBuilder
 
-        val child = parent.createChildClassBuilder(
+        val child = parent.createChild(
             0.toCb(immutable = false),
             item = TreeItem()
         )

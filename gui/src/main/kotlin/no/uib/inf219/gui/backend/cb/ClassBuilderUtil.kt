@@ -24,11 +24,11 @@ import java.util.*
  */
 
 val FAKE_ROOT = object : ParentClassBuilder() {
-    override fun getSubClassBuilders(): Map<ClassBuilder, ClassBuilder?> {
+    override fun getChildren(): Map<ClassBuilder, ClassBuilder?> {
         error("Dummy parent")
     }
 
-    override fun createChildClassBuilder(
+    override fun createChild(
         key: ClassBuilder,
         init: ClassBuilder?,
         item: TreeItem<ClassBuilderNode>
@@ -48,7 +48,9 @@ val FAKE_ROOT = object : ParentClassBuilder() {
         error("Dummy parent")
     }
 
-    override fun getChild(key: ClassBuilder): ClassBuilder? {
+    override fun getChildPropertyMetadata(key: ClassBuilder) = error("Dummy parent")
+
+    override fun get(key: ClassBuilder): ClassBuilder? {
         return if (key === this) this else null
     }
 
@@ -58,7 +60,7 @@ val FAKE_ROOT = object : ParentClassBuilder() {
     override val serObject: Any get() = error("Dummy parent ser obj")
     override val serObjectObservable: Observable get() = error("Dummy parent ser obj ob")
     override val type: JavaType get() = error("Dummy parent type")
-    override val property: ClassInformation.PropertyMetadata? get() = error("Dummy parent prop")
+    override val property: ClassInformation.PropertyMetadata get() = error("Dummy parent prop")
     override val item: TreeItem<ClassBuilderNode> = TreeItem()
 
     init {
@@ -80,16 +82,14 @@ val FAKE_ROOT = object : ParentClassBuilder() {
 }
 
 /**
- * Convert this object to an instance of [type].
- * The returned object must not change unless there are changes further down the class builder change
+ * Convert this object to an instance of [ClassBuilder.type].
  */
 fun ClassBuilder.toObject(): Any? {
-
     return ControlPanelView.mapper.convertValue(this, type)
 }
 
 /**
- * The path to this object from it's root sperated with ' | '
+ * The path to this object from it's root separated with ' | '
  */
 val ClassBuilder.path: String
     get() {
@@ -132,7 +132,7 @@ fun ClassBuilderNode.isDescendantOf(parentNode: ClassBuilderNode): Boolean {
 
     while (currNode.parent !== currNode) {
         try {
-            val realCurrCb = currNode.parent.getChild(currNode.key)
+            val realCurrCb = currNode.parent[currNode.key]
 
             if (realCurrCb !== currNode.cb) {
                 //it's not alive!

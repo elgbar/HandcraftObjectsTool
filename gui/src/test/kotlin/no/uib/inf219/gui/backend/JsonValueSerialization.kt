@@ -125,7 +125,7 @@ class JsonValueSerialization {
         val cb = ObjectEditorController(TypedJsonValueExample::class.type()).root as ComplexClassBuilder
 
         val uuidCb =
-            cb.createChildClassBuilder(ClassInformation.VALUE_DELEGATOR_NAME.toCb()) as UUIDClassBuilder
+            cb.createChild(ClassInformation.VALUE_DELEGATOR_NAME.toCb()) as UUIDClassBuilder
         uuidCb.serObject = uuid
 
         val json = ControlPanelView.mapper.writeValueAsString(cb.toObject())

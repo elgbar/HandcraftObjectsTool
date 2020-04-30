@@ -67,7 +67,7 @@ class ComplexClassBuilder(
             if (v.hasValidDefaultInstance()) {
                 //only create a class builder for properties that has a default value
                 // or is primitive (which always have default values)
-                createChildClassBuilder(key.toCb(), item = TreeItem())
+                this.createChild(key.toCb(), item = TreeItem())
             } else {
                 this.serObject[key] = null
             }
@@ -79,7 +79,7 @@ class ComplexClassBuilder(
             ?: kotlin.error("Wrong type of key was given. Expected a StringClassBuilder but got $cb")
     }
 
-    override fun createChildClassBuilder(
+    override fun createChild(
         key: ClassBuilder,
         init: ClassBuilder?,
         item: TreeItem<ClassBuilderNode>
@@ -92,7 +92,7 @@ class ComplexClassBuilder(
         }
 
         return serObject.computeIfAbsent(propName) {
-            createChild(key, init, prop, item)
+            createChild0(key, init, prop, item)
         }
     }
 
@@ -113,7 +113,7 @@ class ComplexClassBuilder(
 
         val newProp = if (restoreDefault && meta.hasValidDefaultInstance()) {
             val prop: ClassInformation.PropertyMetadata = propInfo[propName] ?: kotlin.error("Given prop name is wrong")
-            createChild(key, null, prop, item)
+            createChild0(key, null, prop, item)
         } else {
             item.value = EmptyClassBuilderNode(key, this, item = item)
             null
@@ -121,15 +121,19 @@ class ComplexClassBuilder(
         serObject[propName] = newProp
     }
 
-    override fun set(key: ClassBuilder, child: ClassBuilder) {
+    override fun set(key: ClassBuilder, child: ClassBuilder?) {
+        if (child == null) {
+            resetChild(key, restoreDefault = false)
+            return
+        }
         checkChildValidity(key, child)
-        checkItemValidity(child, item.findChild(key))
+        checkItemValidity(child)
 
         val propName = cbToString(key)
         serObject[propName] = child
     }
 
-    private fun createChild(
+    private fun createChild0(
         key: ClassBuilder,
         init: ClassBuilder?,
         prop: ClassInformation.PropertyMetadata,
@@ -145,7 +149,7 @@ class ComplexClassBuilder(
         }
     }
 
-    override fun getChild(key: ClassBuilder): ClassBuilder? {
+    override fun get(key: ClassBuilder): ClassBuilder? {
         return serObject[cbToString(key)]
     }
 
@@ -187,7 +191,7 @@ class ComplexClassBuilder(
                                 if (child == null) {
                                     //This should never be null as we are using the name of a property
                                     // well, if it is something has gone wrong, but not here!
-                                    val newCb = createChildClassBuilder(name.toCb())
+                                    val newCb = this@ComplexClassBuilder.createChild(name.toCb())
                                     if (newCb == null) {
                                         this@fold.isExpanded = false
                                         return@onChangeUntil
@@ -219,15 +223,15 @@ class ComplexClassBuilder(
         return propInfo[cbToString(key)]?.type
     }
 
-    override fun getChildPropertyMetadata(key: ClassBuilder): ClassInformation.PropertyMetadata? {
-        return propInfo[cbToString(key)]
+    override fun getChildPropertyMetadata(key: ClassBuilder): ClassInformation.PropertyMetadata {
+        return propInfo[cbToString(key)] ?: kotlin.error("Unknown child with key ${key.getPreviewValue()}")
     }
 
     override fun getPreviewValue(): String {
         return "Class of type ${type.rawClass.simpleName}"
     }
 
-    override fun getSubClassBuilders(): Map<ClassBuilder, ClassBuilder?> =
+    override fun getChildren(): Map<ClassBuilder, ClassBuilder?> =
         this.serObject.mapKeys { it.key.toCb() }
 
     override fun isImmutable(): Boolean = false

@@ -25,7 +25,7 @@ class EmptyClassBuilderNode constructor(
 
 
     override fun ensurePresentClassBuilder(tree: TreeView<ClassBuilderNode>): FilledClassBuilderNode? {
-        val cb = parent.createChildClassBuilder(key, item = item)
+        val cb = parent.createChild(key, item = item)
         if (cb != null) {
             cb.item.value = cb.node
             tree.reload()

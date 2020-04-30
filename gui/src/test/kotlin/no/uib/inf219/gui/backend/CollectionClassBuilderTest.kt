@@ -26,7 +26,7 @@ internal class CollectionClassBuilderTest {
 
         assertTrue(parent.serObject.isEmpty())
 
-        val child = parent.createChildClassBuilder(0.toCb(immutable = false), item = TreeItem())
+        val child = parent.createChild(0.toCb(immutable = false), item = TreeItem())
         assertNotNull(child)
         assertEquals(1, parent.serObject.size)
         assertTrue(parent.serObject.contains(child))
@@ -44,11 +44,11 @@ internal class CollectionClassBuilderTest {
         assertTrue(parent.serObject.isEmpty())
 
         val child =
-            parent.createChildClassBuilder(0.toCb(immutable = false), item = TreeItem()) as StringClassBuilder
+            parent.createChild(0.toCb(immutable = false), item = TreeItem()) as StringClassBuilder
         child.serObject = "hello"
 
         val child2 =
-            parent.createChildClassBuilder(1.toCb(immutable = false), item = TreeItem()) as StringClassBuilder
+            parent.createChild(1.toCb(immutable = false), item = TreeItem()) as StringClassBuilder
         child2.serObject = "world!"
 
         assertEquals(listOf("hello", "world!"), parent.toObject())
@@ -61,7 +61,7 @@ internal class CollectionClassBuilderTest {
         assertTrue(parent.serObject.isEmpty())
 
         val child =
-            parent.createChildClassBuilder(0.toCb(immutable = false), item = TreeItem()) as StringClassBuilder
+            parent.createChild(0.toCb(immutable = false), item = TreeItem()) as StringClassBuilder
         child.serObject = "hello!"
 
         assertEquals(listOf("hello!"), parent.toObject())

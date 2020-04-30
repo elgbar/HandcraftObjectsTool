@@ -48,14 +48,10 @@ class MapClassBuilder(
         data class MapEntry<K, V>(override val key: K?, override val value: V?) : Map.Entry<K?, V?> {}
     }
 
-    private fun get(key: ClassBuilder?): ClassBuilder? {
-        return serObject.firstOrNull { it.key == key }
-    }
-
     /**
      * Check the if an entry with the given key exists
      */
-    private fun contains(key: ClassBuilder?): Boolean {
+    private fun contains(key: ClassBuilder): Boolean {
         return get(key) != null
     }
 
@@ -78,7 +74,7 @@ class MapClassBuilder(
         return entry
     }
 
-    private fun remove(key: ClassBuilder?): Boolean {
+    private fun remove(key: ClassBuilder): Boolean {
         val entry = get(key) ?: return false
         serObject.remove(key)
         return serObject.remove(entry)
@@ -95,7 +91,7 @@ class MapClassBuilder(
     // parent class builder //
     //////////////////////////
 
-    override fun createChildClassBuilder(
+    override fun createChild(
         key: ClassBuilder,
         init: ClassBuilder?,
         item: TreeItem<ClassBuilderNode>
@@ -110,8 +106,8 @@ class MapClassBuilder(
         }
     }
 
-    override fun getChild(key: ClassBuilder): ClassBuilder? {
-        return get(key)
+    override fun get(key: ClassBuilder): ClassBuilder? {
+        return serObject.firstOrNull { it.key == key }
     }
 
     override fun resetChild(
@@ -143,7 +139,7 @@ class MapClassBuilder(
         return entryType
     }
 
-    override fun getSubClassBuilders(): Map<ClassBuilder, ClassBuilder?> {
+    override fun getChildren(): Map<ClassBuilder, ClassBuilder?> {
         return serObject.map { cb -> cb.key to cb }.toMap()
     }
 

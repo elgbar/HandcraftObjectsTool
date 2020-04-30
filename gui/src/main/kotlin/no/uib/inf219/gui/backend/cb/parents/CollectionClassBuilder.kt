@@ -4,7 +4,6 @@ package no.uib.inf219.gui.backend.cb.parents
 import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import javafx.scene.control.TreeItem
-import no.uib.inf219.extra.findChild
 import no.uib.inf219.gui.backend.cb.api.ClassBuilder
 import no.uib.inf219.gui.backend.cb.api.ParentClassBuilder
 import no.uib.inf219.gui.backend.cb.api.VariableSizedParentClassBuilder
@@ -43,7 +42,7 @@ class CollectionClassBuilder(
 
     override fun createNewChild(controller: ObjectEditorController): ClassBuilder? {
         //make sure the key is mutable to support deletion of elements
-        return createChildClassBuilder(serObject.size.toCb(immutable = false), item = TreeItem())
+        return createChild(serObject.size.toCb(immutable = false), item = TreeItem())
     }
 
     override fun clear() = serObject.clear()
@@ -56,7 +55,7 @@ class CollectionClassBuilder(
         return if (cb !is IntClassBuilder) null else cb.serObject
     }
 
-    override fun createChildClassBuilder(
+    override fun createChild(
         key: ClassBuilder,
         init: ClassBuilder?,
         item: TreeItem<ClassBuilderNode>
@@ -78,7 +77,7 @@ class CollectionClassBuilder(
         return elem
     }
 
-    override fun getChild(key: ClassBuilder): ClassBuilder {
+    override fun get(key: ClassBuilder): ClassBuilder {
         val index = cbToInt(key) ?: error("Given index cannot be null")
         try {
             return serObject[index]
@@ -87,18 +86,21 @@ class CollectionClassBuilder(
         }
     }
 
-    override fun set(key: ClassBuilder, child: ClassBuilder) {
+    override fun set(key: ClassBuilder, child: ClassBuilder?) {
         val index: Int = cbToInt(key) ?: serObject.indexOf(child)
         require(index in 0 until serObject.size) {
             "Given index is not within the range of the collection"
         }
-
-        if (index == serObject.size) {
+        if (child == null) {
+            resetChild(key)
+            return
+        } else if (index == serObject.size) {
             //we're adding a new object use the normal method
-            createChildClassBuilder(key, child)
+            createChild(key, child)
+            return
         }
         checkChildValidity(key, child)
-        checkItemValidity(child, item.findChild(key))
+        checkItemValidity(child)
 
         serObject[index] = child
         item.children[index] = child.item
@@ -130,7 +132,7 @@ class CollectionClassBuilder(
         }
     }
 
-    override fun getSubClassBuilders(): Map<ClassBuilder, ClassBuilder> {
+    override fun getChildren(): Map<ClassBuilder, ClassBuilder> {
         return serObject.mapIndexed { i, cb -> i.toCb() to cb }.toMap()
     }
 
@@ -146,8 +148,6 @@ class CollectionClassBuilder(
         "An entry in a collection",
         true
     )
-
-    override fun getChildren(): List<ClassBuilder> = serObject
 
     override fun toString(): String {
         return "Collection CB; containing=${type.contentType}, value=${serObject}"

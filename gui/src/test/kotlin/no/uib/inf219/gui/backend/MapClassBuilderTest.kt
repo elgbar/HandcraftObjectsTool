@@ -47,7 +47,7 @@ internal class MapClassBuilderTest {
         assertNotNull(parent)
 
         val entry0 =
-            parent.createChildClassBuilder("0".toCb(), item = TreeItem()) as ComplexClassBuilder
+            parent.createChild("0".toCb(), item = TreeItem()) as ComplexClassBuilder
 
         val keyVal = "test key"
         val valueVal = "test value"
@@ -82,7 +82,7 @@ internal class MapClassBuilderTest {
         assertNotNull(parent)
 
         val entry0 =
-            parent.createChildClassBuilder("0".toCb(), item = TreeItem()) as ComplexClassBuilder
+            parent.createChild("0".toCb(), item = TreeItem()) as ComplexClassBuilder
 
         val keyVal = "test key"
 
@@ -126,7 +126,7 @@ internal class MapClassBuilderTest {
         assertNotNull(parent)
 
         val entry0 =
-            parent.createChildClassBuilder("0".toCb(), item = TreeItem()) as ComplexClassBuilder
+            parent.createChild("0".toCb(), item = TreeItem()) as ComplexClassBuilder
 
         val key0 =
             "0".toCb(keyCb, entry0, entry0.propInfo[ENTRY_KEY], item = entry0.item.findChild(keyCb))
@@ -149,7 +149,7 @@ internal class MapClassBuilderTest {
         //////////////////
 
         val entry1 =
-            parent.createChildClassBuilder("1".toCb(), item = TreeItem()) as ComplexClassBuilder
+            parent.createChild("1".toCb(), item = TreeItem()) as ComplexClassBuilder
 
         val key1 =
             "1".toCb(keyCb, entry1, entry1.propInfo[ENTRY_KEY], item = entry1.item.findChild(keyCb))

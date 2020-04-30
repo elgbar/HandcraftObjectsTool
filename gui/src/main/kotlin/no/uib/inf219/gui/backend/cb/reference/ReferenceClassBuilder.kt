@@ -39,7 +39,7 @@ class ReferenceClassBuilder(
 
     override val serObject: ClassBuilder
         get() {
-            val so = refParent.getChild(refKey)
+            val so = refParent[refKey]
                 ?: error("Failed to find a serObject with the given reference parent and ref key. Cannot make a reference to a null class builder")
             if (so !== lastSeenSerObj) {
                 lastSeenSerObj = so

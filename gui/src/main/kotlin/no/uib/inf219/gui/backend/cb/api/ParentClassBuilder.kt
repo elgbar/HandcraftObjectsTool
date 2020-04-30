@@ -26,39 +26,26 @@ abstract class ParentClassBuilder : ClassBuilder {
     }
 
     /**
-     *
-     * @return all sub values this class can hold. The [Map.keys] must exactly return all valid keys.
+     * @return All class builder that this parent considers it's parent. All keys must be allowed to be used
+     * with [createChild] and [resetChild]
      */
     @JsonIgnore
-    abstract fun getSubClassBuilders(): Map<ClassBuilder, ClassBuilder?>
-
-    /**
-     * This is a subset of [getSubClassBuilders]
-     *
-     * @return all modifiable existing children
-     */
-    @JsonIgnore
-    open fun getChildren(): List<ClassBuilder> {
-        val list = ArrayList<ClassBuilder>()
-        for ((k, v) in getSubClassBuilders()) {
-            if (!k.isImmutable()) list += k
-            if (v != null && !v.isImmutable()) list += v
-        }
-        return list
-    }
+    abstract fun getChildren(): Map<ClassBuilder, ClassBuilder?>
 
     /**
      *
-     * @param key The key to the property to create. All keys from [getSubClassBuilders] are guaranteed to work, others might work but it is up to the implementation to accept or reject keys
-     * @param init The value to be placed at the given [key] property
-     * @param item The item to be used when creating a new item, should be identical to the [init]'s item if it is not null
+     * @param key The key to the property to create. All keys from [getChildren] are guaranteed to work, others
+     * might work but it is up to the implementation to accept or reject keys
+     * @param init The value to be placed at the given [key] property. It must be a valid child to be placed
+     * here.
+     * @param item The item to be used when creating a new item, should be identical to the [init]'s item if it
+     * is not null
      *
      * @return A class builder for the given property type found at [key].
      *
-     *
      * @throws IllegalArgumentException If the given [key] is not valid or [init] is invalid
      */
-    abstract fun createChildClassBuilder(
+    abstract fun createChild(
         key: ClassBuilder,
         init: ClassBuilder? = null,
         item: TreeItem<ClassBuilderNode> = this.item.findChild(key)
@@ -68,8 +55,10 @@ abstract class ParentClassBuilder : ClassBuilder {
      * Reset the given property for the [key] provided. If it has a default value this value will be restored otherwise it will be removed.
      *
      * @param key Specify which child class builder to reset
-     * @param element The instance of the child to reset. Must be identical to the class builder found with [key] or be `null`. Essentially used as a check that the correct element is being reset.
-     * @param restoreDefault If the default value (if none default is `null`) should be restored. If `false` the child found at [key] will be `null` after this method
+     * @param element The instance of the child to reset. Must be identical to the class builder found with
+     * [key] or be `null`. Essentially used as a check that the correct element is being reset.
+     * @param restoreDefault If the default value (if none default is `null`) should be restored. If `false` the
+     * child found at [key] will be `null` after this method
      *
      * @return if the node was completely removed
      *
@@ -84,13 +73,22 @@ abstract class ParentClassBuilder : ClassBuilder {
     /**
      * Remove the current child at [key] (if any) and set the child at [key] to be [child]
      */
-    open operator fun set(key: ClassBuilder, child: ClassBuilder) {
-        checkChildValidity(key, child)
-
+    open operator fun set(key: ClassBuilder, child: ClassBuilder?) {
         resetChild(key, restoreDefault = false)
+        if (child != null) {
+            checkChildValidity(key, child)
+            checkItemValidity(child)
 
-        createChildClassBuilder(key, child)
+            createChild(key, child)
+        }
     }
+
+    /**
+     * @return The child at the given location
+     *
+     * @throws IllegalArgumentException If the [key] is invalid
+     */
+    abstract operator fun get(key: ClassBuilder): ClassBuilder?
 
     /**
      * @return The java type of of the given child
@@ -98,20 +96,33 @@ abstract class ParentClassBuilder : ClassBuilder {
     abstract fun getChildType(key: ClassBuilder): JavaType?
 
     /**
-     * TODO make sure this can not return null
      *
      * @return The metadata of the child found at [key]
      *
-     * @see ComplexClassBuilder.getChildPropertyMetadata
      */
-    open fun getChildPropertyMetadata(key: ClassBuilder): ClassInformation.PropertyMetadata? = null
+    abstract fun getChildPropertyMetadata(key: ClassBuilder): ClassInformation.PropertyMetadata
+
+
+    //////////////////////////
+    // validation functions //
+    //////////////////////////
 
     /**
-     * @return The child at the given location
+     * Check if the given [other] class builder is an illegitimate child of this parent class builder.
+     * An illegitimate child is a class builder that has all the necessary properties except for it's parent
+     * to recognize it as a child.
      *
-     * @throws IllegalArgumentException If the [key] is invalid
+     * To put it in code `parent[other.key] === other` is `false` but `parent[other.key] == other` is `true` as long as `parent[other.key] != null`
      */
-    abstract fun getChild(key: ClassBuilder): ClassBuilder?
+    protected fun isValidChild(other: ClassBuilder): Boolean {
+        try {
+            checkChildValidity(other.key, other)
+            checkItemValidity(other)
+            return true
+        } catch (e: IllegalArgumentException) {
+            return false
+        }
+    }
 
     protected fun checkChildValidity(key: ClassBuilder, child: ClassBuilder) {
         require(key == child.key) { "The key does not match the key of the child. key $key | child's key ${child.key}" }
@@ -132,7 +143,7 @@ abstract class ParentClassBuilder : ClassBuilder {
      */
     protected fun checkItemValidity(
         cb: ClassBuilder,
-        expectedItem: TreeItem<ClassBuilderNode>,
+        expectedItem: TreeItem<ClassBuilderNode> = item.findChild(key),
         checkCB: Boolean = true
     ) {
         require(cb.item === expectedItem) { "Given item does not match init's item, expected $item init's item ${cb.item}" }

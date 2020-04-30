@@ -159,7 +159,7 @@ internal class ComplexClassBuilderTest {
 
         val invalid = 1.toCb()
         assertThrows(IllegalArgumentException::class.java) {
-            cb.createChildClassBuilder(propKey.toCb(), invalid)
+            cb.createChild(propKey.toCb(), invalid)
         }
     }
 
@@ -167,7 +167,7 @@ internal class ComplexClassBuilderTest {
     internal fun createClassBuilderFor_invalidKey() {
         val cb = ObjectEditorController(Conversation::class.type()).root as ComplexClassBuilder
         assertThrows(IllegalArgumentException::class.java) {
-            cb.createChildClassBuilder("invalid key".toCb())
+            cb.createChild("invalid key".toCb())
         }
     }
 
@@ -178,7 +178,7 @@ internal class ComplexClassBuilderTest {
 
         var created: ClassBuilder? = null
         assertDoesNotThrow {
-            created = cb.createChildClassBuilder(propKey.toCb(), null)
+            created = cb.createChild(propKey.toCb(), null)
         }
         assertNotNull(created)
     }
@@ -192,13 +192,13 @@ internal class ComplexClassBuilderTest {
         //make sure this test makes sense with a real property
         assertNotNull(cb.serObject[propKey]) { "Property key is wrong. Change it to one of ${cb.propInfo.keys}" }
 
-        val init = cb.createChildClassBuilder(propKeyCb)
+        val init = cb.createChild(propKeyCb)
         assertNotNull(init)
         assertNotNull(cb.serObject[propKey])
 
         var created: ClassBuilder? = null
         assertDoesNotThrow {
-            created = cb.createChildClassBuilder(propKeyCb, init)
+            created = cb.createChild(propKeyCb, init)
         }
         assertTrue(init === cb.serObject[propKey])
         assertTrue(init === created)
@@ -216,7 +216,7 @@ internal class ComplexClassBuilderTest {
         var created: ClassBuilder? = null
 
         assertDoesNotThrow {
-            created = cb.createChildClassBuilder(key = propKey.toCb())
+            created = cb.createChild(key = propKey.toCb())
         }
 
         assertTrue(orgProp === created)

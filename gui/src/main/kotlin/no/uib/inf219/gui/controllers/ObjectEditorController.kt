@@ -137,7 +137,7 @@ class ObjectEditorController(
 //            return createRealRoot().item.value
         }
 
-        override fun createChildClassBuilder(
+        override fun createChild(
             key: ClassBuilder,
             init: ClassBuilder?,
             item: TreeItem<ClassBuilderNode>
@@ -159,16 +159,16 @@ class ObjectEditorController(
             }
         }
 
-        override fun getChildPropertyMetadata(key: ClassBuilder): PropertyMetadata? {
-            return when (key) {
-                realRootKey -> serObject.property
-                fakeRootKey -> null
-                else -> error("Key supplied '${key.getPreviewValue()}' not real root key '${realRootKey.getPreviewValue()}' or fake root key '${fakeRootKey.getPreviewValue()}'")
+        override fun getChildPropertyMetadata(key: ClassBuilder): PropertyMetadata {
+            if (key === realRootKey) {
+                return serObject.property ?: error("Failed to find root property")
             }
+            error("Key supplied '${key.getPreviewValue()}' not real root key '${realRootKey.getPreviewValue()}' or fake root key '${fakeRootKey.getPreviewValue()}'")
+
         }
 
-        override fun getChild(key: ClassBuilder): ClassBuilder? = if (key == realRootKey) serObject else null
-        override fun getSubClassBuilders(): Map<ClassBuilder, ClassBuilder?> = mapOf(realRootKey to serObject)
+        override fun get(key: ClassBuilder): ClassBuilder? = if (key == realRootKey) serObject else null
+        override fun getChildren(): Map<ClassBuilder, ClassBuilder?> = mapOf(realRootKey to serObject)
 
         override fun createEditView(parent: EventTarget, controller: ObjectEditorController) =
             parent.text("Fake root should be displayed :o")

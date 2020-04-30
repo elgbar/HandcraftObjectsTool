@@ -274,7 +274,7 @@ fun createClassBuilder(
 
 
     if (cb is ParentClassBuilder) {
-        item.children.setAll(cb.getSubClassBuilders().map { (key, childCb) ->
+        item.children.setAll(cb.getChildren().map { (key, childCb) ->
             //use the existing node or create an empty node if the child is null
             childCb?.node ?: EmptyClassBuilderNode(key, cb)
         }.map { it.item })

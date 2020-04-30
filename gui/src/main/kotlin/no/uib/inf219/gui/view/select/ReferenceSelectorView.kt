@@ -35,7 +35,7 @@ class ReferenceSelectorView : SelectorView<ClassBuilder>("Reference") {
                 findInstancesOf(
                     type,
                     controller.root
-                ).filter { it != parent.getChild(key) })
+                ).filter { it != parent[key] })
             searching = false
         }
         openModal(block = true, owner = currentWindow, escapeClosesWindow = false)
@@ -66,13 +66,9 @@ class ReferenceSelectorView : SelectorView<ClassBuilder>("Reference") {
             val allChildren = HashSet<ClassBuilder>()
             allChildren.add(cb) //remember to also add the parent
             if (cb is ParentClassBuilder) {
-                for (child in cb.getChildren()) {
-                    allChildren.addAll(
-                        findInstancesOf(
-                            wantedType,
-                            child
-                        )
-                    )
+                for ((_, child) in cb.getChildren()) {
+                    if (child == null) continue
+                    allChildren.addAll(findInstancesOf(wantedType, child))
                 }
             }
 
