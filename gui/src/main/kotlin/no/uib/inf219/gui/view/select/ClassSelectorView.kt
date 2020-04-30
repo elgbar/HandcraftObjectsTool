@@ -60,13 +60,14 @@ class ClassSelectorView : SelectorView<String>("Select implementation") {
         with(root) {
             resultList.children.add(0, textflow().apply {
                 fun updateText(): String {
-                    return "Choose subclass of $superClass (${searchResult.size} found)"
+                    return "Choose subclass of $superClass (${filteredData.filteredItems.size} / ${searchResult.size} found)"
                 }
 
                 textflow().text(updateText()) {
                     style { fontSize = 1.5.ems }
                     superClassProperty.onChange { text = updateText() }
                     searchResult.onChange { text = updateText() }
+                    filteredData.filteredItems.onChange { text = updateText() }
                 }
             })
         }
@@ -172,13 +173,13 @@ class ClassSelectorView : SelectorView<String>("Select implementation") {
         do {
             val rt = resultType
             if (rt == null) {
-                warning("Failed to find the javatype of $result")
+                warning("Failed to find the java type of $result")
                 return null
             }
             tornadofx.runAsync {
                 searchForSubtypes(rt, showAbstract)
             }
-            openModal(block = true, owner = currentWindow, escapeClosesWindow = false)
+            openModal(block = true, owner = currentWindow, escapeClosesWindow = true)
         } while (result != null && !finishedSearching.value)
         return resultType
     }
