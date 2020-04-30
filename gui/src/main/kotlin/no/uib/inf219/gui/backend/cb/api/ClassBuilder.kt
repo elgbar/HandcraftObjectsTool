@@ -102,7 +102,7 @@ interface ClassBuilder {
     fun onNodeMouseEvent(event: MouseEvent, controller: ObjectEditorController) {}
 
     fun onNodeKeyEvent(event: KeyEvent, controller: ObjectEditorController) {
-        if (event.code == KeyCode.DELETE || event.code == KeyCode.DELETE) {
+        if (event.code == KeyCode.DELETE) {
             controller.deleteSelected(!event.isShiftDown)
         }
     }

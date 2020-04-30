@@ -72,6 +72,7 @@ abstract class VariableSizedParentClassBuilder : ParentClassBuilder() {
 
     override fun onNodeKeyEvent(event: KeyEvent, controller: ObjectEditorController) {
         super.onNodeKeyEvent(event, controller)
+        
         if (event.code == KeyCode.ENTER || event.code == KeyCode.SPACE) {
             createNewChildAndUpdateVisual(controller)
             event.consume()

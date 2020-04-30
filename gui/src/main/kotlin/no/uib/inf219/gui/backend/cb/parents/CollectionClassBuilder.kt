@@ -136,7 +136,7 @@ class CollectionClassBuilder(
         return serObject.mapIndexed { i, cb -> i.toCb() to cb }.toMap()
     }
 
-    override fun getPreviewValue() = "Collection of ${type.rawClass.simpleName}"
+    override fun getPreviewValue() = "${type.rawClass.simpleName} of ${type.contentType}"
 
     override fun getChildType(key: ClassBuilder): JavaType = type.contentType
 
