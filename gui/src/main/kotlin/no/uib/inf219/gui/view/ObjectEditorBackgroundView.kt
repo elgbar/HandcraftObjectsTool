@@ -24,7 +24,9 @@ class ObjectEditorBackgroundView : View("Object Editor Background") {
             addClass(Styles.parent)
             setDividerPositions(0.25)
 
-            this += NodeExplorerView(controller).root
+            this += NodeExplorerView(controller).root.also {
+                runLater { it.requestFocus() }
+            }
             this += find<PropertyEditor>("controller" to controller).root
             controller.select(controller.root)
             
