@@ -370,6 +370,7 @@ object ControlPanelView : View("Control Panel") {
 
         OutputArea.logln("Example classes to load:")
         OutputArea.logln("java.lang.String")
+        OutputArea.logln("java.lang.Integer")
         OutputArea.logln("java.util.UUID")
         OutputArea.logln("no.uib.inf219.example.data.Conversation")
         OutputArea.logln("no.uib.inf219.example.data.Response")

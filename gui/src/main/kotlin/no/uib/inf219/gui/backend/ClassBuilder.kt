@@ -172,8 +172,7 @@ interface ClassBuilder {
                     "Mismatch between given java type and the initial value. Given java type $type, initial value type $clazz"
                 }
             }
-
-            val cb = (if (type.isPrimitive) {
+            val cb = (if (type.rawClass.kotlin.javaPrimitiveType != null) {
                 val kotlinType = type.rawClass.kotlin
                 when {
                     kotlinType.isSuperclassOf(Int::class) -> {
@@ -314,6 +313,7 @@ interface ClassBuilder {
 
                 if (mrBeanModuleEnabled) {
                     //users might want to create the selected class not a subclass
+
 
                     val createThis = ButtonType("Create this", ButtonBar.ButtonData.OK_DONE)
                     val findSubclass = ButtonType("Find subclass", ButtonBar.ButtonData.NEXT_FORWARD)

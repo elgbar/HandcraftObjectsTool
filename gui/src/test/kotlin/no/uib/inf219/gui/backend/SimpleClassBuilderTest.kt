@@ -3,6 +3,7 @@ package no.uib.inf219.gui.backend
 import javafx.beans.property.*
 import no.uib.inf219.extra.toCb
 import no.uib.inf219.extra.type
+import no.uib.inf219.gui.controllers.ObjectEditorController
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -35,6 +36,13 @@ internal class SimpleClassBuilderTest {
         val newValue = "Allowed"
         cb.serObject = newValue
         assertEquals(cb.serObject, newValue)
+    }
+
+    @Test
+    internal fun objectPrimitivesBehavesAsPrimitives() {
+        val objInt = ObjectEditorController(java.lang.Integer::class.java.type()).root
+        val primInt = 0.toCb()
+        assertEquals(primInt::class, objInt::class)
     }
 
     @Test
