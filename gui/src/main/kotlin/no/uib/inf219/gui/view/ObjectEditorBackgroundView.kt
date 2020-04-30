@@ -3,7 +3,6 @@ package no.uib.inf219.gui.view
 import javafx.scene.layout.BorderPane
 import javafx.stage.FileChooser
 import no.uib.inf219.gui.Styles
-import no.uib.inf219.gui.backend.exceptions.MissingPropertyException
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.controllers.Settings
 import no.uib.inf219.gui.view.ControlPanelView.mapper
@@ -55,8 +54,6 @@ class ObjectEditorBackgroundView : View("Object Editor Background") {
                 val obj = mapper.convertValue<Any>(controller.root, controller.root.type)!!
                 mapper.writeValueAsString(obj)
             }
-        } catch (e: MissingPropertyException) {
-            OutputArea.logln("Failed to create object.\n$e")
         } catch (e: Throwable) {
             //As we load classes from external jars, we do not know what class loader the created object will be in
             //We can only use one type factory at once, maybe find a way to do this better?
