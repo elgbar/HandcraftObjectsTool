@@ -5,6 +5,7 @@ import javafx.beans.Observable
 import javafx.event.EventTarget
 import javafx.scene.Node
 import javafx.scene.control.TreeItem
+import no.uib.inf219.extra.type
 import no.uib.inf219.gui.backend.cb.api.ClassBuilder
 import no.uib.inf219.gui.backend.cb.api.ParentClassBuilder
 import no.uib.inf219.gui.backend.cb.api.SimpleClassBuilder
@@ -48,7 +49,8 @@ val FAKE_ROOT = object : ParentClassBuilder() {
         error("Dummy parent")
     }
 
-    override fun getChildPropertyMetadata(key: ClassBuilder) = error("Dummy parent")
+    override fun getChildPropertyMetadata(key: ClassBuilder) =
+        ClassInformation.PropertyMetadata(key.getPreviewValue(), Any::class.type(), "", false, "", false)
 
     override fun get(key: ClassBuilder): ClassBuilder? {
         return if (key === this) this else null
