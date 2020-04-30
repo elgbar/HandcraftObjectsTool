@@ -18,24 +18,11 @@ import org.testfx.framework.junit5.ApplicationExtension
 @ExtendWith(ApplicationExtension::class)
 internal class ClassBuilderUtilKtTest {
 
-
-    private fun listCB(parent: ParentClassBuilder = FAKE_ROOT): CollectionClassBuilder {
-        return CollectionClassBuilder(
-            listStrType,
-            key = "key".toCb(),
-            parent = parent,
-            item = TreeItem()
-        )
-    }
-
     @Test
     internal fun isDescendantOf_legitChild() {
         val parent = ObjectEditorController(listStrType).root as CollectionClassBuilder
 
-        val child = parent.createChildClassBuilder(
-            0.toCb(immutable = false),
-            item = TreeItem()
-        )
+        val child = parent.createChildClassBuilder(0.toCb(immutable = false), item = TreeItem())
         assertNotNull(child)
 
         assertTrue(child!!.isDescendantOf(parent))

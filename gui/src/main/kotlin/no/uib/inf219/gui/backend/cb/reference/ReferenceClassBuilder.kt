@@ -47,7 +47,7 @@ class ReferenceClassBuilder(
             return so
         }
 
-    override val property: ClassInformation.PropertyMetadata? = parent.getChildPropertyMetadata(key)
+    override val property: ClassInformation.PropertyMetadata? get() = parent.getChildPropertyMetadata(key)
     override val type: JavaType get() = serObject.type
     override val serObjectObservable = lastSeenSerObj.toProperty()
 

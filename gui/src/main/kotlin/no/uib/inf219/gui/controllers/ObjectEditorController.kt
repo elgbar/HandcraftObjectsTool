@@ -83,7 +83,7 @@ class ObjectEditorController(
                 "The object that is currently being created",
                 false
             )
-            val cb = createClassBuilder(realRootType, realRootKey, this, rootPropMeta, TreeItem())
+            val cb = createClassBuilder(realRootType, realRootKey, this, prop = rootPropMeta, item = TreeItem())
                 ?: error("failed to create a root class builder")
 
             this@RootDelegator.serObject = cb

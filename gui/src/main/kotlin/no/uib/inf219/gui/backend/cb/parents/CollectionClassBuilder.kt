@@ -67,7 +67,7 @@ class CollectionClassBuilder(
             "Given initial value have different type than expected. expected ${getChildType(key)} got ${init?.type}"
         }
 
-        val elem = init ?: createClassBuilder(type.contentType, key, this, getChildPropertyMetadata(key), item = item)
+        val elem = init ?: createClassBuilder(type.contentType, key, this, item = item)
         ?: return null
 
         checkChildValidity(key, elem)

@@ -23,40 +23,16 @@ import tornadofx.warning
 import java.util.*
 import kotlin.reflect.full.isSuperclassOf
 
+
 /**
- * Get a correct class builder for the given java type.
- * This is a convenience method to not deal with types when the type is unknown
+ * Get a correct class builder for the given [type]. This method is preferred over calling the any constructor directly as this handle the set up the given item
  */
 fun createClassBuilder(
     type: JavaType,
     key: ClassBuilder,
     parent: ParentClassBuilder,
-    prop: ClassInformation.PropertyMetadata? = null,
-    item: TreeItem<ClassBuilderNode> = TreeItem()
-): ClassBuilder? {
-    return createClassBuilder(
-        type,
-        key,
-        parent,
-        null,
-        prop,
-        item
-    )
-}
-
-/**
- * Get a correct class builder for the given java type.
- * We do not return `ClassBuilder` as some class use more advanced types such as `Collection<T>` and `Map<K,V>`
- *
- * The given type overrules the method type
- *
- */
-fun <T : Any> createClassBuilder(
-    type: JavaType,
-    key: ClassBuilder,
-    parent: ParentClassBuilder,
-    value: T? = null,
-    prop: ClassInformation.PropertyMetadata? = null,
+    value: Any? = null,
+    prop: ClassInformation.PropertyMetadata? = parent.getChildPropertyMetadata(key),
     item: TreeItem<ClassBuilderNode> = TreeItem(),
     allowAbstractType: Boolean = false
 ): ClassBuilder? {
