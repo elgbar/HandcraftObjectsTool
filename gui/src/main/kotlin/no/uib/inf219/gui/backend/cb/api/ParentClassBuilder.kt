@@ -143,7 +143,7 @@ abstract class ParentClassBuilder : ClassBuilder {
      */
     protected fun checkItemValidity(
         cb: ClassBuilder,
-        expectedItem: TreeItem<ClassBuilderNode> = item.findChild(key),
+        expectedItem: TreeItem<ClassBuilderNode> = item.findChild(cb.key),
         checkCB: Boolean = true
     ) {
         require(cb.item === expectedItem) { "Given item does not match init's item, expected $item init's item ${cb.item}" }
