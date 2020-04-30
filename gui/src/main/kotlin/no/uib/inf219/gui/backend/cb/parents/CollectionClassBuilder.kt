@@ -8,7 +8,7 @@ import no.uib.inf219.extra.findChild
 import no.uib.inf219.gui.backend.cb.api.ClassBuilder
 import no.uib.inf219.gui.backend.cb.api.ParentClassBuilder
 import no.uib.inf219.gui.backend.cb.api.VariableSizedParentClassBuilder
-import no.uib.inf219.gui.backend.cb.getClassBuilder
+import no.uib.inf219.gui.backend.cb.createClassBuilder
 import no.uib.inf219.gui.backend.cb.serializers.ParentClassBuilderSerializer
 import no.uib.inf219.gui.backend.cb.simple.IntClassBuilder
 import no.uib.inf219.gui.backend.cb.toCb
@@ -67,7 +67,7 @@ class CollectionClassBuilder(
             "Given initial value have different type than expected. expected ${getChildType(key)} got ${init?.type}"
         }
 
-        val elem = init ?: getClassBuilder(type.contentType, key, prop = getChildPropertyMetadata(key), item = item)
+        val elem = init ?: createClassBuilder(type.contentType, key, this, getChildPropertyMetadata(key), item = item)
         ?: return null
 
         checkChildValidity(key, elem)

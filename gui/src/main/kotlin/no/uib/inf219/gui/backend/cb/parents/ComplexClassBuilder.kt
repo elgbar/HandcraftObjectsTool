@@ -14,7 +14,7 @@ import no.uib.inf219.extra.onChangeUntil
 import no.uib.inf219.gui.Styles
 import no.uib.inf219.gui.backend.cb.api.ClassBuilder
 import no.uib.inf219.gui.backend.cb.api.ParentClassBuilder
-import no.uib.inf219.gui.backend.cb.getClassBuilder
+import no.uib.inf219.gui.backend.cb.createClassBuilder
 import no.uib.inf219.gui.backend.cb.serializers.ComplexClassBuilderSerializer
 import no.uib.inf219.gui.backend.cb.toCb
 import no.uib.inf219.gui.controllers.ObjectEditorController
@@ -141,7 +141,7 @@ class ComplexClassBuilder(
             init
         } else {
             val meta = propInfo[cbToString(key)] ?: kotlin.error("Failed to find meta for ${key.getPreviewValue()}")
-            getClassBuilder(prop.type, key, meta.getDefaultInstance(), prop, item)
+            createClassBuilder(prop.type, key, this, meta.getDefaultInstance(), prop, item)
         }
     }
 

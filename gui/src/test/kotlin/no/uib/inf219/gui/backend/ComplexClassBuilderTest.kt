@@ -3,7 +3,7 @@ package no.uib.inf219.gui.backend
 import no.uib.inf219.extra.findChild
 import no.uib.inf219.extra.type
 import no.uib.inf219.gui.backend.cb.api.ClassBuilder
-import no.uib.inf219.gui.backend.cb.getClassBuilder
+import no.uib.inf219.gui.backend.cb.createClassBuilder
 import no.uib.inf219.gui.backend.cb.parents.ComplexClassBuilder
 import no.uib.inf219.gui.backend.cb.simple.StringClassBuilder
 import no.uib.inf219.gui.backend.cb.toCb
@@ -64,7 +64,7 @@ internal class ComplexClassBuilderTest {
                 val prop = props[key]
                 assertNotNull(prop)
 
-                val created = cb.getClassBuilder(prop!!.type, key.toCb(), def, prop) ?: fail()
+                val created = createClassBuilder(prop!!.type, key.toCb(), cb, def, prop) ?: fail()
 
                 assertEquals(created, cb.serObject[key]) {
                     "Complex cb does not contain the correct default value for key '$key'"

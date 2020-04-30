@@ -23,14 +23,6 @@ import tornadofx.warning
 import java.util.*
 import kotlin.reflect.full.isSuperclassOf
 
-fun ParentClassBuilder.getClassBuilder(
-    type: JavaType,
-    key: ClassBuilder,
-    value: Any? = null,
-    prop: ClassInformation.PropertyMetadata? = null,
-    item: TreeItem<ClassBuilderNode> = TreeItem()
-): ClassBuilder? = createClassBuilder(type, key, this, value, prop, item)
-
 /**
  * Get a correct class builder for the given java type.
  * This is a convenience method to not deal with types when the type is unknown
