@@ -1,6 +1,5 @@
 package no.uib.inf219.gui.view
 
-import javafx.scene.layout.BorderPane
 import javafx.stage.FileChooser
 import no.uib.inf219.gui.Styles
 import no.uib.inf219.gui.controllers.ObjectEditorController
@@ -19,12 +18,6 @@ class ObjectEditorBackgroundView : View("Object Editor Background") {
 
     val controller: ObjectEditorController by param()
 
-    private fun createPropEditor(): BorderPane {
-        val editor: PropertyEditor = find("controller" to controller)
-        editor.root.center = controller.root.createEditView(this, controller)
-        return editor.root
-    }
-
     override val root = borderpane() {
 
         center = splitpane {
@@ -32,7 +25,9 @@ class ObjectEditorBackgroundView : View("Object Editor Background") {
             setDividerPositions(0.25)
 
             this += NodeExplorerView(controller).root
-            this += createPropEditor()
+            this += find<PropertyEditor>("controller" to controller).root
+            controller.select(controller.root)
+            
 //            openInternalBuilderWindow("test", owner = FX.primaryStage.borderpane()) {
 //            }
         }
