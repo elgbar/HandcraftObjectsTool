@@ -308,8 +308,11 @@ object ControlPanelView : View("Control Panel") {
 
             scrollpane(fitToHeight = true, fitToWidth = true) {
                 addClass(Styles.invisibleScrollpaneBorder)
-                maxWidthProperty().bind(primaryStage.widthProperty())
-                maxHeightProperty().bind(primaryStage.heightProperty() / 5)
+                val stage = FX.getPrimaryStage(scope)
+                if (stage != null) {
+                    maxWidthProperty().bind(primaryStage.widthProperty())
+                    maxHeightProperty().bind(primaryStage.heightProperty() / 5)
+                }
                 flowpane {
                     orientation = Orientation.VERTICAL
                     addClass(Styles.flowPane)
@@ -341,8 +344,11 @@ object ControlPanelView : View("Control Panel") {
             }
             scrollpane(fitToHeight = true, fitToWidth = true) {
                 addClass(Styles.invisibleScrollpaneBorder)
-                maxWidthProperty().bind(primaryStage.widthProperty())
-                maxHeightProperty().bind(primaryStage.heightProperty() / 5)
+                val stage = FX.getPrimaryStage(scope)
+                if (stage != null) {
+                    maxWidthProperty().bind(primaryStage.widthProperty())
+                    maxHeightProperty().bind(primaryStage.heightProperty() / 5)
+                }
                 flowpane {
                     orientation = Orientation.VERTICAL
                     addClass(Styles.flowPane)
