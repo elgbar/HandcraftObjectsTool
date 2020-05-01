@@ -1,32 +1,29 @@
 package no.uib.inf219.gui.view
 
 import com.fasterxml.jackson.databind.JavaType
-import com.fasterxml.jackson.databind.Module
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.json.JsonMapper
 import com.fasterxml.jackson.module.afterburner.AfterburnerModule
 import com.fasterxml.jackson.module.mrbean.MrBeanModule
-import javafx.beans.property.BooleanProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
-import javafx.scene.control.ButtonType
 import javafx.scene.control.Tab
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.Priority
 import javafx.stage.FileChooser
 import no.uib.inf219.api.serialization.SerializationManager
-import no.uib.inf219.extra.YES_DISABLE_WARNING
 import no.uib.inf219.extra.closeAll
 import no.uib.inf219.extra.copyInputStreamToFile
 import no.uib.inf219.extra.type
+import no.uib.inf219.gui.Settings.lastFolderLoaded
 import no.uib.inf219.gui.Styles
 import no.uib.inf219.gui.controllers.ObjectEditorController
-import no.uib.inf219.gui.controllers.Settings.lastFolderLoaded
-import no.uib.inf219.gui.controllers.Settings.showCloseAllTabsOnModuleChangeWarning
 import no.uib.inf219.gui.ems
 import no.uib.inf219.gui.loader.ClassInformation
 import no.uib.inf219.gui.loader.DynamicClassLoader
 import no.uib.inf219.gui.loader.ObjectMapperLoader
 import no.uib.inf219.gui.view.select.ClassSelectorView
+import no.uib.inf219.gui.view.settings.ModuleSetting
 import tornadofx.*
 import java.io.File
 import java.io.FileFilter
@@ -49,28 +46,33 @@ object ControlPanelView : View("Control Panel") {
      * List of known mappers
      */
     private val knownObjectMappers =
-        SerializationManager.StdObjectMapper.values().mapTo(ArrayList()) { it.toString() to it.getObjectMapper() }
-            .asObservable()
+        SerializationManager.StdObjectMapper.values().mapTo(ArrayList()) {
+            it.toString() to it.getObjectMapper()
+        }.asObservable()
 
     //////////////////////
     // mapper variables //
     //////////////////////
 
 
-    private val mapperProperty by lazy { SimpleObjectProperty(SerializationManager.kotlinJson) }
-    private var orgMapper: ObjectMapper = mapper
+    private val mapperProperty by lazy {
+        SimpleObjectProperty(SerializationManager.kotlinJson)
+    }
+    internal var orgMapper: ObjectMapper = mapper
 
     /**
-     * What object mapper to use for serialization
+     * The object mapper to use for serialization
      */
     var mapper: ObjectMapper
         get() = mapperProperty.get()
         set(value) {
-            orgMapper = value
-            mapperProperty.set(value.copy())
-            updateMapper()
-            tabMap.clear()
+
             FX.find<BackgroundView>().tabPane.closeAll()
+            tabMap.clear()
+
+            orgMapper = value.copy()
+            mapperProperty.set(value)
+            updateMapper()
         }
 
 
@@ -78,12 +80,23 @@ object ControlPanelView : View("Control Panel") {
     // Module Settings //
     /////////////////////
 
-    var mrBeanModuleEnabledProp = booleanProperty(false)
-    var mrBeanModuleEnabled by mrBeanModuleEnabledProp
+    val mrBeanModule = ModuleSetting(
+        false,
+        "Mr Bean is an extension that implements support for \"POJO type materialization\"; ability for databinder to\n" +
+                "construct implementation classes for Java interfaces and abstract classes, as part of deserialization.\n" +
+                "This will not work with classes that are polymorphic and is annotated with @JsonTypeInfo.\n" +
+                "Enabling this will allow you to select interfaces and abstract classes in the class selection interface."
+    ) { MrBeanModule() }
 
-    var afterburnerModuleEnabledProp = booleanProperty(true)
-    var afterburnerModuleEnabled by afterburnerModuleEnabledProp
+    private val afterburnerModule = ModuleSetting(
+        true,
+        "Module that will add dynamic byte code generation for standard Jackson POJO serializers and deserializers,\n" +
+                "eliminating majority of remaining data binding overhead. It is recommenced to have this enabled, \n" +
+                "but can be disabled if there are any problems with it"
+    ) { AfterburnerModule() }
 
+    //After adding a module to the list above you must also add it to this list!
+    private val moduleSettings = listOf(mrBeanModule, afterburnerModule)
 
     ////////////////////
     // Other settings //
@@ -98,63 +111,25 @@ object ControlPanelView : View("Control Panel") {
 
     init {
         updateMapper()
-
-        fun warnAndUpdateMapper(prop: BooleanProperty) {
-
-            var ignoreNext = false
-
-            prop.addListener { _, oldValue, _ ->
-                if (ignoreNext) {
-                    ignoreNext = false
-                    return@addListener
-                }
-
-                if (showCloseAllTabsOnModuleChangeWarning != false && FX.find<BackgroundView>().tabPane.tabs.size > 1) {
-                    warning(
-                        "Changing this setting will close all currently open tabs",
-                        "Are you sure you want to close all currently opened tabs?",
-                        ButtonType.YES, YES_DISABLE_WARNING, ButtonType.NO,
-                        owner = currentWindow
-                    ) { button ->
-                        when (button) {
-                            //return old value
-                            ButtonType.NO -> {
-                                ignoreNext = true
-                                runLater {
-                                    prop.set(oldValue)
-                                }
-                                return@addListener
-                            }
-                            YES_DISABLE_WARNING -> {
-                                showCloseAllTabsOnModuleChangeWarning = false
-                            }
-                        }
-                    }
-                }
-                //this forces an call to #updateMapper()
-                mapper = orgMapper
-            }
-        }
-
-        warnAndUpdateMapper(mrBeanModuleEnabledProp)
-        warnAndUpdateMapper(afterburnerModuleEnabledProp)
     }
 
     private fun updateMapper() {
         ClassInformation.updateMapper()
 
-        fun checkEnabled(module: Module, boolProp: BooleanProperty) {
-
-            if (mapper.registeredModuleIds.contains(module.typeId) && !boolProp.value) {
-                //It is enabled for the current ObjectMapper already do not enable it again
-                boolProp.set(true)
-            } else if (mrBeanModuleEnabled) {
-                mapper.registerModule(module)
+        val builder = JsonMapper.builder()
+        builder.findAndAddModules()
+        for (module in moduleSettings) {
+            if (module.enabled) {
+                mapper.registerModule(module.createModule())
             }
         }
 
-        checkEnabled(MrBeanModule(), mrBeanModuleEnabledProp)
-        checkEnabled(AfterburnerModule(), afterburnerModuleEnabledProp)
+        for (module in moduleSettings) {
+            if (!module.enabled && mapper.registeredModuleIds.contains(module.typeId)) {
+                module.ignoreNext = true
+                module.enabled = true
+            }
+        }
     }
 
     override val root = vbox {
@@ -330,32 +305,24 @@ object ControlPanelView : View("Control Panel") {
                 }
             }
 
-            hbox {
+            flowpane {
                 style {
-                    spacing = 0.333.ems
+                    hgap = 0.333.ems
+                    vgap = hgap
                 }
-                checkbox("Use MrBean Module", mrBeanModuleEnabledProp) {
-                    tooltip(
-                        "Mr Bean is an extension that implements support for \"POJO type materialization\"; ability for databinder to\n" +
-                                "construct implementation classes for Java interfaces and abstract classes, as part of deserialization.\n" +
-                                "This will not work with classes that are polymorphic and is annotated with @JsonTypeInfo.\n" +
-                                "Enabling this will allow you to select interfaces and abstract classes in the class selection interface.\n" +
-                                "\n" +
-                                closeTabsWarningMsg
-                    )
-                }
-
-                checkbox("Use Afterburner Module", afterburnerModuleEnabledProp) {
-                    tooltip(
-                        "Module that will add dynamic bytecode generation for standard Jackson POJO serializers and deserializers,\n" +
-                                "eliminating majority of remaining data binding overhead. It is recommenced to have this enabled, \n" +
-                                "but can be disabled if there are any problems with it\n" +
-                                "\n" +
-                                closeTabsWarningMsg
-                    )
+                for (moduleSetting in moduleSettings) {
+                    checkbox("Use ${moduleSetting.name}", moduleSetting.enabledProp) {
+                        tooltip(
+                            "${moduleSetting.tooltip}\n" +
+                                    "\n" +
+                                    closeTabsWarningMsg
+                        )
+                    }
                 }
             }
+
             separator()
+
             label("Misc") {
                 style {
                     fontSize = 1.3.ems

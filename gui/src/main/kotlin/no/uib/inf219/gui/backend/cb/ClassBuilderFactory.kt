@@ -189,7 +189,7 @@ fun createClassBuilder(
          * and only types that does not have type information can be abstract.
          */
         fun canBeAbstract(type: JavaType): Boolean {
-            if (ControlPanelView.mrBeanModuleEnabled) {
+            if (ControlPanelView.mrBeanModule.enabled) {
                 val typeInfo = ClassInformation.serializableProperties(type)
                 return typeInfo.first == null
             }
@@ -206,7 +206,7 @@ fun createClassBuilder(
 
         var allowAbstractNextTime = canBeAbstract(type)
 
-        if (ControlPanelView.mrBeanModuleEnabled) {
+        if (ControlPanelView.mrBeanModule.enabled) {
             //users might want to create the selected class not a subclass
 
 
@@ -242,7 +242,7 @@ fun createClassBuilder(
         val subtype = find<ClassSelectorView>().subtypeOf(type, true) ?: return null
 
         allowAbstractNextTime = canBeAbstract(subtype)
-        if (ControlPanelView.mrBeanModuleEnabled && !allowAbstractNextTime) {
+        if (ControlPanelView.mrBeanModule.enabled && !allowAbstractNextTime) {
             displayWarning()
         }
 

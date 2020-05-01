@@ -12,8 +12,7 @@ import no.uib.inf219.extra.onChange
 import no.uib.inf219.gui.Settings.showMrBeanWarning
 import no.uib.inf219.gui.ems
 import no.uib.inf219.gui.loader.DynamicClassLoader
-import no.uib.inf219.gui.view.ControlPanelView
-import no.uib.inf219.gui.view.ControlPanelView.mrBeanModuleEnabled
+import no.uib.inf219.gui.view.ControlPanelView.mrBeanModule
 import tornadofx.*
 import java.lang.reflect.Modifier
 
@@ -52,7 +51,7 @@ class ClassSelectorView : SelectorView<String>("Select implementation") {
     private val resultType get() = DynamicClassLoader.loadType(result)
 
     init {
-        ControlPanelView.mrBeanModuleEnabledProp.onChange { useMrBean ->
+        mrBeanModule.enabledProp.onChange { useMrBean ->
             //reset the warning when mr bean is disabled
             if (!useMrBean) showMrBeanWarning = true
         }
@@ -93,7 +92,7 @@ class ClassSelectorView : SelectorView<String>("Select implementation") {
 
             when {
                 realResult.isAbstract -> {
-                    if (!mrBeanModuleEnabled) {
+                    if (!mrBeanModule.enabled) {
                         if (showMrBeanWarning == true) {
                             information(
                                 "Cannot select an abstract class when the Mr Bean module is not enabled.",
@@ -106,7 +105,7 @@ class ClassSelectorView : SelectorView<String>("Select implementation") {
                                         OK_ENABLE_MODULE -> {
                                             this@ClassSelectorView.result = null
                                             returnSelectedType()
-                                            mrBeanModuleEnabled = true
+                                            mrBeanModule.enabled = true
                                             return
                                         }
                                     }
