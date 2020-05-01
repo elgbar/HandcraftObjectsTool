@@ -1,4 +1,4 @@
-package no.uib.inf219.gui.controllers
+package no.uib.inf219.gui
 
 import no.uib.inf219.extra.Persistent
 import java.io.File

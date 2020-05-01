@@ -7,8 +7,8 @@ import javafx.scene.paint.Color
 import javafx.stage.StageStyle
 import no.uib.inf219.extra.*
 import no.uib.inf219.extra.close
+import no.uib.inf219.gui.Settings
 import no.uib.inf219.gui.Styles
-import no.uib.inf219.gui.controllers.Settings
 import no.uib.inf219.gui.ems
 import org.controlsfx.control.PropertySheet
 import tornadofx.*

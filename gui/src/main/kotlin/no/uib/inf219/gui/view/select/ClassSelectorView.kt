@@ -9,7 +9,7 @@ import no.uib.inf219.extra.OK_DISABLE_WARNING
 import no.uib.inf219.extra.OK_ENABLE_MODULE
 import no.uib.inf219.extra.loadType
 import no.uib.inf219.extra.onChange
-import no.uib.inf219.gui.controllers.Settings.showMrBeanWarning
+import no.uib.inf219.gui.Settings.showMrBeanWarning
 import no.uib.inf219.gui.ems
 import no.uib.inf219.gui.loader.DynamicClassLoader
 import no.uib.inf219.gui.view.ControlPanelView

@@ -1,9 +1,9 @@
 package no.uib.inf219.gui.view
 
 import javafx.stage.FileChooser
+import no.uib.inf219.gui.Settings
 import no.uib.inf219.gui.Styles
 import no.uib.inf219.gui.controllers.ObjectEditorController
-import no.uib.inf219.gui.controllers.Settings
 import no.uib.inf219.gui.view.ControlPanelView.mapper
 import no.uib.inf219.gui.view.ControlPanelView.unsafeSerialization
 import tornadofx.*
@@ -29,7 +29,7 @@ class ObjectEditorBackgroundView : View("Object Editor Background") {
             }
             this += find<PropertyEditor>("controller" to controller).root
             controller.select(controller.root)
-            
+
 //            openInternalBuilderWindow("test", owner = FX.primaryStage.borderpane()) {
 //            }
         }

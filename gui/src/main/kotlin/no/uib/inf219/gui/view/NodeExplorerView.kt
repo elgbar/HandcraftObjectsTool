@@ -5,9 +5,9 @@ import javafx.scene.input.KeyCode
 import javafx.scene.input.MouseButton
 import no.uib.inf219.extra.YES_DISABLE_WARNING
 import no.uib.inf219.extra.reload
+import no.uib.inf219.gui.Settings
+import no.uib.inf219.gui.Settings.showOverwriteWithRefWarning
 import no.uib.inf219.gui.controllers.ObjectEditorController
-import no.uib.inf219.gui.controllers.Settings
-import no.uib.inf219.gui.controllers.Settings.showOverwriteWithRefWarning
 import no.uib.inf219.gui.view.select.ReferenceSelectorView
 import tornadofx.*
 
