@@ -16,18 +16,19 @@ class PropertyEditor : Fragment("Property Editor") {
     internal val controller: ObjectEditorController by param()
 
     override val root = borderpane {
-        controller.tree.onUserSelect {
+        controller.tree.onUserSelect { cbn ->
 
             center = splitpane(orientation = Orientation.VERTICAL) {
-                setDividerPositions(0.25)
+                setDividerPositions(0.0)
 
                 this += vbox {
 
-                    val meta = it.getPropertyMeta()
+                    val meta = cbn.getPropertyMeta()
 
                     addClass(Styles.parent)
                     label("Required? ${meta?.required ?: false}")
-                    label("Type: ${meta?.type?.rawClass ?: "Unknown"}")
+                    label("Expected Type: ${meta?.type?.rawClass ?: "Unknown"}")
+                    label("Real Type: ${cbn.cb?.type?.rawClass ?: "null"}")
 
                     val desc = meta?.description
                     if (!desc.isNullOrBlank()) {
@@ -42,7 +43,7 @@ class PropertyEditor : Fragment("Property Editor") {
                     }
                 }
 
-                if (it.cb == null) {
+                if (cbn.cb == null) {
                     this += borderpane {
                         center {
                             onDoubleClick {
@@ -60,7 +61,7 @@ class PropertyEditor : Fragment("Property Editor") {
                         }
                     }
                 } else {
-                    this += it.cb!!.createEditView(this, controller)
+                    this += cbn.cb!!.createEditView(this, controller)
                 }
             }
         }
