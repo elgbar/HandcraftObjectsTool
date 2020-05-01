@@ -5,7 +5,6 @@ import javafx.scene.input.KeyCode
 import no.uib.inf219.extra.centeredText
 import no.uib.inf219.gui.Styles
 import no.uib.inf219.gui.controllers.ObjectEditorController
-import no.uib.inf219.gui.ems
 import tornadofx.*
 
 /**
@@ -33,11 +32,7 @@ class PropertyEditor : Fragment("Property Editor") {
                     val desc = meta?.description
                     if (!desc.isNullOrBlank()) {
                         scrollpane() {
-                            style {
-                                //remove the visible borders around the scroll pane
-                                borderWidth = multi(box(0.ems))
-                                padding = box(0.ems)
-                            }
+                            addClass(Styles.invisibleScrollpaneBorder)
                             text("Description: $desc")
                         }
                     }

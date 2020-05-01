@@ -7,6 +7,7 @@ import com.fasterxml.jackson.module.afterburner.AfterburnerModule
 import com.fasterxml.jackson.module.mrbean.MrBeanModule
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
+import javafx.geometry.Orientation
 import javafx.scene.control.Tab
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.Priority
@@ -305,19 +306,29 @@ object ControlPanelView : View("Control Panel") {
                 }
             }
 
-            flowpane {
-                style {
-                    hgap = 0.333.ems
-                    vgap = hgap
-                }
-                for (moduleSetting in moduleSettings) {
-                    checkbox("Use ${moduleSetting.name}", moduleSetting.enabledProp) {
-                        tooltip(
-                            "${moduleSetting.tooltip}\n" +
-                                    "\n" +
-                                    closeTabsWarningMsg
-                        )
+            scrollpane(fitToHeight = true, fitToWidth = true) {
+                addClass(Styles.invisibleScrollpaneBorder)
+                maxWidthProperty().bind(primaryStage.widthProperty())
+                maxHeightProperty().bind(primaryStage.heightProperty() / 5)
+                flowpane {
+                    orientation = Orientation.VERTICAL
+                    addClass(Styles.flowPane)
+
+                    for (moduleSetting in moduleSettings) {
+                        checkbox("Use ${moduleSetting.name}", moduleSetting.enabledProp) {
+                            tooltip(
+                                "${moduleSetting.tooltip}\n" +
+                                        "\n" +
+                                        closeTabsWarningMsg
+                            )
+                        }
                     }
+//                    val len = UUID.randomUUID().toString().length
+//                    val rand = Random()
+//
+//                    for (i in 0..50) {
+//                        checkbox(UUID.randomUUID().toString().substring(rand.nextInt(len)))
+//                    }
                 }
             }
 
@@ -328,19 +339,28 @@ object ControlPanelView : View("Control Panel") {
                     fontSize = 1.3.ems
                 }
             }
+            scrollpane(fitToHeight = true, fitToWidth = true) {
+                addClass(Styles.invisibleScrollpaneBorder)
+                maxWidthProperty().bind(primaryStage.widthProperty())
+                maxHeightProperty().bind(primaryStage.heightProperty() / 5)
+                flowpane {
+                    orientation = Orientation.VERTICAL
+                    addClass(Styles.flowPane)
 
-            checkbox("Unsafe Serialization", unsafeSerializationProp) {
-                tooltip(
-                    "If the objects should be serialized without checking if it can be deserialized.\n" +
-                            "Sometimes is not possible to check if an object can be deserialized in this GUI."
-                )
-            }
+                    checkbox("Unsafe Serialization", unsafeSerializationProp) {
+                        tooltip(
+                            "If the objects should be serialized without checking if it can be deserialized.\n" +
+                                    "Sometimes is not possible to check if an object can be deserialized in this GUI."
+                        )
+                    }
 
-            checkbox("Print Serialization Exception Stacktrace", printStackTraceOnSerErrorProp) {
-                tooltip(
-                    "If the stacktrace should be printed when an error is encountered during verification\n" +
-                            "of the created object."
-                )
+                    checkbox("Print Serialization Exception Stacktrace", printStackTraceOnSerErrorProp) {
+                        tooltip(
+                            "If the stacktrace should be printed when an error is encountered during verification\n" +
+                                    "of the created object."
+                        )
+                    }
+                }
             }
         }
 

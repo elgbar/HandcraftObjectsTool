@@ -18,6 +18,8 @@ class Styles : Stylesheet() {
         val largefont by cssclass()
         val parent by cssclass()
         val numberChanger by cssclass()
+        val invisibleScrollpaneBorder by cssclass()
+        val flowPane by cssclass()
 
         val monospaceFont = loadFont("/fonts/ubuntu/UbuntuMono-R.ttf", -1)!!
     }
@@ -46,6 +48,11 @@ class Styles : Stylesheet() {
             fontSize = 2.ems
         }
 
+        flowPane {
+            hgap = 0.333.ems
+            vgap = hgap
+        }
+
         /**
          * Generic rule for stuff that has multiple other elements within them
          */
@@ -61,6 +68,13 @@ class Styles : Stylesheet() {
             font = monospaceFont
             fontSize = 0.1.ems
             padding = box(0.ems, 0.333.ems)
+        }
+
+
+        //remove the visible borders around the scroll pane
+        invisibleScrollpaneBorder {
+            borderWidth = multi(box(0.ems))
+            padding = box(0.ems)
         }
     }
 }
