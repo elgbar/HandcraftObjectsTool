@@ -67,8 +67,9 @@ object SerializationManager {
         val om = ObjectMapper(YAMLFactory())
         om.registerModule(
             KotlinModule(
-                nullisSameAsDefault = true,
-                nullToEmptyCollection = true
+                nullToEmptyCollection = true,
+                nullToEmptyMap = true,
+                nullIsSameAsDefault = true
             )
         )
         return@lazy om
@@ -87,8 +88,9 @@ object SerializationManager {
 
         mapper.registerModule(
             KotlinModule(
-                nullisSameAsDefault = true,
-                nullToEmptyCollection = true
+                nullToEmptyCollection = true,
+                nullToEmptyMap = true,
+                nullIsSameAsDefault = true
             )
         )
         return@lazy mapper

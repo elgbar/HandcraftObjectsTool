@@ -20,17 +20,47 @@ import org.testfx.framework.junit5.ApplicationExtension
 class TypeIdSupported {
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
-    object UseClassAsPropertyProperty {}
+    class UseClassAsPropertyProperty {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
+            return true
+        }
+
+        override fun hashCode(): Int {
+            return javaClass.hashCode()
+        }
+    }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS, include = JsonTypeInfo.As.PROPERTY)
-    object UseMinimalClassAsPropertyProperty {}
+    class UseMinimalClassAsPropertyProperty {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
+            return true
+        }
+
+        override fun hashCode(): Int {
+            return javaClass.hashCode()
+        }
+    }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY)
-    object UseNameAsPropertyProperty {}
+    class UseNameAsPropertyProperty {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
+            return true
+        }
+
+        override fun hashCode(): Int {
+            return javaClass.hashCode()
+        }
+    }
 
     @Test
     internal fun useClassAsPropertyPropertyTest() {
-        val expected = ControlPanelView.mapper.writeValueAsString(UseClassAsPropertyProperty)
+        val expected = ControlPanelView.mapper.writeValueAsString(UseClassAsPropertyProperty())
         println("expected = $expected")
 
         val obj =
@@ -42,13 +72,13 @@ class TypeIdSupported {
             ).toObject()
         val json = ControlPanelView.mapper.writeValueAsString(obj)
         println("got = $json")
-        assertEquals(UseClassAsPropertyProperty, obj)
+        assertEquals(UseClassAsPropertyProperty(), obj)
         assertEquals(expected, json)
     }
 
     @Test
     internal fun useMinimalClassAsPropertyPropertyTest() {
-        val expected = ControlPanelView.mapper.writeValueAsString(UseMinimalClassAsPropertyProperty)
+        val expected = ControlPanelView.mapper.writeValueAsString(UseMinimalClassAsPropertyProperty())
         println("expected = $expected")
 
         val obj =
@@ -60,13 +90,13 @@ class TypeIdSupported {
             ).toObject()
         val json = ControlPanelView.mapper.writeValueAsString(obj)
         println("got = $json")
-        assertEquals(UseMinimalClassAsPropertyProperty, obj)
+        assertEquals(UseMinimalClassAsPropertyProperty(), obj)
         assertEquals(expected, json)
     }
 
     @Test
     internal fun useNameAsPropertyPropertyTest() {
-        val expected = ControlPanelView.mapper.writeValueAsString(UseNameAsPropertyProperty)
+        val expected = ControlPanelView.mapper.writeValueAsString(UseNameAsPropertyProperty())
         println("expected = $expected")
 
         val obj =
@@ -78,7 +108,7 @@ class TypeIdSupported {
             ).toObject()
         val json = ControlPanelView.mapper.writeValueAsString(obj)
         println("got = $json")
-        assertEquals(UseNameAsPropertyProperty, obj)
+        assertEquals(UseNameAsPropertyProperty(), obj)
         assertEquals(expected, json)
     }
 }
