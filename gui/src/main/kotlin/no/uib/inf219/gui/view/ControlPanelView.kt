@@ -90,9 +90,11 @@ object ControlPanelView : View("Control Panel") {
     ////////////////////
 
 
-    var unsafeSerializationProp = booleanProperty(false)
+    private var unsafeSerializationProp = booleanProperty(false)
     var unsafeSerialization by unsafeSerializationProp
 
+    private var printStackTraceOnSerErrorProp = booleanProperty(false)
+    var printStackTraceOnSerError by printStackTraceOnSerErrorProp
 
     init {
         updateMapper()
@@ -364,6 +366,13 @@ object ControlPanelView : View("Control Panel") {
                 tooltip(
                     "If the objects should be serialized without checking if it can be deserialized.\n" +
                             "Sometimes is not possible to check if an object can be deserialized in this GUI."
+                )
+            }
+
+            checkbox("Print Serialization Exception Stacktrace", printStackTraceOnSerErrorProp) {
+                tooltip(
+                    "If the stacktrace should be printed when an error is encountered during verification\n" +
+                            "of the created object."
                 )
             }
         }

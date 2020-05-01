@@ -5,6 +5,7 @@ import no.uib.inf219.gui.Settings
 import no.uib.inf219.gui.Styles
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.view.ControlPanelView.mapper
+import no.uib.inf219.gui.view.ControlPanelView.printStackTraceOnSerError
 import no.uib.inf219.gui.view.ControlPanelView.unsafeSerialization
 import tornadofx.*
 
@@ -57,7 +58,10 @@ class ObjectEditorBackgroundView : View("Object Editor Background") {
 
             OutputArea.logln("Failed to create object due to an exception. Maybe you tried to create an object which require a non-null parameter is null.")
             OutputArea.logln("${e.javaClass.simpleName}: ${e.message}")
-            e.printStackTrace()
+            if (printStackTraceOnSerError) {
+                e.printStackTrace()
+                OutputArea.logln(e)
+            }
         }
         return null
     }

@@ -4,6 +4,12 @@ import javafx.application.Platform
 import javafx.scene.control.Button
 import no.uib.inf219.gui.Styles
 import tornadofx.*
+import java.io.PrintWriter
+
+import java.io.StringWriter
+
+import java.io.Writer
+
 
 /**
  * @author Elg
@@ -12,7 +18,14 @@ object OutputArea : View() {
 
     override val root = scrollpane(fitToHeight = true, fitToWidth = true).textarea {
         addClass(Styles.parent)
+        this.text
         isEditable = false
+    }
+
+    fun logln(e: Throwable) {
+        val writer: Writer = StringWriter()
+        e.printStackTrace(PrintWriter(writer))
+        logln(writer.toString())
     }
 
     fun clearButton(): Button {
