@@ -221,7 +221,7 @@ object ControlPanelView : View("Control Panel") {
                         val className = classNameProperty.value
                         val type: JavaType
                         try {
-                            type = DynamicClassLoader.loadType(className)
+                            type = DynamicClassLoader.getType(className)
                         } catch (e: Throwable) {
                             OutputArea.logln { "Failed to load class $className due to an error $e" }
                             ui {

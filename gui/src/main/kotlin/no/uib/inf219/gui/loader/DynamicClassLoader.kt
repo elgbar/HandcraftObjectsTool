@@ -41,4 +41,33 @@ object DynamicClassLoader :
         return loadClass(name).type()
     }
 
+    fun getType(className: String): JavaType {
+        return when (className) {
+            "int" -> Int::class.java
+            "long" -> Long::class.java
+            "byte" -> Byte::class.java
+            "short" -> Short::class.java
+            "float" -> Float::class.java
+            "double" -> Double::class.java
+            "boolean" -> Boolean::class.java
+            "char" -> Char::class.java
+
+            "int[]" -> IntArray::class.java
+            "long[]" -> LongArray::class.java
+            "byte[]" -> ByteArray::class.java
+            "short[]" -> ShortArray::class.java
+            "float[]" -> FloatArray::class.java
+            "double[]" -> DoubleArray::class.java
+            "boolean[]" -> BooleanArray::class.java
+            "char[]" -> CharArray::class.java
+            else -> {
+                val fixedName =
+                    if (className.endsWith("[]")) "[L${className.removeSuffix("[]")};"
+                    else className
+                Class.forName(fixedName, true, DynamicClassLoader)
+            }
+        }.type()
+
+    }
+
 }
