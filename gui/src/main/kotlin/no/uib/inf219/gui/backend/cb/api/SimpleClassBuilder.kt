@@ -33,9 +33,9 @@ import java.util.*
 import kotlin.reflect.KClass
 
 /**
- * A class builder intended for primitive classes to be used as leaf nodes in the class builder tree.
+ * A class builder intended for primitive types and simple classes to be used as leaf nodes in the class builder tree.
  *
- * [key] and [parent] are nullable in constructor as it is needed to create more complex types and typically they are not used for actual object creation (when key in f.eks [ClassBuilder.getSubClassBuilders])
+ * [key] and [parent] are nullable in constructor as it is needed to create more complex types and typically they are not used for actual object creation
  *
  * @author Elg
  */

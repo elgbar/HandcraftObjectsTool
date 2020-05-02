@@ -326,12 +326,6 @@ object ControlPanelView : View("Control Panel") {
                             )
                         }
                     }
-//                    val len = UUID.randomUUID().toString().length
-//                    val rand = Random()
-//
-//                    for (i in 0..50) {
-//                        checkbox(UUID.randomUUID().toString().substring(rand.nextInt(len)))
-//                    }
                 }
             }
 

@@ -45,10 +45,10 @@ class CharClassBuilder(
         return parent.textfield {
             textFormatter = TextFormatter<Char>() {
 
-                val text: String = it.controlNewText ?: return@TextFormatter null
+                val text: String = it?.controlNewText ?: return@TextFormatter null
 
                 if (it.isContentChange && text.isNotEmpty() && !validate(text)) {
-                    OutputArea.logln { "Failed to parse '$text' to ${this@CharClassBuilder.serObject::class.simpleName}" }
+                    OutputArea.logln { "Failed to parse '$text' to ${this@CharClassBuilder.type.rawClass.simpleName}" }
                     return@TextFormatter null
                 }
                 return@TextFormatter it

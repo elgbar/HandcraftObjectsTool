@@ -33,6 +33,7 @@ class CollectionClassBuilder(
         require(type.isContainerType)
     }
 
+    //TODO maybe have a class selection to create the "correct" collection type?
     override val serObject = ArrayList<ClassBuilder>().asObservable()
     override val serObjectObservable = serObject
 

@@ -29,7 +29,7 @@ object OutputArea : View() {
     }
 
     fun clearButton(): Button {
-        return button("Clear") {
+        return button("Clear Log") {
             action {
                 root.clear()
             }
