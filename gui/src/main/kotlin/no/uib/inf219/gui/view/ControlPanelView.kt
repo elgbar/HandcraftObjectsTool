@@ -18,6 +18,8 @@ import no.uib.inf219.extra.closeAll
 import no.uib.inf219.extra.copyInputStreamToFile
 import no.uib.inf219.extra.type
 import no.uib.inf219.gui.Settings.lastFolderLoaded
+import no.uib.inf219.gui.Settings.printStackTraceOnSerErrorProp
+import no.uib.inf219.gui.Settings.unsafeSerializationProp
 import no.uib.inf219.gui.Styles
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.ems
@@ -99,17 +101,6 @@ object ControlPanelView : View("Control Panel") {
 
     //After adding a module to the list above you must also add it to this list!
     private val moduleSettings = listOf(mrBeanModule, afterburnerModule)
-
-    ////////////////////
-    // Other settings //
-    ////////////////////
-
-
-    private var unsafeSerializationProp = booleanProperty(false)
-    var unsafeSerialization by unsafeSerializationProp
-
-    private var printStackTraceOnSerErrorProp = booleanProperty(false)
-    var printStackTraceOnSerError by printStackTraceOnSerErrorProp
 
     init {
         updateMapper()

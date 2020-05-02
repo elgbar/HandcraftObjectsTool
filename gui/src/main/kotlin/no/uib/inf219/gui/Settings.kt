@@ -1,6 +1,9 @@
 package no.uib.inf219.gui
 
 import no.uib.inf219.extra.Persistent
+import tornadofx.booleanProperty
+import tornadofx.getValue
+import tornadofx.setValue
 import java.io.File
 
 /**
@@ -48,4 +51,14 @@ object Settings {
      * If a warning should be displayed when changing what modules are active
      */
     var showCloseAllTabsOnModuleChangeWarning by Persistent(true)
+
+    ///////////////////////////////////////////
+    // Properties displayed in control panel //
+    ///////////////////////////////////////////
+
+    var unsafeSerializationProp = booleanProperty(false)
+    var unsafeSerialization by unsafeSerializationProp
+
+    var printStackTraceOnSerErrorProp = booleanProperty(false)
+    var printStackTraceOnSerError by printStackTraceOnSerErrorProp
 }
