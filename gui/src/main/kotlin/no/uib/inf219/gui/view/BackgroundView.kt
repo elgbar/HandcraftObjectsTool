@@ -4,6 +4,7 @@ import javafx.geometry.Orientation
 import javafx.scene.control.TabPane
 import javafx.scene.layout.BorderPane
 import javafx.scene.paint.Color
+import javafx.scene.text.TextAlignment
 import javafx.stage.StageStyle
 import no.uib.inf219.extra.*
 import no.uib.inf219.extra.close
@@ -108,7 +109,8 @@ class BackgroundView : View("Handcrafted Objects Tool") {
                                         "Open source tool to create JVM objects",
                                         "",
                                         "Author: Karl Henrik Elg Barlinn",
-                                        "Licenced under Apache License 2.0"
+                                        "Licenced under Apache License 2.0",
+                                        textAlignment = TextAlignment.CENTER
                                     ) {
                                         addClass(Styles.parent)
                                         internetHyperlink(

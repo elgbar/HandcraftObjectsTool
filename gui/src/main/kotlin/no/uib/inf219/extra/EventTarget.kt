@@ -30,18 +30,25 @@ fun <T : ClassBuilder> StringProperty.bindCbText(cb: T, value: T.() -> String) {
 }
 
 
-fun EventTarget.centeredText(vararg lines: String, op: VBox.() -> Unit = {}) {
-    vbox {
+fun EventTarget.centeredText(
+    vararg lines: String,
+    textAlignment: TextAlignment = TextAlignment.LEFT,
+    op: VBox.() -> Unit = {}
+) {
+    hbox {
         alignment = Pos.CENTER
-        textflow {
-            textAlignment = TextAlignment.CENTER
-            for (line in lines.dropLast(1)) {
-                text(line + "\n")
+        vbox {
+            alignment = Pos.CENTER
+            textflow {
+                this.textAlignment = textAlignment
+                for (line in lines.dropLast(1)) {
+                    text(line + "\n")
+                }
+                //do not add a newline to the last element
+                text(lines.last())
             }
-            //do not add a newline to the last element
-            text(lines.last())
+            op()
         }
-        op()
     }
 }
 
