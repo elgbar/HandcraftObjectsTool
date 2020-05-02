@@ -60,5 +60,5 @@ object Settings {
     var unsafeSerialization by unsafeSerializationProp
 
     var printStackTraceOnSerErrorProp = booleanProperty(false)
-    var printStackTraceOnSerError by printStackTraceOnSerErrorProp
+    var printStackTraceOnError by printStackTraceOnSerErrorProp
 }

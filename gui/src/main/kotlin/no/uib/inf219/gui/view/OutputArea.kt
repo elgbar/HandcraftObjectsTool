@@ -2,6 +2,7 @@ package no.uib.inf219.gui.view
 
 import javafx.application.Platform
 import javafx.scene.control.Button
+import no.uib.inf219.gui.Settings
 import no.uib.inf219.gui.Styles
 import tornadofx.*
 import java.io.PrintWriter
@@ -23,9 +24,12 @@ object OutputArea : View() {
     }
 
     fun logln(e: Throwable) {
-        val writer: Writer = StringWriter()
-        e.printStackTrace(PrintWriter(writer))
-        logln(writer.toString())
+        if (Settings.printStackTraceOnError) {
+            val writer: Writer = StringWriter()
+            e.printStackTrace(PrintWriter(writer))
+            logln(writer.toString())
+            e.printStackTrace()
+        }
     }
 
     fun clearButton(): Button {

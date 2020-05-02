@@ -2,11 +2,11 @@ package no.uib.inf219.gui.view
 
 import javafx.stage.FileChooser
 import no.uib.inf219.gui.Settings
+import no.uib.inf219.gui.Settings.unsafeSerialization
 import no.uib.inf219.gui.Styles
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.view.ControlPanelView.mapper
-import no.uib.inf219.gui.view.ControlPanelView.printStackTraceOnSerError
-import no.uib.inf219.gui.view.ControlPanelView.unsafeSerialization
+import no.uib.inf219.gui.view.OutputArea.logln
 import tornadofx.*
 
 
@@ -56,12 +56,9 @@ class ObjectEditorBackgroundView : View("Object Editor Background") {
             //As we load classes from external jars, we do not know what class loader the created object will be in
             //We can only use one type factory at once, maybe find a way to do this better?
 
-            OutputArea.logln("Failed to create object due to an exception. Maybe you tried to create an object which require a non-null parameter is null.")
-            OutputArea.logln("${e.javaClass.simpleName}: ${e.message}")
-            if (printStackTraceOnSerError) {
-                e.printStackTrace()
-                OutputArea.logln(e)
-            }
+            logln("Failed to create object due to an exception. Maybe you tried to create an object which require a non-null parameter is null.")
+            logln("${e.javaClass.simpleName}: ${e.message}")
+            logln(e)
         }
         return null
     }
@@ -117,18 +114,18 @@ class ObjectEditorBackgroundView : View("Object Editor Background") {
 
         ControlPanelView.runAsync {
             file.writeText(obj)
-            OutputArea.logln("Saved object to file ${file.canonicalPath}")
+            logln("Saved object to file ${file.canonicalPath}")
         }
     }
 
     fun validate() {
-        OutputArea.logln("Validating...")
+        logln("Validating...")
         runAsync {
 
             val obj = toJson()
             if (obj != null) {
-                OutputArea.logln("Successfully created object!")
-                OutputArea.logln("json=$obj")
+                logln("Successfully created object!")
+                logln("json=$obj")
             }
         }
     }

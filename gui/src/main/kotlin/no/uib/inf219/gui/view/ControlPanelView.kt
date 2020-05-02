@@ -346,10 +346,9 @@ object ControlPanelView : View("Control Panel") {
                         )
                     }
 
-                    checkbox("Print Serialization Exception Stacktrace", printStackTraceOnSerErrorProp) {
+                    checkbox("Print stack trace of exceptions", printStackTraceOnSerErrorProp) {
                         tooltip(
-                            "If the stacktrace should be printed when an error is encountered during verification\n" +
-                                    "of the created object."
+                            "If the stacktrace should be printed when an exception is encountered."
                         )
                     }
                 }
