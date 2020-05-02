@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.json.JsonMapper
 import com.fasterxml.jackson.module.afterburner.AfterburnerModule
+import com.fasterxml.jackson.module.mrbean.AbstractTypeMaterializer
 import com.fasterxml.jackson.module.mrbean.MrBeanModule
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
@@ -87,7 +88,7 @@ object ControlPanelView : View("Control Panel") {
                 "construct implementation classes for Java interfaces and abstract classes, as part of deserialization.\n" +
                 "This will not work with classes that are polymorphic and is annotated with @JsonTypeInfo.\n" +
                 "Enabling this will allow you to select interfaces and abstract classes in the class selection interface."
-    ) { MrBeanModule() }
+    ) { MrBeanModule(AbstractTypeMaterializer(DynamicClassLoader)) }
 
     private val afterburnerModule = ModuleSetting(
         true,
