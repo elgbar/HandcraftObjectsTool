@@ -50,7 +50,8 @@ class PropertyEditor : Fragment("Property Editor") {
                                 }
                             }
                             centeredText(
-                                "Double click a property to edit it. You can also double click anywhere here to create this property.",
+                                "This property is set to null",
+                                "To create a value here double click anywhere with in editor.",
                                 "Each property can also be reset or set to null via context menu (right click)"
                             )
                         }

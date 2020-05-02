@@ -12,7 +12,6 @@ import javafx.scene.control.ContextMenu
 import javafx.scene.control.TreeItem
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
-import javafx.scene.input.MouseEvent
 import no.uib.inf219.extra.findChild
 import no.uib.inf219.gui.backend.cb.serializers.ClassBuilderSerializer
 import no.uib.inf219.gui.controllers.ObjectEditorController
@@ -95,11 +94,6 @@ interface ClassBuilder {
      */
     @JsonIgnore
     fun isImmutable(): Boolean
-
-    /**
-     * When the node of this class builder got a mouse event
-     */
-    fun onNodeMouseEvent(event: MouseEvent, controller: ObjectEditorController) {}
 
     fun onNodeKeyEvent(event: KeyEvent, controller: ObjectEditorController) {
         if (event.code == KeyCode.DELETE) {

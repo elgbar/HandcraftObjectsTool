@@ -2,7 +2,6 @@ package no.uib.inf219.gui.view
 
 import javafx.scene.control.ButtonType
 import javafx.scene.input.KeyCode
-import javafx.scene.input.MouseButton
 import no.uib.inf219.extra.YES_DISABLE_WARNING
 import no.uib.inf219.extra.reload
 import no.uib.inf219.gui.Settings
@@ -23,16 +22,6 @@ class NodeExplorerView(private val controller: ObjectEditorController) : View("T
         controller.tree = this
         root.isExpanded = true
 
-        setOnMouseClicked { event ->
-            //note that "isPrimaryButtonDown" and "isSecondaryButtonDown" does not work
-            if (selectedValue?.cb == null && event.clickCount == 2 && event.button == MouseButton.PRIMARY) {
-                controller.createSelected()
-                return@setOnMouseClicked
-            }
-            if (selectedValue !== root) {
-                selectedValue?.cb?.onNodeMouseEvent(event, controller)
-            }
-        }
         setOnKeyPressed { event ->
             //note that "isPrimaryButtonDown" and "isSecondaryButtonDown" does not work
             if (selectedValue?.cb == null && (event.code == KeyCode.ENTER || event.code == KeyCode.SPACE)) {

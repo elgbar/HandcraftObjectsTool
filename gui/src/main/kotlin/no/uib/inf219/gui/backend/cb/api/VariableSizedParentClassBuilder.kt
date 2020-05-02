@@ -4,8 +4,6 @@ import javafx.event.EventTarget
 import javafx.scene.control.ContextMenu
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
-import javafx.scene.input.MouseButton
-import javafx.scene.input.MouseEvent
 import javafx.scene.layout.Region
 import no.uib.inf219.extra.centeredText
 import no.uib.inf219.extra.reload
@@ -38,9 +36,8 @@ abstract class VariableSizedParentClassBuilder : ParentClassBuilder() {
     final override fun isImmutable() = false
 
 
-    private fun createNewChildAndUpdateVisual(controller: ObjectEditorController) {
+    private fun createNewChildAndExpand(controller: ObjectEditorController) {
         val created = createNewChild(controller)
-        controller.tree.reload()
         item.isExpanded = true
         created?.item?.isExpanded = true
     }
@@ -53,35 +50,25 @@ abstract class VariableSizedParentClassBuilder : ParentClassBuilder() {
             center {
                 centeredText("There are ${this@VariableSizedParentClassBuilder.getChildren().size} elements in this collection\n") {
                     button("Add new element").action {
-                        createNewChild(controller)
+                        createNewChildAndExpand(controller)
                     }
                 }
             }
         }
     }
 
-    override fun onNodeMouseEvent(
-        event: MouseEvent,
-        controller: ObjectEditorController
-    ) {
-        if (event.clickCount == 2 && event.button == MouseButton.PRIMARY) {
-            createNewChildAndUpdateVisual(controller)
-            event.consume()
-        }
-    }
-
     override fun onNodeKeyEvent(event: KeyEvent, controller: ObjectEditorController) {
         super.onNodeKeyEvent(event, controller)
-        
+
         if (event.code == KeyCode.ENTER || event.code == KeyCode.SPACE) {
-            createNewChildAndUpdateVisual(controller)
+            createNewChildAndExpand(controller)
             event.consume()
         }
     }
 
     override fun createContextMenu(menu: ContextMenu, controller: ObjectEditorController): Boolean {
         with(menu) {
-            item("Add new entry").action { createNewChild(controller) }
+            item("Add new entry").action { createNewChildAndExpand(controller) }
             item("Clear").action {
                 clear()
                 item.children.clear()
