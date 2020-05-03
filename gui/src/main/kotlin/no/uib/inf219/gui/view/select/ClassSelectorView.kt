@@ -52,11 +52,6 @@ class ClassSelectorView : SelectorView<String>("Select implementation") {
     private val resultType get() = DynamicClassLoader.loadType(result)
 
     init {
-        mrBeanModule.enabledProp.onChange { useMrBean ->
-            //reset the warning when mr bean is disabled
-            if (!useMrBean) showMrBeanWarning = true
-        }
-
         with(root) {
             resultList.children.add(0, textflow().apply {
                 fun updateText(): String {

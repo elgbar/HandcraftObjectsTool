@@ -1,11 +1,15 @@
 package no.uib.inf219.gui.view
 
+import javafx.scene.control.ButtonType.NO
+import javafx.scene.control.ButtonType.YES
 import javafx.stage.FileChooser
+import no.uib.inf219.extra.NO_DISABLE_WARNING
 import no.uib.inf219.gui.Settings
 import no.uib.inf219.gui.Settings.unsafeSerialization
 import no.uib.inf219.gui.Styles
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.view.ControlPanelView.mapper
+import no.uib.inf219.gui.view.ControlPanelView.mrBeanModule
 import no.uib.inf219.gui.view.OutputArea.logln
 import tornadofx.*
 
@@ -53,12 +57,27 @@ class ObjectEditorBackgroundView : View("Object Editor Background") {
                 mapper.writeValueAsString(obj)
             }
         } catch (e: Throwable) {
-            //As we load classes from external jars, we do not know what class loader the created object will be in
-            //We can only use one type factory at once, maybe find a way to do this better?
-
-            logln("Failed to create object due to an exception. Maybe you tried to create an object which require a non-null parameter is null.")
+            logln("Failed to create object due to an exception.")
             logln("${e.javaClass.simpleName}: ${e.message}")
             logln(e)
+
+            if (!mrBeanModule.enabled &&
+                Settings.showMrBeanWarning == true &&
+                e.message?.contains("Cannot construct instance of") == true
+            ) {
+                runLater {
+                    information(
+                        "Do you want to enable the Mr Bean module?",
+                        "You cannot create abstract types without Mr Bean Module.",
+                        YES, NO, NO_DISABLE_WARNING
+                    ) {
+                        when (it) {
+                            YES -> mrBeanModule.enabled = true
+                            NO_DISABLE_WARNING -> Settings.showMrBeanWarning = false
+                        }
+                    }
+                }
+            }
         }
         return null
     }
