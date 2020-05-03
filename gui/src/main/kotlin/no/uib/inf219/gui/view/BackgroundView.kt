@@ -102,6 +102,7 @@ class BackgroundView : View("Handcrafted Objects Tool") {
                             }
                         }.openModal(block = true, owner = currentWindow)
                     }
+                    item("Clear logs").action { LoggerView.clear() }
                 }
 
                 menu("Help") {

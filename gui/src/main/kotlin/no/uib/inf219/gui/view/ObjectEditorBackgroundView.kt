@@ -38,14 +38,6 @@ class ObjectEditorBackgroundView : View("Object Editor Background") {
 //            openInternalBuilderWindow("test", owner = FX.primaryStage.borderpane()) {
 //            }
         }
-
-        bottom = hbox {
-            addClass(Styles.parent)
-
-            button("Save").action { save() }
-            button("Validate").action { validate() }
-            this += LoggerView.clearButton()
-        }
     }
 
     private fun toJson(): String? {

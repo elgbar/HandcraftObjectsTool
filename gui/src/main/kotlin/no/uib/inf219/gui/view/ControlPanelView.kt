@@ -182,7 +182,6 @@ object ControlPanelView : View("Control Panel") {
                     }
                 }
             }
-            this += LoggerView.clearButton()
             button("Load Example") {
                 setOnAction {
                     val inp = MethodHandles.lookup().lookupClass().getResourceAsStream("/example.jar")

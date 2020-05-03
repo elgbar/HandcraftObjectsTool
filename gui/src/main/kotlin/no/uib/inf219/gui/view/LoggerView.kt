@@ -1,14 +1,14 @@
 package no.uib.inf219.gui.view
 
 import javafx.application.Platform
-import javafx.scene.control.Button
 import no.uib.inf219.gui.Settings
 import no.uib.inf219.gui.Styles
-import tornadofx.*
+import tornadofx.View
+import tornadofx.addClass
+import tornadofx.scrollpane
+import tornadofx.textarea
 import java.io.PrintWriter
-
 import java.io.StringWriter
-
 import java.io.Writer
 
 /**
@@ -31,11 +31,9 @@ object LoggerView : View() {
         }
     }
 
-    fun clearButton(): Button {
-        return button("Clear Log") {
-            action {
-                root.clear()
-            }
+    fun clear() {
+        Platform.runLater {
+            root.clear()
         }
     }
 
