@@ -16,6 +16,7 @@ import tornadofx.*
 import tornadofx.controlsfx.action
 import tornadofx.controlsfx.hyperlinklabel
 import tornadofx.controlsfx.propertysheet
+import kotlin.system.exitProcess
 
 /**
  * @author Elg
@@ -73,6 +74,30 @@ class BackgroundView : View("Handcrafted Objects Tool") {
                             oebv.save()
                         }
                     }
+                    separator()
+                    item("Settings", "Ctrl+Alt+S").action {
+
+                        object : View("Application Settings") {
+                            override val root = vbox {
+                                addClass(Styles.parent)
+
+                                propertysheet(Settings, mode = PropertySheet.Mode.NAME)
+
+                                separator()
+
+                                button("Reset All Settings").action {
+                                    tooltip("A restart is required for the changes to take effect")
+                                    applicationHome().deleteRecursively()
+                                }
+                            }
+                        }.openModal(block = true, owner = currentWindow)
+                    }
+                    item("Clear logs").action { LoggerView.clear() }
+                    item("Exit").action { exitProcess(0) }
+                }
+
+                menu("Build") {
+
                     //use Ctrl+D as Ctrl+V is used for pasting when in an editor
                     item("Validate", "Ctrl+D") {
                         enableWhen {
@@ -86,23 +111,6 @@ class BackgroundView : View("Handcrafted Objects Tool") {
                             oebv.validate()
                         }
                     }
-                    separator()
-                    item("Settings", "Ctrl+Alt+S").action {
-
-                        object : View("Application Settings") {
-                            override val root = vbox {
-                                addClass(Styles.parent)
-
-                                propertysheet(Settings, mode = PropertySheet.Mode.NAME)
-
-                                button("Reset All Settings").action {
-                                    tooltip("A restart is required for the changes to take effect")
-                                    applicationHome().deleteRecursively()
-                                }
-                            }
-                        }.openModal(block = true, owner = currentWindow)
-                    }
-                    item("Clear logs").action { LoggerView.clear() }
                 }
 
                 menu("Help") {
