@@ -23,9 +23,9 @@ import kotlin.reflect.KProperty
  * @author Elg
  */
 class ObjectEditorController(
-    rootType: JavaType
+    rootType: JavaType,
+    obj: Any? = null
 ) {
-
     lateinit var tree: TreeView<ClassBuilderNode>
 
     /**
@@ -33,7 +33,7 @@ class ObjectEditorController(
      *
      * @see RootDelegator
      */
-    private val fakeRoot by RootDelegator(rootType)
+    private val fakeRoot by RootDelegator(rootType, obj)
     val root: ClassBuilder get() = fakeRoot.serObject as ClassBuilder
 
     fun select(cb: ClassBuilder) {
@@ -70,8 +70,16 @@ class ObjectEditorController(
     /**
      * Delegator that handles resetting of our real root. It acts as any other class builder is expected to behave: It is a parent class builder with one child with key [fakeRootKey] and the value [serObject]. The real root can never be `null` so when asked to reset it ignores `restoreDefault` and behaves as if it is always `true`. The default value of the root is what is returned when calling [ClassBuilder.createClassBuilder] with type [realRootType].
      */
-    private class RootDelegator(private val realRootType: JavaType) : ParentClassBuilder(),
+    private class RootDelegator(
+        private val realRootType: JavaType,
+        private val obj: Any?
+    ) : ParentClassBuilder(),
         ReadOnlyProperty<Any?, ClassBuilder> {
+
+
+        init {
+            require(obj == null || realRootType == obj.javaClass.type()) { "mismatch between type and object given" }
+        }
 
         /** Key to the real root */
         val realRootKey = realRootType.rawClass.simpleName.toCb()
@@ -88,9 +96,8 @@ class ObjectEditorController(
                 "The object that is currently being created",
                 false
             )
-            val cb = createClassBuilder(realRootType, realRootKey, this, prop = rootPropMeta, item = TreeItem())
+            val cb = createClassBuilder(realRootType, realRootKey, this, obj, rootPropMeta, TreeItem())
                 ?: error("failed to create a root class builder")
-
             this@RootDelegator.serObject = cb
             return cb
         }

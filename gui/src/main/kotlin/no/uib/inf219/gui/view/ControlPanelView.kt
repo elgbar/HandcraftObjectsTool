@@ -133,11 +133,9 @@ object ControlPanelView : View("Control Panel") {
         val classNameProperty = SimpleStringProperty("")
         hbox {
             addClass(Styles.parent)
-
-            button {
-                text = "Import jar"
+            button("Import jar") {
                 tooltip("Import all selected files")
-                setOnAction {
+                action {
                     val files = chooseFile(
                         "Choose jar to load",
                         arrayOf(
@@ -157,8 +155,7 @@ object ControlPanelView : View("Control Panel") {
                     }
                 }
             }
-            button {
-                text = "Import jars"
+            button("Import jars") {
                 tooltip("Import all jar files from a directory")
                 setOnAction {
                     val folder = chooseDirectory("Choose jar to load", lastFolderLoaded)
@@ -206,42 +203,85 @@ object ControlPanelView : View("Control Panel") {
                     classNameProperty.set(javaName)
                 }
             }
-        }
-        hbox {
-            addClass(Styles.parent)
-
-            button("Load class") {
-                setOnAction {
-                    runAsync {
-                        val className = classNameProperty.value
-                        val type: JavaType
-                        try {
-                            type = DynamicClassLoader.getType(className)
-                        } catch (e: Throwable) {
-                            LoggerView.log { "Failed to load class $className due to an error $e" }
-                            ui {
-                                warning(
-                                    "Failed to find a class with the name '${className}'",
-                                    "Due to exception ${e.javaClass.name}: ${e.localizedMessage}\n" +
-                                            "\n" +
-                                            "Have you remembered to load the expected jar(s)?"
-                                )
-                            }
-                            return@runAsync
-                        }
-
-                        ui {
-                            LoggerView.log("Found $type")
-                            createTab(type)
-                        }
-                    }
-                }
-            }
             textfield {
                 bind(classNameProperty)
                 promptText = "Full class name"
                 text = "no.uib.inf219.example.data.Conversation" //TODO remove
                 hgrow = Priority.ALWAYS
+            }
+        }
+        hbox {
+            addClass(Styles.parent)
+
+            fun loadType(): JavaType? {
+                val className = classNameProperty.value
+                val type: JavaType?
+                return try {
+                    DynamicClassLoader.getType(className)
+                } catch (e: Throwable) {
+                    LoggerView.log { "Failed to load class $className due to an error $e" }
+                    runLater {
+                        warning(
+                            "Failed to find a class with the name '${className}'",
+                            "Due to exception ${e.javaClass.name}: ${e.localizedMessage}\n" +
+                                    "\n" +
+                                    "Have you remembered to load the expected jar(s)?"
+                        )
+                    }
+                    null
+                }
+            }
+
+            button("Create new object") {
+                action {
+                    runAsync {
+                        val type = loadType()
+                        if (type != null) {
+                            LoggerView.log("Found $type")
+                            runLater {
+                                createTab(type, null)
+                            }
+                        }
+                    }
+                }
+            }
+            button("Load existing object") {
+                action {
+                    runAsync {
+                        val type = loadType()
+                        if (type != null) {
+                            LoggerView.log("Found $type")
+
+                            ui {
+                                val files = chooseFile(
+                                    "Choose file to load",
+                                    arrayOf(
+                                        FileChooser.ExtensionFilter("json", "*.json"),
+                                        FileChooser.ExtensionFilter("yaml", "*.yaml", "*.yml"),
+                                        FileChooser.ExtensionFilter("All files", "*")
+                                    ),
+                                    lastFolderLoaded,
+                                    FileChooserMode.Single
+                                )
+                                if (files.isEmpty()) {
+                                    println("empty")
+                                    return@ui
+                                }
+                                lastFolderLoaded = files[0].parentFile
+
+                                val obj = mapper.readValue<Any>(files[0], type)
+                                if (obj == null) {
+                                    println("nop")
+                                    return@ui
+                                }
+
+                                runLater {
+                                    createTab(type, obj)
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
 
@@ -349,11 +389,12 @@ object ControlPanelView : View("Control Panel") {
         LoggerView.log("no.uib.inf219.example.data.prerequisite.AlwaysFalsePrerequisite")
     }
 
-    private fun createTab(type: JavaType) {
+    private fun createTab(type: JavaType, obj: Any?) {
+
         val editorBackgroundView: ObjectEditorBackgroundView
         try {
             editorBackgroundView =
-                find(ObjectEditorBackgroundView::class, Scope(), "controller" to ObjectEditorController(type))
+                find(ObjectEditorBackgroundView::class, Scope(), "controller" to ObjectEditorController(type, obj))
         } catch (e: Throwable) {
             LoggerView.log { "Failed to open tab due to an error $e" }
             LoggerView.log(e)

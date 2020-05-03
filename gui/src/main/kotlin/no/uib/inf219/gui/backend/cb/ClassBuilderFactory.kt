@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.type.MapLikeType
 import javafx.scene.control.ButtonBar
 import javafx.scene.control.ButtonType
 import javafx.scene.control.TreeItem
+import no.uib.inf219.extra.type
 import no.uib.inf219.gui.backend.cb.api.ClassBuilder
 import no.uib.inf219.gui.backend.cb.api.ParentClassBuilder
 import no.uib.inf219.gui.backend.cb.parents.CollectionClassBuilder
@@ -150,15 +151,48 @@ fun createClassBuilder(
         val init = if (value != null) value as String else ""
         StringClassBuilder(init, key = key, parent = parent, property = prop, item = item)
     } else if (type.isTypeOrSuperTypeOf(UUID::class.java)) {
-        UUIDClassBuilder(UUID.randomUUID(), key = key, parent = parent, property = prop, item = item)
+        val init = if (value != null) value as UUID else UUID.randomUUID()
+        UUIDClassBuilder(initial = init, key = key, parent = parent, property = prop, item = item)
     } else if (type.isCollectionLikeType || type.isArrayType) {
-        CollectionClassBuilder(
+        val colCB = CollectionClassBuilder(
             type,
             key = key,
             parent = parent,
             property = prop,
             item = item
         )
+        if (value != null) {
+
+            fun addChild(any: Any?) {
+                if (any == null) return //TODO handle null obj properly
+                val childKey = colCB.serObject.size.toCb(immutable = false)
+                val cb =
+                    loadSerializedObject(any, childKey, colCB, colCB.getChildPropertyMetadata(childKey), TreeItem())
+                
+                colCB.createChild(childKey, cb, cb?.item ?: TreeItem())
+            }
+
+            if (type.isCollectionLikeType) {
+                (value as Iterable<*>).forEach {
+                    addChild(it)
+                }
+            } else {
+                //is array
+                when (value) {
+                    is ByteArray -> value.forEach { addChild(it) }
+                    is ShortArray -> value.forEach { addChild(it) }
+                    is IntArray -> value.forEach { addChild(it) }
+                    is LongArray -> value.forEach { addChild(it) }
+                    is FloatArray -> value.forEach { addChild(it) }
+                    is DoubleArray -> value.forEach { addChild(it) }
+                    is CharArray -> value.forEach { addChild(it) }
+                    is BooleanArray -> value.forEach { addChild(it) }
+                    is Array<*> -> value.forEach { addChild(it) }
+                    else -> error("Unknown array type $type")
+                }
+            }
+        }
+        colCB
     } else if (type.isMapLikeType && (type as MapLikeType).isTrueMapType) {
         //TODO add support for non-true map types
         MapClassBuilder(
@@ -257,3 +291,19 @@ fun createClassBuilder(
     }
     return cb
 }
+
+/**
+ * Continue to edit the given object
+ */
+fun loadSerializedObject(
+    obj: Any,
+    key: ClassBuilder,
+    parent: ParentClassBuilder,
+    prop: ClassInformation.PropertyMetadata? = parent.getChildPropertyMetadata(key),
+    item: TreeItem<ClassBuilderNode> = TreeItem(),
+    allowAbstractType: Boolean = false
+): ClassBuilder? {
+    return createClassBuilder(obj.javaClass.type(), key, parent, obj, prop, item, allowAbstractType)
+}
+
+
