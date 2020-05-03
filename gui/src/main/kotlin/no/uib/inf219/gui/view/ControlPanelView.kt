@@ -8,6 +8,7 @@ import com.fasterxml.jackson.module.mrbean.AbstractTypeMaterializer
 import com.fasterxml.jackson.module.mrbean.MrBeanModule
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
+import javafx.event.EventTarget
 import javafx.geometry.Orientation
 import javafx.scene.control.Tab
 import javafx.scene.layout.BorderPane
@@ -86,17 +87,17 @@ object ControlPanelView : View("Control Panel") {
 
     val mrBeanModule = ModuleSetting(
         false,
-        "Mr Bean is an extension that implements support for \"POJO type materialization\"; ability for databinder to\n" +
-                "construct implementation classes for Java interfaces and abstract classes, as part of deserialization.\n" +
-                "This will not work with classes that are polymorphic and is annotated with @JsonTypeInfo.\n" +
-                "Enabling this will allow you to select interfaces and abstract classes in the class selection interface."
+        """Mr Bean is an extension that implements support for "POJO type materialization"; ability for databinder to
+            construct implementation classes for Java interfaces and abstract classes, as part of deserialization.
+            This will not work with classes that are polymorphic and is annotated with @JsonTypeInfo.
+            Enabling this will allow you to select interfaces and abstract classes in the class selection interface.""".trim()
     ) { MrBeanModule(AbstractTypeMaterializer(DynamicClassLoader)) }
 
     private val afterburnerModule = ModuleSetting(
         true,
-        "Module that will add dynamic byte code generation for standard Jackson POJO serializers and deserializers,\n" +
-                "eliminating majority of remaining data binding overhead. It is recommenced to have this enabled, \n" +
-                "but can be disabled if there are any problems with it"
+        """Module that will add dynamic byte code generation for standard Jackson POJO serializers and deserializers,
+        eliminating majority of remaining data binding overhead. It is recommenced to have this enabled, 
+        but can be disabled if there are any problems with it""".trimMargin()
     ) { AfterburnerModule() }
 
     //After adding a module to the list above you must also add it to this list!
@@ -291,66 +292,46 @@ object ControlPanelView : View("Control Panel") {
                 }
             }
 
-            separator()
-            label("Modules") {
-                style {
-                    fontSize = 1.3.ems
-                }
-            }
+            fun settingsSection(title: String, op: EventTarget.() -> Unit) {
+                separator()
+                label(title) { style { fontSize = 1.3.ems } }
 
-            scrollpane(fitToHeight = true, fitToWidth = true) {
-                addClass(Styles.invisibleScrollpaneBorder)
-                val stage = FX.getPrimaryStage(scope)
-                if (stage != null) {
-                    maxWidthProperty().bind(primaryStage.widthProperty())
-                    maxHeightProperty().bind(primaryStage.heightProperty() / 5)
-                }
-                flowpane {
-                    orientation = Orientation.VERTICAL
-                    addClass(Styles.flowPane)
+                scrollpane(fitToHeight = true, fitToWidth = true) {
+                    addClass(Styles.invisibleScrollpaneBorder)
+                    val stage = FX.getPrimaryStage(scope)
+                    if (stage != null) {
+                        maxWidthProperty().bind(primaryStage.widthProperty())
+                        maxHeightProperty().bind(primaryStage.heightProperty() / 5)
+                    }
+                    flowpane {
+                        orientation = Orientation.VERTICAL
+                        addClass(Styles.flowPane)
 
-                    for (moduleSetting in moduleSettings) {
-                        checkbox("Use ${moduleSetting.name}", moduleSetting.enabledProp) {
-                            tooltip(
-                                "${moduleSetting.tooltip}\n" +
-                                        "\n" +
-                                        closeTabsWarningMsg
-                            )
-                        }
+                        this.op()
                     }
                 }
             }
 
-            separator()
-
-            label("Misc") {
-                style {
-                    fontSize = 1.3.ems
+            settingsSection("Modules") {
+                for (modules in moduleSettings) {
+                    checkbox("Use ${modules.name}", modules.enabledProp) {
+                        tooltip(modules.tooltip)
+                    }
                 }
             }
-            scrollpane(fitToHeight = true, fitToWidth = true) {
-                addClass(Styles.invisibleScrollpaneBorder)
-                val stage = FX.getPrimaryStage(scope)
-                if (stage != null) {
-                    maxWidthProperty().bind(primaryStage.widthProperty())
-                    maxHeightProperty().bind(primaryStage.heightProperty() / 5)
+
+            settingsSection("Misc") {
+                checkbox("Unsafe Serialization", unsafeSerializationProp) {
+                    tooltip(
+                        "If the objects should be serialized without checking if it can be deserialized.\n" +
+                                "Sometimes is not possible to check if an object can be deserialized in this GUI."
+                    )
                 }
-                flowpane {
-                    orientation = Orientation.VERTICAL
-                    addClass(Styles.flowPane)
 
-                    checkbox("Unsafe Serialization", unsafeSerializationProp) {
-                        tooltip(
-                            "If the objects should be serialized without checking if it can be deserialized.\n" +
-                                    "Sometimes is not possible to check if an object can be deserialized in this GUI."
-                        )
-                    }
-
-                    checkbox("Print stack trace of exceptions", printStackTraceOnSerErrorProp) {
-                        tooltip(
-                            "If the stacktrace should be printed when an exception is encountered."
-                        )
-                    }
+                checkbox("Print stack trace of exceptions", printStackTraceOnSerErrorProp) {
+                    tooltip(
+                        "If the stacktrace should be printed when an exception is encountered."
+                    )
                 }
             }
         }
@@ -377,7 +358,7 @@ object ControlPanelView : View("Control Panel") {
                 find(ObjectEditorBackgroundView::class, Scope(), "controller" to ObjectEditorController(type))
         } catch (e: Throwable) {
             OutputArea.logln { "Failed to open tab due to an error $e" }
-            e.printStackTrace()
+            OutputArea.logln(e)
             error(
                 "Can not serialize ${type.rawClass}",
                 "Failed to create an editor for the given class.\n" +
