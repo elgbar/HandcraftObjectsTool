@@ -2,7 +2,7 @@ package no.uib.inf219.gui.loader
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import javafx.application.Platform
-import no.uib.inf219.gui.view.OutputArea.logln
+import no.uib.inf219.gui.view.LoggerView.log
 import tornadofx.warning
 import java.io.File
 import java.lang.reflect.Field
@@ -47,7 +47,7 @@ object ObjectMapperLoader {
             val entry = entries.nextElement()!!
             if (entry.name == PATH_TO_OBJECT_FILE) {
                 if (entry.isDirectory) {
-                    logln("Found a directory where the object file should be")
+                    log("Found a directory where the object file should be")
                     return null
                 }
 
@@ -83,7 +83,7 @@ object ObjectMapperLoader {
                             "${e.javaClass.simpleName}: ${e.message}"
                 )
             }
-            logln(e)
+            log(e)
             return null
         }
 
@@ -100,7 +100,7 @@ object ObjectMapperLoader {
                             "${e.javaClass.simpleName}: ${e.message}"
                 )
             }
-            logln(e)
+            log(e)
             return null
         }
 
@@ -121,7 +121,7 @@ object ObjectMapperLoader {
                             "${e.javaClass.simpleName}: ${e.message}"
                 )
             }
-            logln(e)
+            log(e)
             return null
         } catch (e: Throwable) {
             Platform.runLater {
@@ -131,7 +131,7 @@ object ObjectMapperLoader {
                             "${e.javaClass.simpleName}: ${e.message}"
                 )
             }
-            logln(e)
+            log(e)
             return null
         }
 

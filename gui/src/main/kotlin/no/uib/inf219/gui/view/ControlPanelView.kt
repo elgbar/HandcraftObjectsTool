@@ -172,7 +172,7 @@ object ControlPanelView : View("Control Panel") {
                                 ui {
                                     warning("No jar files found in ${folder.path}")
                                 }
-                                OutputArea.logln("No jar files found in ${folder.path}")
+                                LoggerView.log("No jar files found in ${folder.path}")
                             }
                             return@runAsync
                         }
@@ -182,7 +182,7 @@ object ControlPanelView : View("Control Panel") {
                     }
                 }
             }
-            this += OutputArea.clearButton()
+            this += LoggerView.clearButton()
             button("Load Example") {
                 setOnAction {
                     val inp = MethodHandles.lookup().lookupClass().getResourceAsStream("/example.jar")
@@ -219,7 +219,7 @@ object ControlPanelView : View("Control Panel") {
                         try {
                             type = DynamicClassLoader.getType(className)
                         } catch (e: Throwable) {
-                            OutputArea.logln { "Failed to load class $className due to an error $e" }
+                            LoggerView.log { "Failed to load class $className due to an error $e" }
                             ui {
                                 warning(
                                     "Failed to find a class with the name '${className}'",
@@ -232,7 +232,7 @@ object ControlPanelView : View("Control Panel") {
                         }
 
                         ui {
-                            OutputArea.logln("Found $type")
+                            LoggerView.log("Found $type")
                             createTab(type)
                         }
                     }
@@ -280,7 +280,7 @@ object ControlPanelView : View("Control Panel") {
                     )
 
                     selectionModel.selectedItemProperty().onChange {
-                        OutputArea.logln("Changing object mapper to ${it?.first}")
+                        LoggerView.log("Changing object mapper to ${it?.first}")
                         if (it != null) mapper = it.second
                     }
                     //wait till we're finished setting things up before changing the selected
@@ -335,19 +335,19 @@ object ControlPanelView : View("Control Panel") {
             }
         }
 
-        OutputArea.logln("Example classes to load:")
-        OutputArea.logln("java.lang.String")
-        OutputArea.logln("java.lang.Integer")
-        OutputArea.logln("java.util.UUID")
-        OutputArea.logln("no.uib.inf219.example.data.Conversation")
-        OutputArea.logln("no.uib.inf219.example.data.Response")
-        OutputArea.logln("no.uib.inf219.example.data.showcase.JsonValueExample")
-        OutputArea.logln("no.uib.inf219.example.data.showcase.PrimitiveConvertsShowcase")
-        OutputArea.logln("no.uib.inf219.example.data.showcase.PrimitiveDefaultValueShowcase")
-        OutputArea.logln("no.uib.inf219.example.data.showcase.MapExample")
-        OutputArea.logln("no.uib.inf219.example.data.showcase.GenericExample")
-        OutputArea.logln("no.uib.inf219.example.data.showcase.Weather")
-        OutputArea.logln("no.uib.inf219.example.data.prerequisite.AlwaysFalsePrerequisite")
+        LoggerView.log("Example classes to load:")
+        LoggerView.log("java.lang.String")
+        LoggerView.log("java.lang.Integer")
+        LoggerView.log("java.util.UUID")
+        LoggerView.log("no.uib.inf219.example.data.Conversation")
+        LoggerView.log("no.uib.inf219.example.data.Response")
+        LoggerView.log("no.uib.inf219.example.data.showcase.JsonValueExample")
+        LoggerView.log("no.uib.inf219.example.data.showcase.PrimitiveConvertsShowcase")
+        LoggerView.log("no.uib.inf219.example.data.showcase.PrimitiveDefaultValueShowcase")
+        LoggerView.log("no.uib.inf219.example.data.showcase.MapExample")
+        LoggerView.log("no.uib.inf219.example.data.showcase.GenericExample")
+        LoggerView.log("no.uib.inf219.example.data.showcase.Weather")
+        LoggerView.log("no.uib.inf219.example.data.prerequisite.AlwaysFalsePrerequisite")
     }
 
     private fun createTab(type: JavaType) {
@@ -356,8 +356,8 @@ object ControlPanelView : View("Control Panel") {
             editorBackgroundView =
                 find(ObjectEditorBackgroundView::class, Scope(), "controller" to ObjectEditorController(type))
         } catch (e: Throwable) {
-            OutputArea.logln { "Failed to open tab due to an error $e" }
-            OutputArea.logln(e)
+            LoggerView.log { "Failed to open tab due to an error $e" }
+            LoggerView.log(e)
             error(
                 "Can not serialize ${type.rawClass}",
                 "Failed to create an editor for the given class.\n" +
@@ -380,15 +380,15 @@ object ControlPanelView : View("Control Panel") {
 
     private fun loadFileSafely(file: File) {
 
-        OutputArea.logln("Loading file ${file.absolutePath}")
+        LoggerView.log("Loading file ${file.absolutePath}")
         try {
             DynamicClassLoader.loadFile(file)
         } catch (e: Exception) {
-            OutputArea.logln("Failed to load jar file ${file.absolutePath}")
-            OutputArea.logln("$e")
+            LoggerView.log("Failed to load jar file ${file.absolutePath}")
+            LoggerView.log("$e")
             e.printStackTrace()
         }
-        OutputArea.logln("Successfully loaded jar file ${file.absolutePath}")
+        LoggerView.log("Successfully loaded jar file ${file.absolutePath}")
 
         val mapper = ObjectMapperLoader.findObjectMapper(file) ?: return
         knownObjectMappers.add(file.nameWithoutExtension to mapper)

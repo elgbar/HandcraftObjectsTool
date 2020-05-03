@@ -22,7 +22,7 @@ import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.controllers.cbn.ClassBuilderNode
 import no.uib.inf219.gui.converter.UUIDStringConverter
 import no.uib.inf219.gui.loader.ClassInformation
-import no.uib.inf219.gui.view.OutputArea
+import no.uib.inf219.gui.view.LoggerView
 import tornadofx.*
 import java.math.BigDecimal
 import java.math.BigInteger
@@ -109,7 +109,7 @@ abstract class SimpleClassBuilder<T : Any> constructor(
                 val text = it.controlNewText.removeNl().trim()
 
                 if (it.isContentChange && text.isNotEmpty() && !validate(text)) {
-                    OutputArea.logln { "Failed to parse '$text' to ${this@SimpleClassBuilder.serObject::class.simpleName}" }
+                    LoggerView.log { "Failed to parse '$text' to ${this@SimpleClassBuilder.serObject::class.simpleName}" }
                     return@TextFormatter null
                 }
                 return@TextFormatter it

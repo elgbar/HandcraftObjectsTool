@@ -11,11 +11,10 @@ import java.io.StringWriter
 
 import java.io.Writer
 
-
 /**
  * @author Elg
  */
-object OutputArea : View() {
+object LoggerView : View() {
 
     override val root = scrollpane(fitToHeight = true, fitToWidth = true).textarea {
         addClass(Styles.parent)
@@ -23,11 +22,11 @@ object OutputArea : View() {
         isEditable = false
     }
 
-    fun logln(e: Throwable) {
+    fun log(e: Throwable) {
         if (Settings.printStackTraceOnError) {
             val writer: Writer = StringWriter()
             e.printStackTrace(PrintWriter(writer))
-            logln(writer.toString())
+            log(writer.toString())
             e.printStackTrace()
         }
     }
@@ -41,26 +40,19 @@ object OutputArea : View() {
     }
 
     /**
-     * Log a message and append a newline
+     * Log a message and append the suffix
      */
-    fun logln(msg: String = "", suffix: String = "\n") {
-        log("$msg$suffix")
-    }
-
-    /**
-     * Log a message
-     */
-    fun log(msg: String) {
+    fun log(msg: String = "", suffix: String = "\n") {
         Platform.runLater {
-            root.appendText(msg)
+            root.appendText("$msg$suffix")
         }
     }
 
     /**
      * Log a message and append a newline lazily
      */
-    fun logln(msg: () -> String) {
-        logln(msg())
+    fun log(msg: () -> String) {
+        log(msg())
     }
 }
 

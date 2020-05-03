@@ -11,7 +11,7 @@ import no.uib.inf219.gui.Styles.Companion.numberChanger
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.controllers.cbn.ClassBuilderNode
 import no.uib.inf219.gui.loader.ClassInformation
-import no.uib.inf219.gui.view.OutputArea
+import no.uib.inf219.gui.view.LoggerView
 import tornadofx.*
 import kotlin.reflect.KClass
 
@@ -94,7 +94,7 @@ abstract class SimpleNumberClassBuilder<T : Number>(
 
                     val text = it.controlNewText.removeNl().trim()
                     if (it.isContentChange && text.isNotEmpty() && !validate(text)) {
-                        OutputArea.logln { "Failed to parse '$text' to ${this@SimpleNumberClassBuilder.type.rawClass.simpleName}" }
+                        LoggerView.log { "Failed to parse '$text' to ${this@SimpleNumberClassBuilder.type.rawClass.simpleName}" }
                         return@TextFormatter null
                     }
                     return@TextFormatter it

@@ -210,7 +210,7 @@ class BackgroundView : View("Handcrafted Objects Tool") {
                 }
                 setDividerPositions(0.75)
                 this += tabPane
-                this += OutputArea
+                this += LoggerView
             }
         }
     }

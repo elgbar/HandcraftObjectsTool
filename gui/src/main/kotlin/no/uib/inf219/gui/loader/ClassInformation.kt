@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.ser.std.JsonValueSerializer
 import no.uib.inf219.extra.type
 import no.uib.inf219.gui.view.ControlPanelView
 import no.uib.inf219.gui.view.ControlPanelView.mapper
-import no.uib.inf219.gui.view.OutputArea
+import no.uib.inf219.gui.view.LoggerView
 import tornadofx.findFieldByName
 
 
@@ -79,8 +79,8 @@ object ClassInformation {
                 try {
                     mapper.readValue(defaultValue, type) as Any?
                 } catch (e: Throwable) {
-                    OutputArea.logln("Failed to parse default value for property '$name' of $type. Given string '$defaultValue'")
-                    OutputArea.logln(e.localizedMessage)
+                    LoggerView.log("Failed to parse default value for property '$name' of $type. Given string '$defaultValue'")
+                    LoggerView.log(e.localizedMessage)
                     null
                 }
             }

@@ -10,7 +10,7 @@ import no.uib.inf219.gui.Styles
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.view.ControlPanelView.mapper
 import no.uib.inf219.gui.view.ControlPanelView.mrBeanModule
-import no.uib.inf219.gui.view.OutputArea.logln
+import no.uib.inf219.gui.view.LoggerView.log
 import tornadofx.*
 
 
@@ -44,7 +44,7 @@ class ObjectEditorBackgroundView : View("Object Editor Background") {
 
             button("Save").action { save() }
             button("Validate").action { validate() }
-            this += OutputArea.clearButton()
+            this += LoggerView.clearButton()
         }
     }
 
@@ -57,9 +57,9 @@ class ObjectEditorBackgroundView : View("Object Editor Background") {
                 mapper.writeValueAsString(obj)
             }
         } catch (e: Throwable) {
-            logln("Failed to create object due to an exception.")
-            logln("${e.javaClass.simpleName}: ${e.message}")
-            logln(e)
+            log("Failed to create object due to an exception.")
+            log("${e.javaClass.simpleName}: ${e.message}")
+            log(e)
 
             if (!mrBeanModule.enabled &&
                 Settings.showMrBeanWarning == true &&
@@ -133,18 +133,18 @@ class ObjectEditorBackgroundView : View("Object Editor Background") {
 
         ControlPanelView.runAsync {
             file.writeText(obj)
-            logln("Saved object to file ${file.canonicalPath}")
+            log("Saved object to file ${file.canonicalPath}")
         }
     }
 
     fun validate() {
-        logln("Validating...")
+        log("Validating...")
         runAsync {
 
             val obj = toJson()
             if (obj != null) {
-                logln("Successfully created object!")
-                logln("json=$obj")
+                log("Successfully created object!")
+                log("json=$obj")
             }
         }
     }

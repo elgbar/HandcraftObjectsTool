@@ -11,7 +11,7 @@ import no.uib.inf219.gui.backend.cb.api.SimpleClassBuilder
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.controllers.cbn.ClassBuilderNode
 import no.uib.inf219.gui.loader.ClassInformation
-import no.uib.inf219.gui.view.OutputArea
+import no.uib.inf219.gui.view.LoggerView
 import org.apache.commons.text.StringEscapeUtils
 import tornadofx.textfield
 
@@ -48,7 +48,7 @@ class CharClassBuilder(
                 val text: String = it?.controlNewText ?: return@TextFormatter null
 
                 if (it.isContentChange && text.isNotEmpty() && !validate(text)) {
-                    OutputArea.logln { "Failed to parse '$text' to ${this@CharClassBuilder.type.rawClass.simpleName}" }
+                    LoggerView.log { "Failed to parse '$text' to ${this@CharClassBuilder.type.rawClass.simpleName}" }
                     return@TextFormatter null
                 }
                 return@TextFormatter it
