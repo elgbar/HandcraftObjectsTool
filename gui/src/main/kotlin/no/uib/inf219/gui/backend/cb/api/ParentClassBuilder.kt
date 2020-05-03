@@ -8,6 +8,7 @@ import javafx.scene.control.ContextMenu
 import javafx.scene.control.SeparatorMenuItem
 import javafx.scene.control.TreeItem
 import no.uib.inf219.extra.findChild
+import no.uib.inf219.extra.type
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.controllers.cbn.ClassBuilderNode
 import no.uib.inf219.gui.loader.ClassInformation
@@ -130,7 +131,11 @@ abstract class ParentClassBuilder : ClassBuilder {
 
         require(key !== child) { "The key and child cannot be the same object" }
 
-        require(getChildType(key)!!.isTypeOrSuperTypeOf(child.type.rawClass)) {
+
+        require(
+            getChildType(key)!!.rawClass.kotlin.javaObjectType.type()
+                .isTypeOrSuperTypeOf(child.type.rawClass.kotlin.javaObjectType)
+        ) {
             "Wrong child type given. Expected type ${getChildType(key)} | child's type ${child.type}"
         }
         require(getChildPropertyMetadata(key) == child.property) {
