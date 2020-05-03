@@ -79,9 +79,11 @@ object ObjectMapperLoader {
             Platform.runLater {
                 warning(
                     "Failed to load Object Mapper from jar",
-                    "Failed to load class with object mapper '$clazzPath' in file $file"
+                    "Failed to load class with object mapper '$clazzPath' in file $file\n" +
+                            "${e.javaClass.simpleName}: ${e.message}"
                 )
             }
+            logln(e)
             return null
         }
 
@@ -94,9 +96,11 @@ object ObjectMapperLoader {
             Platform.runLater {
                 warning(
                     "Failed to load Object Mapper from jar",
-                    "Failed to find the specified (or default) field '$fieldPath' within class '$clazzPath' in file $file"
+                    "Failed to find the specified (or default) field '$fieldPath' within class '$clazzPath' in file $file\n" +
+                            "${e.javaClass.simpleName}: ${e.message}"
                 )
             }
+            logln(e)
             return null
         }
 
@@ -113,17 +117,21 @@ object ObjectMapperLoader {
                 warning(
                     "Failed to load Object Mapper from jar",
                     "Given field for object mapper is not an object mapper nor any subclass of object mapper!\n" +
-                            "Field '$fieldPath' (of type $className) in class '$clazzPath' in file $file"
+                            "Field '$fieldPath' (of type $className) in class '$clazzPath' in file $file\n" +
+                            "${e.javaClass.simpleName}: ${e.message}"
                 )
             }
+            logln(e)
             return null
         } catch (e: Throwable) {
             Platform.runLater {
                 warning(
                     "Failed to load Object Mapper from jar",
-                    "Failed to get the instance of the field. Field '$fieldPath' in class '$clazzPath' in file $file"
+                    "Failed to get the instance of the field. Field '$fieldPath' in class '$clazzPath' in file $file\n" +
+                            "${e.javaClass.simpleName}: ${e.message}"
                 )
             }
+            logln(e)
             return null
         }
 
