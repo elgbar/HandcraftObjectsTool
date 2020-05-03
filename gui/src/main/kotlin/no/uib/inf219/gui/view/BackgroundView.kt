@@ -41,36 +41,53 @@ class BackgroundView : View("Handcrafted Objects Tool") {
         with(root) {
             top = menubar {
                 menu("File") {
-                    item("Close Tab", "Ctrl+W").action {
-
-                        val tab = tabPane.selectionModel.selectedItem
-                        if (tab.isClosable) {
-                            tab.close()
+                    item("Close Tab", "Ctrl+W") {
+                        enableWhen {
+                            tabPane.selectionModel.selectedItemProperty().booleanBinding() { it?.isClosable ?: true }
+                        }
+                        action {
+                            val tab = tabPane.selectionModel.selectedItem
+                            if (tab.isClosable) {
+                                tab.close()
+                            }
                         }
                     }
-                    item("Close All Tab", "Ctrl+Shift+W").action {
-                        tabPane.closeAll()
+                    item("Close All Tab", "Ctrl+Shift+W") {
+                        enableWhen {
+                            tabPane.tabs.sizeProperty.booleanBinding() { (it as Int) > 1 }
+                        }
+                        action { tabPane.closeAll() }
                     }
 
                     separator()
 
-                    item("Save", "Ctrl+S").action {
-                        val tab = tabPane.selectionModel.selectedItem
-                        if (tab.text == CONTROL_PANEL_TAB_NAME) return@action //cannot save control panel
-                        val oebv = ControlPanelView.tabMap[tab] ?: return@action
+                    item("Save", "Ctrl+S") {
+                        enableWhen {
+                            tabPane.selectionModel.selectedItemProperty().booleanBinding() { it?.isClosable ?: true }
+                        }
+                        action {
+                            val tab = tabPane.selectionModel.selectedItem
+                            if (tab.text == CONTROL_PANEL_TAB_NAME) return@action //cannot save control panel
+                            val oebv = ControlPanelView.tabMap[tab] ?: return@action
 
-                        oebv.save()
+                            oebv.save()
+                        }
                     }
                     //use Ctrl+D as Ctrl+V is used for pasting when in an editor
-                    item("Validate", "Ctrl+D").action {
-                        val tab = tabPane.selectionModel.selectedItem
-                        if (tab.text == CONTROL_PANEL_TAB_NAME) return@action //cannot save control panel
-                        val oebv = ControlPanelView.tabMap[tab] ?: return@action
+                    item("Validate", "Ctrl+D") {
+                        enableWhen {
+                            tabPane.selectionModel.selectedItemProperty().booleanBinding() { it?.isClosable ?: true }
+                        }
+                        action {
+                            val tab = tabPane.selectionModel.selectedItem
+                            if (tab.text == CONTROL_PANEL_TAB_NAME) return@action //cannot save control panel
+                            val oebv = ControlPanelView.tabMap[tab] ?: return@action
 
-                        oebv.validate()
+                            oebv.validate()
+                        }
                     }
                     separator()
-                    item("Settings").action {
+                    item("Settings", "Ctrl+Alt+S").action {
 
                         object : View("Application Settings") {
                             override val root = vbox {
