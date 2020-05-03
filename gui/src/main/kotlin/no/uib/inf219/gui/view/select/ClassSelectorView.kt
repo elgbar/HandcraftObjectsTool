@@ -90,8 +90,6 @@ class ClassSelectorView : SelectorView<String>("Select implementation") {
                 realResult.isAbstract -> {
                     if (!mrBeanModule.enabled) {
                         if (showMrBeanWarning == true) {
-
-
                             information(
                                 "Cannot select an abstract class when the Mr Bean module is not enabled.",
                                 "You will now be asked to select a subclass of ${realResult.rawClass}",
@@ -109,7 +107,7 @@ class ClassSelectorView : SelectorView<String>("Select implementation") {
                                 }
                             )
                         }
-                        
+
                         //mr bean is not enabled so we cannot return abstract types
                         findSubType()
                         return

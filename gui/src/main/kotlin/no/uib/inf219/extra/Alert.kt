@@ -15,5 +15,6 @@ const val enableModule = "enable the module"
  */
 val OK_DISABLE_WARNING = ButtonType("OK $dontWarn", ButtonBar.ButtonData.OK_DONE)
 val YES_DISABLE_WARNING = ButtonType("Yes $dontWarn", ButtonBar.ButtonData.YES)
+val NO_DISABLE_WARNING = ButtonType("No $dontWarn", ButtonBar.ButtonData.NO)
 
 val ENABLE_MODULE = ButtonType("Enable module and try again")

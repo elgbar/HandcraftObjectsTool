@@ -43,8 +43,8 @@ object OutputArea : View() {
     /**
      * Log a message and append a newline
      */
-    fun logln(msg: String) {
-        log("$msg\n")
+    fun logln(msg: String = "", suffix: String = "\n") {
+        log("$msg$suffix")
     }
 
     /**

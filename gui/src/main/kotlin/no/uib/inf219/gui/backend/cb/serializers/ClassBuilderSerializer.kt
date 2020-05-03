@@ -22,6 +22,5 @@ object ClassBuilderSerializer : AbstractClassBuilderSerializer<ClassBuilder>(
         val ser: JsonSerializer<Any> = provider.findValueSerializer(cb.type)
         ser.serialize(cb.serObject, gen, provider)
     }
-
 }
 

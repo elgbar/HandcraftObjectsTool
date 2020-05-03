@@ -216,27 +216,18 @@ fun createClassBuilder(
                 "You you want to create ${type.rawClass} or a sub class of it?",
                 "The class you want to create is an abstract class or an interface." +
                         "\nDo you want to create this abstract type or find a sub class of it?",
-                buttons = *arrayOf(createThis, findSubclass, ButtonType.CANCEL),
-                actionFn = {
-                    when (it) {
-                        ButtonType.CANCEL -> return null
-                        createThis -> {
-                            if (!allowAbstractNextTime) {
-                                displayWarning()
-                            }
-                            return createClassBuilder(
-                                type,
-                                key,
-                                parent,
-                                value,
-                                prop,
-                                item,
-                                allowAbstractNextTime
-                            )
+                createThis, findSubclass, ButtonType.CANCEL
+            ) {
+                when (it) {
+                    ButtonType.CANCEL -> return null
+                    createThis -> {
+                        if (!allowAbstractNextTime) {
+                            displayWarning()
                         }
+                        return createClassBuilder(type, key, parent, value, prop, item, allowAbstractNextTime)
                     }
                 }
-            )
+            }
         }
 
         val subtype = find<ClassSelectorView>().subtypeOf(type, true) ?: return null
@@ -246,25 +237,10 @@ fun createClassBuilder(
             displayWarning()
         }
 
-        createClassBuilder(
-            subtype,
-            key,
-            parent,
-            value,
-            prop,
-            item,
-            allowAbstractNextTime
-        )
+        createClassBuilder(subtype, key, parent, value, prop, item, allowAbstractNextTime)
     } else {
-
         //it's not a primitive type so let's just make a complex type for it
-        ComplexClassBuilder(
-            type,
-            key = key,
-            parent = parent,
-            property = prop,
-            item = item
-        )
+        ComplexClassBuilder(type, key = key, parent = parent, property = prop, item = item)
     }) ?: return null
 
     require(cb.item === item)
