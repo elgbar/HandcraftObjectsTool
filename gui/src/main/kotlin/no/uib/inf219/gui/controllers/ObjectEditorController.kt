@@ -73,6 +73,9 @@ class ObjectEditorController(
     private class RootDelegator(private val realRootType: JavaType) : ParentClassBuilder(),
         ReadOnlyProperty<Any?, ClassBuilder> {
 
+        /** Key to the real root */
+        val realRootKey = realRootType.rawClass.simpleName.toCb()
+
         /**
          * (re)create the root class builder
          */
@@ -96,9 +99,7 @@ class ObjectEditorController(
         // Delegate methods //
         //////////////////////
 
-        override fun getValue(thisRef: Any?, property: KProperty<*>): ClassBuilder {
-            return this
-        }
+        override fun getValue(thisRef: Any?, property: KProperty<*>): ClassBuilder = this
 
         ///////////////////////////
         // Class Builder methods //
@@ -106,21 +107,15 @@ class ObjectEditorController(
 
         override val serObjectObservable = SimpleObjectProperty<ClassBuilder>()
 
-        override var serObject: ClassBuilder
-            get() = serObjectObservable.value ?: createRealRoot()
+        override var serObject: ClassBuilder = serObjectObservable.value ?: createRealRoot()
             private set(value) {
                 serObjectObservable.value = value
+                field = value
             }
 
-        /** Key to the real root */
-        val realRootKey = (realRootType.rawClass?.simpleName ?: realRootType.typeName).toCb()
-
         /** Note that the item is not pointing at this class builder, but directly at the real root */
-        override val item: TreeItem<ClassBuilderNode> by lazy {
-            val item = TreeItem<ClassBuilderNode>()
-            val cbn = FilledClassBuilderNode(fakeRootKey, this, this, item, false)
-            item.value = cbn
-            return@lazy item
+        override val item = TreeItem<ClassBuilderNode>().also { item ->
+            item.value = FilledClassBuilderNode(fakeRootKey, this, this, item, false)
         }
 
         override val type = Any::class.type()
