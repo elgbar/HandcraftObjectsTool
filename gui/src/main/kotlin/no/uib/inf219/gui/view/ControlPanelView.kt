@@ -15,7 +15,6 @@ import javafx.scene.layout.BorderPane
 import javafx.scene.layout.Priority
 import javafx.stage.FileChooser
 import no.uib.inf219.api.serialization.SerializationManager
-import no.uib.inf219.extra.closeAll
 import no.uib.inf219.extra.copyInputStreamToFile
 import no.uib.inf219.extra.type
 import no.uib.inf219.gui.Settings.lastFolderLoaded
@@ -63,7 +62,7 @@ object ControlPanelView : View("Control Panel") {
     private val mapperProperty by lazy {
         SimpleObjectProperty(SerializationManager.kotlinJson)
     }
-    internal var orgMapper: ObjectMapper = mapper
+    private var orgMapper: ObjectMapper = mapper
 
     /**
      * The object mapper to use for serialization
@@ -71,10 +70,6 @@ object ControlPanelView : View("Control Panel") {
     var mapper: ObjectMapper
         get() = mapperProperty.get()
         set(value) {
-
-            FX.find<BackgroundView>().tabPane.closeAll()
-            tabMap.clear()
-
             orgMapper = value.copy()
             mapperProperty.set(value)
             updateMapper()
@@ -107,6 +102,15 @@ object ControlPanelView : View("Control Panel") {
         updateMapper()
     }
 
+    /**
+     * Rebuild mapper with the current settings.
+     * Should be called when a setting related to [mapper] is updated
+     */
+    fun reloadMapper() {
+        //this forces an call to #updateMapper()
+        mapper = orgMapper
+    }
+
     private fun updateMapper() {
         ClassInformation.updateMapper()
 
@@ -120,7 +124,6 @@ object ControlPanelView : View("Control Panel") {
 
         for (module in moduleSettings) {
             if (!module.enabled && mapper.registeredModuleIds.contains(module.typeId)) {
-                module.ignoreNext = true
                 module.enabled = true
             }
         }
@@ -251,8 +254,6 @@ object ControlPanelView : View("Control Panel") {
             }
         }
 
-        val closeTabsWarningMsg = "Warning: Changing this will close all opened tabs."
-
         vbox {
             addClass(Styles.parent)
 
@@ -275,9 +276,7 @@ object ControlPanelView : View("Control Panel") {
 
                     tooltip(
                         "Change what object mapper to use. It is possible to have your own object mapper loaded from\n" +
-                                "any loaded files. To find more information see the README." +
-                                "\n" +
-                                closeTabsWarningMsg
+                                "any loaded files. To find more information see the README."
                     )
 
                     selectionModel.selectedItemProperty().onChange {

@@ -5,8 +5,9 @@ import io.github.classgraph.ClassGraph
 import io.github.classgraph.ClassInfoList
 import javafx.beans.property.SimpleStringProperty
 import javafx.scene.control.ButtonType
+import javafx.scene.control.ButtonType.OK
+import no.uib.inf219.extra.ENABLE_MODULE
 import no.uib.inf219.extra.OK_DISABLE_WARNING
-import no.uib.inf219.extra.OK_ENABLE_MODULE
 import no.uib.inf219.extra.loadType
 import no.uib.inf219.extra.onChange
 import no.uib.inf219.gui.Settings.showMrBeanWarning
@@ -94,24 +95,26 @@ class ClassSelectorView : SelectorView<String>("Select implementation") {
                 realResult.isAbstract -> {
                     if (!mrBeanModule.enabled) {
                         if (showMrBeanWarning == true) {
+
+
                             information(
                                 "Cannot select an abstract class when the Mr Bean module is not enabled.",
                                 "You will now be asked to select a subclass of ${realResult.rawClass}",
                                 owner = currentWindow,
-                                buttons = *arrayOf(ButtonType.OK, OK_DISABLE_WARNING, OK_ENABLE_MODULE),
+                                buttons = *arrayOf(OK, OK_DISABLE_WARNING, ENABLE_MODULE),
                                 actionFn = {
                                     when (it) {
                                         OK_DISABLE_WARNING -> showMrBeanWarning = false
-                                        OK_ENABLE_MODULE -> {
-                                            this@ClassSelectorView.result = null
-                                            returnSelectedType()
+                                        ENABLE_MODULE -> {
                                             mrBeanModule.enabled = true
+                                            confirmAndClose()
                                             return
                                         }
                                     }
                                 }
                             )
                         }
+                        
                         //mr bean is not enabled so we cannot return abstract types
                         findSubType()
                         return
