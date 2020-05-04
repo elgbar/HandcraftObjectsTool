@@ -1,6 +1,7 @@
 package no.uib.inf219.gui.backend
 
 import javafx.scene.control.TreeItem
+import no.uib.inf219.extra.type
 import no.uib.inf219.gui.backend.cb.parents.CollectionClassBuilder
 import no.uib.inf219.gui.backend.cb.simple.StringClassBuilder
 import no.uib.inf219.gui.backend.cb.toCb
@@ -18,6 +19,9 @@ internal class CollectionClassBuilderTest {
     companion object {
         val listStrType
             get() = ControlPanelView.mapper.typeFactory.constructCollectionType(List::class.java, String::class.java)
+
+        val setStrType
+            get() = ControlPanelView.mapper.typeFactory.constructCollectionType(Set::class.java, String::class.java)
     }
 
     @Test
@@ -69,7 +73,71 @@ internal class CollectionClassBuilderTest {
 
     @Test
     internal fun serialization_empty() {
-        val parent = ObjectEditorController(listStrType).root as CollectionClassBuilder
+        val parent = ObjectEditorController(listStrType).root
         assertEquals(emptyList<Any>(), parent.toObject())
+    }
+
+
+    @Test
+    internal fun canLoadSerialized_Collection_SizeZero() {
+        val parent = ObjectEditorController(listStrType, emptyList<String>()).root
+        assertNotNull(parent)
+
+        assertEquals(emptyList<String>(), parent.toObject())
+    }
+
+    @Test
+    internal fun canLoadSerialized_List_SizeOne() {
+        val real = listOf("Hello")
+
+        val parent = ObjectEditorController(listStrType, real).root
+        assertNotNull(parent)
+        assertEquals(real, parent.toObject())
+    }
+
+    @Test
+    internal fun canLoadSerialized_List_SizeN() {
+        val real = listOf("Hello", "world", "world")
+
+        val parent = ObjectEditorController(listStrType, real).root
+        assertNotNull(parent)
+        assertEquals(real, parent.toObject())
+    }
+
+    @Test
+    internal fun canLoadSerialized_Set_SizeN() {
+        val real = setOf("Hello", "world", "world")
+
+        val parent = ObjectEditorController(setStrType, real).root
+        assertNotNull(parent)
+        assertEquals(real, parent.toObject())
+    }
+
+    @Test
+    internal fun canLoadSerialized_ArrayOfStrings_SizeN() {
+        val real = arrayOf("Hello", "world", "world")
+
+        val parent = ObjectEditorController(real.javaClass.type().withContentType(String::class.type()), real).root
+        assertNotNull(parent)
+        assertArrayEquals(real, parent.toObject() as Array<*>)
+    }
+
+    @Test
+    internal fun canLoadSerialize_IntArray_SizeN() {
+        val real = intArrayOf(4, -1, 2)
+
+        val parent = ObjectEditorController(IntArray::class.type(), real).root
+        assertNotNull(parent)
+        //we're always casting t
+        assertArrayEquals(real.toTypedArray(), parent.toObject() as Array<Int>)
+    }
+
+    @Test
+    internal fun canLoadSerialize_ArrayOfInts_SizeN() {
+        val real = arrayOf(4, -1, 2)
+
+        val parent = ObjectEditorController(real::class.type(), real).root
+        assertNotNull(parent)
+        assertArrayEquals(real, parent.toObject() as Array<*>)
     }
 }

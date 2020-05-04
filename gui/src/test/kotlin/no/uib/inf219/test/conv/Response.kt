@@ -79,7 +79,6 @@ class Response : Identifiable<String> {
     override fun hashCode(): Int {
         var result = response.hashCode()
         result = 31 * result + name.hashCode()
-        result = 31 * result + (conv?.hashCode() ?: 0)
         return result
     }
 }

@@ -9,8 +9,11 @@ import no.uib.inf219.gui.backend.cb.simple.StringClassBuilder
 import no.uib.inf219.gui.backend.cb.toCb
 import no.uib.inf219.gui.backend.cb.toObject
 import no.uib.inf219.gui.controllers.ObjectEditorController
+import no.uib.inf219.test.MapExample
 import no.uib.inf219.test.PrimitiveDefaultValueShowcase
+import no.uib.inf219.test.PrimitiveNoDefaultValueShowcase
 import no.uib.inf219.test.conv.Conversation
+import no.uib.inf219.test.conv.Response
 import no.uib.inf219.test.precondition.AlwaysTruePrecondition
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
@@ -207,10 +210,9 @@ internal class ComplexClassBuilderTest {
     @Test
     internal fun createClassBuilderFor_validKeyNonNullInit_propertyDoesExist() {
         val cb = ObjectEditorController(Conversation::class.type()).root as ComplexClassBuilder
-
         val propKey = cb.serObject.filterValues { it != null }.keys.first()
-
         val orgProp = cb.serObject[propKey]
+
         assertNotNull(orgProp)
 
         var created: ClassBuilder? = null
@@ -220,5 +222,49 @@ internal class ComplexClassBuilderTest {
         }
 
         assertTrue(orgProp === created)
+    }
+
+
+    @Test
+    internal fun loadObject_MapExample() {
+        val map = mapOf("Hello!" to "wow!")
+        val mapCb = ObjectEditorController(map::class.type(), map).root
+        val mapSerialized = mapCb.toObject() as Map<*, *>
+        assertEquals(map, mapSerialized)
+        assertEquals(map["Hello!"], mapSerialized["Hello!"])
+
+        val me = MapExample(map)
+
+        val cb = ObjectEditorController(MapExample::class.type(), me).root
+        val mapExampleConverted = cb.toObject() as MapExample
+        assertEquals(me, mapExampleConverted)
+        assertEquals(map["Hello!"], mapExampleConverted.map["Hello!"])
+    }
+
+    @Test
+    internal fun loadObject_primitiveLoadDefault() {
+        val real = PrimitiveNoDefaultValueShowcase(9001, 14L, 2.0, -1f, true, 1.toShort(), 5.toByte(), 'a', "AAAAA")
+
+        val cb = ObjectEditorController(real::class.type(), real).root
+        assertEquals(real, cb.toObject())
+    }
+
+    @Test
+    internal fun loadObject_precondition() {
+        val real = AlwaysTruePrecondition()
+
+        val cb = ObjectEditorController(real::class.type(), real).root
+        assertEquals(real, cb.toObject())
+    }
+
+    @Test
+    internal fun loadObject_conversation() {
+        val real = Conversation()
+        real.name = "Named conversation"
+        real.text = "Hey bby"
+        real.responses.add(Response.create("Oh la la ;););)", "some name", real))
+
+        val cb = ObjectEditorController(real::class.type(), real).root
+        assertEquals(real, cb.toObject())
     }
 }

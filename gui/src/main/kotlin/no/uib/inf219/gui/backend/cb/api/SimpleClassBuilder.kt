@@ -16,6 +16,7 @@ import javafx.scene.control.TreeItem
 import javafx.util.StringConverter
 import javafx.util.converter.*
 import no.uib.inf219.extra.removeNl
+import no.uib.inf219.extra.toObjType
 import no.uib.inf219.extra.type
 import no.uib.inf219.gui.backend.cb.FAKE_ROOT
 import no.uib.inf219.gui.controllers.ObjectEditorController
@@ -63,13 +64,13 @@ abstract class SimpleClassBuilder<T : Any> constructor(
     companion object {
 
         internal fun <E> findProperty(type: JavaType, initialValue: E): Property<E> {
-            val p = when (type.rawClass) {
-                Int::class.javaPrimitiveType -> intProperty(initialValue as Int)
-                Long::class.javaPrimitiveType -> longProperty(initialValue as Long)
-                Double::class.javaPrimitiveType -> doubleProperty(initialValue as Double)
-                Float::class.javaPrimitiveType -> floatProperty(initialValue as Float)
-                Boolean::class.javaPrimitiveType -> booleanProperty(initialValue as Boolean)
-                String::class.java -> stringProperty(initialValue as String)
+            val p = when (type.toObjType()) {
+                Int::class.type() -> intProperty(initialValue as Int)
+                Long::class.type() -> longProperty(initialValue as Long)
+                Double::class.type() -> doubleProperty(initialValue as Double)
+                Float::class.type() -> floatProperty(initialValue as Float)
+                Boolean::class.type() -> booleanProperty(initialValue as Boolean)
+                String::class.type() -> stringProperty(initialValue as String)
 
 //              Short::class.javaPrimitiveType -> shortProperty(initialValue as Short)
 //              Byte::class.javaPrimitiveType -> byteProperty(initialValue as Byte)

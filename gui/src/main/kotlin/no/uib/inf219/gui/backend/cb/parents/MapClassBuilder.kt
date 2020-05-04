@@ -3,13 +3,13 @@ package no.uib.inf219.gui.backend.cb.parents
 
 import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
+import com.fasterxml.jackson.databind.type.MapLikeType
 import javafx.scene.control.TreeItem
 import no.uib.inf219.gui.backend.cb.api.ClassBuilder
 import no.uib.inf219.gui.backend.cb.api.ParentClassBuilder
 import no.uib.inf219.gui.backend.cb.api.VariableSizedParentClassBuilder
 import no.uib.inf219.gui.backend.cb.serializers.MapClassBuilderSerializer
 import no.uib.inf219.gui.backend.cb.toCb
-import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.controllers.cbn.ClassBuilderNode
 import no.uib.inf219.gui.controllers.cbn.EmptyClassBuilderNode
 import no.uib.inf219.gui.controllers.cbn.FilledClassBuilderNode
@@ -32,8 +32,12 @@ class MapClassBuilder(
     override val serObject = HashSet<ComplexClassBuilder>()
     override val serObjectObservable = serObject.asObservable()
 
-    private val entryType =
-        mapper.typeFactory.constructMapLikeType(MapEntry::class.java, type.keyType, type.contentType)
+    private val entryType: MapLikeType =
+        mapper.typeFactory.constructMapLikeType(
+            MapEntry::class.java,
+            type.keyType ?: error("No key type for the map specified. Type: $type"),
+            type.contentType ?: error("No content (value) type for map specified. Type: $type")
+        )
 
     private var entriesCreated = 0
 
@@ -84,7 +88,7 @@ class MapClassBuilder(
     //Variable sized parent class builder //
     ////////////////////////////////////////
 
-    override fun createNewChild(controller: ObjectEditorController) = create(TreeItem())
+    override fun createNewChild() = create(TreeItem())
     override fun clear() = serObject.clear()
 
     //////////////////////////

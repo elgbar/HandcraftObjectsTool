@@ -5,12 +5,16 @@ import com.fasterxml.jackson.databind.type.MapLikeType
 import javafx.scene.control.ButtonBar
 import javafx.scene.control.ButtonType
 import javafx.scene.control.TreeItem
+import no.uib.inf219.extra.findChild
+import no.uib.inf219.extra.isTypeOrSuperTypeOfPrimAsObj
 import no.uib.inf219.extra.type
 import no.uib.inf219.gui.backend.cb.api.ClassBuilder
 import no.uib.inf219.gui.backend.cb.api.ParentClassBuilder
 import no.uib.inf219.gui.backend.cb.parents.CollectionClassBuilder
 import no.uib.inf219.gui.backend.cb.parents.ComplexClassBuilder
 import no.uib.inf219.gui.backend.cb.parents.MapClassBuilder
+import no.uib.inf219.gui.backend.cb.parents.MapClassBuilder.Companion.keyCb
+import no.uib.inf219.gui.backend.cb.parents.MapClassBuilder.Companion.valueCb
 import no.uib.inf219.gui.backend.cb.simple.*
 import no.uib.inf219.gui.controllers.cbn.ClassBuilderNode
 import no.uib.inf219.gui.controllers.cbn.EmptyClassBuilderNode
@@ -40,21 +44,10 @@ fun createClassBuilder(
 
     require(!parent.isLeaf()) { "Parent cannot be a leaf" }
     require(item !== parent.item) { "Cyclic dependencies not allowed for items" }
-
-    if (value != null) {
-        if (value::class.javaPrimitiveType != null) {
-            val primGivenType = value::class.javaPrimitiveType
-            val primExpectedType = type.rawClass.kotlin.javaPrimitiveType
-            require(primExpectedType == primGivenType) {
-                "Mismatch between given java class and expected class. The given value can be reduced to the primitive type $primGivenType while the primitive of internal type is $primExpectedType (originally $type)"
-            }
-        } else {
-            val givenClass = value::class.java
-            require(type.isTypeOrSuperTypeOf(givenClass)) {
-                "Mismatch between given java class and expected class. The given value has the class '$givenClass' while the expected type is $type"
-            }
-        }
+    require(value == null || type.isTypeOrSuperTypeOfPrimAsObj(value::class.type())) {
+        "Mismatch between given java class and expected class. The given value has the class '${value!!::class}' while the expected type is $type"
     }
+
 
     val cb = (if (type.rawClass.kotlin.javaPrimitiveType != null) {
         val kotlinType = type.rawClass.kotlin
@@ -154,7 +147,7 @@ fun createClassBuilder(
         val init = if (value != null) value as UUID else UUID.randomUUID()
         UUIDClassBuilder(initial = init, key = key, parent = parent, property = prop, item = item)
     } else if (type.isCollectionLikeType || type.isArrayType) {
-        val colCB = CollectionClassBuilder(
+        val colCb = CollectionClassBuilder(
             type,
             key = key,
             parent = parent,
@@ -165,11 +158,11 @@ fun createClassBuilder(
 
             fun addChild(any: Any?) {
                 if (any == null) return //TODO handle null obj properly
-                val childKey = colCB.serObject.size.toCb(immutable = false)
-                val cb =
-                    loadSerializedObject(any, childKey, colCB, colCB.getChildPropertyMetadata(childKey), TreeItem())
-                
-                colCB.createChild(childKey, cb, cb?.item ?: TreeItem())
+                val childKey = colCb.serObject.size.toCb(immutable = false)
+                val childCb =
+                    loadSerializedObject(any, childKey, colCb, colCb.getChildPropertyMetadata(childKey), TreeItem())
+
+                colCb.createChild(childKey, childCb, childCb?.item ?: TreeItem())
             }
 
             if (type.isCollectionLikeType) {
@@ -192,16 +185,41 @@ fun createClassBuilder(
                 }
             }
         }
-        colCB
+        colCb
     } else if (type.isMapLikeType && (type as MapLikeType).isTrueMapType) {
         //TODO add support for non-true map types
-        MapClassBuilder(
+        val mapCb = MapClassBuilder(
             type,
             key = key,
             parent = parent,
             property = prop,
             item = item
         )
+        if (value != null && value is Map<*, *>) {
+            for ((keyValue, valueValue) in value.entries) {
+
+                val entryCb = mapCb.createNewChild()
+                if (keyValue != null) {
+                    entryCb[keyCb] = loadSerializedObject(
+                        keyValue,
+                        keyCb,
+                        entryCb,
+                        entryCb.getChildPropertyMetadata(keyCb),
+                        entryCb.item.findChild(keyCb)
+                    )
+                }
+                if (valueValue != null) {
+                    entryCb[valueCb] = loadSerializedObject(
+                        valueValue,
+                        valueCb,
+                        entryCb,
+                        entryCb.getChildPropertyMetadata(valueCb),
+                        entryCb.item.findChild(valueCb)
+                    )
+                }
+            }
+        }
+        mapCb
     } else if (type.isEnumType) {
         @Suppress("UNCHECKED_CAST") //checking with isEnumType above
         val enumClass = type.rawClass as Class<Enum<*>>
@@ -216,7 +234,7 @@ fun createClassBuilder(
 
     } else if (type.rawClass.isAnnotation) {
         error("Serialization of annotations is not supported, is there even any way to serialize them?")
-    } else if (!type.isConcrete && !allowAbstractType) {
+    } else if (!type.isConcrete && !allowAbstractType && value == null) {
 
         /**
          * Nothing can be abstract if mr bean module is not enabled
@@ -274,7 +292,7 @@ fun createClassBuilder(
         createClassBuilder(subtype, key, parent, value, prop, item, allowAbstractNextTime)
     } else {
         //it's not a primitive type so let's just make a complex type for it
-        ComplexClassBuilder(type, key = key, parent = parent, property = prop, item = item)
+        ComplexClassBuilder(type, key = key, parent = parent, property = prop, item = item, init = value)
     }) ?: return null
 
     require(cb.item === item)

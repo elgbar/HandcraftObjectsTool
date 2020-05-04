@@ -27,12 +27,7 @@ internal class MapClassBuilderTest {
 
     companion object {
         val mapStrStrType
-            get() = mapper.typeFactory.constructMapType(
-                HashMap::class.java,
-                String::class.java,
-                String::class.java
-            )
-
+            get() = mapper.typeFactory.constructMapType(Map::class.java, String::class.java, String::class.java)
     }
 
     @Test
@@ -175,5 +170,38 @@ internal class MapClassBuilderTest {
             "map 0: ${map!!["0"]}\n" +
                     "map 1: ${map!!["1"]}"
         }
+    }
+
+
+    @Test
+    internal fun canLoadSerializedMapOfSizeZero() {
+        val parent = ObjectEditorController(mapStrStrType, emptyMap<String, String>()).root as MapClassBuilder
+        assertNotNull(parent)
+
+        assertEquals(emptyMap<String, String>(), parent.toObject())
+    }
+
+    @Test
+    internal fun canLoadSerializedMapOfSizeOne() {
+        val realMap = HashMap<String, String>().also {
+            it["test?"] = "test!"
+        }
+
+        val parent = ObjectEditorController(mapStrStrType, realMap).root as MapClassBuilder
+        assertNotNull(parent)
+        assertEquals(realMap, parent.toObject())
+    }
+
+    @Test
+    internal fun canLoadSerializedMapOfSizeN() {
+        val realMap = HashMap<String, String>().also {
+            it["test?"] = "test!"
+            it["test!"] = "test!!"
+            it["yee"] = "haw"
+        }
+
+        val parent = ObjectEditorController(mapStrStrType, realMap).root as MapClassBuilder
+        assertNotNull(parent)
+        assertEquals(realMap, parent.toObject())
     }
 }

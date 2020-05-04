@@ -11,7 +11,6 @@ import no.uib.inf219.gui.backend.cb.createClassBuilder
 import no.uib.inf219.gui.backend.cb.serializers.ParentClassBuilderSerializer
 import no.uib.inf219.gui.backend.cb.simple.IntClassBuilder
 import no.uib.inf219.gui.backend.cb.toCb
-import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.controllers.cbn.ClassBuilderNode
 import no.uib.inf219.gui.loader.ClassInformation
 import tornadofx.asObservable
@@ -41,7 +40,7 @@ class CollectionClassBuilder(
     //Variable sized parent class builder //
     ////////////////////////////////////////
 
-    override fun createNewChild(controller: ObjectEditorController): ClassBuilder? {
+    override fun createNewChild(): ClassBuilder? {
         //make sure the key is mutable to support deletion of elements
         return createChild(serObject.size.toCb(immutable = false), item = TreeItem())
     }

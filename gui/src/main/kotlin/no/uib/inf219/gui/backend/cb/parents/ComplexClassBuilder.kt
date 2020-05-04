@@ -11,16 +11,20 @@ import javafx.scene.text.TextAlignment
 import no.uib.inf219.extra.findChild
 import no.uib.inf219.extra.onChange
 import no.uib.inf219.extra.onChangeUntil
+import no.uib.inf219.extra.type
 import no.uib.inf219.gui.Styles
 import no.uib.inf219.gui.backend.cb.api.ClassBuilder
 import no.uib.inf219.gui.backend.cb.api.ParentClassBuilder
+import no.uib.inf219.gui.backend.cb.api.SimpleClassBuilder
 import no.uib.inf219.gui.backend.cb.createClassBuilder
 import no.uib.inf219.gui.backend.cb.serializers.ComplexClassBuilderSerializer
+import no.uib.inf219.gui.backend.cb.simple.StringClassBuilder
 import no.uib.inf219.gui.backend.cb.toCb
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.controllers.cbn.ClassBuilderNode
 import no.uib.inf219.gui.controllers.cbn.EmptyClassBuilderNode
 import no.uib.inf219.gui.loader.ClassInformation
+import no.uib.inf219.gui.view.ControlPanelView.mapper
 import tornadofx.*
 import kotlin.collections.component1
 import kotlin.collections.component2
@@ -37,7 +41,8 @@ class ComplexClassBuilder(
     override val key: ClassBuilder,
     override val parent: ParentClassBuilder,
     override val property: ClassInformation.PropertyMetadata? = null,
-    override val item: TreeItem<ClassBuilderNode>
+    override val item: TreeItem<ClassBuilderNode>,
+    val init: Any? = null
 ) : ParentClassBuilder() {
 
     /**
@@ -61,10 +66,35 @@ class ComplexClassBuilder(
         typeSerializer = typeSer
         this.propInfo = propInfo
 
+        //is it really safe to do it this way?
+        //It's not really fast, but is there any way to get all wanted values with the properties?
+        val initMap: Map<String, Any?>? =
+            if (init != null) {
+                val type = mapper.typeFactory.constructMapType(Map::class.java, String::class.java, Any::class.java)
+                mapper.convertValue<Map<String, Any?>>(init, type)
+            } else {
+                null
+            }
+
         //initiate all valid values to null or default
         // to allow for iteration when populating Node explorer
         for ((key, v) in this.propInfo) {
-            if (v.hasValidDefaultInstance()) {
+
+            val initValue = initMap?.get(key)
+            if (initValue != null) {
+                val keyCb = key.toCb()
+                //The value must be converted back to the expected value!
+                val realValue = mapper.convertValue<Any>(initValue, v.type)
+                val init = createClassBuilder(v.type, keyCb, this, realValue, propInfo[key], TreeItem())
+                    ?: kotlin.error("Failed to load property $key of $this")
+
+
+                checkChildValidity(keyCb, init)
+                checkItemValidity(init, init.item)
+
+                this.serObject[key] = init
+
+            } else if (v.hasValidDefaultInstance()) {
                 //only create a class builder for properties that has a default value
                 // or is primitive (which always have default values)
                 this.createChild(key.toCb(), item = TreeItem())
@@ -85,14 +115,8 @@ class ComplexClassBuilder(
         item: TreeItem<ClassBuilderNode>
     ): ClassBuilder? {
         val propName = cbToString(key)
-
-        val prop = propInfo[propName]
-        require(prop != null) {
-            "The class $type does not have a property with the name '$propName'. Expected one of the following: ${propInfo.keys}"
-        }
-
         return serObject.computeIfAbsent(propName) {
-            createChild0(key, init, prop, item)
+            createChild0(key as StringClassBuilder, init, item)
         }
     }
 
@@ -112,8 +136,7 @@ class ComplexClassBuilder(
         val item = item.findChild(key)
 
         val newProp = if (restoreDefault && meta.hasValidDefaultInstance()) {
-            val prop: ClassInformation.PropertyMetadata = propInfo[propName] ?: kotlin.error("Given prop name is wrong")
-            createChild0(key, null, prop, item)
+            createChild0(key as StringClassBuilder, null, item)
         } else {
             item.value = EmptyClassBuilderNode(key, this, item = item)
             null
@@ -134,11 +157,14 @@ class ComplexClassBuilder(
     }
 
     private fun createChild0(
-        key: ClassBuilder,
+        key: SimpleClassBuilder<String>,
         init: ClassBuilder?,
-        prop: ClassInformation.PropertyMetadata,
         item: TreeItem<ClassBuilderNode>
     ): ClassBuilder? {
+
+        val prop: ClassInformation.PropertyMetadata = propInfo[key.serObject]
+            ?: kotlin.error("The class $type does not have a property with the name '${key.serObject}'. Expected one of the following: ${propInfo.keys}")
+
         return if (init != null) {
             checkChildValidity(key, init)
             checkItemValidity(init, item)

@@ -5,6 +5,7 @@ import javafx.beans.property.SimpleObjectProperty
 import javafx.event.EventTarget
 import javafx.scene.control.TreeItem
 import javafx.scene.control.TreeView
+import no.uib.inf219.extra.isTypeOrSuperTypeOfPrimAsObj
 import no.uib.inf219.extra.selectedItem
 import no.uib.inf219.extra.type
 import no.uib.inf219.gui.backend.cb.api.ClassBuilder
@@ -78,7 +79,9 @@ class ObjectEditorController(
 
 
         init {
-            require(obj == null || realRootType == obj.javaClass.type()) { "mismatch between type and object given" }
+            require(obj == null || realRootType.isTypeOrSuperTypeOfPrimAsObj(obj::class.type())) {
+                "Mismatch between type and object given. Expected $realRootType, got ${obj?.javaClass?.type()}"
+            }
         }
 
         /** Key to the real root */
@@ -176,5 +179,25 @@ class ObjectEditorController(
 
         override fun createEditView(parent: EventTarget, controller: ObjectEditorController) =
             parent.text("Fake root should be displayed :o")
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
+            if (!super.equals(other)) return false
+
+            other as RootDelegator
+
+            if (realRootType != other.realRootType) return false
+            if (obj != other.obj) return false
+            if (realRootKey != other.realRootKey) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = realRootType.hashCode()
+            result = 31 * result + (obj?.hashCode() ?: 0)
+            return result
+        }
     }
 }

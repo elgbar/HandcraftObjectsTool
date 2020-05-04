@@ -9,7 +9,7 @@ import no.uib.inf219.gui.backend.cb.api.ParentClassBuilder
 /**
  * A class builder node where the class builder is always null aka empty
  */
-class EmptyClassBuilderNode constructor(
+class EmptyClassBuilderNode(
     override val key: ClassBuilder,
     override val parent: ParentClassBuilder,
     override val item: TreeItem<ClassBuilderNode> = TreeItem(),

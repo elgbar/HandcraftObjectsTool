@@ -18,7 +18,7 @@ abstract class VariableSizedParentClassBuilder : ParentClassBuilder() {
     /**
      * create a new child
      */
-    protected abstract fun createNewChild(controller: ObjectEditorController): ClassBuilder?
+    abstract fun createNewChild(): ClassBuilder?
 
     /**
      * Clear all elements from the collection/map of children
@@ -36,8 +36,8 @@ abstract class VariableSizedParentClassBuilder : ParentClassBuilder() {
     final override fun isImmutable() = false
 
 
-    private fun createNewChildAndExpand(controller: ObjectEditorController) {
-        val created = createNewChild(controller)
+    private fun createNewChildAndExpand() {
+        val created = createNewChild()
         item.isExpanded = true
         created?.item?.isExpanded = true
     }
@@ -50,7 +50,7 @@ abstract class VariableSizedParentClassBuilder : ParentClassBuilder() {
             center {
                 centeredText("There are ${this@VariableSizedParentClassBuilder.getChildren().size} elements in this collection\n") {
                     button("Add new element").action {
-                        createNewChildAndExpand(controller)
+                        createNewChildAndExpand()
                     }
                 }
             }
@@ -61,14 +61,14 @@ abstract class VariableSizedParentClassBuilder : ParentClassBuilder() {
         super.onNodeKeyEvent(event, controller)
 
         if (event.code == KeyCode.ENTER || event.code == KeyCode.SPACE) {
-            createNewChildAndExpand(controller)
+            createNewChildAndExpand()
             event.consume()
         }
     }
 
     override fun createContextMenu(menu: ContextMenu, controller: ObjectEditorController): Boolean {
         with(menu) {
-            item("Add new entry").action { createNewChildAndExpand(controller) }
+            item("Add new entry").action { createNewChildAndExpand() }
             item("Clear").action {
                 clear()
                 item.children.clear()

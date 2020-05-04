@@ -35,14 +35,7 @@ object ClassInformation {
     }
 
     private fun createDSP(): SerializerProvider {
-//        val jfac = JsonFactory.builder().build()
-//        val gen: JsonGenerator = jfac.createGenerator(SegmentedStringWriter(jfac._getBufferRecycler()))
-//        val cfg: SerializationConfig = mapper.serializationConfig
-//        cfg.initialize(gen)
-
         mapper.typeFactory = mapper.typeFactory.withClassLoader(DynamicClassLoader)
-
-//        return DefaultSerializerProvider.Impl().createInstance(cfg, mapper.serializerFactory)
         return mapper.serializerProviderInstance
     }
 
