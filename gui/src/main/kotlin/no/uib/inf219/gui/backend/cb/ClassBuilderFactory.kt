@@ -24,6 +24,7 @@ import no.uib.inf219.gui.controllers.cbn.FilledClassBuilderNode
 import no.uib.inf219.gui.loader.ClassInformation
 import no.uib.inf219.gui.view.ControlPanelView
 import no.uib.inf219.gui.view.select.ClassSelectorView
+import tornadofx.FX
 import tornadofx.find
 import tornadofx.information
 import tornadofx.warning
@@ -328,13 +329,15 @@ fun displayReferenceWarning(
         }.keys
 
     for (key in refChildren) {
-        warning(
-            "References not yet supported!",
-            "There is probably a reference to ${key.getPreviewValue()} in  ${cb.path}. Currently HOT does not support " +
-                    "loading references. Found the value ${currTree[key]} in the tree, but the expected type is " +
-                    "${cb.getChildPropertyMetadata(key).type}"
-            , ButtonType.OK
-        )
+        if (FX.getPrimaryStage(FX.defaultScope) != null) {
+            warning(
+                "References not yet supported!",
+                "There is probably a reference to ${key.getPreviewValue()} in  ${cb.path}. Currently HOT does not support " +
+                        "loading references. Found the value ${currTree[key]} in the tree, but the expected type is " +
+                        "${cb.getChildPropertyMetadata(key).type}"
+                , ButtonType.OK
+            )
+        }
     }
 
     for ((key, child) in cb.getChildren()) {
