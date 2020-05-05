@@ -147,9 +147,6 @@ class ObjectEditorController(
             element: ClassBuilder?,
             restoreDefault: Boolean
         ) {
-//            require(key == realRootKey) { "Key does not match the real root key '${realRootKey.serObject}'" }
-//            require(element == serObject) { "Element does not match the current root '${serObject}'" }
-//            return createRealRoot().item.value
         }
 
         override fun createChild(

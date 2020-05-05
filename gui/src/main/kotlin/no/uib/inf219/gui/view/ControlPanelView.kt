@@ -32,6 +32,7 @@ import tornadofx.*
 import java.io.File
 import java.io.FileFilter
 import java.lang.invoke.MethodHandles
+import kotlin.collections.set
 
 
 /**
@@ -167,7 +168,7 @@ object ControlPanelView : View("Control Panel") {
                         if (files.isNullOrEmpty()) {
                             if (files != null) {
                                 ui {
-                                    warning("No jar files found in ${folder.path}")
+                                    error("No jar files found in ${folder.path}", owner = FX.primaryStage)
                                 }
                                 LoggerView.log("No jar files found in ${folder.path}")
                             }
@@ -183,7 +184,10 @@ object ControlPanelView : View("Control Panel") {
                 setOnAction {
                     val inp = MethodHandles.lookup().lookupClass().getResourceAsStream("/example.jar")
                     if (inp == null) {
-                        error("Failed to find example jar")
+                        error(
+                            "Failed to find example jar",
+                            owner = FX.primaryStage
+                        )
                         return@setOnAction
                     }
                     runAsync {
@@ -221,11 +225,14 @@ object ControlPanelView : View("Control Panel") {
                 } catch (e: Throwable) {
                     LoggerView.log { "Failed to load class $className due to an error $e" }
                     runLater {
-                        warning(
-                            "Failed to find a class with the name '${className}'",
-                            "Due to exception ${e.javaClass.name}: ${e.localizedMessage}\n" +
-                                    "\n" +
-                                    "Have you remembered to load the expected jar(s)?"
+                        error(
+                            """
+                            Failed to find a class with the name '${className}'
+                            
+                            Due to exception ${e.javaClass.name}: ${e.localizedMessage}
+                            Have you remembered to load the expected jar(s)?
+                            """.trimIndent()
+                            , owner = FX.primaryStage
                         )
                     }
                     null
@@ -402,7 +409,8 @@ object ControlPanelView : View("Control Panel") {
                 "Can not serialize ${type.rawClass}",
                 "Failed to create an editor for the given class.\n" +
                         "\n" +
-                        "Threw ${e.javaClass.simpleName}: ${e.message}"
+                        "Threw ${e.javaClass.simpleName}: ${e.message}",
+                owner = FX.primaryStage
             )
             return
         }

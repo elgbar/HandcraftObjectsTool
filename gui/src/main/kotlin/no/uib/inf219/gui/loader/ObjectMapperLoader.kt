@@ -3,7 +3,8 @@ package no.uib.inf219.gui.loader
 import com.fasterxml.jackson.databind.ObjectMapper
 import javafx.application.Platform
 import no.uib.inf219.gui.view.LoggerView.log
-import tornadofx.warning
+import tornadofx.FX
+import tornadofx.error
 import java.io.File
 import java.lang.reflect.Field
 import java.util.*
@@ -54,9 +55,10 @@ object ObjectMapperLoader {
                 val lines = zipFile.getInputStream(entry).bufferedReader().readLines()
                 if (lines.isEmpty()) {
                     Platform.runLater {
-                        warning(
+                        error(
                             "Failed to load Object Mapper from jar",
-                            "No class specified to load Object Mapper from, file $file"
+                            "No class specified to load Object Mapper from, file $file",
+                            owner = FX.primaryStage
                         )
                     }
                     return null
@@ -77,10 +79,10 @@ object ObjectMapperLoader {
             clazz = DynamicClassLoader.loadClass(clazzPath)
         } catch (e: Throwable) {
             Platform.runLater {
-                warning(
+                error(
                     "Failed to load Object Mapper from jar",
                     "Failed to load class with object mapper '$clazzPath' in file $file\n" +
-                            "${e.javaClass.simpleName}: ${e.message}"
+                            "${e.javaClass.simpleName}: ${e.message}", owner = FX.primaryStage
                 )
             }
             log(e)
@@ -94,10 +96,10 @@ object ObjectMapperLoader {
             field.isAccessible = true
         } catch (e: Throwable) {
             Platform.runLater {
-                warning(
+                error(
                     "Failed to load Object Mapper from jar",
                     "Failed to find the specified (or default) field '$fieldPath' within class '$clazzPath' in file $file\n" +
-                            "${e.javaClass.simpleName}: ${e.message}"
+                            "${e.javaClass.simpleName}: ${e.message}", owner = FX.primaryStage
                 )
             }
             log(e)
@@ -114,21 +116,21 @@ object ObjectMapperLoader {
                 "unknown type (${e.javaClass.simpleName} was thrown)"
             }
             Platform.runLater {
-                warning(
+                error(
                     "Failed to load Object Mapper from jar",
                     "Given field for object mapper is not an object mapper nor any subclass of object mapper!\n" +
                             "Field '$fieldPath' (of type $className) in class '$clazzPath' in file $file\n" +
-                            "${e.javaClass.simpleName}: ${e.message}"
+                            "${e.javaClass.simpleName}: ${e.message}", owner = FX.primaryStage
                 )
             }
             log(e)
             return null
         } catch (e: Throwable) {
             Platform.runLater {
-                warning(
+                error(
                     "Failed to load Object Mapper from jar",
                     "Failed to get the instance of the field. Field '$fieldPath' in class '$clazzPath' in file $file\n" +
-                            "${e.javaClass.simpleName}: ${e.message}"
+                            "${e.javaClass.simpleName}: ${e.message}", owner = FX.primaryStage
                 )
             }
             log(e)

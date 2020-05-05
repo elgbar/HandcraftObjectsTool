@@ -53,15 +53,17 @@ class NodeExplorerView(private val controller: ObjectEditorController) : View("T
 
                                 val type = parent.getChildType(key)
                                 if (type == null) {
-                                    information("Failed to find a the type of the child $key for $parent")
+                                    information(
+                                        "Failed to find a the type of the child $key for $parent",
+                                        owner = FX.primaryStage
+                                    )
                                     return@action
                                 }
 
                                 if (cb != null && showOverwriteWithRefWarning != false) {
-                                    warning(
+                                    confirmation(
                                         "Do you want to overwrite it with a reference to another object?",
-                                        "This property is already defined: $cb",
-                                        owner = currentWindow,
+                                        "This property is already defined: $cb", owner = FX.primaryStage,
                                         buttons = *arrayOf(ButtonType.YES, YES_DISABLE_WARNING, ButtonType.CANCEL),
                                         actionFn = { button ->
                                             //hitting esc/closing window also counts as cancel
@@ -82,6 +84,7 @@ class NodeExplorerView(private val controller: ObjectEditorController) : View("T
                                     warning(
                                         "No reference returned",
                                         "No reference was returned from the search. This could be because you canceled the search (pressed escape) or because the chosen class builder was invalid."
+                                        , owner = FX.primaryStage
                                     )
                                     return@action
                                 }

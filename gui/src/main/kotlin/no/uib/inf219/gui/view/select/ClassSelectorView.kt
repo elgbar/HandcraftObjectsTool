@@ -168,7 +168,7 @@ class ClassSelectorView : SelectorView<String>("Select implementation") {
         do {
             val rt = resultType
             if (rt == null) {
-                warning("Failed to find the java type of $result")
+                error("Failed to find the java type of $result", owner = FX.primaryStage)
                 return null
             }
             tornadofx.runAsync {

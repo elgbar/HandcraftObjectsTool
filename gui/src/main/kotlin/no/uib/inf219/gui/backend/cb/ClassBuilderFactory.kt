@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.type.MapLikeType
 import javafx.scene.control.ButtonBar
 import javafx.scene.control.ButtonType
 import javafx.scene.control.TreeItem
+import javafx.scene.text.Text
 import no.uib.inf219.extra.findChild
 import no.uib.inf219.extra.get
 import no.uib.inf219.extra.isTypeOrSuperTypeOfPrimAsObj
@@ -255,7 +256,7 @@ fun createClassBuilder(
             warning(
                 "Polymorphic types with type information not allowed with MrBean module",
                 "Since base classes are often abstract classes, but those classes should not be materialized, because they are never used (instead, actual concrete sub-classes are used). Because of this, Mr Bean will not materialize any types annotated with @JsonTypeInfo annotation.\n" +
-                        "Please select a sub class "
+                        "Please select a sub class ", owner = FX.primaryStage
             )
         }
 
@@ -271,7 +272,8 @@ fun createClassBuilder(
                 "You you want to create ${type.rawClass} or a sub class of it?",
                 "The class you want to create is an abstract class or an interface." +
                         "\nDo you want to create this abstract type or find a sub class of it?",
-                createThis, findSubclass, ButtonType.CANCEL
+                createThis, findSubclass, ButtonType.CANCEL,
+                owner = FX.primaryStage
             ) {
                 when (it) {
                     ButtonType.CANCEL -> return null
@@ -331,12 +333,16 @@ fun displayReferenceWarning(
     for (key in refChildren) {
         if (FX.getPrimaryStage(FX.defaultScope) != null) {
             warning(
-                "References not yet supported!",
-                "There is probably a reference to ${key.getPreviewValue()} in  ${cb.path}. Currently HOT does not support " +
-                        "loading references. Found the value ${currTree[key]} in the tree, but the expected type is " +
-                        "${cb.getChildPropertyMetadata(key).type}"
-                , ButtonType.OK
-            )
+                "References not yet supported!", "", ButtonType.OK, owner = FX.primaryStage
+            ) {
+                val text = Text(
+                    "There is probably a reference to ${key.getPreviewValue()} in  ${cb.path}. " +
+                            "Currently HOT does not support loading references. Found the value ${currTree[key]} in the tree, " +
+                            "but the expected type is ${cb.getChildPropertyMetadata(key).type}"
+                )
+                text.wrappingWidth = 100.0
+                this.dialogPane.content = text
+            }
         }
     }
 

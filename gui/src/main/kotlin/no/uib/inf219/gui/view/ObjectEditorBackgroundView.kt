@@ -77,7 +77,7 @@ class ObjectEditorBackgroundView : View("Object Editor Background") {
     fun save() {
         val obj = toJson()
         if (obj == null) {
-            warning(
+            error(
                 "Failed to save ${controller.root}",
                 "Cannot save object as it is not valid. Please validate it first",
                 owner = currentWindow
