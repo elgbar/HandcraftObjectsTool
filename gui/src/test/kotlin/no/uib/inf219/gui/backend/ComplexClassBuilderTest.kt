@@ -1,5 +1,6 @@
 package no.uib.inf219.gui.backend
 
+import com.fasterxml.jackson.databind.JsonNode
 import no.uib.inf219.extra.findChild
 import no.uib.inf219.extra.type
 import no.uib.inf219.gui.backend.cb.api.ClassBuilder
@@ -9,6 +10,7 @@ import no.uib.inf219.gui.backend.cb.simple.StringClassBuilder
 import no.uib.inf219.gui.backend.cb.toCb
 import no.uib.inf219.gui.backend.cb.toObject
 import no.uib.inf219.gui.controllers.ObjectEditorController
+import no.uib.inf219.gui.view.ControlPanelView.mapper
 import no.uib.inf219.test.MapExample
 import no.uib.inf219.test.PrimitiveDefaultValueShowcase
 import no.uib.inf219.test.PrimitiveNoDefaultValueShowcase
@@ -262,9 +264,28 @@ internal class ComplexClassBuilderTest {
         val real = Conversation()
         real.name = "Named conversation"
         real.text = "Hey bby"
-        real.responses.add(Response.create("Oh la la ;););)", "some name", real))
+        val realResponse = Response.create(";););)", "some name", real)
+        real.responses.add(realResponse)
+
+
+        val tree = mapper.valueToTree<JsonNode>(real)
+        println("tree.fieldNames() = ${tree.fieldNames()}")
+        println("tree = $tree")
 
         val cb = ObjectEditorController(real::class.type(), real).root
-        assertEquals(real, cb.toObject())
+
+
+        val convertedObj = cb.toObject() as Conversation
+        assertEquals(real.name, convertedObj.name)
+        assertEquals(real.text, convertedObj.text)
+        assertEquals(1, convertedObj.responses.size) { "resp:${convertedObj.responses}" }
+        val convResponse = convertedObj.responses[0]
+
+        assertEquals(realResponse.response, convResponse.response)
+        assertEquals(realResponse.name, convResponse.name)
+
+        assertSame(convResponse.conv, real)
+
+        assertEquals(real, convertedObj)
     }
 }

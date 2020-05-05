@@ -1,6 +1,8 @@
 package no.uib.inf219.extra
 
 import com.fasterxml.jackson.databind.JavaType
+import com.fasterxml.jackson.databind.JsonNode
+import no.uib.inf219.gui.backend.cb.api.ClassBuilder
 import no.uib.inf219.gui.loader.ClassInformation
 import kotlin.reflect.KClass
 
@@ -47,4 +49,11 @@ fun JavaType.isTypeOrSuperTypeOfPrimAsObj(clazz: KClass<*>): Boolean {
     val thisObjType = this.rawClass.kotlin.javaObjectType
     val thatObjType = clazz.javaObjectType
     return thisObjType == thatObjType || thisObjType.isAssignableFrom(thatObjType)
+}
+
+
+operator fun JsonNode.get(key: ClassBuilder): JsonNode? = when (key.serObject) {
+    is String -> this[key.serObject as String]
+    is Int -> this[key.serObject as Int]
+    else -> error("Key not string or int: $key")
 }

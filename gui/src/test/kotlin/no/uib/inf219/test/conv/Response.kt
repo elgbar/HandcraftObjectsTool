@@ -21,7 +21,7 @@ class Response : Identifiable<String> {
     var conv: Conversation? = null
 
     companion object {
-        val exitResponse: MutableList<Response> = mutableListOf(
+        val exitResponse: List<Response> = listOf(
             create("End conversation", "Exit")
         )
 
@@ -72,8 +72,7 @@ class Response : Identifiable<String> {
 
         if (response != other.response) return false
         if (name != other.name) return false
-
-        return true
+        return conv === other.conv
     }
 
     override fun hashCode(): Int {
@@ -81,4 +80,9 @@ class Response : Identifiable<String> {
         result = 31 * result + name.hashCode()
         return result
     }
+
+    override fun toString(): String {
+        return "Response(response='$response', name='$name', conv=$conv)"
+    }
+
 }

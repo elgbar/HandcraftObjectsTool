@@ -18,8 +18,7 @@ class Conversation : Identifiable<String> {
     lateinit var name: String
 
     @JsonProperty("responses", defaultValue = "[]")
-    var responses: MutableList<Response> = ArrayList()
-        get() = if (field.isEmpty()) Response.exitResponse else field
+    var responses = ArrayList<Response>()
 
     /**
      * If this conversation have been held, setter always sets this to `true`
@@ -42,14 +41,14 @@ class Conversation : Identifiable<String> {
             )
 
         @JvmStatic
-        fun create(text: String, name: String? = null, responses: MutableList<Response>? = null): Conversation {
+        fun create(text: String, name: String? = null, responses: List<Response>? = null): Conversation {
             val conv = Conversation()
             conv.text = text
 
             if (name != null)
                 conv.name = name
             if (responses != null)
-                conv.responses = responses
+                conv.responses.addAll(responses)
             return conv
         }
     }
@@ -65,6 +64,7 @@ class Conversation : Identifiable<String> {
 
         if (text != other.text) return false
         if (name != other.name) return false
+        if (responses !== other.responses) return false
         return true
     }
 
@@ -73,6 +73,10 @@ class Conversation : Identifiable<String> {
         result = 31 * result + name.hashCode()
         result = 31 * result + responses.hashCode()
         return result
+    }
+
+    override fun toString(): String {
+        return "Conversation(text='$text', name='$name', hasBeenRead=$hasBeenRead)"
     }
 
 

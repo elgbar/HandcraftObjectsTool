@@ -1,6 +1,7 @@
 package no.uib.inf219.gui.controllers
 
 import com.fasterxml.jackson.databind.JavaType
+import com.fasterxml.jackson.databind.JsonNode
 import javafx.beans.property.SimpleObjectProperty
 import javafx.event.EventTarget
 import javafx.scene.control.TreeItem
@@ -11,10 +12,12 @@ import no.uib.inf219.extra.type
 import no.uib.inf219.gui.backend.cb.api.ClassBuilder
 import no.uib.inf219.gui.backend.cb.api.ParentClassBuilder
 import no.uib.inf219.gui.backend.cb.createClassBuilder
+import no.uib.inf219.gui.backend.cb.displayReferenceWarning
 import no.uib.inf219.gui.backend.cb.toCb
 import no.uib.inf219.gui.controllers.cbn.ClassBuilderNode
 import no.uib.inf219.gui.controllers.cbn.FilledClassBuilderNode
 import no.uib.inf219.gui.loader.ClassInformation.PropertyMetadata
+import no.uib.inf219.gui.view.ControlPanelView
 import tornadofx.text
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
@@ -73,19 +76,20 @@ class ObjectEditorController(
      */
     private class RootDelegator(
         private val realRootType: JavaType,
-        private val obj: Any?
+        private val rootObj: Any?
     ) : ParentClassBuilder(),
         ReadOnlyProperty<Any?, ClassBuilder> {
 
 
         init {
-            require(obj == null || realRootType.isTypeOrSuperTypeOfPrimAsObj(obj::class.type())) {
-                "Mismatch between type and object given. Expected $realRootType, got ${obj?.javaClass?.type()}"
+            require(rootObj == null || realRootType.isTypeOrSuperTypeOfPrimAsObj(rootObj::class.type())) {
+                "Mismatch between type and object given. Expected $realRootType, got ${rootObj?.javaClass?.type()}"
             }
         }
 
         /** Key to the real root */
         val realRootKey = realRootType.rawClass.simpleName.toCb()
+        override val parent = this
 
         /**
          * (re)create the root class builder
@@ -99,8 +103,13 @@ class ObjectEditorController(
                 "The object that is currently being created",
                 false
             )
-            val cb = createClassBuilder(realRootType, realRootKey, this, obj, rootPropMeta, TreeItem())
+            val cb = createClassBuilder(realRootType, realRootKey, this, rootObj, rootPropMeta, TreeItem())
                 ?: error("failed to create a root class builder")
+
+            if (cb is ParentClassBuilder && rootObj != null) {
+                val rootTree: JsonNode = ControlPanelView.mapper.valueToTree(rootObj)
+                displayReferenceWarning(cb, rootTree, rootTree)
+            }
             this@RootDelegator.serObject = cb
             return cb
         }
@@ -129,7 +138,6 @@ class ObjectEditorController(
         }
 
         override val type = Any::class.type()
-        override val parent = this
         override val key = fakeRootKey
         override val property: PropertyMetadata? = null
 
@@ -188,7 +196,7 @@ class ObjectEditorController(
             other as RootDelegator
 
             if (realRootType != other.realRootType) return false
-            if (obj != other.obj) return false
+            if (rootObj != other.rootObj) return false
             if (realRootKey != other.realRootKey) return false
 
             return true
@@ -196,7 +204,7 @@ class ObjectEditorController(
 
         override fun hashCode(): Int {
             var result = realRootType.hashCode()
-            result = 31 * result + (obj?.hashCode() ?: 0)
+            result = 31 * result + (rootObj?.hashCode() ?: 0)
             return result
         }
     }

@@ -1,11 +1,13 @@
 package no.uib.inf219.gui.backend.cb
 
 import com.fasterxml.jackson.databind.JavaType
+import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.type.MapLikeType
 import javafx.scene.control.ButtonBar
 import javafx.scene.control.ButtonType
 import javafx.scene.control.TreeItem
 import no.uib.inf219.extra.findChild
+import no.uib.inf219.extra.get
 import no.uib.inf219.extra.isTypeOrSuperTypeOfPrimAsObj
 import no.uib.inf219.extra.type
 import no.uib.inf219.gui.backend.cb.api.ClassBuilder
@@ -308,6 +310,39 @@ fun createClassBuilder(
         }.map { it.item })
     }
     return cb
+}
+
+fun displayReferenceWarning(
+    cb: ParentClassBuilder,
+    rootTree: JsonNode,
+    currTree: JsonNode
+) {
+
+    //if the tree have more __existing__ nodes than us something is fishy
+    //it probably mean that it contains a reference!
+    val refChildren =
+        cb.getChildren().filter { (key, it) ->
+            //If the child of the class builder is null but there exists a non-null value
+            //in the tree
+            it == null && currTree[key] != null
+        }.keys
+
+    for (key in refChildren) {
+        warning(
+            "References not yet supported!",
+            "There is probably a reference to ${key.getPreviewValue()} in  ${cb.path}. Currently HOT does not support " +
+                    "loading references. Found the value ${currTree[key]} in the tree, but the expected type is " +
+                    "${cb.getChildPropertyMetadata(key).type}"
+            , ButtonType.OK
+        )
+    }
+
+    for ((key, child) in cb.getChildren()) {
+        if (child is ParentClassBuilder) {
+            val childTree = currTree[key] ?: continue
+            displayReferenceWarning(child, rootTree, childTree)
+        }
+    }
 }
 
 /**
