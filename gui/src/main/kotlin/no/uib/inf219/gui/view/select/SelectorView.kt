@@ -119,7 +119,9 @@ abstract class SelectorView<T>(title: String) : View(title) {
                     }
 
                     cellFormat() {
-                        text = cellText(it)
+                        runLater {
+                            text = cellText(it)
+                        }
                     }
 
                     addEventHandler(KeyEvent.ANY) { event ->
