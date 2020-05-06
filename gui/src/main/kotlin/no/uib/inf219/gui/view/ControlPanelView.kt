@@ -1,8 +1,8 @@
 package no.uib.inf219.gui.view
 
 import com.fasterxml.jackson.databind.JavaType
+import com.fasterxml.jackson.databind.MapperFeature.IGNORE_DUPLICATE_MODULE_REGISTRATIONS
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.json.JsonMapper
 import com.fasterxml.jackson.module.afterburner.AfterburnerModule
 import com.fasterxml.jackson.module.mrbean.AbstractTypeMaterializer
 import com.fasterxml.jackson.module.mrbean.MrBeanModule
@@ -115,8 +115,13 @@ object ControlPanelView : View("Control Panel") {
     private fun updateMapper() {
         ClassInformation.updateMapper()
 
-        val builder = JsonMapper.builder()
-        builder.findAndAddModules()
+
+        //We do not want to register modules twice so make sure duplicates are ignored
+        //For now restore the original config after this method, but maybe this should be
+        // just a test, throwing if it is disabled?
+        val oldIgnore = mapper.isEnabled(IGNORE_DUPLICATE_MODULE_REGISTRATIONS)
+        mapper.configure(IGNORE_DUPLICATE_MODULE_REGISTRATIONS, true)
+
         for (module in moduleSettings) {
             if (module.enabled) {
                 mapper.registerModule(module.createModule())
@@ -128,6 +133,8 @@ object ControlPanelView : View("Control Panel") {
                 module.enabled = true
             }
         }
+
+        mapper.configure(IGNORE_DUPLICATE_MODULE_REGISTRATIONS, oldIgnore)
     }
 
     override val root = vbox {
@@ -219,7 +226,6 @@ object ControlPanelView : View("Control Panel") {
 
             fun loadType(): JavaType? {
                 val className = classNameProperty.value
-                val type: JavaType?
                 return try {
                     DynamicClassLoader.getType(className)
                 } catch (e: Throwable) {
