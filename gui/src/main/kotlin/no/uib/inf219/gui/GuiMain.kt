@@ -10,7 +10,7 @@ import tornadofx.App
 class GuiMain : App(BackgroundView::class, Styles::class) {
 
     companion object {
-        const val FILES_FOLDER = "classes"
+        const val FILES_FOLDER = "jars"
     }
 
     override fun start(stage: Stage) {

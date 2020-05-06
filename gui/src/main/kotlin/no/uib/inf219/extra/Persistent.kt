@@ -22,7 +22,7 @@ class Persistent<T : Serializable>(val default: T? = null) {
     private var haveBeenRead = false
 
     private fun getFile(thisRef: Any, property: KProperty<*>): File {
-        return applicationHome().child("${thisRef.javaClass.canonicalName}-${property.name}.ser")
+        return hotApplicationHome().child("${thisRef.javaClass.canonicalName}-${property.name}.ser")
     }
 
     operator fun getValue(thisRef: Any, property: KProperty<*>): T? {

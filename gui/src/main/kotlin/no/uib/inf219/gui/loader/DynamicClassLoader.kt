@@ -1,10 +1,11 @@
 package no.uib.inf219.gui.loader
 
 import com.fasterxml.jackson.databind.JavaType
-import no.uib.inf219.extra.applicationHome
 import no.uib.inf219.extra.child
+import no.uib.inf219.extra.hotApplicationHome
 import no.uib.inf219.extra.type
-import no.uib.inf219.gui.GuiMain
+import no.uib.inf219.gui.GuiMain.Companion.FILES_FOLDER
+import no.uib.inf219.gui.view.LoggerView
 import java.io.File
 import java.net.URLClassLoader
 
@@ -14,21 +15,33 @@ import java.net.URLClassLoader
  * @author Elg
  */
 object DynamicClassLoader :
-    URLClassLoader(
-        arrayOf(applicationHome().child("${GuiMain.FILES_FOLDER}/").also { it.mkdirs() }.toURI().toURL())
-    ) {
+    URLClassLoader(emptyArray()) {
 
-    private val loadedFiles: MutableSet<File> = HashSet()
+    init {
+        val filesFolder = hotApplicationHome().child("$FILES_FOLDER/").also { it.mkdirs() }
+        val files = filesFolder.listFiles()
+        if (files != null) {
+            for (file in files) {
+                loadFile(file)
+            }
+        }
+    }
 
     /**
      * Load all classes from the given [File], if file is already loaded nothing will be done
      *
      * @param file The file to load
-     * @param reload If all classes should be loaded again
      */
-    fun loadFile(file: File, reload: Boolean = false) {
-        if (reload && loadedFiles.contains(file)) return
-        addURL(file.toURI().toURL())
+    fun loadFile(file: File) {
+        try {
+            addURL(file.toURI().toURL())
+        } catch (e: Exception) {
+            LoggerView.log("Failed to load jar file ${file.absolutePath}")
+            LoggerView.log("$e")
+            e.printStackTrace()
+        }
+        LoggerView.log("Successfully loaded jar file ${file.absolutePath}")
+
     }
 
     /**

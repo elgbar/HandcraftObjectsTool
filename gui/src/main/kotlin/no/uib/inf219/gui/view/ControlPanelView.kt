@@ -443,15 +443,7 @@ object ControlPanelView : View("Control Panel") {
 
     private fun loadFileSafely(file: File) {
 
-        LoggerView.log("Loading file ${file.absolutePath}")
-        try {
-            DynamicClassLoader.loadFile(file)
-        } catch (e: Exception) {
-            LoggerView.log("Failed to load jar file ${file.absolutePath}")
-            LoggerView.log("$e")
-            e.printStackTrace()
-        }
-        LoggerView.log("Successfully loaded jar file ${file.absolutePath}")
+        DynamicClassLoader.loadFile(file)
 
         val mapper = ObjectMapperLoader.findObjectMapper(file) ?: return
         knownObjectMappers.add(file.nameWithoutExtension to mapper)

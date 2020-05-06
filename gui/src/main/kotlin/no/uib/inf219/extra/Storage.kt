@@ -1,6 +1,5 @@
 package no.uib.inf219.extra
 
-import tornadofx.FX
 import java.io.File
 
 /**
@@ -20,15 +19,6 @@ fun homeFolder(child: String = ""): File {
  * Return the folder of this application. The folder is guaranteed to exist
  * @throws NullPointerException If the primary stage does not have a title
  */
-fun applicationHome(): File {
-
-    val appName = try {
-        FX.primaryStage.title!!
-    } catch (e: KotlinNullPointerException) {
-        "null"
-    }
-
-    return homeFolder(".$appName").apply {
-        mkdirs()
-    }
+fun hotApplicationHome(): File {
+    return homeFolder(".hot").apply { mkdirs() }
 }

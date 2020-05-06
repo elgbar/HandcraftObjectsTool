@@ -88,7 +88,7 @@ class BackgroundView : View("Handcrafted Objects Tool") {
 
                                 button("Reset All Settings").action {
                                     tooltip("A restart is required for the changes to take effect")
-                                    applicationHome().deleteRecursively()
+                                    hotApplicationHome().deleteRecursively()
                                 }
                             }
                         }.openModal(block = true, owner = currentWindow)
