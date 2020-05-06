@@ -9,8 +9,10 @@ This is a student project for the course [Project in informatics I](https://www.
 ## Preview
 
 <details> <summary>View preview pictues</summary>
+    
 ![Choose a class to edit](preview/HOT-selClass2.png)
 ![Abstract type with a reference to the root object](preview/HOT-EditResponse-AbstractType.png)
+
 </details>
 
 ## Usage
