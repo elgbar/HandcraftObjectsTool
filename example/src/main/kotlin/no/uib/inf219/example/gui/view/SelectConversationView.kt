@@ -47,7 +47,8 @@ class SelectConversationView(val tabPane: TabPane) : View("") {
                     val files = chooseFile(
                         "Choose conversations to load",
                         arrayOf(
-                            FileChooser.ExtensionFilter("YAML files", "*.yml", "*.yaml", "*.qst", "*.cnv"),
+                            FileChooser.ExtensionFilter("JSON files", "*.json"),
+                            FileChooser.ExtensionFilter("YAML files", "*.yml", "*.yaml"),
                             FileChooser.ExtensionFilter("All files", "*")
                         ),
                         mode = FileChooserMode.Multi
