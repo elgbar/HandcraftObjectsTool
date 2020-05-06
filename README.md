@@ -1,4 +1,4 @@
-# Handcraft Objects Tool
+1# Handcraft Objects Tool
 
 Handcraft Objects Tool is a graphical user interface tool to create serialized objects using [Jackson](https://github.com/FasterXML/jackson) as the current backend. The tool aims to make it easy to write serialized JVM objects for use where hand crafted object are needed.
 
@@ -9,9 +9,10 @@ This is a student project for the course [Project in informatics I](https://www.
 ## Preview
 
 <details> <summary>View preview pictues</summary>
-    
+
 ![Choose a class to edit](preview/HOT-selClass2.png)
 ![Abstract type with a reference to the root object](preview/HOT-EditResponse-AbstractType.png)
+![Object is successfully serialized](preview/HOT-serialized.png)
 
 </details>
 
