@@ -46,6 +46,9 @@ object ControlPanelView : View("Control Panel") {
      * tab to editor map
      */
     val tabMap = HashMap<Tab, ObjectEditorBackgroundView>()
+    
+
+    const val SHOW_DEBUG_NODES = false
 
     /**
      * List of known mappers
@@ -187,20 +190,22 @@ object ControlPanelView : View("Control Panel") {
                     }
                 }
             }
-            button("Load Example") {
-                setOnAction {
-                    val inp = MethodHandles.lookup().lookupClass().getResourceAsStream("/example.jar")
-                    if (inp == null) {
-                        error(
-                            "Failed to find example jar",
-                            owner = FX.primaryStage
-                        )
-                        return@setOnAction
-                    }
-                    runAsync {
-                        val file = createTempFile()
-                        file.copyInputStreamToFile(inp)
-                        loadFileSafely(file)
+            if (SHOW_DEBUG_NODES) {
+                button("Load Example") {
+                    setOnAction {
+                        val inp = MethodHandles.lookup().lookupClass().getResourceAsStream("/example.jar")
+                        if (inp == null) {
+                            error(
+                                "Failed to find example jar",
+                                owner = FX.primaryStage
+                            )
+                            return@setOnAction
+                        }
+                        runAsync {
+                            val file = createTempFile()
+                            file.copyInputStreamToFile(inp)
+                            loadFileSafely(file)
+                        }
                     }
                 }
             }
@@ -217,7 +222,9 @@ object ControlPanelView : View("Control Panel") {
             textfield {
                 bind(classNameProperty)
                 promptText = "Full class name"
-                text = "no.uib.inf219.example.data.Conversation" //TODO remove
+                if (SHOW_DEBUG_NODES) {
+                    text = "no.uib.inf219.example.data.Conversation"
+                }
                 hgrow = Priority.ALWAYS
             }
         }
@@ -387,19 +394,21 @@ object ControlPanelView : View("Control Panel") {
             }
         }
 
-        LoggerView.log("Example classes to load:")
-        LoggerView.log("java.lang.String")
-        LoggerView.log("java.lang.Integer")
-        LoggerView.log("java.util.UUID")
-        LoggerView.log("no.uib.inf219.example.data.Conversation")
-        LoggerView.log("no.uib.inf219.example.data.Response")
-        LoggerView.log("no.uib.inf219.example.data.showcase.JsonValueExample")
-        LoggerView.log("no.uib.inf219.example.data.showcase.PrimitiveConvertsShowcase")
-        LoggerView.log("no.uib.inf219.example.data.showcase.PrimitiveDefaultValueShowcase")
-        LoggerView.log("no.uib.inf219.example.data.showcase.MapExample")
-        LoggerView.log("no.uib.inf219.example.data.showcase.GenericExample")
-        LoggerView.log("no.uib.inf219.example.data.showcase.Weather")
-        LoggerView.log("no.uib.inf219.example.data.prerequisite.AlwaysFalsePrerequisite")
+        if (SHOW_DEBUG_NODES) {
+            LoggerView.log("Example classes to load:")
+            LoggerView.log("java.lang.String")
+            LoggerView.log("java.lang.Integer")
+            LoggerView.log("java.util.UUID")
+            LoggerView.log("no.uib.inf219.example.data.Conversation")
+            LoggerView.log("no.uib.inf219.example.data.Response")
+            LoggerView.log("no.uib.inf219.example.data.showcase.JsonValueExample")
+            LoggerView.log("no.uib.inf219.example.data.showcase.PrimitiveConvertsShowcase")
+            LoggerView.log("no.uib.inf219.example.data.showcase.PrimitiveDefaultValueShowcase")
+            LoggerView.log("no.uib.inf219.example.data.showcase.MapExample")
+            LoggerView.log("no.uib.inf219.example.data.showcase.GenericExample")
+            LoggerView.log("no.uib.inf219.example.data.showcase.Weather")
+            LoggerView.log("no.uib.inf219.example.data.prerequisite.AlwaysFalsePrerequisite")
+        }
     }
 
     private fun createTab(type: JavaType, obj: Any?) {
