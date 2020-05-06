@@ -103,7 +103,8 @@ class ObjectEditorController(
                 "The object that is currently being created",
                 false
             )
-            val cb = createClassBuilder(realRootType, realRootKey, this, rootObj, rootPropMeta, TreeItem())
+            val type = rootObj?.javaClass?.type() ?: realRootType
+            val cb = createClassBuilder(type, realRootKey, this, rootObj, rootPropMeta, TreeItem())
                 ?: error("failed to create a root class builder")
 
             if (cb is ParentClassBuilder && rootObj != null) {

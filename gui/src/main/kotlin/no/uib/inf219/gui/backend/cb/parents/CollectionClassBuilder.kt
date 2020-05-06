@@ -4,6 +4,7 @@ package no.uib.inf219.gui.backend.cb.parents
 import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import javafx.scene.control.TreeItem
+import no.uib.inf219.extra.isTypeOrSuperTypeOfPrimAsObj
 import no.uib.inf219.gui.backend.cb.api.ClassBuilder
 import no.uib.inf219.gui.backend.cb.api.ParentClassBuilder
 import no.uib.inf219.gui.backend.cb.api.VariableSizedParentClassBuilder
@@ -62,7 +63,7 @@ class CollectionClassBuilder(
     ): ClassBuilder? {
         val index = cbToInt(key)
             ?: error("Failed to create a new entry in a collection class builder at the given key is not an int")
-        require(init == null || init.type == getChildType(key)) {
+        require(init == null || getChildType(key).isTypeOrSuperTypeOfPrimAsObj(init.type)) {
             "Given initial value have different type than expected. expected ${getChildType(key)} got ${init?.type}"
         }
 

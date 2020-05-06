@@ -85,8 +85,9 @@ class ComplexClassBuilder(
                 val keyCb = key.toCb()
                 //The value must be converted back to the expected value!
                 val realValue = mapper.convertValue<Any>(initValue, v.type)
-                val init = createClassBuilder(v.type, keyCb, this, realValue, propInfo[key], TreeItem())
-                    ?: kotlin.error("Failed to load property $key of $this")
+                val init =
+                    createClassBuilder(realValue.javaClass.type(), keyCb, this, realValue, propInfo[key], TreeItem())
+                        ?: kotlin.error("Failed to load property $key of $this")
 
 
                 checkChildValidity(keyCb, init)
@@ -171,7 +172,19 @@ class ComplexClassBuilder(
             init
         } else {
             val meta = propInfo[cbToString(key)] ?: kotlin.error("Failed to find meta for ${key.getPreviewValue()}")
-            createClassBuilder(prop.type, key, this, meta.getDefaultInstance(), prop, item)
+            val defInstance = meta.getDefaultInstance()
+            val childType = if (defInstance != null) {
+                val tmpType = defInstance::class.type()
+                //do not use instanced types for collections, arrays, or maps
+                //as the handling of those types are special
+                if (tmpType.isCollectionLikeType || tmpType.isMapLikeType) {
+                    prop.type
+                } else {
+                    tmpType
+                }
+            } else prop.type
+
+            createClassBuilder(childType, key, this, defInstance, prop, item)
         }
     }
 
