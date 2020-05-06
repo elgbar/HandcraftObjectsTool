@@ -61,7 +61,8 @@ class ObjectEditorBackgroundView : View("Object Editor Background") {
                     information(
                         "Do you want to enable the Mr Bean module?",
                         "You cannot create abstract types without Mr Bean Module.",
-                        YES, NO, NO_DISABLE_WARNING
+                        YES, NO, NO_DISABLE_WARNING,
+                        owner = FX.primaryStage
                     ) {
                         when (it) {
                             YES -> mrBeanModule.enabled = true

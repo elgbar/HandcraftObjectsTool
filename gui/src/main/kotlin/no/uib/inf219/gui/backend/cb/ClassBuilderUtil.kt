@@ -101,7 +101,7 @@ val ClassBuilder.path: String
         while (true) {
             val curr = list[0]
             val parent = curr.parent
-            if (curr === parent || parent == null) {
+            if (curr === parent) {
                 break
             }
 
