@@ -18,7 +18,6 @@ object LoggerView : View() {
 
     override val root = scrollpane(fitToHeight = true, fitToWidth = true).textarea {
         addClass(Styles.parent)
-        this.text
         isEditable = false
     }
 

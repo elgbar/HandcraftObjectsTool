@@ -33,6 +33,7 @@ class BackgroundView : View("Handcrafted Objects Tool") {
 
     init {
         tabPane = tabpane {
+            tabMaxHeight = Double.MAX_VALUE
             tab(CONTROL_PANEL_TAB_NAME, BorderPane()) {
                 this += ControlPanelView
                 this.isClosable = false
