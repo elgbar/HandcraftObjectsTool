@@ -42,12 +42,14 @@ class ObjectEditorBackgroundView : View("Object Editor Background") {
 
     private fun toJson(): String? {
         try {
-            return if (unsafeSerialization) {
-                mapper.writeValueAsString(controller.root)
-            } else {
-                val obj = mapper.convertValue<Any>(controller.root, controller.root.type)!!
-                mapper.writeValueAsString(obj)
-            }
+
+            val obj =
+                if (unsafeSerialization) controller.root
+                else mapper.convertValue<Any>(controller.root, controller.root.type)!!
+
+            val writer = if (Settings.prettyPrint) mapper.writerWithDefaultPrettyPrinter() else mapper.writer()
+            return writer.writeValueAsString(obj)
+
         } catch (e: Throwable) {
             log("Failed to create object due to an exception.")
             log("${e.javaClass.simpleName}: ${e.message}")

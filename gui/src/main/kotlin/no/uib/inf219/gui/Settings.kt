@@ -47,11 +47,6 @@ object Settings {
      */
     var showMrBeanWarning by Persistent(true)
 
-    /**
-     * If a warning should be displayed when changing what modules are active
-     */
-    var showCloseAllTabsOnModuleChangeWarning by Persistent(true)
-
     ///////////////////////////////////////////
     // Properties displayed in control panel //
     ///////////////////////////////////////////
@@ -59,6 +54,9 @@ object Settings {
     var unsafeSerializationProp = booleanProperty(false)
     var unsafeSerialization by unsafeSerializationProp
 
-    var printStackTraceOnSerErrorProp = booleanProperty(false)
-    var printStackTraceOnError by printStackTraceOnSerErrorProp
+    var printStackTraceOnErrorProp = booleanProperty(false)
+    var printStackTraceOnError by printStackTraceOnErrorProp
+
+    var prettyPrintProp = booleanProperty(true)
+    var prettyPrint by prettyPrintProp
 }

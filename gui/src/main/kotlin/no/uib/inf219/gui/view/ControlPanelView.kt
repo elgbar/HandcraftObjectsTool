@@ -18,7 +18,8 @@ import no.uib.inf219.api.serialization.SerializationManager
 import no.uib.inf219.extra.copyInputStreamToFile
 import no.uib.inf219.extra.type
 import no.uib.inf219.gui.Settings.lastFolderLoaded
-import no.uib.inf219.gui.Settings.printStackTraceOnSerErrorProp
+import no.uib.inf219.gui.Settings.prettyPrintProp
+import no.uib.inf219.gui.Settings.printStackTraceOnErrorProp
 import no.uib.inf219.gui.Settings.unsafeSerializationProp
 import no.uib.inf219.gui.Styles
 import no.uib.inf219.gui.controllers.ObjectEditorController
@@ -46,7 +47,7 @@ object ControlPanelView : View("Control Panel") {
      * tab to editor map
      */
     val tabMap = HashMap<Tab, ObjectEditorBackgroundView>()
-    
+
 
     const val SHOW_DEBUG_NODES = false
 
@@ -386,7 +387,13 @@ object ControlPanelView : View("Control Panel") {
                     )
                 }
 
-                checkbox("Print stack trace of exceptions", printStackTraceOnSerErrorProp) {
+                checkbox("Pretty Print Serialized Object", prettyPrintProp) {
+                    tooltip(
+                        "If the saved output will be using pretty printing."
+                    )
+                }
+
+                checkbox("Print stack trace of exceptions", printStackTraceOnErrorProp) {
                     tooltip(
                         "If the stacktrace should be printed when an exception is encountered."
                     )
