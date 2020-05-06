@@ -22,6 +22,7 @@ class Styles : Stylesheet() {
         val conversationBorderPane by cssclass()
         val responseHBox by cssclass()
         val parent by cssclass()
+        val invisibleScrollpaneBorder by cssclass()
 
         //em scaled
         val Number.ems: Dimension<Dimension.LinearUnits>
@@ -42,7 +43,7 @@ class Styles : Stylesheet() {
         }
 
         headLineLabel {
-            fontSize = 2.ems
+            fontSize = 1.3.ems
             fontWeight = FontWeight.BOLD
         }
 
@@ -77,6 +78,24 @@ class Styles : Stylesheet() {
             fontSize = 1.25.ems
             textOverrun = OverrunStyle.CLIP
             padding = box(1.0.ems)
+        }
+
+        //remove the visible borders around the scroll pane
+        invisibleScrollpaneBorder {
+            borderWidth = multi(box(0.ems))
+            padding = box(0.ems)
+        }
+
+        tab {
+            text {
+                fontSize = 1.2.ems
+            }
+            tabMinHeight = 1.5.ems
+
+        }
+
+        tabHeaderArea {
+            minHeight = 1.5.ems
         }
     }
 }
