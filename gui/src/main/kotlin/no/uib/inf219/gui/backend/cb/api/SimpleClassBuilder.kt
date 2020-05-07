@@ -1,5 +1,3 @@
-@file:Suppress("LeakingThis")
-
 package no.uib.inf219.gui.backend.cb.api
 
 
@@ -35,10 +33,15 @@ import kotlin.reflect.KClass
 
 /**
  * A class builder intended for primitive types and simple classes to be used as leaf nodes in the class builder tree.
+ * The type of the serialized object is know at runtime, therefore we can use generic types.
  *
  * [key] and [parent] are nullable in constructor as it is needed to create more complex types and typically they are not used for actual object creation
  *
+ *
  * @author Elg
+ *
+ * @see no.uib.inf219.gui.backend.cb.simple.EnumClassBuilder
+ * @see SimpleNumberClassBuilder
  */
 abstract class SimpleClassBuilder<T : Any> constructor(
     primClass: KClass<T>,

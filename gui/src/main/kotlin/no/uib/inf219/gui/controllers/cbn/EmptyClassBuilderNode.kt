@@ -5,6 +5,7 @@ import javafx.scene.control.TreeView
 import no.uib.inf219.extra.reload
 import no.uib.inf219.gui.backend.cb.api.ClassBuilder
 import no.uib.inf219.gui.backend.cb.api.ParentClassBuilder
+import no.uib.inf219.gui.backend.cb.node
 
 /**
  * A class builder node where the class builder is always null aka empty

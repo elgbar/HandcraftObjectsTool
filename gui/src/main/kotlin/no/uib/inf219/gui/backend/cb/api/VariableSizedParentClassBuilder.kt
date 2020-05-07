@@ -5,18 +5,26 @@ import javafx.scene.control.ContextMenu
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
 import javafx.scene.layout.Region
+import javafx.scene.text.Text
+import javafx.scene.text.TextFlow
 import no.uib.inf219.extra.centeredText
 import no.uib.inf219.extra.reload
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import tornadofx.*
 
 /**
+ * A [ParentClassBuilder] that does not have a fixed number of children.
+ * This allows the user to add and remove children at will.
+ *
  * @author Elg
+ *
+ * @see no.uib.inf219.gui.backend.cb.parents.CollectionClassBuilder
+ * @see no.uib.inf219.gui.backend.cb.parents.MapClassBuilder
  */
 abstract class VariableSizedParentClassBuilder : ParentClassBuilder() {
 
     /**
-     * create a new child
+     * Create a new child
      */
     abstract fun createNewChild(): ClassBuilder?
 
@@ -31,11 +39,13 @@ abstract class VariableSizedParentClassBuilder : ParentClassBuilder() {
     protected abstract fun clear()
 
     /**
-     * If it is variable sized it cannot be immutable can it!
+     * If it is variable sized it cannot be immutable
      */
     final override fun isImmutable() = false
 
-
+    /**
+     * Helper method to make sure the newly made object is expanded
+     */
     private fun createNewChildAndExpand() {
         val created = createNewChild()
         item.isExpanded = true

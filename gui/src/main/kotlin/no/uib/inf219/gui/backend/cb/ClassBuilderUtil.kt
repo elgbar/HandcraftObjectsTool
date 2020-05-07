@@ -24,6 +24,12 @@ import java.util.*
  * @author Elg
  */
 
+/**
+ * A class builder to be used by class builders where their parents are not of importance
+ *
+ * @see toCb
+ * @see SimpleClassBuilder.parent
+ */
 val FAKE_ROOT = object : ParentClassBuilder() {
     override fun getChildren(): Map<ClassBuilder, ClassBuilder?> {
         error("Dummy parent")
@@ -84,11 +90,13 @@ val FAKE_ROOT = object : ParentClassBuilder() {
 }
 
 /**
- * Convert this object to an instance of [ClassBuilder.type].
+ * The [FilledClassBuilderNode] of this class builder, found found
+ *
+ * @see ClassBuilderNode
  */
-fun ClassBuilder.toObject(): Any? {
-    return ControlPanelView.mapper.convertValue(this, type)
-}
+val ClassBuilder.node: FilledClassBuilderNode
+    get() = item.value as? FilledClassBuilderNode
+        ?: error("The value of this tree item for class builder $this is not a FilledClassBuilderNode")
 
 /**
  * The path to this object from it's root separated with ' | '
@@ -111,14 +119,33 @@ val ClassBuilder.path: String
         return list.joinToString(separator = " | ") { it.key.getPreviewValue() }
     }
 
+/**
+ * Convert this object to an instance of [ClassBuilder.type].
+ */
+fun ClassBuilder.toObject(): Any? {
+    return ControlPanelView.mapper.convertValue(this, type)
+}
+
+/**
+ * If this class builder is the legitimate child of the given parent. There may be multiple class builders between
+ * this and the parent.
+ */
 fun ClassBuilder.isDescendantOf(parent: ClassBuilderNode): Boolean {
     return this.node.isDescendantOf(parent)
 }
 
+/**
+ * If this class builder is the legitimate child of the given parent. There may be multiple class builders between
+ * this and the parent.
+ */
 fun ClassBuilderNode.isDescendantOf(parent: ClassBuilder): Boolean {
     return this.isDescendantOf(parent.node)
 }
 
+/**
+ * If this class builder is the legitimate child of the given parent. There may be multiple class builders between
+ * this and the parent.
+ */
 fun ClassBuilder.isDescendantOf(parent: ClassBuilder): Boolean {
     return this.node.isDescendantOf(parent.node)
 }

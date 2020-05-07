@@ -1,5 +1,8 @@
 package no.uib.inf219.gui.backend.cb.serializers
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo
+import com.fasterxml.jackson.annotation.JsonTypeInfo
+import com.fasterxml.jackson.annotation.JsonValue
 import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.core.JsonToken
 import com.fasterxml.jackson.core.type.WritableTypeId
@@ -10,16 +13,20 @@ import com.fasterxml.jackson.databind.ser.impl.ObjectIdWriter
 import com.fasterxml.jackson.databind.ser.impl.WritableObjectId
 import com.fasterxml.jackson.databind.ser.std.StdSerializer
 import no.uib.inf219.extra.type
+import no.uib.inf219.gui.backend.cb.api.ClassBuilder
 import no.uib.inf219.gui.backend.cb.parents.ComplexClassBuilder
 import tornadofx.findFieldByName
 
 /**
+ * Serialize [ComplexClassBuilder] by pretending to be it's [ClassBuilder.type].
+ *
+ * This serializer also supports [JsonTypeInfo], [JsonIdentityInfo], and [JsonValue]
+ *
  * @author Elg
  */
 object ComplexClassBuilderSerializer : StdSerializer<ComplexClassBuilder>(
     ComplexClassBuilder::class.type()
 ) {
-
     override fun serialize(value: ComplexClassBuilder, gen: JsonGenerator, provider: SerializerProvider) {
         serializeWithType(value, gen, provider, value.typeSerializer)
     }

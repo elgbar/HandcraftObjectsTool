@@ -31,7 +31,7 @@ import kotlin.collections.component2
 import kotlin.collections.set
 
 /**
- * A class builder intended to be used for normal classes. It is 'complex' due containing multiple other [ClassBuilder]s.
+ * A class builder intended to be used for normal classes. It is "complex" due containing multiple other [ClassBuilder]s.
  *
  * @author Elg
  */

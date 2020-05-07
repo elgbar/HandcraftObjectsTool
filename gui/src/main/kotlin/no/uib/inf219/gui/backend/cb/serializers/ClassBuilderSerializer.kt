@@ -8,6 +8,8 @@ import no.uib.inf219.extra.type
 import no.uib.inf219.gui.backend.cb.api.ClassBuilder
 
 /**
+ * Serialize class builders where the [ClassBuilder.serObject] can be serialized without any extra configuration
+ *
  * @author Elg
  */
 object ClassBuilderSerializer : AbstractClassBuilderSerializer<ClassBuilder>(

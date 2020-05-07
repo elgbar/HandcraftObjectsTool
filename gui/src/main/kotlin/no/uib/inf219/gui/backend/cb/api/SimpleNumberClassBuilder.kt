@@ -17,6 +17,8 @@ import kotlin.reflect.KClass
 
 
 /**
+ * A simple class builder that handles all primitives that can be seen as a [Number] (except [Char])
+ *
  * @author Elg
  */
 abstract class SimpleNumberClassBuilder<T : Number>(

@@ -18,6 +18,8 @@ import no.uib.inf219.gui.view.ControlPanelView.mapper
 import tornadofx.asObservable
 
 /**
+ * The class builder variant for [Map]s.
+ *
  * @author Elg
  */
 @JsonSerialize(using = MapClassBuilderSerializer::class, keyUsing = MapClassBuilderSerializer::class)

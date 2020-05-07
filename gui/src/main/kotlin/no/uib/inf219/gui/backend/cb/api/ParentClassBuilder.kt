@@ -8,7 +8,7 @@ import javafx.scene.control.ContextMenu
 import javafx.scene.control.SeparatorMenuItem
 import javafx.scene.control.TreeItem
 import no.uib.inf219.extra.findChild
-import no.uib.inf219.extra.type
+import no.uib.inf219.extra.isTypeOrSuperTypeOfPrimAsObj
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.controllers.cbn.ClassBuilderNode
 import no.uib.inf219.gui.loader.ClassInformation
@@ -18,7 +18,13 @@ import tornadofx.item
 /**
  * TODO move all meta information about children to Class Builder Node
  *
+ * The parent class builder is an abstract implementation of the class builder. It is the superclass of all class builders
+ * that have child properties of their own.
+ *
  * @author Elg
+ *
+ * @see no.uib.inf219.gui.backend.cb.parents.ComplexClassBuilder
+ * @see no.uib.inf219.gui.backend.cb.api.VariableSizedParentClassBuilder
  */
 abstract class ParentClassBuilder : ClassBuilder {
 
@@ -27,8 +33,13 @@ abstract class ParentClassBuilder : ClassBuilder {
     }
 
     /**
-     * @return All class builder that this parent considers it's parent. All keys must be allowed to be used
-     * with [createChild] and [resetChild]
+     * @return All child properties that this acknowledge as its own children. There might be class builders that have
+     * this as its [parent], but unless listed in the [Map.values] set they are considered illegitimate.
+     *
+     * All keys must be allowed to be used with [createChild] and [resetChild]
+     *
+     * @see no.uib.inf219.gui.backend.cb.isDescendantOf
+     * @see no.uib.inf219.gui.backend.cb.isDescendantOf
      */
     @JsonIgnore
     abstract fun getChildren(): Map<ClassBuilder, ClassBuilder?>
@@ -55,15 +66,17 @@ abstract class ParentClassBuilder : ClassBuilder {
     /**
      * Reset the given property for the [key] provided. If it has a default value this value will be restored otherwise it will be removed.
      *
-     * @param key Specify which child class builder to reset
+     * @param key The key to the property to remove. All keys from [getChildren] are guaranteed to work, others
+     * might work but it is up to the implementation to accept or reject keys
      * @param element The instance of the child to reset. Must be identical to the class builder found with
      * [key] or be `null`. Essentially used as a check that the correct element is being reset.
      * @param restoreDefault If the default value (if none default is `null`) should be restored. If `false` the
      * child found at [key] will be `null` after this method
      *
-     * @return if the node was completely removed
-     *
+     * @throws IllegalArgumentException If the given [key] is not valid
      * @throws IllegalArgumentException If child found with [key] does not match [element]. Will not be thrown if [element] is `null`
+     *
+     * @see ClassInformation.PropertyMetadata.getDefaultInstance
      */
     abstract fun resetChild(
         key: ClassBuilder,
@@ -72,7 +85,13 @@ abstract class ParentClassBuilder : ClassBuilder {
     )
 
     /**
-     * Remove the current child at [key] (if any) and set the child at [key] to be [child]
+     * Replace the current child at [key] (if any) and set the child at [key] to be [child]. The default instance first removed (without restoring) then creates with [child] as initial element.
+     *
+     * @param key The key to the property to replace. All keys from [getChildren] are guaranteed to work, others
+     * might work but it is up to the implementation to accept or reject keys
+     * @param child The value to place the current property with
+     *
+     * @throws IllegalArgumentException If the given [key] is not valid
      */
     open operator fun set(key: ClassBuilder, child: ClassBuilder?) {
         resetChild(key, restoreDefault = false)
@@ -85,77 +104,33 @@ abstract class ParentClassBuilder : ClassBuilder {
     }
 
     /**
-     * @return The child at the given location
+     * @param key The key to the property to get. All keys from [getChildren] are guaranteed to work, others
+     * might work but it is up to the implementation to accept or reject keys
      *
-     * @throws IllegalArgumentException If the [key] is invalid
+     * @return The child property with the given key
+     *
+     * @throws IllegalArgumentException If the given [key] is not valid
      */
     abstract operator fun get(key: ClassBuilder): ClassBuilder?
 
     /**
+     * @param key The key to the property to get. All keys from [getChildren] are guaranteed to work, others
+     * might work but it is up to the implementation to accept or reject keys
+     *
      * @return The java type of of the given child
+     *
+     * @throws IllegalArgumentException If the given [key] is not valid
      */
     abstract fun getChildType(key: ClassBuilder): JavaType?
 
     /**
+     * @param key The key to the property to get. All keys from [getChildren] are guaranteed to work, others
+     * might work but it is up to the implementation to accept or reject keys
      *
      * @return The metadata of the child found at [key]
-     *
+     * @throws IllegalArgumentException If the given [key] is not valid
      */
     abstract fun getChildPropertyMetadata(key: ClassBuilder): ClassInformation.PropertyMetadata
-
-
-    //////////////////////////
-    // validation functions //
-    //////////////////////////
-
-    /**
-     * Check if the given [other] class builder is an illegitimate child of this parent class builder.
-     * An illegitimate child is a class builder that has all the necessary properties except for it's parent
-     * to recognize it as a child.
-     *
-     * To put it in code `parent[other.key] === other` is `false` but `parent[other.key] == other` is `true` as long as `parent[other.key] != null`
-     */
-    protected fun isValidChild(other: ClassBuilder): Boolean {
-        try {
-            checkChildValidity(other.key, other)
-            checkItemValidity(other)
-            return true
-        } catch (e: IllegalArgumentException) {
-            return false
-        }
-    }
-
-    protected fun checkChildValidity(key: ClassBuilder, child: ClassBuilder) {
-        require(key == child.key) { "The key does not match the key of the child. key $key | child's key ${child.key}" }
-        require(this === child.parent) { "Given child does not have this a parent" }
-
-        require(key !== child) { "The key and child cannot be the same object" }
-
-
-        require(
-            getChildType(key)!!.rawClass.kotlin.javaObjectType.type()
-                .isTypeOrSuperTypeOf(child.type.rawClass.kotlin.javaObjectType)
-        ) {
-            "Wrong child type given. Expected type ${getChildType(key)} | child's type ${child.type}"
-        }
-        require(getChildPropertyMetadata(key) == child.property) {
-            "Wrong property metadata given. Expected type ${getChildPropertyMetadata(key)} | child's type ${child.property}"
-        }
-    }
-
-    /**
-     * Some checks to make sure the given item, when updating internal structure, is correct
-     */
-    protected fun checkItemValidity(
-        cb: ClassBuilder,
-        expectedItem: TreeItem<ClassBuilderNode> = item.findChild(cb.key),
-        checkCB: Boolean = true
-    ) {
-        require(cb.item === expectedItem) { "Given item does not match init's item, expected $item init's item ${cb.item}" }
-        require(!checkCB || expectedItem.value.cb === cb) { "Item's cbn class builder is not identical to given cb | item cbn cb: ${expectedItem.value.cb} | given cb $cb" }
-        require(expectedItem.value.key == cb.key) { "Item's cbn  key does is not equal to given cb key | item cbn cb: ${expectedItem.value.key} | given cb ${cb.key}" }
-        require(expectedItem.value.parent === cb.parent) { "Item's cbn parent does is not identical to given cb's parent | item cbn cb: ${expectedItem.value.parent} | given cb ${cb.parent}" }
-    }
 
     /**
      * Create the context menu items that are displayed when right clicking a child node
@@ -201,8 +176,60 @@ abstract class ParentClassBuilder : ClassBuilder {
         }
     }
 
+    //parents can never be leaves
     final override fun isLeaf(): Boolean = false
 
+    ////////////////////////
+    // validation methods //
+    ////////////////////////
+
+    /**
+     * Check if the given [other] class builder is an illegitimate child of this parent class builder.
+     * An illegitimate child is a class builder that has all the necessary properties except for it's parent
+     * to recognize it as a child.
+     *
+     * To put it in code `parent[other.key] === other` is `false` but `parent[other.key] == other` is `true` as long as `parent[other.key] != null`
+     */
+    protected fun isValidChild(other: ClassBuilder): Boolean {
+        return try {
+            checkChildValidity(other.key, other)
+            checkItemValidity(other)
+            true
+        } catch (e: IllegalArgumentException) {
+            false
+        }
+    }
+
+    /**
+     * Check that the given child is a good match for a property at [key]
+     */
+    protected fun checkChildValidity(key: ClassBuilder, child: ClassBuilder) {
+        require(key == child.key) { "The key does not match the key of the child. key $key | child's key ${child.key}" }
+        require(this === child.parent) { "Given child does not have this a parent" }
+
+        require(key !== child) { "The key and child cannot be the same object" }
+
+        require(getChildType(key)!!.isTypeOrSuperTypeOfPrimAsObj(child.type)) {
+            "Given initial value have different type than expected. expected ${getChildType(key)} got ${child.type}"
+        }
+        require(getChildPropertyMetadata(key) == child.property) {
+            "Wrong property metadata given. Expected type ${getChildPropertyMetadata(key)} | child's type ${child.property}"
+        }
+    }
+
+    /**
+     * Some checks to make sure the given item, when updating internal structure, is correct
+     */
+    protected fun checkItemValidity(
+        cb: ClassBuilder,
+        expectedItem: TreeItem<ClassBuilderNode> = item.findChild(cb.key),
+        checkCB: Boolean = true
+    ) {
+        require(cb.item === expectedItem) { "Given item does not match init's item, expected $item init's item ${cb.item}" }
+        require(!checkCB || expectedItem.value.cb === cb) { "Item's cbn class builder is not identical to given cb | item cbn cb: ${expectedItem.value.cb} | given cb $cb" }
+        require(expectedItem.value.key == cb.key) { "Item's cbn  key does is not equal to given cb key | item cbn cb: ${expectedItem.value.key} | given cb ${cb.key}" }
+        require(expectedItem.value.parent === cb.parent) { "Item's cbn parent does is not identical to given cb's parent | item cbn cb: ${expectedItem.value.parent} | given cb ${cb.parent}" }
+    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

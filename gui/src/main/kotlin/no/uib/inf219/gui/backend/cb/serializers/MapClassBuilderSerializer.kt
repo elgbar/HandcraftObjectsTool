@@ -9,6 +9,10 @@ import no.uib.inf219.gui.backend.cb.parents.MapClassBuilder.Companion.ENTRY_VALU
 import no.uib.inf219.gui.backend.cb.toObject
 
 /**
+ * Serialize the [MapClassBuilder]. The internal structure of it (using a set of entries) does not work with the
+ * standard jackson [com.fasterxml.jackson.databind.ser.std.MapSerializer]. Especially when it comes to references,
+ * only values are allowed to be referenced in HOT.
+ *
  * @author Elg
  */
 object MapClassBuilderSerializer : AbstractClassBuilderSerializer<MapClassBuilder>(

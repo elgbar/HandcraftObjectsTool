@@ -20,7 +20,10 @@ import tornadofx.onDoubleClick
 import tornadofx.toProperty
 
 /**
- * A reference to another class builder.
+ * A reference to another class builder. This class builder will pretend to have the same [property] and [type] as what
+ * it is referring to.
+ *
+ * When the referring object is set to `null` this will also be set to `null`. References to references are allowed.
  *
  * @author Elg
  */
@@ -78,13 +81,18 @@ class ReferenceClassBuilder(
             }
 
             textCb(serObject) {
-                "This class builder is only a reference to object at ${this.path}.\nDouble click to edit the referenced class builder.\n\npreview: ${this.getPreviewValue()}"
+                """
+                    This class builder is only a reference to object at ${this.path}.
+                    Double click to edit the referenced class builder.
+                    
+                    Preview: ${this.getPreviewValue()}
+                    """.trimIndent()
             }
         }
     }
 
     override fun getPreviewValue() =
-        "Ref to ${serObject.key.getPreviewValue()} property of ${serObject.parent.key.getPreviewValue()}"
+        "Ref to '${refKey.getPreviewValue()}' of '${refParent.getPreviewValue()}'"
 
     override fun isLeaf(): Boolean = true
     override fun isImmutable() = true
@@ -95,18 +103,19 @@ class ReferenceClassBuilder(
 
         //ser objects must be same object
         if (serObject !== other.serObject) return false
-        if (parent != other.parent) return false
+        if (parent !== other.parent) return false
+        if (key != other.key) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        var result = serObject.hashCode()
-        result = 31 * result + parent.hashCode()
+        var result = parent.hashCode()
+        result = 31 * result + key.hashCode()
         return result
     }
 
     override fun toString(): String {
-        return "Ref CB; ref child ${refKey.getPreviewValue()} of ${refParent.getPreviewValue()})"
+        return "Ref CB; ref to '${refKey.getPreviewValue()}' of '${refParent.getPreviewValue()}')"
     }
 }

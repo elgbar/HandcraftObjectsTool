@@ -6,6 +6,7 @@ import javafx.scene.control.TreeItem
 import no.uib.inf219.extra.isTypeOrSuperTypeOfPrimAsObj
 import no.uib.inf219.gui.backend.cb.api.ClassBuilder
 import no.uib.inf219.gui.backend.cb.api.ParentClassBuilder
+import no.uib.inf219.gui.backend.cb.api.SimpleClassBuilder
 import no.uib.inf219.gui.backend.cb.api.VariableSizedParentClassBuilder
 import no.uib.inf219.gui.backend.cb.createClassBuilder
 import no.uib.inf219.gui.backend.cb.simple.IntClassBuilder
@@ -16,6 +17,8 @@ import tornadofx.asObservable
 
 
 /**
+ * The class builder variant for [Collection]s and [Array]s.
+ *
  * @author Elg
  */
 class CollectionClassBuilder(
@@ -30,9 +33,8 @@ class CollectionClassBuilder(
         require(type.isContainerType)
     }
 
-    //TODO maybe have a class selection to create the "correct" collection type?
-    override val serObject = ArrayList<ClassBuilder>().asObservable()
-    override val serObjectObservable = serObject
+    override val serObject = ArrayList<ClassBuilder>()
+    override val serObjectObservable = serObject.asObservable()
 
     ////////////////////////////////////////
     //Variable sized parent class builder //
