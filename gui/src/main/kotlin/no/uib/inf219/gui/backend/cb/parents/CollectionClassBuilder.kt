@@ -2,14 +2,12 @@ package no.uib.inf219.gui.backend.cb.parents
 
 
 import com.fasterxml.jackson.databind.JavaType
-import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import javafx.scene.control.TreeItem
 import no.uib.inf219.extra.isTypeOrSuperTypeOfPrimAsObj
 import no.uib.inf219.gui.backend.cb.api.ClassBuilder
 import no.uib.inf219.gui.backend.cb.api.ParentClassBuilder
 import no.uib.inf219.gui.backend.cb.api.VariableSizedParentClassBuilder
 import no.uib.inf219.gui.backend.cb.createClassBuilder
-import no.uib.inf219.gui.backend.cb.serializers.ParentClassBuilderSerializer
 import no.uib.inf219.gui.backend.cb.simple.IntClassBuilder
 import no.uib.inf219.gui.backend.cb.toCb
 import no.uib.inf219.gui.controllers.cbn.ClassBuilderNode
@@ -20,7 +18,6 @@ import tornadofx.asObservable
 /**
  * @author Elg
  */
-@JsonSerialize(using = ParentClassBuilderSerializer::class)
 class CollectionClassBuilder(
     override val type: JavaType,
     override val key: ClassBuilder,

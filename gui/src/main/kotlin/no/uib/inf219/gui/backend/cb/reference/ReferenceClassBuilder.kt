@@ -1,7 +1,6 @@
 package no.uib.inf219.gui.backend.cb.reference
 
 import com.fasterxml.jackson.databind.JavaType
-import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import javafx.event.EventTarget
 import javafx.geometry.Pos
 import javafx.scene.Node
@@ -11,7 +10,6 @@ import no.uib.inf219.gui.backend.cb.api.ClassBuilder
 import no.uib.inf219.gui.backend.cb.api.ParentClassBuilder
 import no.uib.inf219.gui.backend.cb.isDescendantOf
 import no.uib.inf219.gui.backend.cb.path
-import no.uib.inf219.gui.backend.cb.serializers.ParentClassBuilderSerializer
 import no.uib.inf219.gui.backend.events.ClassBuilderResetEvent
 import no.uib.inf219.gui.backend.events.resetEvent
 import no.uib.inf219.gui.controllers.ObjectEditorController
@@ -26,7 +24,6 @@ import tornadofx.toProperty
  *
  * @author Elg
  */
-@JsonSerialize(using = ParentClassBuilderSerializer::class)
 class ReferenceClassBuilder(
     private val refKey: ClassBuilder,
     private val refParent: ParentClassBuilder,
