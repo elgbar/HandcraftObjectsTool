@@ -48,9 +48,17 @@ abstract class VariableSizedParentClassBuilder : ParentClassBuilder() {
     ): Region {
         return parent.borderpane {
             center {
-                centeredText("There are ${this@VariableSizedParentClassBuilder.getChildren().size} elements in this collection\n") {
+
+                fun updatedText(): String {
+                    return "There are ${this@VariableSizedParentClassBuilder.getChildren().size} elements in this collection"
+                }
+
+                centeredText(updatedText()) {
                     button("Add new element").action {
                         createNewChildAndExpand()
+
+                        val tf = (this.children[0] as TextFlow).children[0] as Text
+                        tf.text = updatedText()
                     }
                 }
             }
