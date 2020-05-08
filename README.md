@@ -1,7 +1,7 @@
 # Handcraft Objects Tool
 
-[![Build Status](https://travis-ci.com/kh498/HandcraftObjectsTool.svg?branch=master)](https://travis-ci.com/kh498/HandcraftObjectsTool)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![Build Status](https://travis-ci.com/kh498/HandcraftObjectsTool.svg?branch=master)](https://travis-ci.com/kh498/HandcraftObjectsTool)
 
 Handcraft Objects Tool is a graphical user interface tool to create serialized objects using [Jackson](https://github.com/FasterXML/jackson) as the current backend. The tool aims to make it easy to write serialized JVM objects for use where hand crafted object are needed.
 
@@ -9,9 +9,9 @@ Handcraft Objects Tool is a graphical user interface tool to create serialized o
 
 This is a student project for the course [Project in informatics I](https://www.uib.no/en/course/INF219) at the university of Bergen.
 
-## Preview
+## Preview Pictures
 
-<details> <summary>View preview pictues</summary>
+<details> <summary>View Preview Pictures</summary>
 
 ![Choose a class to edit](preview/HOT-selClass2.png)
 ![Abstract type with a reference to the root object](preview/HOT-EditResponse-AbstractType.png)
@@ -90,7 +90,7 @@ Features of the project that will be completed before considering the project in
 * [x] API for (de)serialization of object you can and cannot modify.
   * _Jackson provides this with MixIn annotations, they can be loaded via custom object mappers_
 * [x] API to communicate information about how to serialize/deserialize different objects.
-  * _This can be achived with jackson modules, see [Using a custom Object Mapper](#using-a-custom-object-mapper)_
+  * _This can be achieved with jackson modules, see [Using a custom Object Mapper](#using-a-custom-object-mapper)_
 * [x] Allow objects to be optional.
   * _See [Jacksons JsonProperty](https://github.com/FasterXML/jackson-annotations/blob/c0d00657a17727f3aed50c0b2deb9afa2e89f6f4/src/main/java/com/fasterxml/jackson/annotation/JsonProperty.java#L60-L78)_
 * [x] Support for lists, sets and maps
@@ -99,8 +99,8 @@ Features of the project that will be completed before considering the project in
   * [x] Map
 * [x] Subtype selection.
   * Allowing to select a subclass of a to create.
-* [ ] Loading of already serialized objects and allow to continue to edit them.
-  * This is partially complete. Everything except references can be read from serialized object, but due to how it currently implementd, references are lost during reading. A warning will be shown if any references are detected.
+* [ ] Loading of already serialized objects and continuing to editing them.
+  * This is partially complete. Everything except references can be read from serialized object, but due to how it currently implemented, references are lost during reading. A warning will be shown if any references are detected.
 
 ### Planned Extra Features
 
