@@ -3,6 +3,8 @@ package no.uib.inf219.gui.backend
 import com.fasterxml.jackson.databind.type.CollectionLikeType
 import javafx.scene.control.TreeItem
 import no.uib.inf219.extra.type
+import no.uib.inf219.gui.backend.cb.api.SimpleClassBuilder
+import no.uib.inf219.gui.backend.cb.node
 import no.uib.inf219.gui.backend.cb.parents.CollectionClassBuilder
 import no.uib.inf219.gui.backend.cb.parents.ComplexClassBuilder
 import no.uib.inf219.gui.backend.cb.reference.ReferenceClassBuilder
@@ -16,6 +18,7 @@ import no.uib.inf219.gui.view.ControlPanelView
 import no.uib.inf219.test.conv.Conversation
 import no.uib.inf219.test.conv.Response
 import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.testfx.framework.junit5.ApplicationExtension
@@ -26,6 +29,10 @@ import org.testfx.framework.junit5.ApplicationExtension
 @ExtendWith(ApplicationExtension::class)
 internal class ReferenceClassBuilderTest {
 
+    @BeforeEach
+    internal fun setUp() {
+        resetEvent.clear()
+    }
 
     @Suppress("UNCHECKED_CAST")
     @Test
@@ -176,5 +183,72 @@ internal class ReferenceClassBuilderTest {
 
         //so the reference should also be null by now
         assertNull(cb.serObject[refKey]) { "Reference has not removed itself" }
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    @Test
+    internal fun chainedRefRemoval() {
+        val controller = ObjectEditorController(Array<String>::class.type())
+        val parent = controller.root as CollectionClassBuilder
+
+        //What we will be referencing
+        val child0Cb = parent.createNewChild() as SimpleClassBuilder<String>
+        child0Cb.serObject = "Hello!"
+
+        //Create a second element that is a ref to the first
+        val c1 = parent.createNewChild()!! // create this first to not get any IndexOutOfBoundsException
+        val child1Cb = ReferenceClassBuilder(child0Cb.key, parent, c1.key, parent, c1.item)
+        child1Cb.item.value = FilledClassBuilderNode(child1Cb.key, child1Cb, child1Cb.parent)
+        parent[child1Cb.key] = child1Cb
+
+        //Create a third element that is a ref to the second
+        val c2 = parent.createNewChild()!! // create this first to not get any IndexOutOfBoundsException
+        val child2Cb = ReferenceClassBuilder(child1Cb.key, parent, c2.key, parent, c2.item)
+        child2Cb.item.value = FilledClassBuilderNode(child2Cb.key, child2Cb, child2Cb.parent)
+        parent[child2Cb.key] = child2Cb
+
+        //they are now in a chain of references
+        assertSame(child0Cb, child1Cb.serObject)
+        assertSame(child1Cb, child2Cb.serObject)
+
+        assertSame(child0Cb.type, child1Cb.type)
+        assertSame(child1Cb.type, child2Cb.type)
+
+        child0Cb.node.resetClassBuilder(null, false)
+
+        assertTrue(parent.serObject.isEmpty()) { "Parent should have no children, but it has ${parent.serObject}" }
+    }
+
+
+    @Test
+    internal fun twoRefsToSame_Removal() {
+        val controller = ObjectEditorController(Array<String>::class.type())
+        val parent = controller.root as CollectionClassBuilder
+
+        //What we will be referencing
+        val child0Cb = parent.createNewChild() as SimpleClassBuilder<String>
+        child0Cb.serObject = "Hello!"
+
+        //Create a second element that is a ref to the first
+        val c1 = parent.createNewChild()!! // create this first to not get any IndexOutOfBoundsException
+        val child1Cb = ReferenceClassBuilder(child0Cb.key, parent, c1.key, parent, c1.item)
+        child1Cb.item.value = FilledClassBuilderNode(child1Cb.key, child1Cb, child1Cb.parent)
+        parent[child1Cb.key] = child1Cb
+
+        //Create a third element that is a ref to the second
+        val c2 = parent.createNewChild()!! // create this first to not get any IndexOutOfBoundsException
+        val child2Cb = ReferenceClassBuilder(child0Cb.key, parent, c2.key, parent, c2.item)
+        child2Cb.item.value = FilledClassBuilderNode(child2Cb.key, child2Cb, child2Cb.parent)
+        parent[child2Cb.key] = child2Cb
+
+        //they are now in a chain of references
+        assertSame(child0Cb, child1Cb.serObject)
+        assertSame(child0Cb, child2Cb.serObject)
+
+        assertSame(child0Cb.type, child1Cb.type)
+        assertSame(child0Cb.type, child2Cb.type)
+
+        child0Cb.node.resetClassBuilder(null, false)
+        assertTrue(parent.serObject.isEmpty()) { "Parent should have no children, but it has ${parent.serObject}" }
     }
 }

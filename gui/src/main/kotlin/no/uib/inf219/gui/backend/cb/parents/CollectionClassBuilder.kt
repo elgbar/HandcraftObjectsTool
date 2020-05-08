@@ -3,7 +3,6 @@ package no.uib.inf219.gui.backend.cb.parents
 
 import com.fasterxml.jackson.databind.JavaType
 import javafx.scene.control.TreeItem
-import no.uib.inf219.extra.isTypeOrSuperTypeOfPrimAsObj
 import no.uib.inf219.gui.backend.cb.api.ClassBuilder
 import no.uib.inf219.gui.backend.cb.api.ParentClassBuilder
 import no.uib.inf219.gui.backend.cb.api.SimpleClassBuilder
@@ -42,7 +41,7 @@ class CollectionClassBuilder(
 
     override fun createNewChild(): ClassBuilder? {
         //make sure the key is mutable to support deletion of elements
-        return createChild(serObject.size.toCb(immutable = false), item = TreeItem())
+        return createChild(createChildKey(serObject.size), item = TreeItem())
     }
 
     override fun clear() = serObject.clear()
@@ -55,17 +54,11 @@ class CollectionClassBuilder(
         return if (cb !is IntClassBuilder) null else cb.serObject
     }
 
-    override fun createChild(
-        key: ClassBuilder,
-        init: ClassBuilder?,
-        item: TreeItem<ClassBuilderNode>
-    ): ClassBuilder? {
+    override fun createChild(key: ClassBuilder, init: ClassBuilder?, item: TreeItem<ClassBuilderNode>): ClassBuilder? {
         val index = cbToInt(key)
             ?: error("Failed to create a new entry in a collection class builder at the given key is not an int")
-        require(init == null || getChildType(key).isTypeOrSuperTypeOfPrimAsObj(init.type)) {
-            "Given initial value have different type than expected. expected ${getChildType(key)} got ${init?.type}"
-        }
 
+        checkCollectionElem(index, init)
         val elem = init ?: createClassBuilder(type.contentType, key, this, item = item)
         ?: return null
 
@@ -88,17 +81,16 @@ class CollectionClassBuilder(
 
     override fun set(key: ClassBuilder, child: ClassBuilder?) {
         val index: Int = cbToInt(key) ?: serObject.indexOf(child)
-        require(index in 0 until serObject.size) {
-            "Given index is not within the range of the collection"
-        }
         if (child == null) {
             resetChild(key)
             return
         } else if (index == serObject.size) {
             //we're adding a new object use the normal method
-            createChild(key, child)
+            createChild(key, child, child.item)
             return
         }
+
+        checkCollectionElem(index, child)
         checkChildValidity(key, child)
         checkItemValidity(child)
 
@@ -132,6 +124,17 @@ class CollectionClassBuilder(
         }
     }
 
+    /**
+     * Checks that must be passed to let a child be created in this collection
+     */
+    private fun checkCollectionElem(index: Int, child: ClassBuilder?) {
+        require(index in 0..serObject.size) {
+            "Given index is not within the range of the collection"
+        }
+        require(child == null || !child.key.isImmutable()) { "Keys in a collection class builder must be immutable" }
+
+    }
+
     override fun getChildren(): Map<ClassBuilder, ClassBuilder> {
         return serObject.mapIndexed { i, cb -> i.toCb() to cb }.toMap()
     }
@@ -151,5 +154,11 @@ class CollectionClassBuilder(
 
     override fun toString(): String {
         return "Collection CB; containing=${type.contentType}, value=${serObject}"
+    }
+
+    companion object {
+        fun createChildKey(index: Int): SimpleClassBuilder<Int> {
+            return index.toCb(immutable = false)
+        }
     }
 }

@@ -6,4 +6,8 @@ fun <T> concurrentEvent() = ConcurrentSetEvent<T>()
 
 val resetEvent = concurrentEvent<ClassBuilderResetEvent>()
 
-data class ClassBuilderResetEvent(val cbn: ClassBuilderNode, val restoreDefault: Boolean)
+data class ClassBuilderResetEvent(val cbn: ClassBuilderNode, val restoreDefault: Boolean) {
+    init {
+        "resetting $cbn"
+    }
+}

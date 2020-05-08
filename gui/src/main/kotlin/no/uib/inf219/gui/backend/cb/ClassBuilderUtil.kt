@@ -97,7 +97,7 @@ val FAKE_ROOT = object : ParentClassBuilder() {
  */
 val ClassBuilder.node: FilledClassBuilderNode
     get() = item.value as? FilledClassBuilderNode
-        ?: error("The value of this tree item for class builder $this is not a FilledClassBuilderNode")
+        ?: error("The value of this tree item for class builder $this is not a FilledClassBuilderNode but ${item.value}")
 
 /**
  * The path to this object from it's root separated with ' | '

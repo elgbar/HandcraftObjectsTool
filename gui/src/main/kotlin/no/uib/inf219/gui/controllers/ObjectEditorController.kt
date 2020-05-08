@@ -59,11 +59,11 @@ class ObjectEditorController(
         }
     }
 
-    fun deleteSelected(restoreDefault: Boolean) {
+    fun deleteSelected() {
         with(tree) {
             val item = selectedItem ?: return
             if (item == root) return
-            item.value.resetClassBuilder(this, restoreDefault)
+            item.value.resetClassBuilder(this, false)
         }
     }
 

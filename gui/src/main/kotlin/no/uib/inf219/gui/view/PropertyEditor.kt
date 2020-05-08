@@ -22,10 +22,10 @@ class PropertyEditor : Fragment("Property Editor") {
 
                 this += vbox {
 
-                    val meta = cbn.getPropertyMeta()
+                    val meta = cbn.property
 
                     addClass(Styles.parent)
-                    label("Required? ${meta?.required ?: false}")
+                    label("Required? ${meta?.required}")
                     label("Expected Type: ${meta?.type?.rawClass ?: "Unknown"}")
                     label("Real Type: ${cbn.cb?.type?.rawClass ?: "null"}")
 

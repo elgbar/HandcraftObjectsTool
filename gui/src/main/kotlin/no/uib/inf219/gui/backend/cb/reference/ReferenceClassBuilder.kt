@@ -1,6 +1,7 @@
 package no.uib.inf219.gui.backend.cb.reference
 
 import com.fasterxml.jackson.databind.JavaType
+import javafx.beans.property.SimpleObjectProperty
 import javafx.event.EventTarget
 import javafx.geometry.Pos
 import javafx.scene.Node
@@ -8,7 +9,9 @@ import javafx.scene.control.TreeItem
 import no.uib.inf219.extra.textCb
 import no.uib.inf219.gui.backend.cb.api.ClassBuilder
 import no.uib.inf219.gui.backend.cb.api.ParentClassBuilder
+import no.uib.inf219.gui.backend.cb.checkNoCycle
 import no.uib.inf219.gui.backend.cb.isDescendantOf
+import no.uib.inf219.gui.backend.cb.node
 import no.uib.inf219.gui.backend.cb.path
 import no.uib.inf219.gui.backend.events.ClassBuilderResetEvent
 import no.uib.inf219.gui.backend.events.resetEvent
@@ -17,7 +20,6 @@ import no.uib.inf219.gui.controllers.cbn.ClassBuilderNode
 import no.uib.inf219.gui.loader.ClassInformation
 import tornadofx.hbox
 import tornadofx.onDoubleClick
-import tornadofx.toProperty
 
 /**
  * A reference to another class builder. This class builder will pretend to have the same [property] and [type] as what
@@ -28,48 +30,54 @@ import tornadofx.toProperty
  * @author Elg
  */
 class ReferenceClassBuilder(
-    private val refKey: ClassBuilder,
-    private val refParent: ParentClassBuilder,
+    val refKey: ClassBuilder,
+    val refParent: ParentClassBuilder,
     override val key: ClassBuilder,
     override val parent: ParentClassBuilder,
     override val item: TreeItem<ClassBuilderNode>
 ) : ClassBuilder {
 
-    private var lastSeenSerObj = serObject
-
     override val serObject: ClassBuilder
         get() {
             val so = refParent[refKey]
                 ?: error("Failed to find a serObject with the given reference parent and ref key. Cannot make a reference to a null class builder")
-            if (so !== lastSeenSerObj) {
-                lastSeenSerObj = so
+            if (so !== serObjectObservable.value) {
+                serObjectObservable.value = so
+                checkRefCycle()
             }
             return so
         }
 
     override val property: ClassInformation.PropertyMetadata? get() = parent.getChildPropertyMetadata(key)
     override val type: JavaType get() = serObject.type
-    override val serObjectObservable = lastSeenSerObj.toProperty()
+    override val serObjectObservable = SimpleObjectProperty<ClassBuilder>()
 
     private val event: (ClassBuilderResetEvent) -> Unit
 
-    init {
-        require(refKey != key || refParent !== parent) {
-            "Direct cycle detected, the object we're serializing is this!"
+    private fun checkRefCycle() {
+        require(this.checkNoCycle(key, parent)) {
+            "Direct cycle detected, the object we're referencing is this!"
         }
+    }
 
-        event = { (cbn, restoreDefault) ->
-            if (!restoreDefault && (cbn.parent === refParent && cbn.key === refKey) || refParent.isDescendantOf(cbn)) {
-                onReset()
+    init {
+
+        event = { (cbn, _) ->
+            if (cbn.parent === refParent && cbn.key.serObject == refKey.serObject || refParent.isDescendantOf(cbn)) {
+                removeResetEvent()
+                //make sure the removal always takes place on the same thread
+                this.node.resetClassBuilder(null, true)
+            } else if (cbn === node) {
+                //the reference it self is being removed,
+                // just remove the event without calling reset node (as that's whats happening now anyway)
+                removeResetEvent()
             }
         }
         resetEvent += event
     }
 
-    private fun onReset() {
-        //it was completely removed, this should be removed from the parent
+    private fun removeResetEvent() {
         resetEvent -= event
-        parent.resetChild(key, this@ReferenceClassBuilder, restoreDefault = true)
     }
 
     override fun createEditView(parent: EventTarget, controller: ObjectEditorController): Node {
@@ -102,9 +110,10 @@ class ReferenceClassBuilder(
         if (other !is ReferenceClassBuilder) return false
 
         //ser objects must be same object
-        if (serObject !== other.serObject) return false
         if (parent !== other.parent) return false
         if (key != other.key) return false
+        if (refParent !== other.refParent) return false
+        if (refKey.serObject != other.refKey.serObject) return false
 
         return true
     }

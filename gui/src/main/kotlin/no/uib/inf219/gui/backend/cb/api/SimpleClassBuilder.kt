@@ -198,7 +198,6 @@ abstract class SimpleClassBuilder<T : Any> constructor(
 
         other as SimpleClassBuilder<*>
 
-        if (initialValue != other.initialValue) return false
         if (property != other.property) return false
         if (immutable != other.immutable) return false
         if (converter != other.converter) return false
@@ -214,8 +213,7 @@ abstract class SimpleClassBuilder<T : Any> constructor(
     }
 
     override fun hashCode(): Int {
-        var result = initialValue.hashCode()
-        result = 31 * result + (property?.hashCode() ?: 0)
+        var result = (property?.hashCode() ?: 0)
         result = 31 * result + immutable.hashCode()
         result = 31 * result + converter.hashCode()
         result = 31 * result + type.hashCode()

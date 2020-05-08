@@ -1,8 +1,9 @@
 package no.uib.inf219.gui.controllers.cbn
 
+import com.fasterxml.jackson.databind.JavaType
 import javafx.scene.control.TreeItem
 import javafx.scene.control.TreeView
-import no.uib.inf219.extra.reload
+import no.uib.inf219.extra.reselect
 import no.uib.inf219.gui.backend.cb.api.ClassBuilder
 import no.uib.inf219.gui.backend.cb.api.ParentClassBuilder
 import no.uib.inf219.gui.backend.events.ClassBuilderResetEvent
@@ -45,21 +46,20 @@ interface ClassBuilderNode {
      */
     fun ensurePresentClassBuilder(tree: TreeView<ClassBuilderNode>): FilledClassBuilderNode?
 
-    fun getPropertyMeta(): ClassInformation.PropertyMetadata? {
-        return parent.getChildPropertyMetadata(key)
-    }
+    val property: ClassInformation.PropertyMetadata? get() = parent.getChildPropertyMetadata(key)
+    val type: JavaType? get() = parent.getChildType(key)
 
     /**
      * Reset the given class builder
      */
     fun resetClassBuilder(
-        tree: TreeView<ClassBuilderNode>,
+        tree: TreeView<ClassBuilderNode>? = null,
         restoreDefault: Boolean
     ) {
         resetEvent(ClassBuilderResetEvent(this, restoreDefault))
         item.children.clear()
         parent.resetChild(key, cb, restoreDefault)
-        tree.reload()
+        tree?.reselect()
     }
 
     operator fun component1(): ClassBuilder {

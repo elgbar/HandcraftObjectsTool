@@ -7,6 +7,7 @@ import no.uib.inf219.gui.backend.cb.simple.StringClassBuilder
 import no.uib.inf219.gui.backend.cb.toCb
 import no.uib.inf219.gui.backend.cb.toObject
 import no.uib.inf219.gui.controllers.ObjectEditorController
+import no.uib.inf219.gui.controllers.cbn.FilledClassBuilderNode
 import no.uib.inf219.gui.view.ControlPanelView
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
@@ -75,6 +76,19 @@ internal class CollectionClassBuilderTest {
     internal fun serialization_empty() {
         val parent = ObjectEditorController(listStrType).root
         assertEquals(emptyList<Any>(), parent.toObject())
+    }
+
+
+    @Test
+    internal fun serialization_setAtCollSize_nonNull() {
+        val parent = ObjectEditorController(listStrType).root as CollectionClassBuilder
+        val ckey = CollectionClassBuilder.createChildKey(0)
+
+        val child = "hellO!".toCb(ckey, parent, parent.getChildPropertyMetadata(ckey), item = TreeItem())
+        child.item.value = FilledClassBuilderNode(ckey, child, parent)
+        parent[ckey] = child
+
+        assertEquals(listOf("hellO!"), parent.toObject())
     }
 
 

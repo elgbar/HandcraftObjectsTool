@@ -93,7 +93,7 @@ internal class MapClassBuilderTest {
             parent = entry0,
             item = entry0.item.findChild(valueCb)
         )
-        value.item.value = FilledClassBuilderNode(valueCb, value, entry0)
+        value.item.value = FilledClassBuilderNode(valueCb, value, entry0, allowReference = false)
 
         entry0[valueCb] = value
 
@@ -158,7 +158,7 @@ internal class MapClassBuilderTest {
             parent = entry1,
             item = entry1.item.findChild(valueCb)
         )
-        value1.item.value = FilledClassBuilderNode(valueCb, value1, entry1)
+        value1.item.value = FilledClassBuilderNode(valueCb, value1, entry1, allowReference = false)
         entry1[valueCb] = value1
 
         var map: Map<*, *>? = null
