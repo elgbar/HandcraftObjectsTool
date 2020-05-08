@@ -120,8 +120,10 @@ interface ClassBuilder {
      * Event called when a [KeyEvent] is triggered while [item] is selected in [no.uib.inf219.gui.view.NodeExplorerView]
      */
     fun onNodeKeyEvent(event: KeyEvent, controller: ObjectEditorController) {
+        if (event.isConsumed) return
         if (event.code == KeyCode.DELETE) {
-            controller.deleteSelected(!event.isShiftDown)
+            controller.deleteSelected()
+            event.consume()
         }
     }
 

@@ -149,7 +149,7 @@ abstract class ParentClassBuilder : ClassBuilder {
 
             //Display reset action if it does have a reset element
             item("Restore default") {
-                isDisable = childMeta?.hasValidDefaultInstance() != true
+                isDisable = childMeta.hasValidDefaultInstance() != true
             }.action {
                 childCBN.resetClassBuilder(controller.tree, true)
             }
