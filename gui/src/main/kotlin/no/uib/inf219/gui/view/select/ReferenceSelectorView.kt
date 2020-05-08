@@ -5,6 +5,7 @@ import no.uib.inf219.extra.findChild
 import no.uib.inf219.extra.isTypeOrSuperTypeOfPrimAsObj
 import no.uib.inf219.gui.backend.cb.api.ClassBuilder
 import no.uib.inf219.gui.backend.cb.api.ParentClassBuilder
+import no.uib.inf219.gui.backend.cb.checkNoCycle
 import no.uib.inf219.gui.backend.cb.node
 import no.uib.inf219.gui.backend.cb.path
 import no.uib.inf219.gui.backend.cb.reference.ReferenceClassBuilder
@@ -29,21 +30,6 @@ class ReferenceSelectorView : SelectorView<ClassBuilder>("Reference") {
         parent: ParentClassBuilder
     ): ReferenceClassBuilder? {
 
-        //true if no cycle
-        fun ClassBuilder.checkNoCycle(): Boolean {
-            val currSerObject = serObject
-            //Not ref -> not cycle
-            if (this !is ReferenceClassBuilder) return true
-
-            //selected ser
-            else if (currSerObject === parent[key] ||
-                this.refParent === parent && this.refKey.serObject == key.serObject
-            ) return false
-            
-            //might be a longer cycle
-            if (currSerObject is ReferenceClassBuilder) return currSerObject.checkNoCycle()
-            return true
-        }
 
         result = null
         searching = true
@@ -54,7 +40,7 @@ class ReferenceSelectorView : SelectorView<ClassBuilder>("Reference") {
                 type,
                 controller.root
             ).filter {
-                it !== currSerObj && (currSerObj == null || it.checkNoCycle())
+                it !== currSerObj && (currSerObj == null || it.checkNoCycle(key, parent))
 
             })
         searching = false

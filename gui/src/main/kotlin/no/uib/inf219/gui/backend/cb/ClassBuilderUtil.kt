@@ -9,6 +9,7 @@ import no.uib.inf219.extra.type
 import no.uib.inf219.gui.backend.cb.api.ClassBuilder
 import no.uib.inf219.gui.backend.cb.api.ParentClassBuilder
 import no.uib.inf219.gui.backend.cb.api.SimpleClassBuilder
+import no.uib.inf219.gui.backend.cb.reference.ReferenceClassBuilder
 import no.uib.inf219.gui.backend.cb.simple.IntClassBuilder
 import no.uib.inf219.gui.backend.cb.simple.StringClassBuilder
 import no.uib.inf219.gui.controllers.ObjectEditorController
@@ -221,4 +222,22 @@ fun Int.toCb(
         immutable,
         item
     )
+}
+
+/**
+ * @return true if there are no cycles
+ */
+fun ClassBuilder.checkNoCycle(key: ClassBuilder, parent: ParentClassBuilder): Boolean {
+    val currSerObject = serObject
+    //Not ref -> not cycle
+    if (this !is ReferenceClassBuilder) return true
+
+    //selected ser
+    else if (currSerObject === parent[key] ||
+        this.refParent === parent && this.refKey.serObject == key.serObject
+    ) return false
+
+    //might be a longer cycle
+    if (currSerObject is ReferenceClassBuilder) return currSerObject.checkNoCycle(key, parent)
+    return true
 }
