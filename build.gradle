@@ -52,7 +52,7 @@ subprojects {
 
 
 project(":api") {
-    version "0.1.0"
+    version "1.0.0"
     dependencies {
         api "com.fasterxml.jackson.core:jackson-databind:$jackson_version"
         api "com.fasterxml.jackson.core:jackson-annotations:$jackson_version"
@@ -65,7 +65,7 @@ project(":api") {
 }
 
 project(":example") {
-    version "0.1.0"
+    version "1.0.0"
     ext {
         mainClassName = "no.uib.inf219.example.gui.Main"
     }
@@ -95,7 +95,7 @@ project(":example") {
 }
 
 project(":gui") {
-    version "0.1.0"
+    version "1.0.0"
     ext {
         mainClassName = "no.uib.inf219.gui.GuiMain"
     }
