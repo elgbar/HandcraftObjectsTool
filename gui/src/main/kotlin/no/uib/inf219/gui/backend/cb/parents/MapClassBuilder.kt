@@ -24,7 +24,7 @@ import tornadofx.asObservable
  */
 @JsonSerialize(using = MapClassBuilderSerializer::class, keyUsing = MapClassBuilderSerializer::class)
 class MapClassBuilder(
-    override val type: JavaType,
+    override val type: MapLikeType,
     override val key: ClassBuilder,
     override val parent: ParentClassBuilder,
     override val property: ClassInformation.PropertyMetadata?,
