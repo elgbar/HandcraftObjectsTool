@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.type.MapLikeType
 import javafx.scene.control.ButtonBar
 import javafx.scene.control.ButtonType
 import javafx.scene.control.TreeItem
-import javafx.scene.text.Text
 import no.uib.inf219.extra.findChild
 import no.uib.inf219.extra.get
 import no.uib.inf219.extra.isTypeOrSuperTypeOfPrimAsObj
@@ -246,8 +245,8 @@ fun createClassBuilder(
          */
         fun canBeAbstract(type: JavaType): Boolean {
             if (ControlPanelView.mrBeanModule.enabled) {
-                val typeInfo = ClassInformation.serializableProperties(type)
-                return typeInfo.first == null
+                val (typeSerializer, _, _) = ClassInformation.serializableProperties(type)
+                return typeSerializer == null
             }
             return false
         }
@@ -331,18 +330,15 @@ fun displayReferenceWarning(
         }.keys
 
     for (key in refChildren) {
-        if (FX.getPrimaryStage(FX.defaultScope) != null) {
+        if (FX.getPrimaryStage() != null) {
             warning(
-                "References not yet supported!", "", ButtonType.OK, owner = FX.primaryStage
-            ) {
-                val text = Text(
-                    "There is probably a reference to ${key.getPreviewValue()} in  ${cb.path}. " +
-                            "Currently HOT does not support loading references. Found the value ${currTree[key]} in the tree, " +
-                            "but the expected type is ${cb.getChildPropertyMetadata(key).type}"
-                )
-                text.wrappingWidth = 100.0
-                this.dialogPane.content = text
-            }
+                "Loading references is not supported",
+                "There is probably a reference to ${key.getPreviewValue()} in  ${cb.path}. " +
+                        "Currently HOT does not support loading references. Found the value ${currTree[key]} in the tree, " +
+                        "but the expected type is ${cb.getChildPropertyMetadata(key).type}",
+                ButtonType.OK,
+                owner = FX.primaryStage
+            )
         }
     }
 

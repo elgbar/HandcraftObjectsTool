@@ -14,8 +14,7 @@ import java.net.URLClassLoader
  *
  * @author Elg
  */
-object DynamicClassLoader :
-    URLClassLoader(emptyArray()) {
+object DynamicClassLoader : URLClassLoader(emptyArray()) {
 
     init {
         val filesFolder = hotApplicationHome().child("$FILES_FOLDER/").also { it.mkdirs() }
@@ -35,13 +34,12 @@ object DynamicClassLoader :
     fun loadFile(file: File) {
         try {
             addURL(file.toURI().toURL())
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             LoggerView.log("Failed to load jar file ${file.absolutePath}")
             LoggerView.log("$e")
             e.printStackTrace()
         }
         LoggerView.log("Successfully loaded jar file ${file.absolutePath}")
-
     }
 
     /**

@@ -80,7 +80,6 @@ object ClassInformation {
         }
     }
 
-
     fun serializableProperties(type: JavaType): Triple<TypeSerializer?, Map<String, PropertyMetadata>, Boolean> {
         return typePropCache.computeIfAbsent(type) {
 
