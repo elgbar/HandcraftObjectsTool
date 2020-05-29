@@ -102,12 +102,12 @@ Features of the project that will be completed before considering the project in
 
 * [x] Load wanted class from given JAR(s).
 * [x] Serialize to YAML.
-  * _See [jacksons text module](https://github.com/FasterXML/jackson-dataformats-text)_
+  * _See [Jacksons text module](https://github.com/FasterXML/jackson-dataformats-text)_
 * [x] Type checking for primitives.
 * [x] API for (de)serialization of object you can and cannot modify.
   * _Jackson provides this with MixIn annotations, they can be loaded via custom object mappers_
 * [x] API to communicate information about how to serialize/deserialize different objects.
-  * _This can be achieved with jackson modules, see [Using a custom Object Mapper](#using-a-custom-object-mapper)_
+  * _This can be achieved with Jackson modules, see [Using a custom Object Mapper](#using-a-custom-object-mapper)_
 * [x] Allow objects to be optional.
   * _See [Jacksons JsonProperty](https://github.com/FasterXML/jackson-annotations/blob/c0d00657a17727f3aed50c0b2deb9afa2e89f6f4/src/main/java/com/fasterxml/jackson/annotation/JsonProperty.java#L60-L78)_
 * [x] Support for lists, sets and maps
@@ -126,15 +126,16 @@ This is a list of planned features this project _might_ have, the order is rando
 * [x] Support for annotation to other formats:
   * [x] JSON
   * [x] XML
-  * _See [jacksons text module](https://github.com/FasterXML/jackson-dataformats-text)_
+  * _See [Jacksons text module](https://github.com/FasterXML/Jackson-dataformats-text)_
 * [ ] API for creating wizards for complicated objects.
   * If an object is particularly hard to write by hand it might be useful to create a wizard to allow easier configuration of said object.
-* [ ] Web version.
-  * A version that can be used in the browser.
-  * Will be hard when using JavaFx
+* [ ] Web that can run in the browser.
+  * Will be hard due to JavaFx.
 * [ ] Allow to specify a range a number (ie byte, int, long, float, double) can be.
-* [ ] API for custom type checking on non-primitive objects.
+* [x] API for custom type checking on non-primitive objects.
+    * _This is handled with Jackson_
 * [x] Easy enum selection.
-* [ ] Support for name suggestion when referencing an object
+* [ ] ~~Support for name suggestion when referencing an object.~~
+    * _This is not longer applicable, the reference system is gui based._
 * [ ] OS independent deployment.
   * A runnable jar that do not depend on the system java version.
