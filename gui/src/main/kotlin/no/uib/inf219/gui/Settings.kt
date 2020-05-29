@@ -1,6 +1,7 @@
 package no.uib.inf219.gui
 
 import no.uib.inf219.extra.Persistent
+import no.uib.inf219.extra.PersistentFolder
 import tornadofx.booleanProperty
 import tornadofx.getValue
 import tornadofx.setValue
@@ -17,12 +18,12 @@ object Settings {
     /**
      * Parent folder of the lastly loaded jar file
      */
-    var lastFolderLoaded: File? by Persistent()
+    var lastFolderLoaded: File? by PersistentFolder()
 
     /**
      * Parent folder of the last saved object
      */
-    var lastFolderSaved: File? by Persistent()
+    var lastFolderSaved: File? by PersistentFolder()
 
     /**
      * Should all children be collapsed when parent tree item is

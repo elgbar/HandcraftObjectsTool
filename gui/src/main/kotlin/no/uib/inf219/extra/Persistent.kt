@@ -16,7 +16,7 @@ import kotlin.reflect.KProperty
  *
  * @author Elg
  */
-class Persistent<T : Serializable>(val default: T? = null) {
+open class Persistent<T : Serializable>(val default: T? = null) {
 
     private var cache: T? = null
     private var haveBeenRead = false
@@ -25,7 +25,7 @@ class Persistent<T : Serializable>(val default: T? = null) {
         return hotApplicationHome().child("${thisRef.javaClass.canonicalName}-${property.name}.ser")
     }
 
-    operator fun getValue(thisRef: Any, property: KProperty<*>): T? {
+    open operator fun getValue(thisRef: Any, property: KProperty<*>): T? {
         synchronized(this) {
             if (haveBeenRead) return cache
 
