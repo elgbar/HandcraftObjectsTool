@@ -21,13 +21,13 @@ This is a student project for the course [Project in informatics I](https://www.
 
 ## Usage
 
-To create serialized objects HOT needs to know the class' signatures. Currently, the only way of creating custom objects are by loading a [fat/über jar](https://stackoverflow.com/a/29925421) with the _Import jar_ and _Import jars_ buttons within the interface. You can also permanently load jars when placed in the application home folder found at `~/.hot/jars` for Unix and `%HOMEDRIVE%%HOMEPATH%\.hot\jars` (i.e. `C:\Users\<CurrentUserName>\.hot\jars`) for Windows.
+To create serialized objects HOT needs to know the class' signatures. Currently, the only way of creating custom objects are by loading a [fat/uber jar](https://stackoverflow.com/a/29925421) with the _Import jar_ and _Import jars_ buttons within the interface. You can also permanently load jars when placed in the application home folder found at `~/.hot/jars` for Unix and `%HOMEDRIVE%%HOMEPATH%\.hot\jars` (i.e. `C:\Users\<CurrentUserName>\.hot\jars`) for Windows.
 
 You then choose what class you want to create either by pressing the `choose class` button or by manually writing the canonical class name in the text field.
 
 You can now choose if you want to create a new object or load an already serialized object from disk. If any errors occur when loading the object see [Using a custom Object Mapper](#using-a-custom-object-mapper) below for a potential fix, and remember to actually load the jar.
 
-To save and or verify the created object use the shortcut `ctrl+S` to save and `ctrl+V` to verify what your object serializes to.
+To save and or verify the created object use the shortcut `ctrl+S` to save and `ctrl+D` to verify what your object serializes to.
 
 ### Using a custom Object Mapper
 
