@@ -15,6 +15,10 @@ buildscript {
     }
 }
 
+tasks.named('wrapper') {
+    distributionType = Wrapper.DistributionType.ALL
+}
+
 subprojects {
 
     group = "no.uib.inf219"
