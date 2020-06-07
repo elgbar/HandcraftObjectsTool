@@ -3,6 +3,7 @@ buildscript {
     ext.tornadofx_version = "1.7.20"
     ext.junit_version = "5.6.2"
     ext.jackson_version = "2.11.0"
+    ext.jars_dir = "jars"
 
     repositories {
         mavenLocal()
@@ -60,10 +61,16 @@ subprojects {
     }
 
     jar {
-        destinationDirectory = new File(rootProject.rootDir, "jars")
+        destinationDirectory = new File(rootProject.rootDir, "$jars_dir")
         archivesBaseName = rootProject.name
         //noinspection GroovyAssignabilityCheck,GroovyAccessibility
         archiveAppendix = project.name
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    }
+
+    clean {
+        //clean the jars export folder of old files during cleaning
+        new File(rootProject.rootDir, "$jars_dir").deleteDir()
     }
 }
 
