@@ -2,11 +2,11 @@ package no.uib.inf219.example.gui
 
 import javafx.beans.property.StringProperty
 import javafx.scene.Scene
-import no.uib.inf219.api.serialization.storage.StoreHandler
 import no.uib.inf219.example.data.Conversation
 import no.uib.inf219.example.data.Response
 import no.uib.inf219.example.data.prerequisite.ReadConversationPrerequisite
 import no.uib.inf219.example.gui.view.BackgroundView
+import no.uib.inf219.example.storage.StoreHandler
 import tornadofx.App
 import tornadofx.UIComponent
 

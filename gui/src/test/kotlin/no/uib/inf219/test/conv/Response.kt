@@ -2,9 +2,9 @@ package no.uib.inf219.test.conv
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import javafx.scene.control.Tooltip
-import no.uib.inf219.api.serialization.Identifiable
-import no.uib.inf219.api.serialization.storage.RetrievableStorage
-import no.uib.inf219.api.serialization.storage.StoreHandler
+import no.uib.inf219.example.storage.Identifiable
+import no.uib.inf219.example.storage.RetrievableStorage
+import no.uib.inf219.example.storage.StoreHandler
 
 /**
  * @author Elg

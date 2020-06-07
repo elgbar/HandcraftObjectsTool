@@ -14,7 +14,7 @@ import javafx.scene.control.Tab
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.Priority
 import javafx.stage.FileChooser
-import no.uib.inf219.api.serialization.SerializationManager
+import no.uib.inf219.extra.SerializationManager
 import no.uib.inf219.extra.copyInputStreamToFile
 import no.uib.inf219.extra.type
 import no.uib.inf219.gui.Settings.lastFolderLoaded

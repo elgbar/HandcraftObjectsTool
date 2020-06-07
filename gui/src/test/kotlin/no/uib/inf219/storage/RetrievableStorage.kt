@@ -1,6 +1,6 @@
-package no.uib.inf219.api.serialization.storage
+package no.uib.inf219.example.storage
 
-import no.uib.inf219.api.serialization.storage.IdentifiableStorage.Companion.ID_PATH
+import no.uib.inf219.example.storage.IdentifiableStorage.Companion.ID_PATH
 
 /**
  *

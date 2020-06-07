@@ -1,4 +1,4 @@
-package no.uib.inf219.api.serialization
+package no.uib.inf219.example.storage
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo
 import com.fasterxml.jackson.annotation.JsonIgnore

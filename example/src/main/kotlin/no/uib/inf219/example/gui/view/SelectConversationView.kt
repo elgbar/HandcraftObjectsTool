@@ -8,11 +8,11 @@ import javafx.scene.control.TabPane
 import javafx.scene.control.TextArea
 import javafx.scene.layout.BorderPane
 import javafx.stage.FileChooser
-import no.uib.inf219.api.serialization.SerializationManager
-import no.uib.inf219.api.serialization.SerializationManager.kotlinJson
-import no.uib.inf219.api.serialization.SerializationManager.readValue
 import no.uib.inf219.example.data.Conversation
 import no.uib.inf219.example.data.Response
+import no.uib.inf219.example.data.SerializationManager
+import no.uib.inf219.example.data.SerializationManager.kotlinJson
+import no.uib.inf219.example.data.SerializationManager.readValue
 import no.uib.inf219.example.data.prerequisite.AlwaysFalsePrerequisite
 import no.uib.inf219.example.data.prerequisite.AlwaysTruePrerequisite
 import no.uib.inf219.example.data.prerequisite.Prerequisite

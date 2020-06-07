@@ -1,6 +1,4 @@
-package no.uib.inf219.api.serialization.storage
-
-import no.uib.inf219.api.serialization.Identifiable
+package no.uib.inf219.example.storage
 
 /**
  * @author Elg

@@ -2,7 +2,7 @@ package no.uib.inf219.test.conv
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
-import no.uib.inf219.api.serialization.Identifiable
+import no.uib.inf219.example.storage.Identifiable
 
 /**
  * TODO allow for multiple pages of text
