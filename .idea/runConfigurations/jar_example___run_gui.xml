@@ -5,7 +5,6 @@
     <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/gui/src/main/resources" />
     <method v="2">
       <option name="Make" enabled="true" />
-      <option name="RunConfigurationTask" enabled="true" run_configuration_name="HandcraftObjectsTool:example [clean jar]" run_configuration_type="GradleRunConfiguration" />
     </method>
   </configuration>
 </component>
