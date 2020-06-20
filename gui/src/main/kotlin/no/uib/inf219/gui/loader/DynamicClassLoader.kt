@@ -63,23 +63,37 @@ object DynamicClassLoader : URLClassLoader(emptyArray()) {
             "double" -> Double::class.java
             "boolean" -> Boolean::class.java
             "char" -> Char::class.java
-
-            "int[]" -> IntArray::class.java
-            "long[]" -> LongArray::class.java
-            "byte[]" -> ByteArray::class.java
-            "short[]" -> ShortArray::class.java
-            "float[]" -> FloatArray::class.java
-            "double[]" -> DoubleArray::class.java
-            "boolean[]" -> BooleanArray::class.java
-            "char[]" -> CharArray::class.java
             else -> {
-                val fixedName =
-                    if (className.endsWith("[]")) "[L${className.removeSuffix("[]")};"
-                    else className
-                Class.forName(fixedName, true, DynamicClassLoader)
+                //okay it is not a primitive class, maybe an array?
+                val arrayDims =
+                    className.filterIndexed { i, c -> c == '[' && i + 1 < className.length && className[i + 1] == ']' }.length
+                val fixedName: String =
+                    if (arrayDims > 0) {
+                        //It's an array, but is it primitive?
+                        val binName = when {
+                            className.startsWith("int") -> "I"
+                            className.startsWith("long") -> "J"
+                            className.startsWith("byte") -> "B"
+                            className.startsWith("short") -> "S"
+                            className.startsWith("float") -> "F"
+                            className.startsWith("double") -> "D"
+                            className.startsWith("boolean") -> "Z"
+                            className.startsWith("char") -> "C"
+                            //User is directly trying to craft a fully qualified name
+                            className.startsWith('[') -> className
+                            //not primitive, but a class
+                            else -> "L${className.substring(0, className.length - arrayDims * 2)};"
+                        }
+                        //Append the number of array dimensions back onto the binary name
+                        "${"[".repeat(arrayDims)}$binName"
+                    } else {
+                        //not array, nor primitive must be normal class
+                        className
+                    }
+                println("fixedName = ${fixedName}")
+                println("arrayDims = ${arrayDims}")
+                Class.forName(fixedName, true, DynamicClassLoader).also { println("it = ${it}") }
             }
         }.type()
-
     }
-
 }
