@@ -86,9 +86,15 @@ class BackgroundView : View("Handcrafted Objects Tool") {
 
                                 separator()
 
-                                button("Reset All Settings").action {
+                                button("Reset All Settings") {
                                     tooltip("A restart is required for the changes to take effect")
-                                    hotApplicationHome().deleteRecursively()
+                                    action {
+                                        val folderFile = Persistent.persistentFolderFile
+                                        if (!folderFile.deleteRecursively()) {
+                                            LoggerView.log { "Failed to delete ${folderFile.name}. Will try to delete it on exit." }
+                                            folderFile.deleteOnExit()
+                                        }
+                                    }
                                 }
                             }
                         }.openModal(block = true, owner = currentWindow)

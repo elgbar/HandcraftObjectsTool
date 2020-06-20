@@ -20,16 +20,14 @@ open class Persistent<T : Serializable>(val default: T? = null) {
 
     companion object {
         const val PERSISTENT_FOLDER = "persistent"
+        val persistentFolderFile get() = hotApplicationHome().child(PERSISTENT_FOLDER).ensureFolder()
     }
 
     private var cache: T? = null
     private var haveBeenRead = false
 
     private fun getFile(thisRef: Any, property: KProperty<*>): File {
-        return hotApplicationHome()
-            .child(PERSISTENT_FOLDER).ensureFolder()
-            .child("${thisRef.javaClass.name}-${property.name}.ser")
-
+        return persistentFolderFile.child("${thisRef.javaClass.name}-${property.name}.ser")
     }
 
     open operator fun getValue(thisRef: Any, property: KProperty<*>): T? {
