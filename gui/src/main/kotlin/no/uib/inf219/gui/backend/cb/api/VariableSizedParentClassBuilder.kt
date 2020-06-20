@@ -48,8 +48,8 @@ abstract class VariableSizedParentClassBuilder : ParentClassBuilder() {
      */
     private fun createNewChildAndExpand() {
         val created = createNewChild()
-        item.isExpanded = true
-        created?.item?.isExpanded = true
+        expand()
+        created?.expand()
     }
 
     override fun createEditView(

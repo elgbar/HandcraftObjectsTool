@@ -133,4 +133,12 @@ interface ClassBuilder {
      * @return if a separator should be added before the items added here
      */
     fun createContextMenu(menu: ContextMenu, controller: ObjectEditorController): Boolean = false
+
+
+    /**
+     * Expand the item of this class builder
+     */
+    fun expand() {
+        item.isExpanded = true
+    }
 }
