@@ -74,4 +74,10 @@ open class Persistent<T : Serializable>(val default: T? = null) {
             file.objectOutputStream().use { it.writeObject(value) }
         }
     }
+
+    fun resetValue(thisRef: Any, property: KProperty<*>) {
+        cache = null
+        haveBeenRead = false
+        getFile(thisRef, property).delete()
+    }
 }

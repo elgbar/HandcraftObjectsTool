@@ -16,6 +16,8 @@ import tornadofx.*
 import tornadofx.controlsfx.action
 import tornadofx.controlsfx.hyperlinklabel
 import tornadofx.controlsfx.propertysheet
+import kotlin.reflect.full.declaredMemberProperties
+import kotlin.reflect.jvm.isAccessible
 import kotlin.system.exitProcess
 
 /**
@@ -76,28 +78,48 @@ class BackgroundView : View("Handcrafted Objects Tool") {
                         }
                     }
                     separator()
-                    item("Settings", "Ctrl+Alt+S").action {
+                    item("Settings", "Ctrl+Alt+S") {
 
-                        object : View("Application Settings") {
-                            override val root = vbox {
-                                addClass(Styles.parent)
+                        fun openSettings() {
+                            object : View("Application Settings") {
+                                val view: View = this
 
-                                propertysheet(Settings, mode = PropertySheet.Mode.NAME)
+                                override val root = vbox {
+                                    addClass(Styles.parent)
 
-                                separator()
+                                    propertysheet(Settings, mode = PropertySheet.Mode.NAME)
 
-                                button("Reset All Settings") {
-                                    tooltip("A restart is required for the changes to take effect")
-                                    action {
-                                        val folderFile = Persistent.persistentFolderFile
-                                        if (!folderFile.deleteRecursively()) {
-                                            LoggerView.log { "Failed to delete ${folderFile.name}. Will try to delete it on exit." }
-                                            folderFile.deleteOnExit()
+                                    separator()
+
+                                    button("Reset All Settings") {
+                                        action {
+
+                                            Settings::class.declaredMemberProperties.map {
+                                                it.isAccessible = true
+                                                val delegate = it.getDelegate(Settings)
+                                                if (delegate is Persistent<*>) {
+                                                    delegate.resetValue(Settings, it)
+                                                }
+                                            }
+
+                                            val folderFile = Persistent.persistentFolderFile
+                                            if (!folderFile.deleteRecursively()) {
+                                                LoggerView.log { "Failed to delete ${folderFile.name}. Will try to delete it on exit." }
+                                                folderFile.deleteOnExit()
+                                            }
+                                            
+                                            //reopen this view to update settings values
+                                            view.close()
+                                            runLater {
+                                                openSettings()
+                                            }
                                         }
                                     }
                                 }
-                            }
-                        }.openModal(block = true, owner = currentWindow)
+                            }.openModal(block = true, owner = currentWindow)
+                        }
+
+                        action { openSettings() }
                     }
                     item("Clear logs").action { LoggerView.clear() }
                     item("Exit").action { exitProcess(0) }
