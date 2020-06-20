@@ -2,6 +2,7 @@ package no.uib.inf219.gui.loader
 
 import com.fasterxml.jackson.databind.JavaType
 import no.uib.inf219.extra.child
+import no.uib.inf219.extra.ensureFolder
 import no.uib.inf219.extra.hotApplicationHome
 import no.uib.inf219.extra.type
 import no.uib.inf219.gui.GuiMain.Companion.FILES_FOLDER
@@ -17,7 +18,7 @@ import java.net.URLClassLoader
 object DynamicClassLoader : URLClassLoader(emptyArray()) {
 
     init {
-        val filesFolder = hotApplicationHome().child("$FILES_FOLDER/").also { it.mkdirs() }
+        val filesFolder = hotApplicationHome().child(FILES_FOLDER).ensureFolder()
         val files = filesFolder.listFiles()
         if (files != null) {
             for (file in files) {

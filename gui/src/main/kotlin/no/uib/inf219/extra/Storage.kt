@@ -20,5 +20,5 @@ fun homeFolder(child: String = ""): File {
  * @throws NullPointerException If the primary stage does not have a title
  */
 fun hotApplicationHome(): File {
-    return homeFolder(".hot").apply { mkdirs() }
+    return homeFolder(".hot").ensureFolder()
 }
