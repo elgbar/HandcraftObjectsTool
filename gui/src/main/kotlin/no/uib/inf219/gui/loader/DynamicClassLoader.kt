@@ -90,9 +90,7 @@ object DynamicClassLoader : URLClassLoader(emptyArray()) {
                         //not array, nor primitive must be normal class
                         className
                     }
-                println("fixedName = ${fixedName}")
-                println("arrayDims = ${arrayDims}")
-                Class.forName(fixedName, true, DynamicClassLoader).also { println("it = ${it}") }
+                Class.forName(fixedName, true, DynamicClassLoader)
             }
         }.type()
     }

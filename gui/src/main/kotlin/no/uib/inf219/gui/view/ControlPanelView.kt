@@ -310,16 +310,11 @@ object ControlPanelView : View("Control Panel") {
                                     FileChooserMode.Single
                                 )
                                 if (files.isEmpty()) {
-                                    println("empty")
                                     return@ui
                                 }
                                 lastFolderLoaded = files[0].parentFile
 
-                                val obj = mapper.readValue<Any>(files[0], type)
-                                if (obj == null) {
-                                    println("nop")
-                                    return@ui
-                                }
+                                val obj = mapper.readValue<Any>(files[0], type) ?: return@ui
 
                                 runLater {
                                     createTab(type, obj)
