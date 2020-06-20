@@ -233,7 +233,33 @@ object ControlPanelView : View("Control Panel") {
             addClass(Styles.parent)
 
             fun loadType(): JavaType? {
-                val className = classNameProperty.value
+                val className: String = classNameProperty.value ?: ""
+
+                val firstChar = className.first()
+                val errMsg = when {
+                    className.contains(' ') ->
+                        "Class names cannot contain space"
+                    className.isBlank() ->
+                        "Given classname is blank"
+                    //Allow '[' to allow loading classes with their fully qualified names
+                    firstChar != '[' && !firstChar.isJavaIdentifierStart() ->
+                        "A class cannot start with the character $firstChar"
+                    else -> null
+                }
+
+                if (errMsg != null) {
+                    runLater {
+                        error(
+                            """
+                            Failed to find a class with the name '${className}'
+                            
+                            $errMsg
+                            """.trimIndent(), owner = FX.primaryStage
+                        )
+                    }
+                    return null
+                }
+
                 return try {
                     DynamicClassLoader.getType(className)
                 } catch (e: Throwable) {
@@ -245,8 +271,7 @@ object ControlPanelView : View("Control Panel") {
                             
                             Due to exception ${e.javaClass.name}: ${e.localizedMessage}
                             Have you remembered to load the expected jar(s)?
-                            """.trimIndent()
-                            , owner = FX.primaryStage
+                            """.trimIndent(), owner = FX.primaryStage
                         )
                     }
                     null
