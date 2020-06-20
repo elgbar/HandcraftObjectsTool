@@ -4,6 +4,7 @@ import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.StringProperty
 import javafx.geometry.Pos
 import javafx.scene.Node
+import javafx.scene.control.ListView
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
 import javafx.scene.layout.VBox
@@ -34,6 +35,7 @@ abstract class SelectorView<T>(title: String) : View(title) {
     protected val searchingProperty = SimpleBooleanProperty()
     protected var searching by searchingProperty
     protected val label: Node
+    protected lateinit var listview: ListView<T>
     protected lateinit var textLabelProperty: StringProperty
     protected val resultList: VBox
 
@@ -84,8 +86,7 @@ abstract class SelectorView<T>(title: String) : View(title) {
                                 )
                                     ?: return@onChange
 
-                            val map: Map<T, BoundExtractedResult<T>> =
-                                sorted.map { it.referent to it }.toMap()
+                            val map: Map<T, BoundExtractedResult<T>> = sorted.map { it.referent to it }.toMap()
 
                             runLater {
                                 filteredData.predicate = {
@@ -97,6 +98,9 @@ abstract class SelectorView<T>(title: String) : View(title) {
                                     val bScore = map[b]?.score ?: -1
                                     return@setComparator bScore - aScore
                                 }
+
+                                listview.scrollTo(0)
+
                             }
                         } else {
                             runLater {
@@ -106,10 +110,13 @@ abstract class SelectorView<T>(title: String) : View(title) {
                     }
                 }
 
-                listview(filteredData.sortedItems) {
 
-                    onUserSelect {
-                        result = it
+                listview = listview(filteredData.sortedItems)
+
+                with(listview) {
+
+                    setOnMouseClicked {
+                        result = listview.selectedItem
                     }
 
                     //close when pressing enter and something is selected or double clicking
@@ -118,16 +125,14 @@ abstract class SelectorView<T>(title: String) : View(title) {
                         confirmAndClose()
                     }
 
-                    cellFormat() {
+                    cellFormat {
                         runLater {
                             text = cellText(it)
                         }
                     }
 
                     addEventHandler(KeyEvent.ANY) { event ->
-                        if (event.code == KeyCode.ENTER && result != null) {
-                            confirmAndClose()
-                        } else if (event.code == KeyCode.ESCAPE) {
+                        if (event.code == KeyCode.ESCAPE) {
                             result = null
                             close()
                         }
