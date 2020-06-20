@@ -221,7 +221,22 @@ class ClassSelectorView : SelectorView<String>("Select implementation") {
                     }.names
 
                     runLater {
-                        searchResult.setAll(classes)
+                        if (classes.isEmpty()) {
+                            val stylized = superType.toStylizedClass()
+                            warning("No subclasses found for '${stylized.displayName}'",
+                                "Do you want to return the super class ${stylized.displayName}, if not nothing will be returned.",
+                                buttons = *arrayOf(YES, NO),
+                                actionFn = {
+                                    when (it) {
+                                        YES -> this@ClassSelectorView.result = stylized
+                                        NO -> this@ClassSelectorView.result = null
+                                    }
+                                    finishedSearching.set(true)
+                                    this@ClassSelectorView.close()
+                                })
+                        } else {
+                            searchResult.setAll(classes)
+                        }
                     }
                 }
             searching = false
