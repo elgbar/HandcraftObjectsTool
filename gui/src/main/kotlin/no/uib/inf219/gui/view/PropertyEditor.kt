@@ -26,8 +26,8 @@ class PropertyEditor : Fragment("Property Editor") {
 
                     addClass(Styles.parent)
                     label("Required? ${meta?.required}")
-                    label("Expected Type: ${meta?.type?.rawClass ?: "Unknown"}")
-                    label("Real Type: ${cbn.cb?.type?.rawClass ?: "null"}")
+                    label("Expected Type: ${meta?.type?.rawClass?.typeName ?: "Unknown"}")
+                    label("Real Type: ${cbn.cb?.type?.rawClass?.typeName ?: "null"}")
 
                     val desc = meta?.description
                     if (!desc.isNullOrBlank()) {
