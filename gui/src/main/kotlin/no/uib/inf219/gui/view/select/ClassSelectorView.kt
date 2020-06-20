@@ -2,10 +2,11 @@ package no.uib.inf219.gui.view.select
 
 import com.fasterxml.jackson.databind.JavaType
 import io.github.classgraph.ClassGraph
+import io.github.classgraph.ClassInfo
 import io.github.classgraph.ClassInfoList
+import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleStringProperty
-import javafx.scene.control.ButtonType
-import javafx.scene.control.ButtonType.OK
+import javafx.scene.control.ButtonType.*
 import no.uib.inf219.extra.ENABLE_MODULE
 import no.uib.inf219.extra.OK_DISABLE_WARNING
 import no.uib.inf219.extra.loadType
@@ -14,6 +15,7 @@ import no.uib.inf219.gui.Settings.showMrBeanWarning
 import no.uib.inf219.gui.ems
 import no.uib.inf219.gui.loader.DynamicClassLoader
 import no.uib.inf219.gui.view.ControlPanelView.mrBeanModule
+import no.uib.inf219.gui.view.select.ClassSelectorView.Companion.StylizedClass
 import tornadofx.*
 import java.lang.reflect.Modifier
 
@@ -31,25 +33,23 @@ import java.lang.reflect.Modifier
  *
  * @author Elg
  */
-class ClassSelectorView : SelectorView<String>("Select implementation") {
-
+class ClassSelectorView : SelectorView<StylizedClass>("Select implementation") {
 
     /**
      * If we the current [result] class the the class we want to return
      */
     private val finishedSearching = booleanProperty()
 
-
     private val superClassProperty = SimpleStringProperty()
     private var superClass by superClassProperty
 
-    override fun cellText(elem: String): String {
-        return elem
+    override fun cellText(elem: StylizedClass): String {
+        return elem.displayName
     }
 
     override val promptText = "Full class name"
 
-    private val resultType get() = DynamicClassLoader.loadType(result)
+    private val resultType get() = DynamicClassLoader.loadType(result?.className)
 
     init {
         with(root) {
@@ -66,14 +66,39 @@ class ClassSelectorView : SelectorView<String>("Select implementation") {
                 }
             })
         }
+
+
+        listview.contextmenu {
+
+            item("Choose class") {
+                disableWhen(listview.selectionModel.selectedItemProperty().isNull)
+                action {
+                    confirmAndClose()
+                }
+            }
+            item("Find subclass") {
+                val selProp = listview.selectionModel.selectedItemProperty()
+                disableWhen(selProp.isNull.or(SimpleBooleanProperty(false).apply {
+                    selProp.addListener { _, _, newValue ->
+                        this.set(newValue == null || Modifier.isFinal(newValue.modifiers))
+                    }
+                }))
+                action {
+                    findSubType()
+                }
+            }
+        }
+    }
+
+    private fun findSubType() {
+        require(!(resultType?.isFinal ?: true)) {
+            "Cannot find result type of null or a final class! Given : $resultType"
+        }
+        finishedSearching.set(false)
+        close()
     }
 
     override fun confirmAndClose() {
-
-        fun findSubType() {
-            finishedSearching.set(false)
-            close()
-        }
 
         fun returnSelectedType() {
             finishedSearching.set(true)
@@ -83,9 +108,6 @@ class ClassSelectorView : SelectorView<String>("Select implementation") {
         val realResult = resultType
         if (realResult != null) {
 
-            val resultType: String
-            val contentInfo: String
-
             when {
                 realResult.isAbstract -> {
                     if (!mrBeanModule.enabled) {
@@ -94,7 +116,7 @@ class ClassSelectorView : SelectorView<String>("Select implementation") {
                                 "Cannot select an abstract class when the Mr Bean module is not enabled.",
                                 "You will now be asked to select a subclass of ${realResult.rawClass}",
                                 owner = currentWindow,
-                                buttons = *arrayOf(OK, OK_DISABLE_WARNING, ENABLE_MODULE),
+                                buttons = *arrayOf(OK, CANCEL, OK_DISABLE_WARNING, ENABLE_MODULE),
                                 actionFn = {
                                     when (it) {
                                         OK_DISABLE_WARNING -> showMrBeanWarning = false
@@ -103,6 +125,7 @@ class ClassSelectorView : SelectorView<String>("Select implementation") {
                                             confirmAndClose()
                                             return
                                         }
+                                        else -> return
                                     }
                                 }
                             )
@@ -112,42 +135,34 @@ class ClassSelectorView : SelectorView<String>("Select implementation") {
                         findSubType()
                         return
                     }
-                    resultType = if (realResult.isInterface) "interface" else "abstract class"
-                    contentInfo =
+                    val resultType: String = if (realResult.isInterface) "interface" else "abstract class"
+                    val contentInfo: String =
                         "The class you have selected is either an interface or an abstract class.\n" +
                                 "You can select an abstract type as the Mr Bean module is enabled in the settings."
-                }
-                realResult.isFinal -> {
-                    //There can never be any subclasses of final classes
-                    returnSelectedType()
-                    return
-                }
-                else -> {
-                    resultType =
-                        if (realResult.isEnumType) "enum" else if (realResult.isArrayType) "array" else "class"
-                    contentInfo =
-                        "The selected class may have subclasses you want to choose rather than this one."
+
+                    confirmation(
+                        "Do you want to return the selected $resultType ${realResult.rawClass?.name}?",
+                        "$contentInfo\n" +
+                                "\n" +
+                                "If you choose YES you will select this class and the dialogue will close.\n" +
+                                "If you choose NO then you will be asked to select a subclass of this class.\n" +
+                                "If you select CANCEL no choice will be made can you are free to choose another class.",
+                        title = "Return the selected $resultType ${realResult.rawClass?.name}?",
+                        owner = currentWindow,
+                        buttons = *arrayOf(YES, NO, CANCEL),
+                        actionFn = {
+                            when (it) {
+                                YES -> returnSelectedType() // return the abstract class
+                                NO -> findSubType() // find an impl of the selected class
+                                CANCEL -> return //Return to search , do not select the class
+                            }
+                        }
+                    )
                 }
             }
 
-            confirmation(
-                "Do you want to return the selected $resultType ${realResult.rawClass?.name}?",
-                "$contentInfo\n" +
-                        "\n" +
-                        "If you choose YES you will select this class and the dialogue will close.\n" +
-                        "If you choose NO then you will be asked to select a subclass of this class.\n" +
-                        "If you select CANCEL no choice will be made can you are free to choose another class.",
-                title = "Return the selected $resultType ${realResult.rawClass?.name}?",
-                owner = currentWindow,
-                buttons = *arrayOf(ButtonType.YES, ButtonType.NO, ButtonType.CANCEL),
-                actionFn = {
-                    when (it) {
-                        ButtonType.YES -> returnSelectedType() // return the abstract class
-                        ButtonType.NO -> findSubType() // find an impl of the selected class
-                        ButtonType.CANCEL -> return //Return to search , do not select the class
-                    }
-                }
-            )
+            //default to returning selected class
+            returnSelectedType()
         }
     }
 
@@ -163,7 +178,7 @@ class ClassSelectorView : SelectorView<String>("Select implementation") {
      * @throws IllegalArgumentException if the given types does not have a java class associated with it
      */
     fun subtypeOf(superType: JavaType, showAbstract: Boolean = false): JavaType? {
-        result = superType.rawClass.typeName
+        result = superType.toStylizedClass()
         finishedSearching.value = false
         do {
             val rt = resultType
@@ -186,13 +201,10 @@ class ClassSelectorView : SelectorView<String>("Select implementation") {
      * @param showAbstract If abstract classes should be listed
      */
     private fun searchForSubtypes(superType: JavaType, showAbstract: Boolean) {
-
-
         require(superType.rawClass != null) { "Given java '$superType' types does not have a raw class" }
         require(superType.rawClass.canonicalName != null) { "Given super class '${superType.toCanonical()}' must have a canonical name" }
         require(!superType.isPrimitive) { "Given super class '${superType.toCanonical()}' cannot be primitive" }
         require(!superType.isFinal) { "Given super class '${superType.toCanonical()}' cannot be final" }
-
 
         synchronized(this) {
 
@@ -218,7 +230,9 @@ class ClassSelectorView : SelectorView<String>("Select implementation") {
                         //Only show abstract types when wanted
                         // and never show annotations
                         (showAbstract || !Modifier.isAbstract(it.modifiers)) && !it.isAnnotation
-                    }.names
+                    }.map {
+                        it.toStylizedClass()
+                    }
 
                     runLater {
                         if (classes.isEmpty()) {
@@ -243,9 +257,62 @@ class ClassSelectorView : SelectorView<String>("Select implementation") {
         }
     }
 
+
     companion object {
         const val SEARCHING = "Searching..."
         const val NO_SUBCLASSES_FOUND = "No subclasses found"
+
+        data class StylizedClass(val displayName: String, val className: String, val modifiers: Int)
+
+        fun JavaType.toStylizedClass() = this.rawClass.toStylizedClass()
+
+        fun Class<*>.toStylizedClass(): StylizedClass {
+            return stylizedClassBuilder(this, name, modifiers, isArray)
+        }
+
+        fun ClassInfo.toStylizedClass(): StylizedClass {
+            return stylizedClassBuilder(this, name, modifiers, isArrayClass)
+        }
+
+        private fun stylizedClassBuilder(
+            typeObj: Any,
+            className: String,
+            modifiers: Int,
+            isArray: Boolean
+        ): StylizedClass {
+            val typeName = when (typeObj) {
+                is Class<*> -> {
+                    when {
+                        typeObj.isEnum -> "enum "
+                        typeObj.isInterface -> "interface "
+                        typeObj.isAnnotation -> "annotation "
+                        else -> "class "
+                    }
+                }
+                is ClassInfo -> {
+                    when {
+                        typeObj.isEnum -> "enum "
+                        typeObj.isInterface -> "interface "
+                        typeObj.isStandardClass -> "class "
+                        typeObj.isAnnotation -> "annotation "
+                        typeObj.isAnonymousInnerClass -> "<anonymous inner class>"
+                        else -> "???"
+                    }
+
+                }
+                else -> {
+                    kotlin.error("aaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+                }
+            }
+
+            val array = if (isArray) "[]" else ""
+            val mods = Modifier.toString(modifiers)
+            return StylizedClass(
+                "$mods${if (mods.isEmpty()) "" else " $typeName$className$array"}",
+                className,
+                modifiers
+            )
+        }
     }
 }
 
