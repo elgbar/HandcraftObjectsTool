@@ -2,6 +2,7 @@ package no.uib.inf219.gui.backend.cb.parents
 
 
 import com.fasterxml.jackson.databind.JavaType
+import javafx.scene.control.ContextMenu
 import javafx.scene.control.TreeItem
 import no.uib.inf219.gui.backend.cb.api.ClassBuilder
 import no.uib.inf219.gui.backend.cb.api.ParentClassBuilder
@@ -10,9 +11,13 @@ import no.uib.inf219.gui.backend.cb.api.VariableSizedParentClassBuilder
 import no.uib.inf219.gui.backend.cb.createClassBuilder
 import no.uib.inf219.gui.backend.cb.simple.IntClassBuilder
 import no.uib.inf219.gui.backend.cb.toCb
+import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.controllers.cbn.ClassBuilderNode
+import no.uib.inf219.gui.controllers.cbn.EmptyClassBuilderNode
 import no.uib.inf219.gui.loader.ClassInformation
+import tornadofx.action
 import tornadofx.asObservable
+import tornadofx.item
 
 
 /**
@@ -32,7 +37,7 @@ class CollectionClassBuilder(
         require(type.isContainerType)
     }
 
-    override val serObject = ArrayList<ClassBuilder>()
+    override val serObject = ArrayList<ClassBuilder?>()
     override val serObjectObservable = serObject.asObservable()
 
     ////////////////////////////////////////
@@ -42,6 +47,12 @@ class CollectionClassBuilder(
     override fun createNewChild(): ClassBuilder? {
         //make sure the key is mutable to support deletion of elements
         return createChild(createChildKey(serObject.size), item = TreeItem())
+    }
+
+    fun createNullChild() {
+        val childKey = createChildKey(serObject.size)
+        serObject.add(null) //this call must be after creating the key
+        this.item.children.add(EmptyClassBuilderNode(childKey, this).item)
     }
 
     override fun clear() = serObject.clear()
@@ -64,13 +75,21 @@ class CollectionClassBuilder(
 
         checkChildValidity(key, elem)
         checkItemValidity(elem, item)
-
-        serObject.add(index, elem)
-        this.item.children.add(index, elem.item)
+        if (this.item.children.contains(item)) {
+            check(this.item.children[index] == item) {
+                """parent items contain the child item, but at the wrong index! 
+                   Expected index of child $index, it was found at ${this.item.children.indexOf(item)}
+                """.trimIndent()
+            }
+            serObject[index] = elem
+        } else {
+            serObject.add(index, elem)
+            this.item.children.add(index, item)
+        }
         return elem
     }
 
-    override fun get(key: ClassBuilder): ClassBuilder {
+    override fun get(key: ClassBuilder): ClassBuilder? {
         val index = cbToInt(key) ?: error("Given index cannot be null")
         try {
             return serObject[index]
@@ -113,14 +132,14 @@ class CollectionClassBuilder(
         require(element == null || child === element) { "Given element is not equal to stored element at index $index. given = $element, stored = $child" }
 
         serObject.remove(child)
-        item.children.remove(child.item)
+        item.children.remove(child?.item)
 
-        //decrease the index (key) of all element after the deleted element
-        for (builder in serObject.drop(index)) {
+        //make sure every index is correct
+        for ((i, builder) in item.children.withIndex()) {
             //sanity check, just in case and for a nicer error message
-            require(builder.key is IntClassBuilder) { "Key of collection element is not int! it is ${builder.key}" }
+            require(builder.value.key is IntClassBuilder) { "Key of collection element is not int! it is ${builder.value.key}" }
 
-            (builder.key as IntClassBuilder).serObject--
+            (builder.value.key as IntClassBuilder).serObject = i
         }
     }
 
@@ -132,10 +151,9 @@ class CollectionClassBuilder(
             "Given index is not within the range of the collection"
         }
         require(child == null || !child.key.isImmutable()) { "Keys in a collection class builder must be immutable" }
-
     }
 
-    override fun getChildren(): Map<ClassBuilder, ClassBuilder> {
+    override fun getChildren(): Map<ClassBuilder, ClassBuilder?> {
         return serObject.mapIndexed { i, cb -> i.toCb() to cb }.toMap()
     }
 
@@ -154,6 +172,17 @@ class CollectionClassBuilder(
 
     override fun toString(): String {
         return "Collection CB; containing=${type.contentType}, value=${serObject}"
+    }
+
+    override fun createContextMenu(menu: ContextMenu, controller: ObjectEditorController): Boolean {
+        super.createContextMenu(menu, controller)
+        with(menu) {
+            item("Add new null entry").action {
+                expand()
+                createNullChild()
+            }
+        }
+        return true
     }
 
     companion object {

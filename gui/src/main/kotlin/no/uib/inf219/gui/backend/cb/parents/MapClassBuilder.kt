@@ -90,7 +90,9 @@ class MapClassBuilder(
     //Variable sized parent class builder //
     ////////////////////////////////////////
 
-    override fun createNewChild() = create(TreeItem())
+
+    override fun createNewChild(): ComplexClassBuilder = create(TreeItem())
+
     override fun clear() = serObject.clear()
 
     //////////////////////////

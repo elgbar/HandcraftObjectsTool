@@ -87,13 +87,13 @@ abstract class VariableSizedParentClassBuilder : ParentClassBuilder() {
 
     override fun createContextMenu(menu: ContextMenu, controller: ObjectEditorController): Boolean {
         with(menu) {
-            item("Add new entry").action { createNewChildAndExpand() }
             item("Clear").action {
                 clear()
                 item.children.clear()
                 controller.tree.reload()
                 item.isExpanded = false
             }
+            item("Add new entry").action { createNewChildAndExpand() }
         }
         return true
     }
