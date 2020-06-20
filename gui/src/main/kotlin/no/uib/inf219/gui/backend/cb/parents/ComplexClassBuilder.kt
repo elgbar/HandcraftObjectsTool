@@ -139,7 +139,7 @@ class ComplexClassBuilder(
         val newProp = if (restoreDefault && meta.hasValidDefaultInstance()) {
             createChild0(key as StringClassBuilder, null, item)
         } else {
-            item.value = EmptyClassBuilderNode(key, this, item = item)
+            item.value = EmptyClassBuilderNode(key, this, item)
             null
         }
         serObject[propName] = newProp

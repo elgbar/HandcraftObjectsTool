@@ -174,8 +174,8 @@ abstract class SimpleClassBuilder<T : Any> constructor(
         ViewModel.register(stringProperty, property)
 
         @Suppress("UNCHECKED_CAST")
-        if (type.isTypeOrSuperTypeOf(String::class.java)) when {
-            else -> stringProperty.bindBidirectional(property as Property<String>)
+        if (type.isTypeOrSuperTypeOf(String::class.java)) {
+            stringProperty.bindBidirectional(property as Property<String>)
         } else {
             val effectiveConverter = converter ?: getDefaultConverter<T>()
             when {

@@ -31,6 +31,8 @@ class BackgroundView : View("Handcrafted Objects Tool") {
 
     companion object {
         const val CONTROL_PANEL_TAB_NAME = "Control Panel"
+        const val APACHE_2_0_LICENSE = "Apache License 2.0"
+        const val MIT_LICENSE = "MIT license"
     }
 
     init {
@@ -107,7 +109,7 @@ class BackgroundView : View("Handcrafted Objects Tool") {
                                                 LoggerView.log { "Failed to delete ${folderFile.name}. Will try to delete it on exit." }
                                                 folderFile.deleteOnExit()
                                             }
-                                            
+
                                             //reopen this view to update settings values
                                             view.close()
                                             runLater {
@@ -164,7 +166,7 @@ class BackgroundView : View("Handcrafted Objects Tool") {
                                         "Open source tool to create JVM objects",
                                         "",
                                         "Author: Karl Henrik Elg Barlinn",
-                                        "Licenced under Apache License 2.0",
+                                        "Licenced under $APACHE_2_0_LICENSE",
                                         textAlignment = TextAlignment.CENTER
                                     ) {
                                         addClass(Styles.parent)
@@ -189,28 +191,29 @@ class BackgroundView : View("Handcrafted Objects Tool") {
                                             }
                                         }
 
+
                                         hyperWeblinkLabel(
-                                            "[Jackson], licenced under [Apache License 2.0]",
+                                            "[Jackson], licenced under [$APACHE_2_0_LICENSE]",
                                             "Jackson" to "https://github.com/FasterXML/jackson",
-                                            "Apache License 2.0" to "http://www.apache.org/licenses/LICENSE-2.0"
+                                            APACHE_2_0_LICENSE to "http://www.apache.org/licenses/LICENSE-2.0"
                                         )
 
                                         hyperWeblinkLabel(
-                                            "[TornadoFx], licenced under [Apache License 2.0]",
+                                            "[TornadoFx], licenced under [$APACHE_2_0_LICENSE]",
                                             "TornadoFx" to "https://github.com/edvin/tornadofx",
-                                            "Apache License 2.0" to "https://github.com/edvin/tornadofx/blob/master/LICENSE"
+                                            APACHE_2_0_LICENSE to "https://github.com/edvin/tornadofx/blob/master/LICENSE"
                                         )
 
                                         hyperWeblinkLabel(
-                                            "[ClassGraph], licenced under the [MIT license]",
+                                            "[ClassGraph], licenced under the [$MIT_LICENSE]",
                                             "ClassGraph" to "https://github.com/classgraph/classgraph",
-                                            "MIT license" to "https://github.com/classgraph/classgraph/blob/master/LICENSE-ClassGraph.txt"
+                                            MIT_LICENSE to "https://github.com/classgraph/classgraph/blob/master/LICENSE-ClassGraph.txt"
                                         )
 
                                         hyperWeblinkLabel(
-                                            "[Apache Commons Text], licenced under [Apache License 2.0]",
+                                            "[Apache Commons Text], licenced under [$APACHE_2_0_LICENSE]",
                                             "Apache Commons Text" to "https://commons.apache.org/proper/commons-text/",
-                                            "Apache License 2.0" to "https://www.apache.org/licenses/LICENSE-2.0"
+                                            APACHE_2_0_LICENSE to "https://www.apache.org/licenses/LICENSE-2.0"
                                         )
 
                                         hyperWeblinkLabel(
@@ -232,9 +235,9 @@ class BackgroundView : View("Handcrafted Objects Tool") {
                                         )
 
                                         hyperWeblinkLabel(
-                                            "[TornadoFX-ControlsFX], licenced under [Apache License 2.0]",
+                                            "[TornadoFX-ControlsFX], licenced under [$APACHE_2_0_LICENSE]",
                                             "TornadoFX-ControlsFX" to "https://github.com/edvin/tornadofx-controlsfx",
-                                            "Apache License 2.0" to "https://github.com/edvin/tornadofx-controlsfx/blob/master/LICENSE"
+                                            APACHE_2_0_LICENSE to "https://github.com/edvin/tornadofx-controlsfx/blob/master/LICENSE"
                                         )
                                         hyperWeblinkLabel(
                                             "[JavaWuzzy], licenced under [GNU General Public License v2.0]",
@@ -242,9 +245,9 @@ class BackgroundView : View("Handcrafted Objects Tool") {
                                             "GNU General Public License v2.0" to "https://github.com/xdrop/fuzzywuzzy/blob/master/LICENSE"
                                         )
                                         hyperWeblinkLabel(
-                                            "[Kotlin events], licenced under the [MIT License]",
+                                            "[Kotlin events], licenced under the [$MIT_LICENSE]",
                                             "Kotlin events" to "https://github.com/stuhlmeier/kotlin-events",
-                                            "MIT License" to "https://github.com/stuhlmeier/kotlin-events/blob/master/LICENSE"
+                                            MIT_LICENSE to "https://github.com/stuhlmeier/kotlin-events/blob/master/LICENSE"
                                         )
                                     }
                                 }

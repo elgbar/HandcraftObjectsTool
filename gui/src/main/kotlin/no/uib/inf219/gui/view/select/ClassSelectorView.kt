@@ -257,7 +257,6 @@ class ClassSelectorView : SelectorView<StylizedClass>("Select implementation") {
         }
     }
 
-
     companion object {
         const val SEARCHING = "Searching..."
         const val NO_SUBCLASSES_FOUND = "No subclasses found"

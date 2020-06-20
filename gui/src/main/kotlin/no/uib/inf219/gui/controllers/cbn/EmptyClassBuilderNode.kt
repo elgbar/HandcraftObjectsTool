@@ -17,15 +17,14 @@ class EmptyClassBuilderNode(
     override val allowReference: Boolean = true
 ) : ClassBuilderNode {
 
-    override val cb: ClassBuilder?
+    override val cb: ClassBuilder? = null
 
     init {
-        this.cb = null
         item.value = this
     }
 
-
     override fun ensurePresentClassBuilder(tree: TreeView<ClassBuilderNode>): FilledClassBuilderNode? {
+
         val cb = parent.createChild(key, item = item)
         if (cb != null) {
             cb.item.value = cb.node

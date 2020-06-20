@@ -8,13 +8,6 @@ import javafx.util.StringConverter
  * @author Elg
  */
 object StringStringConverter : StringConverter<String>() {
-
-    override fun toString(o: String?): String? {
-        return o
-    }
-
-    override fun fromString(string: String?): String? {
-        return string
-    }
-
+    override fun toString(o: String?) = o
+    override fun fromString(string: String?) = string
 }

@@ -51,6 +51,7 @@ class ObjectEditorController(
         with(tree) {
             val item = selectedItem ?: return null
             if (item == root) return null
+
             val newCbn = item.value.ensurePresentClassBuilder(this) ?: return null
             item.value = newCbn
             item.isExpanded = true
