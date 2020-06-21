@@ -77,6 +77,7 @@ public class JavaClass{
     Error: Could not find or load main class no.uib.inf219.gui.GuiMain
     ```
 * A: You are running a jre without javafx. See [Installing a JRE with JavaFx 8 available](#installing-a-jre-with-javafx-8-available)
+---
 * Q: I cannot choose a class. The exception `java.lang.NoClassDefFoundError: com/sun/javafx/scene/control/skin/TableColumnHeader` is thrown!
 * A: You are probably using too new a JavaFx version. TornadoFx only supports javaFx for java 8. See [Installing a JRE with JavaFx 8 available](#installing-a-jre-with-javafx-8-available)
 
@@ -84,11 +85,18 @@ public class JavaClass{
 
 To run you need to have a JRE 8 that supports JavaFx.
 
-Here are two ways to get it:
+Here are several ways to get it:
 
 1. Use Oracle JDK 8, [found here](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) (you need to login to download)
 2. Use ZuluFx, [jdk found here](https://www.azul.com/downloads/zulu-community/?version=java-8-lts&architecture=x86-64-bit&package=jdk-fx), [and jre here](https://www.azul.com/downloads/zulu-community/?version=java-8-lts&architecture=x86-64-bit&package=jre-fx)
 3. Use a tool like [sdkman](https://sdkman.io/) that will manage all different jdks and jres for you.
+   * Look for a java version with `fx` suffix
+   * Example install commands:
+        ```bash
+        $ curl -s "https://get.sdkman.io" | bash #Install sdk man
+        $ sdk list java #List all available java versions 
+        $ sdk install java 8.0.252.fx-zulu #Install newest (at writing) jdk 8 with javaFx
+        ```
 
 In IntelliJ add the new JDK and use it as the project jdk
 
