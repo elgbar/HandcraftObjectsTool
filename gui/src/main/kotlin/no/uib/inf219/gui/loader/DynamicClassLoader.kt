@@ -84,8 +84,20 @@ object DynamicClassLoader : URLClassLoader(emptyArray()) {
             "char" -> Char::class.java
             else -> {
                 //okay it is not a primitive class, maybe an array?
+
+                val countOpen = className.count { it == '[' }
+                val countClosed = className.count { it == ']' }
+                if (countOpen != countClosed) {
+                    throw IllegalArgumentException("Uneven number of square parentheses, found $countOpen open and $countClosed closed square parentheses")
+                }
+
                 val arrayDims =
                     className.filterIndexed { i, c -> c == '[' && i + 1 < className.length && className[i + 1] == ']' }.length
+
+                if (arrayDims != countOpen) {
+                    throw IllegalArgumentException("Wrong order of parenthesis, expected the class to have $countOpen dimensions while only $arrayDims was found")
+                }
+
                 val fixedName: String =
                     if (arrayDims > 0) {
                         //It's an array, but is it primitive?
@@ -98,8 +110,6 @@ object DynamicClassLoader : URLClassLoader(emptyArray()) {
                             className.startsWith("double") -> "D"
                             className.startsWith("boolean") -> "Z"
                             className.startsWith("char") -> "C"
-                            //User is directly trying to craft a fully qualified name
-                            className.startsWith('[') -> className
                             //not primitive, but a class
                             else -> "L${className.substring(0, className.length - arrayDims * 2)};"
                         }
