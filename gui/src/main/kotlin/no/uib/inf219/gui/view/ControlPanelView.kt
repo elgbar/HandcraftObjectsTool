@@ -277,7 +277,7 @@ object ControlPanelView : View("Control Panel") {
                 }
 
                 return try {
-                    DynamicClassLoader.getType(className)
+                    DynamicClassLoader.parseClassName(className)
                 } catch (e: Throwable) {
                     LoggerView.log { "Failed to load class $className due to an error $e" }
                     runLater {

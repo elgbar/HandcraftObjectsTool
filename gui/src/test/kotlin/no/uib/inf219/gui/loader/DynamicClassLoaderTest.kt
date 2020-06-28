@@ -32,60 +32,60 @@ internal class DynamicClassLoaderTest {
 
     @Test
     internal fun `getType() returns primitive int class for "int"`() {
-        assertSame(Int::class.type(), DynamicClassLoader.getType("int"))
+        assertSame(Int::class.type(), DynamicClassLoader.parseClassName("int"))
     }
 
     @Test
     internal fun `getType() returns primitive long class for "long"`() {
-        assertSame(Long::class.type(), DynamicClassLoader.getType("long"))
+        assertSame(Long::class.type(), DynamicClassLoader.parseClassName("long"))
     }
 
     @Test
     internal fun `getType() returns primitive boolean class for "boolean"`() {
-        assertSame(Boolean::class.type(), DynamicClassLoader.getType("boolean"))
+        assertSame(Boolean::class.type(), DynamicClassLoader.parseClassName("boolean"))
     }
 
     @Test
     internal fun `getType() returns primitive short class for "short"`() {
-        assertSame(Short::class.type(), DynamicClassLoader.getType("short"))
+        assertSame(Short::class.type(), DynamicClassLoader.parseClassName("short"))
     }
 
     @Test
     internal fun `getType() returns primitive char class for "char"`() {
-        assertSame(Char::class.type(), DynamicClassLoader.getType("char"))
+        assertSame(Char::class.type(), DynamicClassLoader.parseClassName("char"))
     }
 
     @Test
     internal fun `getType() returns primitive float class for "float"`() {
-        assertSame(Float::class.type(), DynamicClassLoader.getType("float"))
+        assertSame(Float::class.type(), DynamicClassLoader.parseClassName("float"))
     }
 
     @Test
     internal fun `getType() returns primitive double class for "double"`() {
-        assertSame(Double::class.type(), DynamicClassLoader.getType("double"))
+        assertSame(Double::class.type(), DynamicClassLoader.parseClassName("double"))
     }
 
     @Test
     internal fun `getType() returns primitive byte class for "byte"`() {
-        assertSame(Byte::class.type(), DynamicClassLoader.getType("byte"))
+        assertSame(Byte::class.type(), DynamicClassLoader.parseClassName("byte"))
     }
 
     @Test
     internal fun `getType() returns primitive int array for "int-then-square-parentheses"`() {
-        assertEquals(emptyArray<Int>().javaClass.type(), DynamicClassLoader.getType("int[]"))
-        assertEquals(IntArray::class.type(), DynamicClassLoader.getType("int[]"))
+        assertEquals(emptyArray<Int>().javaClass.type(), DynamicClassLoader.parseClassName("int[]"))
+        assertEquals(IntArray::class.type(), DynamicClassLoader.parseClassName("int[]"))
     }
 
     @Test
     internal fun `getType() supports multi-dimensional primitive array`() {
-        assertEquals(emptyArray<Array<IntArray>>()::class.type(), DynamicClassLoader.getType("int[][][]"))
+        assertEquals(emptyArray<Array<IntArray>>()::class.type(), DynamicClassLoader.parseClassName("int[][][]"))
     }
 
     @Test
     internal fun `getType() supports multi-dimensional object array`() {
         assertEquals(
             emptyArray<Array<String>>()::class.type(),
-            DynamicClassLoader.getType("java.lang.String[][]")
+            DynamicClassLoader.parseClassName("java.lang.String[][]")
         )
     }
 
@@ -93,37 +93,37 @@ internal class DynamicClassLoaderTest {
     internal fun `getType() supports multi-dimensional integer object array`() {
         assertEquals(
             emptyArray<Array<Int>>()::class.type(),
-            DynamicClassLoader.getType("java.lang.Integer[][]")
+            DynamicClassLoader.parseClassName("java.lang.Integer[][]")
         )
     }
 
     @Test
     internal fun `getType() throws when missing square parentheses`() {
-        assertThrows<IllegalArgumentException> { DynamicClassLoader.getType("java.lang.Integer[][") }
+        assertThrows<IllegalArgumentException> { DynamicClassLoader.parseClassName("java.lang.Integer[][") }
     }
 
     @Test
     internal fun `getType() throws when wrong square parentheses order`() {
-        assertThrows<IllegalArgumentException> { DynamicClassLoader.getType("java.lang.Integer[[]]") }
+        assertThrows<IllegalArgumentException> { DynamicClassLoader.parseClassName("java.lang.Integer[[]]") }
     }
 
     @Test
     internal fun `getType() throws when given binary int array name`() {
-        assertThrows<IllegalArgumentException> { DynamicClassLoader.getType("[I") }
+        assertThrows<IllegalArgumentException> { DynamicClassLoader.parseClassName("[I") }
     }
 
     @Test
     internal fun `getType() throws when given binary int name`() {
-        assertThrows<ClassNotFoundException> { DynamicClassLoader.getType("I") }
+        assertThrows<ClassNotFoundException> { DynamicClassLoader.parseClassName("I") }
     }
 
     @Test
     internal fun `getType() throws when given binary object name`() {
-        assertThrows<ClassNotFoundException> { DynamicClassLoader.getType("Ljava.lang.String;") }
+        assertThrows<ClassNotFoundException> { DynamicClassLoader.parseClassName("Ljava.lang.String;") }
     }
 
     @Test
     internal fun `getType() throws when given binary object array name`() {
-        assertThrows<IllegalArgumentException> { DynamicClassLoader.getType("[Ljava.lang.String;") }
+        assertThrows<IllegalArgumentException> { DynamicClassLoader.parseClassName("[Ljava.lang.String;") }
     }
 }

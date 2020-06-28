@@ -66,13 +66,32 @@ object DynamicClassLoader : URLClassLoader(emptyArray()) {
      * @see ClassLoader.loadClass
      * @see ClassInformation.toJavaType
      */
-
     @Contract("null->null;!null->!null")
     fun loadType(name: String?): JavaType? {
         return loadClass(name ?: return null).type()
     }
 
-    fun getType(className: String): JavaType {
+    /**
+     * Parse a class name into a [JavaType].
+     *
+     * This method allows users to write class names in a more natural form. For example:
+     * * Write primitive classes using their keyword.
+     *    * For example `int` becomes [Int]
+     * * Write N-dimensional array using the normal `[]` suffix for the number of arrays.
+     *    * `int[]` becomes [IntArray]
+     *    * `int[][]` becomes `Array<IntArray>`
+     *    * `java.lang.String[]` becomes `Array<String>>`
+     *    * `java.lang.Integer[]` becomes `Array<Int>>`
+     *
+     * @throws IllegalArgumentException If the array suffix is malformed
+     * @throws ClassCastException If an illegal class name is used
+     *
+     * @see ClassLoader.loadClass
+     * @see ClassInformation.toJavaType
+     *
+     * @return A [JavaType] representation of the given class name
+     */
+    fun parseClassName(className: String): JavaType {
         return when (className) {
             "int" -> Int::class.java
             "long" -> Long::class.java
