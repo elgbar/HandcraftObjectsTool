@@ -69,7 +69,7 @@ object DynamicClassLoader : URLClassLoader(emptyArray()) {
 
     @Contract("null->null;!null->!null")
     fun loadType(name: String?): JavaType? {
-        return loadClass(name).type()
+        return loadClass(name ?: return null).type()
     }
 
     fun getType(className: String): JavaType {
