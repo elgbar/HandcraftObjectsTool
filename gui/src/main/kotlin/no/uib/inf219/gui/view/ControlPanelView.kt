@@ -251,15 +251,14 @@ object ControlPanelView : View("Control Panel") {
             fun loadType(): JavaType? {
                 val className: String = classNameProperty.value ?: ""
 
-                val firstChar = className.first()
                 val errMsg = when {
                     className.contains(' ') ->
                         "Class names cannot contain space"
                     className.isBlank() ->
-                        "Given classname is blank"
+                        "Given classname is empty or blank"
                     //Allow '[' to allow loading classes with their fully qualified names
-                    firstChar != '[' && !firstChar.isJavaIdentifierStart() ->
-                        "A class cannot start with the character $firstChar"
+                    !className.first().isJavaIdentifierStart() ->
+                        "A class cannot start with the character ${className.first()}"
                     else -> null
                 }
 
