@@ -181,6 +181,7 @@ class BackgroundView : View("Handcrafted Objects Tool") {
                                     centeredText(
                                         "Open source tool to create JVM objects",
                                         "",
+                                        "Version 1.1.0",
                                         "Author: Karl Henrik Elg Barlinn",
                                         "Licenced under $APACHE_2_0_LICENSE",
                                         textAlignment = TextAlignment.CENTER
