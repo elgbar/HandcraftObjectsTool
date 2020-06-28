@@ -32,7 +32,7 @@ import no.uib.inf219.gui.loader.DynamicClassLoader
 import no.uib.inf219.gui.view.ControlPanelView.mrBeanModule
 import no.uib.inf219.gui.view.select.ClassSelectorView.Companion.StylizedClass
 import tornadofx.*
-import java.lang.reflect.Modifier
+import java.lang.reflect.Modifier.*
 
 
 /**
@@ -95,7 +95,7 @@ class ClassSelectorView : SelectorView<StylizedClass>("Select implementation") {
                 val selProp = listview.selectionModel.selectedItemProperty()
                 disableWhen(selProp.isNull.or(SimpleBooleanProperty(false).apply {
                     selProp.addListener { _, _, newValue ->
-                        this.set(newValue == null || Modifier.isFinal(newValue.modifiers))
+                        this.set(newValue == null || isFinal(newValue.modifiers))
                     }
                 }))
                 action {
@@ -244,7 +244,7 @@ class ClassSelectorView : SelectorView<StylizedClass>("Select implementation") {
                     val classes = cil.filter {
                         //Only show abstract types when wanted
                         // and never show annotations
-                        (showAbstract || !Modifier.isAbstract(it.modifiers)) && !it.isAnnotation
+                        (showAbstract || !isAbstract(it.modifiers)) && !it.isAnnotation
                     }.map {
                         it.toStylizedClass()
                     }
@@ -275,30 +275,31 @@ class ClassSelectorView : SelectorView<StylizedClass>("Select implementation") {
     companion object {
         const val SEARCHING = "Searching..."
         const val NO_SUBCLASSES_FOUND = "No subclasses found"
+        private const val UNWANTED_MODIFIERS = (SYNCHRONIZED or STATIC).inv()
+        private const val ENUM_BIT = 0x00004000
 
         data class StylizedClass(val displayName: String, val className: String, val modifiers: Int)
 
         fun JavaType.toStylizedClass() = this.rawClass.toStylizedClass()
 
         fun Class<*>.toStylizedClass(): StylizedClass {
-            return stylizedClassBuilder(this, name, modifiers, isArray)
+            return stylizedClassBuilder(this, name, modifiers)
         }
 
         fun ClassInfo.toStylizedClass(): StylizedClass {
-            return stylizedClassBuilder(this, name, modifiers, isArrayClass)
+            return stylizedClassBuilder(this, name, modifiers)
         }
 
         private fun stylizedClassBuilder(
             typeObj: Any,
             className: String,
-            modifiers: Int,
-            isArray: Boolean
+            modifiers: Int
         ): StylizedClass {
             val typeName = when (typeObj) {
                 is Class<*> -> {
                     when {
                         typeObj.isEnum -> "enum "
-                        typeObj.isInterface -> "interface "
+                        typeObj.isInterface -> "" //handled by Modifier.toString
                         typeObj.isAnnotation -> "annotation "
                         else -> "class "
                     }
@@ -306,27 +307,34 @@ class ClassSelectorView : SelectorView<StylizedClass>("Select implementation") {
                 is ClassInfo -> {
                     when {
                         typeObj.isEnum -> "enum "
-                        typeObj.isInterface -> "interface "
+                        typeObj.isInterface -> "" //handled by Modifier.toString
                         typeObj.isStandardClass -> "class "
                         typeObj.isAnnotation -> "annotation "
-                        typeObj.isAnonymousInnerClass -> "<anonymous inner class>"
+                        typeObj.isAnonymousInnerClass -> "<anonymous inner class> "
                         else -> "???"
                     }
 
                 }
                 else -> {
-                    kotlin.error("aaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+                    kotlin.error("Unknown object to extract type from: ${typeObj::class}")
                 }
             }
 
-            val array = if (isArray) "[]" else ""
-            val mods = Modifier.toString(modifiers)
-            return StylizedClass(
-                "$mods${if (mods.isEmpty()) "" else " $typeName$className$array"}",
-                className,
-                modifiers
-            )
+            //Apply UNWANTED_MODIFIERS to never show the synchronized or static keyword on the modifier string
+            // as it is not very useful information
+            val cleanedModifiers = (modifiers and UNWANTED_MODIFIERS).let {
+                //remove some redundant information to reduce noise of modifiers
+                when {
+                    isInterface(it) -> it and ABSTRACT.inv()
+                    it and ENUM_BIT != 0 -> it and FINAL.inv()
+                    else -> it
+                }
+            }
+            val mods = toString(cleanedModifiers).let { it + if (it.isNotEmpty()) " " else "" }
+
+            return StylizedClass("$mods$typeName$className", className, modifiers)
         }
     }
+
 }
 
