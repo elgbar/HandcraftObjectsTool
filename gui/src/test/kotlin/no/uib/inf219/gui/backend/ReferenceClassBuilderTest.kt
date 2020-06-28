@@ -242,6 +242,7 @@ internal class ReferenceClassBuilderTest {
         val parent = controller.root as CollectionClassBuilder
 
         //What we will be referencing
+        @Suppress("UNCHECKED_CAST")
         val child0Cb = parent.createNewChild() as SimpleClassBuilder<String>
         child0Cb.serObject = "Hello!"
 

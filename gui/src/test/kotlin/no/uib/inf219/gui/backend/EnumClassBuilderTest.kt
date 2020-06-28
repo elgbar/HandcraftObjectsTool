@@ -41,11 +41,12 @@ class EnumClassBuilderTest {
 
     @BeforeEach
     internal fun setUp() {
+        @Suppress("UNCHECKED_CAST")
         cb = createClassBuilder(
             Weather::class.type(),
             key = "key".toCb(),
             parent = FAKE_ROOT
-        )!! as EnumClassBuilder<Weather>
+        ) as EnumClassBuilder<Weather>
     }
 
     @Test

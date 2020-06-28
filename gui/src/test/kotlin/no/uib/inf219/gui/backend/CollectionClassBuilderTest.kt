@@ -159,6 +159,7 @@ internal class CollectionClassBuilderTest {
         val parent = ObjectEditorController(IntArray::class.type(), real).root
         assertNotNull(parent)
         //we're always casting t
+        @Suppress("UNCHECKED_CAST")
         assertArrayEquals(real.toTypedArray(), parent.toObject() as Array<Int>)
     }
 

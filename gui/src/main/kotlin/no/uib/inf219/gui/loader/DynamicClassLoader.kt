@@ -23,6 +23,7 @@ import no.uib.inf219.extra.hotApplicationHome
 import no.uib.inf219.extra.type
 import no.uib.inf219.gui.GuiMain.Companion.FILES_FOLDER
 import no.uib.inf219.gui.view.LoggerView
+import org.jetbrains.annotations.Contract
 import java.io.File
 import java.net.URLClassLoader
 
@@ -65,7 +66,9 @@ object DynamicClassLoader : URLClassLoader(emptyArray()) {
      * @see ClassLoader.loadClass
      * @see ClassInformation.toJavaType
      */
-    fun loadType(name: String): JavaType {
+
+    @Contract("null->null;!null->!null")
+    fun loadType(name: String?): JavaType? {
         return loadClass(name).type()
     }
 

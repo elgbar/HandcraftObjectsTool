@@ -25,7 +25,6 @@ import javafx.beans.property.SimpleStringProperty
 import javafx.scene.control.ButtonType.*
 import no.uib.inf219.extra.ENABLE_MODULE
 import no.uib.inf219.extra.OK_DISABLE_WARNING
-import no.uib.inf219.extra.loadType
 import no.uib.inf219.extra.onChange
 import no.uib.inf219.gui.Settings.showMrBeanWarning
 import no.uib.inf219.gui.ems

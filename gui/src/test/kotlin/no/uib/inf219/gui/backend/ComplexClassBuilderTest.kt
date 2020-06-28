@@ -155,7 +155,7 @@ internal class ComplexClassBuilderTest {
         val orgProp = cb.serObject[propKey]
 
         assertNotNull(orgProp)
-        val item = cb.item.findChild(propKeyCb) ?: fail("failed to find child $propKey of $cb")
+        val item = cb.item.findChild(propKeyCb)
         cb.resetChild(propKeyCb, restoreDefault = true)
         val newProp = cb.serObject[propKey]
         assertNotNull(item.value)
