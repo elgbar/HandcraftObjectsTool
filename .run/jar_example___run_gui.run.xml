@@ -1,10 +1,10 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="jar example &amp; run gui" type="Application" factoryName="Application">
-    <option name="MAIN_CLASS_NAME" value="no.uib.inf219.gui.GuiMain" />
-    <module name="HandcraftObjectsTool.gui.main" />
-    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/gui/src/main/resources" />
-    <method v="2">
-      <option name="Make" enabled="true" />
-    </method>
-  </configuration>
+    <configuration default="false" name="jar example &amp; run gui" type="Application" factoryName="Application">
+        <option name="MAIN_CLASS_NAME" value="no.uib.inf219.gui.GuiMain"/>
+        <module name="HandcraftObjectsTool.gui.main"/>
+        <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/gui/src/main/resources"/>
+        <method v="2">
+            <option name="Make" enabled="true"/>
+        </method>
+    </configuration>
 </component>

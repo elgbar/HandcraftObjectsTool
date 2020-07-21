@@ -6,3 +6,5 @@ out
 .idea/jarRepositories.xml
 
 jars/
+
+.idea/
