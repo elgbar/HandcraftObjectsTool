@@ -22,6 +22,7 @@ import no.uib.inf219.extra.ensureFolder
 import no.uib.inf219.extra.hotApplicationHome
 import no.uib.inf219.extra.type
 import no.uib.inf219.gui.GuiMain.Companion.FILES_FOLDER
+import no.uib.inf219.gui.view.ControlPanelView
 import no.uib.inf219.gui.view.LoggerView
 import org.jetbrains.annotations.Contract
 import java.io.File
@@ -39,7 +40,7 @@ object DynamicClassLoader : URLClassLoader(emptyArray()) {
         val files = filesFolder.listFiles()
         if (files != null) {
             for (file in files) {
-                loadFile(file)
+                ControlPanelView.loadFileSafely(file)
             }
         }
     }

@@ -483,11 +483,12 @@ object ControlPanelView : View("Control Panel") {
         }
     }
 
-    private fun loadFileSafely(file: File) {
+    fun loadFileSafely(file: File) {
+        if (file.isFile) {
+            DynamicClassLoader.loadFile(file)
 
-        DynamicClassLoader.loadFile(file)
-
-        val mapper = ObjectMapperLoader.findObjectMapper(file) ?: return
-        knownObjectMappers.add(file.nameWithoutExtension to mapper)
+            val mapper = ObjectMapperLoader.findObjectMapper(file) ?: return
+            knownObjectMappers.add(file.nameWithoutExtension to mapper)
+        }
     }
 }
