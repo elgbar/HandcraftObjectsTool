@@ -22,8 +22,12 @@ import javafx.scene.layout.BorderPane
 import javafx.scene.paint.Color
 import javafx.scene.text.TextAlignment
 import javafx.stage.StageStyle
-import no.uib.inf219.extra.*
+import no.uib.inf219.extra.Persistent
+import no.uib.inf219.extra.centeredText
 import no.uib.inf219.extra.close
+import no.uib.inf219.extra.closeAll
+import no.uib.inf219.extra.internetHyperlink
+import no.uib.inf219.extra.openWebPage
 import no.uib.inf219.gui.Settings
 import no.uib.inf219.gui.Styles
 import no.uib.inf219.gui.ems
@@ -65,7 +69,7 @@ class BackgroundView : View("Handcrafted Objects Tool") {
                 menu("File") {
                     item("Close Tab", "Ctrl+W") {
                         enableWhen {
-                            tabPane.selectionModel.selectedItemProperty().booleanBinding() { it?.isClosable ?: true }
+                            tabPane.selectionModel.selectedItemProperty().booleanBinding { it?.isClosable ?: true }
                         }
                         action {
                             val tab = tabPane.selectionModel.selectedItem
@@ -76,7 +80,7 @@ class BackgroundView : View("Handcrafted Objects Tool") {
                     }
                     item("Close All Tab", "Ctrl+Shift+W") {
                         enableWhen {
-                            tabPane.tabs.sizeProperty.booleanBinding() { (it as Int) > 1 }
+                            tabPane.tabs.sizeProperty.booleanBinding { (it as Int) > 1 }
                         }
                         action { tabPane.closeAll() }
                     }
@@ -85,11 +89,11 @@ class BackgroundView : View("Handcrafted Objects Tool") {
 
                     item("Save", "Ctrl+S") {
                         enableWhen {
-                            tabPane.selectionModel.selectedItemProperty().booleanBinding() { it?.isClosable ?: true }
+                            tabPane.selectionModel.selectedItemProperty().booleanBinding { it?.isClosable ?: true }
                         }
                         action {
                             val tab = tabPane.selectionModel.selectedItem
-                            if (tab.text == CONTROL_PANEL_TAB_NAME) return@action //cannot save control panel
+                            if (tab.text == CONTROL_PANEL_TAB_NAME) return@action // cannot save control panel
                             val oebv = ControlPanelView.tabMap[tab] ?: return@action
 
                             oebv.save()
@@ -126,7 +130,7 @@ class BackgroundView : View("Handcrafted Objects Tool") {
                                                 folderFile.deleteOnExit()
                                             }
 
-                                            //reopen this view to update settings values
+                                            // reopen this view to update settings values
                                             view.close()
                                             runLater {
                                                 openSettings()
@@ -145,14 +149,14 @@ class BackgroundView : View("Handcrafted Objects Tool") {
 
                 menu("Build") {
 
-                    //use Ctrl+D as Ctrl+V is used for pasting when in an editor
+                    // use Ctrl+D as Ctrl+V is used for pasting when in an editor
                     item("Validate", "Ctrl+D") {
                         enableWhen {
-                            tabPane.selectionModel.selectedItemProperty().booleanBinding() { it?.isClosable ?: true }
+                            tabPane.selectionModel.selectedItemProperty().booleanBinding { it?.isClosable ?: true }
                         }
                         action {
                             val tab = tabPane.selectionModel.selectedItem
-                            if (tab.text == CONTROL_PANEL_TAB_NAME) return@action //cannot save control panel
+                            if (tab.text == CONTROL_PANEL_TAB_NAME) return@action // cannot save control panel
                             val oebv = ControlPanelView.tabMap[tab] ?: return@action
 
                             oebv.validate()
@@ -192,7 +196,6 @@ class BackgroundView : View("Handcrafted Objects Tool") {
                                             "https://github.com/kh498/HandcraftObjectsTool"
                                         )
 
-
                                         label("Open Source Resources used\n") {
                                             style {
                                                 fontSize = 1.5.ems
@@ -207,7 +210,6 @@ class BackgroundView : View("Handcrafted Objects Tool") {
                                                 openWebPage(url)
                                             }
                                         }
-
 
                                         hyperWeblinkLabel(
                                             "[Jackson], licenced under [$APACHE_2_0_LICENSE]",

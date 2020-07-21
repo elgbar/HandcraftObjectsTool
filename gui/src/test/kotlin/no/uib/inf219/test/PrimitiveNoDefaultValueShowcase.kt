@@ -34,4 +34,4 @@ data class PrimitiveNoDefaultValueShowcase @JsonCreator constructor(
     @JsonProperty("byte") val byte: Byte,
     @JsonProperty("char") val char: Char,
     @JsonProperty("string") val string: String
-) {}
+)

@@ -19,7 +19,7 @@ package no.uib.inf219.gui.converter
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
-import java.util.*
+import java.util.UUID
 
 /**
  * @author Elg

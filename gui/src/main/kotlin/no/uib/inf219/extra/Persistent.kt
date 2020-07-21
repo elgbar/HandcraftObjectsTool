@@ -59,7 +59,7 @@ open class Persistent<T : Serializable>(val default: T? = null) {
                 @Suppress("UNCHECKED_CAST")
                 file.objectInputStream().use { it.readObject() as T? }
             } catch (e: Throwable) {
-                //well that didn't work lets burn everything
+                // well that didn't work lets burn everything
                 file.deleteRecursively()
                 null
             }

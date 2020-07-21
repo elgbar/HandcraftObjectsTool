@@ -33,7 +33,14 @@ import no.uib.inf219.gui.controllers.cbn.FilledClassBuilderNode
 import no.uib.inf219.gui.view.ControlPanelView
 import no.uib.inf219.test.conv.Conversation
 import no.uib.inf219.test.conv.Response
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertDoesNotThrow
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertSame
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Assertions.fail
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -66,7 +73,7 @@ internal class ReferenceClassBuilderTest {
         )
         cb.serObject[no.uib.inf219.test.conv.Conversation::responses.name] = responses
 
-        //create two responses
+        // create two responses
         val resp1 = ComplexClassBuilder(
             Response::class.type(),
             "#1".toCb(),
@@ -85,10 +92,9 @@ internal class ReferenceClassBuilderTest {
         resp2.serObject[Response::name.name] = "resp 2 name".toCb(Response::name.name.toCb(), resp2)
         resp2.serObject[Response::response.name] = "resp 2 response".toCb(Response::response.name.toCb(), resp2)
 
-        //add the created responses to the list of responses
+        // add the created responses to the list of responses
         responses.serObject.add(resp1)
         responses.serObject.add(resp2)
-
 
         val resp1CB =
             ComplexClassBuilder(
@@ -102,8 +108,8 @@ internal class ReferenceClassBuilderTest {
         resp1CB.serObject[Conversation::text.name] =
             "response conv response".toCb(Conversation::text.name.toCb(), resp1CB)
 
-        //here the trouble begins
-        //both responses will bring up the same conversation
+        // here the trouble begins
+        // both responses will bring up the same conversation
         resp1.serObject[Response::conv.name] = resp1CB
         resp2.serObject[Response::conv.name] =
             ReferenceClassBuilder(
@@ -113,7 +119,7 @@ internal class ReferenceClassBuilderTest {
                 parent = responses, item = TreeItem()
             )
 
-        //Each response lead to a common conversation, now lets try convert this to a real conversation
+        // Each response lead to a common conversation, now lets try convert this to a real conversation
         var converted: Conversation? = null
         assertDoesNotThrow {
             println(ControlPanelView.mapper.writeValueAsString(cb.serObject))
@@ -131,7 +137,7 @@ internal class ReferenceClassBuilderTest {
     internal fun refIsReset_toDefault() {
         val cb = ObjectEditorController(Conversation::class.type()).root as ComplexClassBuilder
 
-        //name have default value
+        // name have default value
         val orgKey = Conversation::name.name
         val org = cb.serObject[orgKey]
         assertNotNull(org)
@@ -140,7 +146,7 @@ internal class ReferenceClassBuilderTest {
         assertTrue(cb === org.parent)
         assertTrue(orgKeyCb === org.key)
 
-        //text property is a reference to the name property in this example
+        // text property is a reference to the name property in this example
         val refKey = Conversation::text.name
 
         val ref = ReferenceClassBuilder(
@@ -154,13 +160,13 @@ internal class ReferenceClassBuilderTest {
 
         cb.serObject[refKey] = ref
 
-        //then we remove the original
-        cb.resetChild(orgKey.toCb(), restoreDefault = true) //<-- we create a new default
+        // then we remove the original
+        cb.resetChild(orgKey.toCb(), restoreDefault = true) // <-- we create a new default
         val newOrg = cb.serObject[orgKey]
         assertNotNull(newOrg)
         assertFalse(newOrg === org)
 
-        //so the reference should also be null by now
+        // so the reference should also be null by now
         assertTrue(newOrg === ref.serObject) { "Reference object has not been updated" }
     }
 
@@ -168,7 +174,7 @@ internal class ReferenceClassBuilderTest {
     internal fun refIsReset_toNull() {
         val cb = ObjectEditorController(Conversation::class.type()).root as ComplexClassBuilder
 
-        //name have default value
+        // name have default value
         val orgKey = Conversation::name.name
         val org = cb.serObject[orgKey]
         assertNotNull(org)
@@ -177,7 +183,7 @@ internal class ReferenceClassBuilderTest {
         assertTrue(cb === org.parent)
         assertTrue(orgKeyCb === org.key)
 
-        //text property is a reference to the name property in this example
+        // text property is a reference to the name property in this example
         val refKey = Conversation::text.name
 
         val ref = ReferenceClassBuilder(
@@ -191,13 +197,13 @@ internal class ReferenceClassBuilderTest {
 
         cb.serObject[refKey] = ref
 
-        //then we remove the original
+        // then we remove the original
 
         resetEvent(ClassBuilderResetEvent(org.item.value, false))
-        cb.resetChild(orgKey.toCb(), restoreDefault = false) //<-- we remove the original
+        cb.resetChild(orgKey.toCb(), restoreDefault = false) // <-- we remove the original
         assertNull(cb.serObject[orgKey])
 
-        //so the reference should also be null by now
+        // so the reference should also be null by now
         assertNull(cb.serObject[refKey]) { "Reference has not removed itself" }
     }
 
@@ -207,23 +213,23 @@ internal class ReferenceClassBuilderTest {
         val controller = ObjectEditorController(Array<String>::class.type())
         val parent = controller.root as CollectionClassBuilder
 
-        //What we will be referencing
+        // What we will be referencing
         val child0Cb = parent.createNewChild() as SimpleClassBuilder<String>
         child0Cb.serObject = "Hello!"
 
-        //Create a second element that is a ref to the first
+        // Create a second element that is a ref to the first
         val c1 = parent.createNewChild()!! // create this first to not get any IndexOutOfBoundsException
         val child1Cb = ReferenceClassBuilder(child0Cb.key, parent, c1.key, parent, c1.item)
         child1Cb.item.value = FilledClassBuilderNode(child1Cb.key, child1Cb, child1Cb.parent)
         parent[child1Cb.key] = child1Cb
 
-        //Create a third element that is a ref to the second
+        // Create a third element that is a ref to the second
         val c2 = parent.createNewChild()!! // create this first to not get any IndexOutOfBoundsException
         val child2Cb = ReferenceClassBuilder(child1Cb.key, parent, c2.key, parent, c2.item)
         child2Cb.item.value = FilledClassBuilderNode(child2Cb.key, child2Cb, child2Cb.parent)
         parent[child2Cb.key] = child2Cb
 
-        //they are now in a chain of references
+        // they are now in a chain of references
         assertSame(child0Cb, child1Cb.serObject)
         assertSame(child1Cb, child2Cb.serObject)
 
@@ -235,30 +241,29 @@ internal class ReferenceClassBuilderTest {
         assertTrue(parent.serObject.isEmpty()) { "Parent should have no children, but it has ${parent.serObject}" }
     }
 
-
     @Test
     internal fun twoRefsToSame_Removal() {
         val controller = ObjectEditorController(Array<String>::class.type())
         val parent = controller.root as CollectionClassBuilder
 
-        //What we will be referencing
+        // What we will be referencing
         @Suppress("UNCHECKED_CAST")
         val child0Cb = parent.createNewChild() as SimpleClassBuilder<String>
         child0Cb.serObject = "Hello!"
 
-        //Create a second element that is a ref to the first
+        // Create a second element that is a ref to the first
         val c1 = parent.createNewChild()!! // create this first to not get any IndexOutOfBoundsException
         val child1Cb = ReferenceClassBuilder(child0Cb.key, parent, c1.key, parent, c1.item)
         child1Cb.item.value = FilledClassBuilderNode(child1Cb.key, child1Cb, child1Cb.parent)
         parent[child1Cb.key] = child1Cb
 
-        //Create a third element that is a ref to the second
+        // Create a third element that is a ref to the second
         val c2 = parent.createNewChild()!! // create this first to not get any IndexOutOfBoundsException
         val child2Cb = ReferenceClassBuilder(child0Cb.key, parent, c2.key, parent, c2.item)
         child2Cb.item.value = FilledClassBuilderNode(child2Cb.key, child2Cb, child2Cb.parent)
         parent[child2Cb.key] = child2Cb
 
-        //they are now in a chain of references
+        // they are now in a chain of references
         assertSame(child0Cb, child1Cb.serObject)
         assertSame(child0Cb, child2Cb.serObject)
 

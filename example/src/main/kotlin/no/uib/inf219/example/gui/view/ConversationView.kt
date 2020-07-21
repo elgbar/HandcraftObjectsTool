@@ -25,7 +25,15 @@ import no.uib.inf219.example.gui.Main
 import no.uib.inf219.example.gui.Styles
 import no.uib.inf219.example.gui.Styles.Companion.conversationBorderPane
 import no.uib.inf219.example.gui.Styles.Companion.responseHBox
-import tornadofx.*
+import tornadofx.View
+import tornadofx.addClass
+import tornadofx.borderpane
+import tornadofx.bottom
+import tornadofx.button
+import tornadofx.clear
+import tornadofx.close
+import tornadofx.hbox
+import tornadofx.label
 
 /**
  * @author Elg

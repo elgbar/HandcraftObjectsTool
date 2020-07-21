@@ -28,9 +28,14 @@ import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.controllers.cbn.ClassBuilderNode
 import no.uib.inf219.gui.loader.ClassInformation
 import no.uib.inf219.gui.view.LoggerView
-import tornadofx.*
+import tornadofx.addClass
+import tornadofx.button
+import tornadofx.fitToParentHeight
+import tornadofx.hbox
+import tornadofx.style
+import tornadofx.textfield
+import tornadofx.vbox
 import kotlin.reflect.KClass
-
 
 /**
  * A simple class builder that handles all primitives that can be seen as a [Number] (except [Char])
@@ -47,7 +52,6 @@ abstract class SimpleNumberClassBuilder<T : Number>(
     converter: StringConverter<T>,
     item: TreeItem<ClassBuilderNode>
 ) : SimpleClassBuilder<T>(primClass, initialValue, key, parent, property, immutable, converter, item) {
-
 
     override fun createEditView(
         parent: EventTarget,
@@ -108,7 +112,7 @@ abstract class SimpleNumberClassBuilder<T : Number>(
                 }
             }
             textfield {
-                textFormatter = TextFormatter<Short>() {
+                textFormatter = TextFormatter<Short> {
 
                     val text = it.controlNewText.removeNl().trim()
                     if (it.isContentChange && text.isNotEmpty() && !validate(text)) {

@@ -32,7 +32,9 @@ import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.controllers.cbn.FilledClassBuilderNode
 import no.uib.inf219.gui.view.ControlPanelView.mapper
 import no.uib.inf219.test.UselessRecursiveObject
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.extension.ExtendWith
@@ -76,7 +78,6 @@ internal class MapClassBuilderTest {
 
         assertEquals(keyVal, key.toObject())
         assertEquals(valueVal, value.toObject())
-
 
         var map: Any? = null
         assertDoesNotThrow {
@@ -155,9 +156,9 @@ internal class MapClassBuilderTest {
         value0.item.value = FilledClassBuilderNode(valueCb, value0, entry0)
         entry0[valueCb] = value0
 
-        //////////////////
+        // ////////////////
         // second entry //
-        //////////////////
+        // ////////////////
 
         val entry1 =
             parent.createChild("1".toCb(), item = TreeItem()) as ComplexClassBuilder
@@ -184,10 +185,9 @@ internal class MapClassBuilderTest {
         }
         assertTrue(map!!["0"] === map!!["1"]) {
             "map 0: ${map!!["0"]}\n" +
-                    "map 1: ${map!!["1"]}"
+                "map 1: ${map!!["1"]}"
         }
     }
-
 
     @Test
     internal fun canLoadSerializedMapOfSizeZero() {

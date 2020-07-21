@@ -68,4 +68,3 @@ object LoggerView : View() {
         log(msg())
     }
 }
-

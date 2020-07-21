@@ -67,7 +67,6 @@ fun JavaType.isTypeOrSuperTypeOfPrimAsObj(clazz: KClass<*>): Boolean {
     return thisObjType == thatObjType || thisObjType.isAssignableFrom(thatObjType)
 }
 
-
 operator fun JsonNode.get(key: ClassBuilder): JsonNode? = when (key.serObject) {
     is String -> this[key.serObject as String]
     is Int -> this[key.serObject as Int]

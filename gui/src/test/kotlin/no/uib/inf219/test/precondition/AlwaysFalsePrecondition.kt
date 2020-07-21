@@ -34,6 +34,4 @@ class AlwaysFalsePrecondition : Precondition {
     override fun hashCode(): Int {
         return javaClass.hashCode()
     }
-
-
 }

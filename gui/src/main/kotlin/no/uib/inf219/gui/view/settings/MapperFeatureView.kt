@@ -16,7 +16,11 @@
 
 package no.uib.inf219.gui.view.settings
 
-import com.fasterxml.jackson.core.*
+import com.fasterxml.jackson.core.JsonFactory
+import com.fasterxml.jackson.core.JsonGenerator
+import com.fasterxml.jackson.core.JsonParser
+import com.fasterxml.jackson.core.StreamReadFeature
+import com.fasterxml.jackson.core.StreamWriteFeature
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.MapperFeature
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -32,11 +36,9 @@ import org.controlsfx.property.editor.PropertyEditor
 import tornadofx.View
 import tornadofx.asObservable
 import tornadofx.controlsfx.propertysheet
-import java.util.*
-import kotlin.collections.HashSet
+import java.util.Optional
 
 class MapperFeatureView : View("My View") {
-
 
     fun ObjectMapper.enable2(enum: Enum<*>): ObjectMapper {
         return when (enum) {
@@ -47,7 +49,7 @@ class MapperFeatureView : View("My View") {
             is DeserializationFeature -> enable(enum)
 
             is JsonFactory.Feature -> {
-                factory.enable(enum);this
+                factory.enable(enum); this
             }
             is StreamReadFeature -> enable(enum.mappedFeature())
             is StreamWriteFeature -> enable(enum.mappedFeature())
@@ -103,7 +105,6 @@ class MapperFeatureView : View("My View") {
             Optional.of(BooleanCheckBox::class.java)
     }
 
-
     private val featureEnums = HashSet<Enum<*>>()
 
     init {
@@ -120,8 +121,5 @@ class MapperFeatureView : View("My View") {
 
     private val fes: ObservableList<PropertySheet.Item> = featureEnums.map { FeatureItem(it) }.asObservable()
 
-
     override val root = propertysheet(mode = PropertySheet.Mode.CATEGORY, items = fes)
 }
-
-

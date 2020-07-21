@@ -27,10 +27,10 @@ class PersistentFolder : Persistent<File>() {
     override operator fun getValue(thisRef: Any, property: KProperty<*>): File? {
         val file = super.getValue(thisRef, property)
         if (file != null && !file.isDirectory) {
-            //make sure we cannot return a file that is not a folder
+            // make sure we cannot return a file that is not a folder
             super.setValue(thisRef, property, null)
             return null
         }
-        return file;
+        return file
     }
 }

@@ -24,7 +24,10 @@ import no.uib.inf219.gui.backend.cb.simple.EnumClassBuilder
 import no.uib.inf219.gui.backend.cb.toCb
 import no.uib.inf219.gui.backend.cb.toObject
 import no.uib.inf219.test.Weather
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertDoesNotThrow
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -35,7 +38,6 @@ import org.testfx.framework.junit5.ApplicationExtension
  */
 @ExtendWith(ApplicationExtension::class)
 class EnumClassBuilderTest {
-
 
     lateinit var cb: EnumClassBuilder<Weather>
 

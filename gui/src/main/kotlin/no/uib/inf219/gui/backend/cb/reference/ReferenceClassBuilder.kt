@@ -81,10 +81,10 @@ class ReferenceClassBuilder(
         event = { (cbn, _) ->
             if (cbn.parent === refParent && cbn.key.serObject == refKey.serObject || refParent.isDescendantOf(cbn)) {
                 removeResetEvent()
-                //make sure the removal always takes place on the same thread
+                // make sure the removal always takes place on the same thread
                 this.node.resetClassBuilder(null, true)
             } else if (cbn === node) {
-                //the reference it self is being removed,
+                // the reference it self is being removed,
                 // just remove the event without calling reset node (as that's whats happening now anyway)
                 removeResetEvent()
             }
@@ -110,7 +110,7 @@ class ReferenceClassBuilder(
                     Double click to edit the referenced class builder.
                     
                     Preview: ${this.getPreviewValue()}
-                    """.trimIndent()
+                """.trimIndent()
             }
         }
     }
@@ -125,7 +125,7 @@ class ReferenceClassBuilder(
         if (this === other) return true
         if (other !is ReferenceClassBuilder) return false
 
-        //ser objects must be same object
+        // ser objects must be same object
         if (parent !== other.parent) return false
         if (key != other.key) return false
         if (refParent !== other.refParent) return false

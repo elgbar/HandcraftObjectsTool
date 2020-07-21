@@ -122,10 +122,9 @@ interface ClassBuilder {
     @JsonIgnore
     fun isImmutable(): Boolean
 
-
-    ///////////////////////
+    // /////////////////////
     // Visual components //
-    ///////////////////////
+    // /////////////////////
 
     /**
      * Visual representation (and possibly modification) of this class builder
@@ -149,7 +148,6 @@ interface ClassBuilder {
      * @return if a separator should be added before the items added here
      */
     fun createContextMenu(menu: ContextMenu, controller: ObjectEditorController): Boolean = false
-
 
     /**
      * Expand the item of this class builder

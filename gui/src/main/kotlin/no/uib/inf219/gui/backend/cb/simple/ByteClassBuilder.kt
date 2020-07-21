@@ -40,4 +40,4 @@ class ByteClassBuilder(
     immutable,
     ByteStringConverter(),
     item
-) {}
+)

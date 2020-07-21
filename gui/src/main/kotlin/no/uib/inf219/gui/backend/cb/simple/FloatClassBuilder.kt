@@ -40,4 +40,4 @@ class FloatClassBuilder(
     immutable,
     FloatStringConverter(),
     item
-) {}
+)

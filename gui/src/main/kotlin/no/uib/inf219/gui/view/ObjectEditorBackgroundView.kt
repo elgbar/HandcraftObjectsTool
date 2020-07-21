@@ -27,8 +27,17 @@ import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.view.ControlPanelView.mapper
 import no.uib.inf219.gui.view.ControlPanelView.mrBeanModule
 import no.uib.inf219.gui.view.LoggerView.log
-import tornadofx.*
-
+import tornadofx.FX
+import tornadofx.FileChooserMode
+import tornadofx.View
+import tornadofx.addClass
+import tornadofx.borderpane
+import tornadofx.chooseFile
+import tornadofx.error
+import tornadofx.information
+import tornadofx.plusAssign
+import tornadofx.runLater
+import tornadofx.splitpane
 
 /**
  * The view of the main editor
@@ -39,7 +48,7 @@ class ObjectEditorBackgroundView : View("Object Editor Background") {
 
     val controller: ObjectEditorController by param()
 
-    override val root = borderpane() {
+    override val root = borderpane {
 
         center = splitpane {
             addClass(Styles.parent)
@@ -65,7 +74,6 @@ class ObjectEditorBackgroundView : View("Object Editor Background") {
 
             val writer = if (Settings.prettyPrint) mapper.writerWithDefaultPrettyPrinter() else mapper.writer()
             return writer.writeValueAsString(obj)
-
         } catch (e: Throwable) {
             log("Failed to create object due to an exception.")
             log("${e.javaClass.simpleName}: ${e.message}")
@@ -110,11 +118,13 @@ class ObjectEditorBackgroundView : View("Object Editor Background") {
                 FileChooser.ExtensionFilter(
                     "JSON",
                     "*.json"
-                ), FileChooser.ExtensionFilter(
+                ),
+                FileChooser.ExtensionFilter(
                     "YAML",
                     "*.yaml",
                     "*.yml"
-                ), FileChooser.ExtensionFilter(
+                ),
+                FileChooser.ExtensionFilter(
                     "Properties",
                     "*.properties"
                 ),

@@ -34,7 +34,6 @@ import org.testfx.framework.junit5.ApplicationExtension
 @ExtendWith(ApplicationExtension::class)
 class EnumConverterTest {
 
-
     lateinit var cb: EnumClassBuilder<Weather>
 
     @BeforeEach
@@ -47,7 +46,7 @@ class EnumConverterTest {
         ) as EnumClassBuilder<Weather>
     }
 
-    //basic check
+    // basic check
 
     @Test
     internal fun fromStringTest() {
@@ -61,7 +60,7 @@ class EnumConverterTest {
         Assertions.assertEquals(Weather.RAIN.name, cb.converter.toString(Weather.RAIN))
     }
 
-    //Null checking
+    // Null checking
 
     @Test
     internal fun fromString_null() {
@@ -75,7 +74,7 @@ class EnumConverterTest {
         Assertions.assertNull(cb.converter.toString(null))
     }
 
-    //invalid arg check
+    // invalid arg check
 
     @Test
     internal fun fromString_invalid() {

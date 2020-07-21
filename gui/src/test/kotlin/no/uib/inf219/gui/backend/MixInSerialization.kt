@@ -93,7 +93,6 @@ class MixInSerialization {
         val expectedJson = mapper.writeValueAsString(inst)
         println(expectedJson)
 
-
         val cb = ComplexClassBuilder(
             UnmodifiableClass::class.type(),
             key = "key".toCb(),
@@ -108,7 +107,6 @@ class MixInSerialization {
         val obj = cb.toObject()
 
         assertEquals(inst, obj)
-
     }
 
     @Test
@@ -125,7 +123,6 @@ class MixInSerialization {
         val inst = UnmodifiableChildClass()
         val expectedJson = mapper.writeValueAsString(inst)
         println(expectedJson)
-
 
         val cb = ComplexClassBuilder(
             UnmodifiableChildClass::class.type(),

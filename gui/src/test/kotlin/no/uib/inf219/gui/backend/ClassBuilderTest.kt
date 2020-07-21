@@ -29,7 +29,6 @@ import org.testfx.framework.junit5.ApplicationExtension
 @ExtendWith(ApplicationExtension::class)
 internal class ClassBuilderTest {
 
-
     @Test
     internal fun getClassBuilder_failOnTypeMismatch() {
         assertThrows(IllegalArgumentException::class.java) {

@@ -17,7 +17,7 @@
 package no.uib.inf219.example.data.showcase
 
 import com.fasterxml.jackson.annotation.JsonValue
-import java.util.*
+import java.util.UUID
 
 /**
  * @author Elg

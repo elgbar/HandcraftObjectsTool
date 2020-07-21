@@ -28,7 +28,6 @@ import no.uib.inf219.gui.view.ControlPanelView.mapper
 import no.uib.inf219.gui.view.LoggerView
 import tornadofx.findFieldByName
 
-
 /**
  * Retrieve information about java classes using Jackson
  *
@@ -133,7 +132,6 @@ object ClassInformation {
 
                     val keyType = getType("_keyType")
                     val valueType = getType("_valueType")
-
 
                     map[MAP_ENTRY_VALUE_NAME] = PropertyMetadata(
                         MAP_ENTRY_VALUE_NAME,

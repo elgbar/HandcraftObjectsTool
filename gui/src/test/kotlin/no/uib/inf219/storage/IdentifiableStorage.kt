@@ -41,7 +41,6 @@ open class IdentifiableStorage<I, R : Identifiable<I>> : RetrievableStorage<I, R
         store(store.getId(), store)
     }
 
-
     override fun store(id: I, store: R) {
         map[id] = store
     }
@@ -60,5 +59,4 @@ open class IdentifiableStorage<I, R : Identifiable<I>> : RetrievableStorage<I, R
             }
         }
     }
-
 }

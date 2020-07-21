@@ -21,5 +21,4 @@ package no.uib.inf219.example.data.showcase
  */
 data class SetExample(
     val pre: Set<String>
-) {
-}
+)

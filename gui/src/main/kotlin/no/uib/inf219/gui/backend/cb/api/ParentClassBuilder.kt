@@ -163,15 +163,14 @@ abstract class ParentClassBuilder : ClassBuilder {
 
             var prevSize = items.size
 
-            //Display reset action if it does have a reset element
+            // Display reset action if it does have a reset element
             item("Restore default") {
                 isDisable = childMeta.hasValidDefaultInstance() != true
             }.action {
                 childCBN.resetClassBuilder(controller.tree, true)
             }
 
-
-            //only allow deletion when there are something to delete
+            // only allow deletion when there are something to delete
             item("Delete") {
                 isDisable = childCBN.cb == null
             }.action {
@@ -179,25 +178,25 @@ abstract class ParentClassBuilder : ClassBuilder {
             }
 
             if (items.size != prevSize) {
-                //if we've added any new items add a separator
+                // if we've added any new items add a separator
                 items.add(prevSize, SeparatorMenuItem())
             }
 
             prevSize = items.size
 
             if (childCBN.cb?.createContextMenu(menu, controller) == true) {
-                //add a separator before the child nodes elements
+                // add a separator before the child nodes elements
                 items.add(prevSize, SeparatorMenuItem())
             }
         }
     }
 
-    //parents can never be leaves
+    // parents can never be leaves
     final override fun isLeaf(): Boolean = false
 
-    ////////////////////////
+    // //////////////////////
     // validation methods //
-    ////////////////////////
+    // //////////////////////
 
     /**
      * Check if the given [other] class builder is an illegitimate child of this parent class builder.
@@ -257,7 +256,7 @@ abstract class ParentClassBuilder : ClassBuilder {
         if (type != other.type) return false
         if (key.serObject != other.key.serObject) return false
 
-        //parent can be a self reference
+        // parent can be a self reference
         if (parent !== other.parent) return false
 
         return true

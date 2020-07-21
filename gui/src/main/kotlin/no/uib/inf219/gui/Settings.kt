@@ -46,9 +46,9 @@ object Settings {
      */
     var collapseChildren by Persistent(true)
 
-    ///////////////////////
+    // /////////////////////
     // Disabled Warnings //
-    ///////////////////////
+    // /////////////////////
 
     /*
      * If warnings should be displayed to the user. Preferred to be combined with OK_DISABLE_WARNING
@@ -64,9 +64,9 @@ object Settings {
      */
     var showMrBeanWarning by Persistent(true)
 
-    ///////////////////////////////////////////
+    // /////////////////////////////////////////
     // Properties displayed in control panel //
-    ///////////////////////////////////////////
+    // /////////////////////////////////////////
 
     var unsafeSerializationProp = booleanProperty(false)
     var unsafeSerialization by unsafeSerializationProp

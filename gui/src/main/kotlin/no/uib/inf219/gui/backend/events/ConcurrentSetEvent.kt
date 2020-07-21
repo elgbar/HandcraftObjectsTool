@@ -70,7 +70,6 @@ open class ConcurrentSetEvent<T>(val backing: MutableSet<(T) -> Unit> = Concurre
 
     override val size: Int = synchronized(LOCK) { backing.size }
 
-
     override fun contains(element: (T) -> Unit): Boolean {
         synchronized(LOCK) {
             return backing.contains(element)

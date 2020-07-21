@@ -45,7 +45,6 @@ class Response : Identifiable<String> {
     @JsonProperty("prerequisites", required = false)
     var prereq: Prerequisite? = null
 
-
     companion object {
         val exitResponse: MutableList<Response> = mutableListOf(create("End conversation", "Exit"))
 
@@ -110,6 +109,4 @@ class Response : Identifiable<String> {
         result = 31 * result + (prereq?.hashCode() ?: 0)
         return result
     }
-
-
 }

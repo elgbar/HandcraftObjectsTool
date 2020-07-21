@@ -69,7 +69,6 @@ class Conversation : Identifiable<String> {
         }
     }
 
-
     override fun getId(): String {
         return name
     }
@@ -94,6 +93,4 @@ class Conversation : Identifiable<String> {
     override fun toString(): String {
         return "Conversation(text='$text', name='$name', hasBeenRead=$hasBeenRead)"
     }
-
-
 }

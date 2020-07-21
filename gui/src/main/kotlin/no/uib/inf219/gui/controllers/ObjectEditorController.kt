@@ -38,7 +38,6 @@ import tornadofx.text
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
-
 /**
  * @author Elg
  */
@@ -97,7 +96,6 @@ class ObjectEditorController(
     ) : ParentClassBuilder(),
         ReadOnlyProperty<Any?, ClassBuilder> {
 
-
         init {
             require(rootObj == null || realRootType.isTypeOrSuperTypeOfPrimAsObj(rootObj::class.type())) {
                 "Mismatch between type and object given. Expected $realRootType, got ${rootObj?.javaClass?.type()}"
@@ -132,15 +130,15 @@ class ObjectEditorController(
             return cb
         }
 
-        //////////////////////
+        // ////////////////////
         // Delegate methods //
-        //////////////////////
+        // ////////////////////
 
         override fun getValue(thisRef: Any?, property: KProperty<*>): ClassBuilder = this
 
-        ///////////////////////////
+        // /////////////////////////
         // Class Builder methods //
-        ///////////////////////////
+        // /////////////////////////
 
         override val serObjectObservable = SimpleObjectProperty<ClassBuilder>()
 
@@ -158,7 +156,6 @@ class ObjectEditorController(
         override val type = Any::class.type()
         override val key = fakeRootKey
         override val property: PropertyMetadata? = null
-
 
         override fun resetChild(
             key: ClassBuilder,
@@ -194,7 +191,6 @@ class ObjectEditorController(
                 return serObject.property ?: error("Failed to find root property")
             }
             error("Key supplied '${key.getPreviewValue()}' not real root key '${realRootKey.getPreviewValue()}' or fake root key '${fakeRootKey.getPreviewValue()}'")
-
         }
 
         override fun get(key: ClassBuilder): ClassBuilder? = if (key == realRootKey) serObject else null

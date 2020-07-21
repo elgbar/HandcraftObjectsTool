@@ -23,7 +23,7 @@ import no.uib.inf219.gui.backend.cb.api.SimpleClassBuilder
 import no.uib.inf219.gui.controllers.cbn.ClassBuilderNode
 import no.uib.inf219.gui.converter.UUIDStringConverter
 import no.uib.inf219.gui.loader.ClassInformation
-import java.util.*
+import java.util.UUID
 
 /**
  * @author Elg

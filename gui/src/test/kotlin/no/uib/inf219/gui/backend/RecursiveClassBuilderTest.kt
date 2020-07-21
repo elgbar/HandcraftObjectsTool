@@ -25,7 +25,9 @@ import no.uib.inf219.gui.backend.cb.toObject
 import no.uib.inf219.gui.view.ControlPanelView
 import no.uib.inf219.test.UselessRecursiveObject
 import org.assertj.core.api.Assertions.fail
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.extension.ExtendWith
@@ -77,7 +79,7 @@ class RecursiveClassBuilderTest {
             item = TreeItem()
         )
 
-        //do not use ReferenceClassBuilder here as it will create a cycle with itself, and not the parent
+        // do not use ReferenceClassBuilder here as it will create a cycle with itself, and not the parent
         cb.serObject[UselessRecursiveObject::with.name] = cb
 
         var created: UselessRecursiveObject? = null
@@ -86,11 +88,9 @@ class RecursiveClassBuilderTest {
             println(ControlPanelView.mapper.writeValueAsString(cb.serObject))
         }
 
-
         assertNotNull(created)
         assertTrue(created === created!!.with)
 
         assertEquals("{\"@id\":1,\"with\":1}", ControlPanelView.mapper.writeValueAsString(created))
-
     }
 }

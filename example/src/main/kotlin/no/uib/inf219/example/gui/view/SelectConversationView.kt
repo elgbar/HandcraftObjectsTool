@@ -38,7 +38,21 @@ import no.uib.inf219.example.gui.Styles
 import no.uib.inf219.example.gui.Styles.Companion.ems
 import no.uib.inf219.example.gui.Styles.Companion.invisibleScrollpaneBorder
 import org.yaml.snakeyaml.Yaml
-import tornadofx.*
+import tornadofx.FileChooserMode
+import tornadofx.View
+import tornadofx.addClass
+import tornadofx.bindChildren
+import tornadofx.button
+import tornadofx.chooseFile
+import tornadofx.flowpane
+import tornadofx.hbox
+import tornadofx.label
+import tornadofx.scrollpane
+import tornadofx.separator
+import tornadofx.splitpane
+import tornadofx.style
+import tornadofx.tab
+import tornadofx.vbox
 
 /**
  * @author Elg
@@ -162,10 +176,10 @@ class SelectConversationView(val tabPane: TabPane) : View("") {
                                 output.appendText(exitRespDump)
                                 output.appendText(
                                     "\nEql when resp reload? " +
-                                            "${SerializationManager.yamlMapper.readValue<List<Response>>(
-                                                exitRespDump,
-                                                typeref
-                                            ) == Response.exitResponse}\n"
+                                        "${SerializationManager.yamlMapper.readValue<List<Response>>(
+                                            exitRespDump,
+                                            typeref
+                                        ) == Response.exitResponse}\n"
                                 )
 
                                 output.appendText(

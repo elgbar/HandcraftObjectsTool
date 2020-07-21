@@ -23,7 +23,12 @@ import javafx.scene.control.Hyperlink
 import javafx.scene.layout.VBox
 import javafx.scene.text.TextAlignment
 import no.uib.inf219.gui.backend.cb.api.ClassBuilder
-import tornadofx.*
+import tornadofx.action
+import tornadofx.hbox
+import tornadofx.hyperlink
+import tornadofx.text
+import tornadofx.textflow
+import tornadofx.vbox
 import java.awt.Desktop
 import java.net.URI
 
@@ -38,13 +43,11 @@ fun <T : ClassBuilder> EventTarget.textCb(cb: T, value: T.() -> String) {
     }
 }
 
-
 fun <T : ClassBuilder> StringProperty.bindCbText(cb: T, value: T.() -> String) {
     cb.serObjectObservable.onChange {
         this@bindCbText.set(value(cb))
     }
 }
-
 
 fun EventTarget.centeredText(
     vararg lines: String,
@@ -60,14 +63,13 @@ fun EventTarget.centeredText(
                 for (line in lines.dropLast(1)) {
                     text(line + "\n")
                 }
-                //do not add a newline to the last element
+                // do not add a newline to the last element
                 text(lines.last())
             }
             op()
         }
     }
 }
-
 
 fun EventTarget.internetHyperlink(text: String, url: String = text, op: Hyperlink.() -> Unit = {}) {
     hyperlink(text, op = op).action {
@@ -76,5 +78,5 @@ fun EventTarget.internetHyperlink(text: String, url: String = text, op: Hyperlin
 }
 
 fun openWebPage(url: String) {
-    Desktop.getDesktop().browse(URI(url));
+    Desktop.getDesktop().browse(URI(url))
 }

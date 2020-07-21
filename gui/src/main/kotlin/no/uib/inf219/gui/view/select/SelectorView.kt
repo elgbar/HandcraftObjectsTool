@@ -30,7 +30,23 @@ import no.uib.inf219.extra.onChange
 import no.uib.inf219.gui.Styles
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.ems
-import tornadofx.*
+import tornadofx.SortedFilteredList
+import tornadofx.View
+import tornadofx.addClass
+import tornadofx.asObservable
+import tornadofx.borderpane
+import tornadofx.getValue
+import tornadofx.hbox
+import tornadofx.listview
+import tornadofx.onUserSelect
+import tornadofx.replaceWith
+import tornadofx.runLater
+import tornadofx.selectedItem
+import tornadofx.setValue
+import tornadofx.style
+import tornadofx.text
+import tornadofx.textfield
+import tornadofx.vbox
 import kotlin.math.max
 
 /**
@@ -116,7 +132,6 @@ abstract class SelectorView<T>(title: String) : View(title) {
                                 }
 
                                 listview.scrollTo(0)
-
                             }
                         } else {
                             runLater {
@@ -126,7 +141,6 @@ abstract class SelectorView<T>(title: String) : View(title) {
                     }
                 }
 
-
                 listview = listview(filteredData.sortedItems)
 
                 with(listview) {
@@ -135,7 +149,7 @@ abstract class SelectorView<T>(title: String) : View(title) {
                         result = listview.selectedItem
                     }
 
-                    //close when pressing enter and something is selected or double clicking
+                    // close when pressing enter and something is selected or double clicking
                     onUserSelect(2) {
                         result = it
                         confirmAndClose()

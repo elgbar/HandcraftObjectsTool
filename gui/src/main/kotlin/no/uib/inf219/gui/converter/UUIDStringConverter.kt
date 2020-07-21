@@ -17,7 +17,7 @@
 package no.uib.inf219.gui.converter
 
 import javafx.util.StringConverter
-import java.util.*
+import java.util.UUID
 
 /**
  *

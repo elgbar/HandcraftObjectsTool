@@ -29,7 +29,6 @@ internal class TypeKtTest {
         assertEquals(Array<Int>::class.type(), IntArray::class.type())
     }
 
-
     @Test
     fun primitiveIsObj_int() {
         assertEquals(Int::class.javaPrimitiveType!!.type(), Int::class.javaObjectType.type())

@@ -33,7 +33,7 @@ import no.uib.inf219.gui.controllers.cbn.ClassBuilderNode
 import no.uib.inf219.gui.controllers.cbn.FilledClassBuilderNode
 import no.uib.inf219.gui.loader.ClassInformation
 import no.uib.inf219.gui.view.ControlPanelView
-import java.util.*
+import java.util.LinkedList
 
 /**
  * Functions and values that should not be overwritten by the subclasses of ClassBuilder
@@ -103,7 +103,6 @@ val FAKE_ROOT = object : ParentClassBuilder() {
     override fun isImmutable() = true
     override fun hashCode() = 0
     override fun equals(other: Any?) = this === other
-
 }
 
 /**
@@ -181,14 +180,14 @@ fun ClassBuilderNode.isDescendantOf(parentNode: ClassBuilderNode): Boolean {
             val realCurrCb = currNode.parent[currNode.key]
 
             if (realCurrCb !== currNode.cb) {
-                //it's not alive!
+                // it's not alive!
                 return false
             } else if (realCurrCb === parentNode.cb) {
-                //we've found the parent
+                // we've found the parent
                 return true
             }
         } catch (ignored: IllegalArgumentException) {
-            //get Child failed, the child is not alive!
+            // get Child failed, the child is not alive!
             return false
         }
         currNode = currNode.parent.node
@@ -245,15 +244,15 @@ fun Int.toCb(
  */
 fun ClassBuilder.checkNoCycle(key: ClassBuilder, parent: ParentClassBuilder): Boolean {
     val currSerObject = serObject
-    //Not ref -> not cycle
+    // Not ref -> not cycle
     if (this !is ReferenceClassBuilder) return true
 
-    //selected ser
+    // selected ser
     else if (currSerObject === parent[key] ||
         this.refParent === parent && this.refKey.serObject == key.serObject
     ) return false
 
-    //might be a longer cycle
+    // might be a longer cycle
     if (currSerObject is ReferenceClassBuilder) return currSerObject.checkNoCycle(key, parent)
     return true
 }

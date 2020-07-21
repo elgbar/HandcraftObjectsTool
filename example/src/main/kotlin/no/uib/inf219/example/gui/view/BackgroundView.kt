@@ -34,4 +34,3 @@ class BackgroundView : View("HOT Conversation Example GUI") {
         }
     }
 }
-

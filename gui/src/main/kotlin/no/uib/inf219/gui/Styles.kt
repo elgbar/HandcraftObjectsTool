@@ -19,8 +19,12 @@ package no.uib.inf219.gui
 import javafx.scene.paint.Color
 import javafx.scene.text.FontWeight
 import javafx.stage.Screen
-import tornadofx.*
-
+import tornadofx.Dimension
+import tornadofx.Stylesheet
+import tornadofx.box
+import tornadofx.cssclass
+import tornadofx.loadFont
+import tornadofx.multi
 
 /**
  * @author Elg
@@ -87,8 +91,7 @@ class Styles : Stylesheet() {
             padding = box(0.ems, 0.333.ems)
         }
 
-
-        //remove the visible borders around the scroll pane
+        // remove the visible borders around the scroll pane
         invisibleScrollpaneBorder {
             borderWidth = multi(box(0.ems))
             padding = box(0.ems)
@@ -96,8 +99,7 @@ class Styles : Stylesheet() {
     }
 }
 
-
-//em scaled
+// em scaled
 val Number.ems: Dimension<Dimension.LinearUnits>
     get() = Dimension(
         this.toDouble() * Styles.scale,

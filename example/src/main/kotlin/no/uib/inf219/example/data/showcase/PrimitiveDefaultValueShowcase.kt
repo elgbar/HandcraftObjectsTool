@@ -34,4 +34,4 @@ class PrimitiveDefaultValueShowcase @JsonCreator constructor(
     @JsonProperty("byte", defaultValue = "1") val byte: Byte,
     @JsonProperty("char", defaultValue = "\"a\"") val char: Char,
     @JsonProperty("string", defaultValue = "\"abc\"") val string: String
-) {}
+)

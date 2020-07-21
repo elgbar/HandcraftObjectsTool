@@ -26,7 +26,11 @@ import javafx.scene.text.TextFlow
 import no.uib.inf219.extra.centeredText
 import no.uib.inf219.extra.reload
 import no.uib.inf219.gui.controllers.ObjectEditorController
-import tornadofx.*
+import tornadofx.action
+import tornadofx.borderpane
+import tornadofx.button
+import tornadofx.center
+import tornadofx.item
 
 /**
  * A [ParentClassBuilder] that does not have a fixed number of children.
@@ -113,5 +117,4 @@ abstract class VariableSizedParentClassBuilder : ParentClassBuilder() {
         }
         return true
     }
-
 }

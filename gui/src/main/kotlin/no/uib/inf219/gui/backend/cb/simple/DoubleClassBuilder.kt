@@ -40,4 +40,4 @@ class DoubleClassBuilder(
     immutable,
     DoubleStringConverter(),
     item
-) {}
+)

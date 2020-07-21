@@ -25,7 +25,11 @@ import no.uib.inf219.gui.backend.cb.toObject
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.controllers.cbn.FilledClassBuilderNode
 import no.uib.inf219.gui.view.ControlPanelView
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertArrayEquals
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.testfx.framework.junit5.ApplicationExtension
@@ -94,7 +98,6 @@ internal class CollectionClassBuilderTest {
         assertEquals(emptyList<Any>(), parent.toObject())
     }
 
-
     @Test
     internal fun serialization_setAtCollSize_nonNull() {
         val parent = ObjectEditorController(listStrType).root as CollectionClassBuilder
@@ -106,7 +109,6 @@ internal class CollectionClassBuilderTest {
 
         assertEquals(listOf("hellO!"), parent.toObject())
     }
-
 
     @Test
     internal fun canLoadSerialized_Collection_SizeZero() {
@@ -158,7 +160,7 @@ internal class CollectionClassBuilderTest {
 
         val parent = ObjectEditorController(IntArray::class.type(), real).root
         assertNotNull(parent)
-        //we're always casting t
+        // we're always casting t
         @Suppress("UNCHECKED_CAST")
         assertArrayEquals(real.toTypedArray(), parent.toObject() as Array<Int>)
     }

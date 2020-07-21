@@ -38,9 +38,9 @@ object ClassBuilderSerializer : AbstractClassBuilderSerializer<ClassBuilder>(
         provider: SerializerProvider,
         typeSer: TypeSerializer?
     ) {
-        //find the real serializer and delegate to it
+        // find the real serializer and delegate to it
         //
-        //Do not use the [cb.type] variable as it may represent an interface or abstract class!s
+        // Do not use the [cb.type] variable as it may represent an interface or abstract class!s
         // The serializer is for the sub class, not super class
         val ser: JsonSerializer<Any> = provider.findValueSerializer(cb.serObject::class.type())
             ?: error("Failed to find serializer for ${cb.serObject}")
@@ -55,4 +55,3 @@ object ClassBuilderSerializer : AbstractClassBuilderSerializer<ClassBuilder>(
             ser.serialize(cb.serObject, gen, provider)
     }
 }
-

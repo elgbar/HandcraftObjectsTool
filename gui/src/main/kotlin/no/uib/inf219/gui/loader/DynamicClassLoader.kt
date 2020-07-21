@@ -111,7 +111,7 @@ object DynamicClassLoader : URLClassLoader(emptyArray()) {
             "boolean" -> Boolean::class.java
             "char" -> Char::class.java
             else -> {
-                //okay it is not a primitive class, maybe an array?
+                // okay it is not a primitive class, maybe an array?
 
                 val countOpen = className.count { it == '[' }
                 val countClosed = className.count { it == ']' }
@@ -128,7 +128,7 @@ object DynamicClassLoader : URLClassLoader(emptyArray()) {
 
                 val fixedName: String =
                     if (arrayDims > 0) {
-                        //It's an array, but is it primitive?
+                        // It's an array, but is it primitive?
                         val binName = when {
                             className.startsWith("int") -> "I"
                             className.startsWith("long") -> "J"
@@ -138,13 +138,13 @@ object DynamicClassLoader : URLClassLoader(emptyArray()) {
                             className.startsWith("double") -> "D"
                             className.startsWith("boolean") -> "Z"
                             className.startsWith("char") -> "C"
-                            //not primitive, but a class
+                            // not primitive, but a class
                             else -> "L${className.substring(0, className.length - arrayDims * 2)};"
                         }
-                        //Append the number of array dimensions back onto the binary name
+                        // Append the number of array dimensions back onto the binary name
                         "${"[".repeat(arrayDims)}$binName"
                     } else {
-                        //not array, nor primitive must be normal class
+                        // not array, nor primitive must be normal class
                         className
                     }
                 Class.forName(fixedName, true, DynamicClassLoader)

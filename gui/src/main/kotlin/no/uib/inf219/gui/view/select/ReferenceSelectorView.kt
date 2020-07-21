@@ -46,7 +46,6 @@ class ReferenceSelectorView : SelectorView<ClassBuilder>("Reference") {
         parent: ParentClassBuilder
     ): ReferenceClassBuilder? {
 
-
         result = null
         searching = true
         searchResult.clear()
@@ -57,8 +56,8 @@ class ReferenceSelectorView : SelectorView<ClassBuilder>("Reference") {
                 controller.root
             ).filter {
                 it !== currSerObj && (currSerObj == null || it.checkNoCycle(key, parent))
-
-            })
+            }
+        )
         searching = false
 
         openModal(block = true, owner = currentWindow, escapeClosesWindow = false)
@@ -79,9 +78,9 @@ class ReferenceSelectorView : SelectorView<ClassBuilder>("Reference") {
             cb: ClassBuilder
         ): Set<ClassBuilder> {
 
-            //the set to hold all children of this class builder. Use set to prevent duplicates
+            // the set to hold all children of this class builder. Use set to prevent duplicates
             val allChildren = HashSet<ClassBuilder>()
-            allChildren.add(cb) //remember to also add the parent
+            allChildren.add(cb) // remember to also add the parent
             if (cb is ParentClassBuilder) {
                 for ((_, child) in cb.getChildren()) {
                     if (child == null) continue
@@ -89,7 +88,7 @@ class ReferenceSelectorView : SelectorView<ClassBuilder>("Reference") {
                 }
             }
 
-            //find all children that is the correct type
+            // find all children that is the correct type
             return allChildren.filter {
                 it.type.isTypeOrSuperTypeOfPrimAsObj(wantedType.rawClass) && it.node.allowReference
             }.toSet()

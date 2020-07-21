@@ -47,7 +47,7 @@ class StringClassBuilder(
     }
 
     override fun validate(text: String): Boolean {
-        //A string is always a valid string
+        // A string is always a valid string
         return true
     }
 }

@@ -49,7 +49,6 @@ class CharClassBuilder(
     item
 ) {
 
-
     override fun validate(text: String): Boolean {
         return StringEscapeUtils.unescapeJava(text).length == 1
     }
@@ -59,7 +58,7 @@ class CharClassBuilder(
         controller: ObjectEditorController
     ): Node {
         return parent.textfield {
-            textFormatter = TextFormatter<Char>() {
+            textFormatter = TextFormatter<Char> {
 
                 val text: String = it?.controlNewText ?: return@TextFormatter null
 

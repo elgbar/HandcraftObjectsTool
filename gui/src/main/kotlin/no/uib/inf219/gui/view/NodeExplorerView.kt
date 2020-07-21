@@ -25,7 +25,21 @@ import no.uib.inf219.gui.Settings
 import no.uib.inf219.gui.Settings.showOverwriteWithRefWarning
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.view.select.ReferenceSelectorView
-import tornadofx.*
+import tornadofx.FX
+import tornadofx.View
+import tornadofx.action
+import tornadofx.cellFormat
+import tornadofx.checkmenuitem
+import tornadofx.confirmation
+import tornadofx.contextmenu
+import tornadofx.information
+import tornadofx.item
+import tornadofx.runLater
+import tornadofx.scrollpane
+import tornadofx.selectedValue
+import tornadofx.tooltip
+import tornadofx.treeview
+import tornadofx.warning
 
 /**
  * @author Elg
@@ -40,7 +54,7 @@ class NodeExplorerView(private val controller: ObjectEditorController) : View("T
         root.isExpanded = true
 
         setOnKeyPressed { event ->
-            //note that "isPrimaryButtonDown" and "isSecondaryButtonDown" does not work
+            // note that "isPrimaryButtonDown" and "isSecondaryButtonDown" does not work
             if (selectedValue?.cb == null && (event.code == KeyCode.ENTER || event.code == KeyCode.SPACE)) {
                 controller.createSelected()
                 return@setOnKeyPressed
@@ -52,7 +66,7 @@ class NodeExplorerView(private val controller: ObjectEditorController) : View("T
 
         cellFormat { cbn ->
             runLater(Duration.millis(1.0)) {
-                //to not update straight away as items might still be removed
+                // to not update straight away as items might still be removed
                 text = cbn.key.getPreviewValue()
                 tooltip("Class: ${cbn.type}")
                 this.contextMenu = null
@@ -85,13 +99,13 @@ class NodeExplorerView(private val controller: ObjectEditorController) : View("T
                                             "This property is already defined: $cb", owner = FX.primaryStage,
                                             buttons = *arrayOf(ButtonType.YES, YES_DISABLE_WARNING, ButtonType.CANCEL),
                                             actionFn = { button ->
-                                                //hitting esc/closing window also counts as cancel
+                                                // hitting esc/closing window also counts as cancel
                                                 if (button == ButtonType.CANCEL) {
                                                     return@action
                                                 } else if (button == YES_DISABLE_WARNING) {
                                                     showOverwriteWithRefWarning = false
                                                 }
-                                                //ButtonType.YES falls through
+                                                // ButtonType.YES falls through
                                             }
                                         )
                                     }
@@ -102,8 +116,7 @@ class NodeExplorerView(private val controller: ObjectEditorController) : View("T
                                     if (ref == null) {
                                         warning(
                                             "No reference returned",
-                                            "No reference was returned from the search. This could be because you canceled the search (pressed escape) or because the chosen class builder was invalid."
-                                            , owner = FX.primaryStage
+                                            "No reference was returned from the search. This could be because you canceled the search (pressed escape) or because the chosen class builder was invalid.", owner = FX.primaryStage
                                         )
                                         return@action
                                     }
@@ -129,7 +142,6 @@ class NodeExplorerView(private val controller: ObjectEditorController) : View("T
                         setOnShowing {
                             cbn.parent.createChildContextItems(cbn.key, this, controller)
                         }
-
                     }
                 }
             }

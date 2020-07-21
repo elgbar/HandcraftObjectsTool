@@ -16,7 +16,6 @@
 
 package no.uib.inf219.gui.backend.cb.parents
 
-
 import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.fasterxml.jackson.databind.type.MapLikeType
@@ -67,7 +66,7 @@ class MapClassBuilder(
         val keyCb = ENTRY_KEY.toCb()
         val valueCb = ENTRY_VALUE.toCb()
 
-        data class MapEntry<K, V>(override val key: K?, override val value: V?) : Map.Entry<K?, V?> {}
+        data class MapEntry<K, V>(override val key: K?, override val value: V?) : Map.Entry<K?, V?>
     }
 
     /**
@@ -102,18 +101,17 @@ class MapClassBuilder(
         return serObject.remove(entry)
     }
 
-    ////////////////////////////////////////
-    //Variable sized parent class builder //
-    ////////////////////////////////////////
-
+    // //////////////////////////////////////
+    // Variable sized parent class builder //
+    // //////////////////////////////////////
 
     override fun createNewChild(): ComplexClassBuilder = create(TreeItem())
 
     override fun clear() = serObject.clear()
 
-    //////////////////////////
+    // ////////////////////////
     // parent class builder //
-    //////////////////////////
+    // ////////////////////////
 
     override fun createChild(
         key: ClassBuilder,
@@ -139,9 +137,9 @@ class MapClassBuilder(
         element: ClassBuilder?,
         restoreDefault: Boolean
     ) {
-        //The map must have the given key
+        // The map must have the given key
         require(contains(key)) { "Given key does not exist in this map class builder" }
-        //But does the given element is allowed to be null,
+        // But does the given element is allowed to be null,
         require(element == null || get(key) == element) { "Given value does not match with this map class builder's value of given key" }
 
         val childItem = get(key)!!.item
@@ -158,7 +156,6 @@ class MapClassBuilder(
         true
     )
 
-
     override fun getChildType(key: ClassBuilder): JavaType? {
         return entryType
     }
@@ -167,9 +164,9 @@ class MapClassBuilder(
         return serObject.map { cb -> cb.key to cb }.toMap()
     }
 
-    ///////////////////
+    // /////////////////
     // Class Builder //
-    ///////////////////
+    // /////////////////
 
     override fun getPreviewValue(): String {
         return "Map<${type.keyType}, ${type.contentType}> of size ${serObject.size}"

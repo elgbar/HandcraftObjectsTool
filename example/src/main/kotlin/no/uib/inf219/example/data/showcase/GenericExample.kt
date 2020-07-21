@@ -22,5 +22,4 @@ import no.uib.inf219.example.data.prerequisite.Prerequisite
 /**
  * @author Elg
  */
-data class GenericExample(@JsonProperty("prerequisite", required = true) val pre: Prerequisite) {
-}
+data class GenericExample(@JsonProperty("prerequisite", required = true) val pre: Prerequisite)

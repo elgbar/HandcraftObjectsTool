@@ -21,7 +21,6 @@ package no.uib.inf219.example.data.prerequisite
  */
 class AlwaysFalsePrerequisite : Prerequisite {
 
-
     override fun check(): Boolean {
         return false
     }

@@ -51,15 +51,18 @@ class Main : App(BackgroundView::class, Styles::class) {
             val respList = ArrayList<Response>()
             recursionConv = Conversation.create("Do you know what recursion is?", responses = respList)
             respList += Response.create(
-                "No, I do not", conv =
-                Conversation.create(
-                    "Well I will teach you", responses = mutableListOf(
-                        Response.create("Okay great!", conv = recursionConv)
+                "No, I do not",
+                conv =
+                    Conversation.create(
+                        "Well I will teach you",
+                        responses = mutableListOf(
+                            Response.create("Okay great!", conv = recursionConv)
+                        )
                     )
-                )
             )
             respList += Response.create(
-                "Yes, I do", conv = Conversation.create(
+                "Yes, I do",
+                conv = Conversation.create(
                     "You now know all there is about recursion"
                 )
             )

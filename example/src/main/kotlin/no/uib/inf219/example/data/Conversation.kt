@@ -44,7 +44,6 @@ class Conversation : Identifiable<String> {
             store.update(this)
         }
 
-
     @JsonPropertyDescription("The responses the player can have to the the text in this conversation")
     @JsonProperty("responses", defaultValue = "[]", required = false)
     var responses: MutableList<Response> = ArrayList()
@@ -54,7 +53,6 @@ class Conversation : Identifiable<String> {
         val store: RetrievableStorage<String, Conversation> =
             StoreHandler.getStore(Conversation::class.java)
         store.store(this)
-
     }
 
     /**
@@ -85,7 +83,6 @@ class Conversation : Identifiable<String> {
         }
     }
 
-
     override fun getId(): String {
         return name
     }
@@ -105,6 +102,4 @@ class Conversation : Identifiable<String> {
         result = 31 * result + name.hashCode()
         return result
     }
-
-
 }

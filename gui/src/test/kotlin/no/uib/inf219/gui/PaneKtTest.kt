@@ -24,23 +24,21 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.testfx.framework.junit5.ApplicationExtension
 
-
 /**
  * @author Elg
  */
 @ExtendWith(ApplicationExtension::class)
 class PaneKtTest {
 
-
     @Test
     fun closeTabsCorrectly() {
         with(TabPane()) {
-            //non-closable tab
+            // non-closable tab
             val nonClosableTab = Tab().also { it.isClosable = false }
             val closableTab1 = Tab()
             val closableTab2 = Tab()
             tabs.add(nonClosableTab)
-            //two closable tabs
+            // two closable tabs
             tabs.add(closableTab1)
             tabs.add(closableTab2)
 
@@ -49,10 +47,9 @@ class PaneKtTest {
                 "TabPane does not only contain non-closable tab | tabs = $tabs"
             }
 
-            //add the two closable tabs backs back in
+            // add the two closable tabs backs back in
             tabs.add(closableTab1)
             tabs.add(closableTab2)
-
 
             assertTrue(tabs.containsAll(listOf(nonClosableTab, closableTab1, closableTab2))) {
                 "TabPane does not contain all the expected tabs "

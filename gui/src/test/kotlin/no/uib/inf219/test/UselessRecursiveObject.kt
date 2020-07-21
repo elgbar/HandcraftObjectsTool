@@ -43,6 +43,4 @@ class UselessRecursiveObject {
     override fun toString(): String {
         return "UselessRecursiveObject(hashCode=${hashCode()}, with=${with.hashCode()})"
     }
-
-
 }

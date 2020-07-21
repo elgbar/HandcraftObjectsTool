@@ -21,7 +21,18 @@ import javafx.scene.input.KeyCode
 import no.uib.inf219.extra.centeredText
 import no.uib.inf219.gui.Styles
 import no.uib.inf219.gui.controllers.ObjectEditorController
-import tornadofx.*
+import tornadofx.Fragment
+import tornadofx.addClass
+import tornadofx.borderpane
+import tornadofx.center
+import tornadofx.label
+import tornadofx.onDoubleClick
+import tornadofx.onUserSelect
+import tornadofx.plusAssign
+import tornadofx.scrollpane
+import tornadofx.splitpane
+import tornadofx.text
+import tornadofx.vbox
 
 /**
  * @author Elg
@@ -47,7 +58,7 @@ class PropertyEditor : Fragment("Property Editor") {
 
                     val desc = meta?.description
                     if (!desc.isNullOrBlank()) {
-                        scrollpane() {
+                        scrollpane {
                             addClass(Styles.invisibleScrollpaneBorder)
                             text("Description: $desc")
                         }
@@ -79,4 +90,3 @@ class PropertyEditor : Fragment("Property Editor") {
         }
     }
 }
-

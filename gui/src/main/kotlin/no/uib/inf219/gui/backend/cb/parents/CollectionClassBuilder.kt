@@ -16,7 +16,6 @@
 
 package no.uib.inf219.gui.backend.cb.parents
 
-
 import com.fasterxml.jackson.databind.JavaType
 import javafx.scene.control.ContextMenu
 import javafx.scene.control.TreeItem
@@ -34,7 +33,6 @@ import no.uib.inf219.gui.loader.ClassInformation
 import tornadofx.action
 import tornadofx.asObservable
 import tornadofx.item
-
 
 /**
  * The class builder variant for [Collection]s and [Array]s.
@@ -56,26 +54,26 @@ class CollectionClassBuilder(
     override val serObject = ArrayList<ClassBuilder?>()
     override val serObjectObservable = serObject.asObservable()
 
-    ////////////////////////////////////////
-    //Variable sized parent class builder //
-    ////////////////////////////////////////
+    // //////////////////////////////////////
+    // Variable sized parent class builder //
+    // //////////////////////////////////////
 
     override fun createNewChild(): ClassBuilder? {
-        //make sure the key is mutable to support deletion of elements
+        // make sure the key is mutable to support deletion of elements
         return createChild(createChildKey(serObject.size), item = TreeItem())
     }
 
     fun createNullChild() {
         val childKey = createChildKey(serObject.size)
-        serObject.add(null) //this call must be after creating the key
+        serObject.add(null) // this call must be after creating the key
         this.item.children.add(EmptyClassBuilderNode(childKey, this).item)
     }
 
     override fun clear() = serObject.clear()
 
-    //////////////////////////
+    // ////////////////////////
     // parent class builder //
-    //////////////////////////
+    // ////////////////////////
 
     private fun cbToInt(cb: ClassBuilder?): Int? {
         return if (cb !is IntClassBuilder) null else cb.serObject
@@ -87,7 +85,7 @@ class CollectionClassBuilder(
 
         checkCollectionElem(index, init)
         val elem = init ?: createClassBuilder(type.contentType, key, this, item = item)
-        ?: return null
+            ?: return null
 
         checkChildValidity(key, elem)
         checkItemValidity(elem, item)
@@ -120,7 +118,7 @@ class CollectionClassBuilder(
             resetChild(key)
             return
         } else if (index == serObject.size) {
-            //we're adding a new object use the normal method
+            // we're adding a new object use the normal method
             createChild(key, child, child.item)
             return
         }
@@ -150,9 +148,9 @@ class CollectionClassBuilder(
         serObject.remove(child)
         item.children.remove(child?.item)
 
-        //make sure every index is correct
+        // make sure every index is correct
         for ((i, builder) in item.children.withIndex()) {
-            //sanity check, just in case and for a nicer error message
+            // sanity check, just in case and for a nicer error message
             require(builder.value.key is IntClassBuilder) { "Key of collection element is not int! it is ${builder.value.key}" }
 
             (builder.value.key as IntClassBuilder).serObject = i
@@ -187,7 +185,7 @@ class CollectionClassBuilder(
     )
 
     override fun toString(): String {
-        return "Collection CB; containing=${type.contentType}, value=${serObject}"
+        return "Collection CB; containing=${type.contentType}, value=$serObject"
     }
 
     override fun createContextMenu(menu: ContextMenu, controller: ObjectEditorController): Boolean {

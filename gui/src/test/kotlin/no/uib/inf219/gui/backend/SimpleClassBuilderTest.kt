@@ -16,7 +16,12 @@
 
 package no.uib.inf219.gui.backend
 
-import javafx.beans.property.*
+import javafx.beans.property.SimpleBooleanProperty
+import javafx.beans.property.SimpleDoubleProperty
+import javafx.beans.property.SimpleFloatProperty
+import javafx.beans.property.SimpleIntegerProperty
+import javafx.beans.property.SimpleLongProperty
+import javafx.beans.property.SimpleStringProperty
 import no.uib.inf219.extra.type
 import no.uib.inf219.gui.backend.cb.api.SimpleClassBuilder
 import no.uib.inf219.gui.backend.cb.toCb
@@ -28,8 +33,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.testfx.framework.junit5.ApplicationExtension
-import java.util.*
-
+import java.util.UUID
 
 /**
  * @author Elg
@@ -156,5 +160,4 @@ internal class SimpleClassBuilderTest {
         val cb = ObjectEditorController(init::class.type(), init).root
         assertEquals(init, cb.toObject())
     }
-
 }

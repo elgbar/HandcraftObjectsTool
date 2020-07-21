@@ -16,7 +16,6 @@
 
 package no.uib.inf219.gui.backend.cb.api
 
-
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.databind.JavaType
 import javafx.beans.property.Property
@@ -28,7 +27,21 @@ import javafx.scene.Node
 import javafx.scene.control.TextFormatter
 import javafx.scene.control.TreeItem
 import javafx.util.StringConverter
-import javafx.util.converter.*
+import javafx.util.converter.BigDecimalStringConverter
+import javafx.util.converter.BigIntegerStringConverter
+import javafx.util.converter.BooleanStringConverter
+import javafx.util.converter.ByteStringConverter
+import javafx.util.converter.CharacterStringConverter
+import javafx.util.converter.DateStringConverter
+import javafx.util.converter.DoubleStringConverter
+import javafx.util.converter.FloatStringConverter
+import javafx.util.converter.IntegerStringConverter
+import javafx.util.converter.LocalDateStringConverter
+import javafx.util.converter.LocalDateTimeStringConverter
+import javafx.util.converter.LocalTimeStringConverter
+import javafx.util.converter.LongStringConverter
+import javafx.util.converter.NumberStringConverter
+import javafx.util.converter.ShortStringConverter
 import no.uib.inf219.extra.removeNl
 import no.uib.inf219.extra.toObjType
 import no.uib.inf219.extra.type
@@ -38,13 +51,24 @@ import no.uib.inf219.gui.controllers.cbn.ClassBuilderNode
 import no.uib.inf219.gui.converter.UUIDStringConverter
 import no.uib.inf219.gui.loader.ClassInformation
 import no.uib.inf219.gui.view.LoggerView
-import tornadofx.*
+import tornadofx.ViewModel
+import tornadofx.booleanProperty
+import tornadofx.doubleProperty
+import tornadofx.floatProperty
+import tornadofx.getValue
+import tornadofx.intProperty
+import tornadofx.longProperty
+import tornadofx.onChange
+import tornadofx.setValue
+import tornadofx.stringProperty
+import tornadofx.textfield
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
-import java.util.*
+import java.util.Date
+import java.util.UUID
 import kotlin.reflect.KClass
 
 /**
@@ -124,7 +148,7 @@ abstract class SimpleClassBuilder<T : Any> constructor(
         controller: ObjectEditorController
     ): Node {
         return parent.textfield {
-            textFormatter = TextFormatter<T>() {
+            textFormatter = TextFormatter<T> {
 
                 val text = it.controlNewText.removeNl().trim()
 
@@ -174,11 +198,10 @@ abstract class SimpleClassBuilder<T : Any> constructor(
         LocalDate::class -> LocalDateStringConverter()
         LocalTime::class -> LocalTimeStringConverter()
         LocalDateTime::class -> LocalDateTimeStringConverter()
-        //non-default converts
+        // non-default converts
         UUID::class -> UUIDStringConverter
         else -> null
     } as StringConverter<T>?
-
 
     fun bindStringProperty(
         stringProperty: StringProperty,
@@ -222,7 +245,7 @@ abstract class SimpleClassBuilder<T : Any> constructor(
 
         if (key.serObject != other.key.serObject) return false
 
-        //parent can be a self reference
+        // parent can be a self reference
         if (parent !== other.parent) return false
 
         return true
@@ -234,10 +257,9 @@ abstract class SimpleClassBuilder<T : Any> constructor(
         result = 31 * result + converter.hashCode()
         result = 31 * result + type.hashCode()
 
-        //parent can be a self reference
+        // parent can be a self reference
         result = 31 * result + (if (key !== this) key.hashCode() else 0)
         result = 31 * result + (if (parent !== this) parent.hashCode() else 0)
         return result
     }
-
 }

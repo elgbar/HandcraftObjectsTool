@@ -40,4 +40,4 @@ class LongClassBuilder(
     immutable,
     LongStringConverter(),
     item
-) {}
+)

@@ -41,7 +41,14 @@ import no.uib.inf219.gui.controllers.cbn.ClassBuilderNode
 import no.uib.inf219.gui.controllers.cbn.EmptyClassBuilderNode
 import no.uib.inf219.gui.loader.ClassInformation
 import no.uib.inf219.gui.view.ControlPanelView.mapper
-import tornadofx.*
+import tornadofx.asObservable
+import tornadofx.borderpane
+import tornadofx.fold
+import tornadofx.separator
+import tornadofx.squeezebox
+import tornadofx.text
+import tornadofx.textflow
+import tornadofx.vbox
 import kotlin.collections.component1
 import kotlin.collections.component2
 import kotlin.collections.set
@@ -82,8 +89,8 @@ class ComplexClassBuilder(
         typeSerializer = typeSer
         this.propInfo = propInfo
 
-        //is it really safe to do it this way?
-        //It's not really fast, but is there any way to get all wanted values with the properties?
+        // is it really safe to do it this way?
+        // It's not really fast, but is there any way to get all wanted values with the properties?
         val initMap: Map<String, Any?>? =
             if (init != null) {
                 val type = mapper.typeFactory.constructMapType(Map::class.java, String::class.java, Any::class.java)
@@ -92,27 +99,25 @@ class ComplexClassBuilder(
                 null
             }
 
-        //initiate all valid values to null or default
+        // initiate all valid values to null or default
         // to allow for iteration when populating Node explorer
         for ((key, v) in this.propInfo) {
 
             val initValue = initMap?.get(key)
             if (initValue != null) {
                 val keyCb = key.toCb()
-                //The value must be converted back to the expected value!
+                // The value must be converted back to the expected value!
                 val realValue = mapper.convertValue<Any>(initValue, v.type)
                 val init =
                     createClassBuilder(realValue.javaClass.type(), keyCb, this, realValue, propInfo[key], TreeItem())
                         ?: kotlin.error("Failed to load property $key of $this")
 
-
                 checkChildValidity(keyCb, init)
                 checkItemValidity(init, init.item)
 
                 this.serObject[key] = init
-
             } else if (v.hasValidDefaultInstance()) {
-                //only create a class builder for properties that has a default value
+                // only create a class builder for properties that has a default value
                 // or is primitive (which always have default values)
                 this.createChild(key.toCb(), item = TreeItem())
             } else {
@@ -191,8 +196,8 @@ class ComplexClassBuilder(
             val defInstance = meta.getDefaultInstance()
             val childType = if (defInstance != null) {
                 val tmpType = defInstance::class.type()
-                //do not use instanced types for collections, arrays, or maps
-                //as the handling of those types are special
+                // do not use instanced types for collections, arrays, or maps
+                // as the handling of those types are special
                 if (tmpType.isCollectionLikeType || tmpType.isMapLikeType) {
                     prop.type
                 } else {
@@ -228,23 +233,22 @@ class ComplexClassBuilder(
                         }
                     }
                 }
-
             } else {
                 center = squeezebox(false) {
                     for ((name, child) in this@ComplexClassBuilder.serObject) {
 
                         fun getFoldTitle(cb: ClassBuilder?): String {
-                            //Star mean required, that's universal right? Otherwise we need to communicate this to the user
+                            // Star mean required, that's universal right? Otherwise we need to communicate this to the user
                             return "$name: ${cb?.getPreviewValue() ?: "(null)"}${if (cb?.property?.required == true) " (*) " else ""} - ${propInfo[name]!!.type.rawClass.canonicalName}"
                         }
 
                         fold(getFoldTitle(child)) {
 
-                            //Wait for the fold to be expanded for the first time to create the view, cb etc
+                            // Wait for the fold to be expanded for the first time to create the view, cb etc
                             expandedProperty().onChangeUntil({ this.isExpanded }) {
                                 val cb: ClassBuilder
                                 if (child == null) {
-                                    //This should never be null as we are using the name of a property
+                                    // This should never be null as we are using the name of a property
                                     // well, if it is something has gone wrong, but not here!
                                     val newCb = this@ComplexClassBuilder.createChild(name.toCb())
                                     if (newCb == null) {
@@ -253,7 +257,7 @@ class ComplexClassBuilder(
                                     }
                                     cb = newCb
 
-                                    //update fold title before editing
+                                    // update fold title before editing
                                     this.text = getFoldTitle(newCb)
                                 } else {
                                     cb = child
@@ -261,9 +265,9 @@ class ComplexClassBuilder(
 
                                 cb.createEditView(this, controller)
 
-                                //reflect changes in the title of the fold
+                                // reflect changes in the title of the fold
                                 cb.serObjectObservable.onChange {
-                                    //text means title in this context
+                                    // text means title in this context
                                     this@fold.text = getFoldTitle(cb)
                                 }
                             }

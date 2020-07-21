@@ -23,10 +23,9 @@ import tornadofx.FX
 import tornadofx.error
 import java.io.File
 import java.lang.reflect.Field
-import java.util.*
+import java.util.Enumeration
 import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
-
 
 /**
  * @author Elg
@@ -34,7 +33,6 @@ import java.util.zip.ZipFile
 object ObjectMapperLoader {
     const val PATH_TO_OBJECT_FILE = ".hot"
     const val DEFAULT_FIELD_NAME = "mapper"
-
 
     /**
      * Find a field within a class within the given class that returns an [ObjectMapper] when called statically.
@@ -86,7 +84,7 @@ object ObjectMapperLoader {
         }
 
         if (clazzPath == null) {
-            //no file given
+            // no file given
             return null
         }
 
@@ -98,7 +96,8 @@ object ObjectMapperLoader {
                 error(
                     "Failed to load Object Mapper from jar",
                     "Failed to load class with object mapper '$clazzPath' in file $file\n" +
-                            "${e.javaClass.simpleName}: ${e.message}", owner = FX.primaryStage
+                        "${e.javaClass.simpleName}: ${e.message}",
+                    owner = FX.primaryStage
                 )
             }
             log(e)
@@ -115,7 +114,8 @@ object ObjectMapperLoader {
                 error(
                     "Failed to load Object Mapper from jar",
                     "Failed to find the specified (or default) field '$fieldPath' within class '$clazzPath' in file $file\n" +
-                            "${e.javaClass.simpleName}: ${e.message}", owner = FX.primaryStage
+                        "${e.javaClass.simpleName}: ${e.message}",
+                    owner = FX.primaryStage
                 )
             }
             log(e)
@@ -135,8 +135,9 @@ object ObjectMapperLoader {
                 error(
                     "Failed to load Object Mapper from jar",
                     "Given field for object mapper is not an object mapper nor any subclass of object mapper!\n" +
-                            "Field '$fieldPath' (of type $className) in class '$clazzPath' in file $file\n" +
-                            "${e.javaClass.simpleName}: ${e.message}", owner = FX.primaryStage
+                        "Field '$fieldPath' (of type $className) in class '$clazzPath' in file $file\n" +
+                        "${e.javaClass.simpleName}: ${e.message}",
+                    owner = FX.primaryStage
                 )
             }
             log(e)
@@ -146,7 +147,8 @@ object ObjectMapperLoader {
                 error(
                     "Failed to load Object Mapper from jar",
                     "Failed to get the instance of the field. Field '$fieldPath' in class '$clazzPath' in file $file\n" +
-                            "${e.javaClass.simpleName}: ${e.message}", owner = FX.primaryStage
+                        "${e.javaClass.simpleName}: ${e.message}",
+                    owner = FX.primaryStage
                 )
             }
             log(e)

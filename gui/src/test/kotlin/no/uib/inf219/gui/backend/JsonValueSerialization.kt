@@ -33,7 +33,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.testfx.framework.junit5.ApplicationExtension
-import java.util.*
+import java.util.UUID
 
 /**
  * @author Elg
@@ -137,7 +137,6 @@ class JsonValueSerialization {
         val expected = ControlPanelView.mapper.writeValueAsString(jsonValueInstance)
         println("expected = $expected")
 
-
         val cb = ObjectEditorController(TypedJsonValueExample::class.type()).root as ComplexClassBuilder
 
         val uuidCb =
@@ -153,12 +152,10 @@ class JsonValueSerialization {
         assertEquals(jsonValueInstance.uid, obj.uid)
     }
 
-
-    ///////////////////////////////////////////////////////////////////////////
+    // /////////////////////////////////////////////////////////////////////////
     // Using JsonIdentityInfo and JsonValue seems to be incompatible         //
     // But it might also be a bug in Jackson, so keep this test just in case //
-    ///////////////////////////////////////////////////////////////////////////
-
+    // /////////////////////////////////////////////////////////////////////////
 
 //    @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator::class)
 //    class IdJsonValueExample @JsonCreator constructor(uid: UUID?) {

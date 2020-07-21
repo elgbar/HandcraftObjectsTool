@@ -80,7 +80,8 @@ class AbstractClassBuilderTest {
                     type,
                     real
                 ).root.toObject()
-            ), type
+            ),
+            type
         )
         assertEquals(real, cb)
     }

@@ -30,7 +30,13 @@ import no.uib.inf219.gui.backend.cb.api.SimpleClassBuilder
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.controllers.cbn.ClassBuilderNode
 import no.uib.inf219.gui.loader.ClassInformation
-import tornadofx.*
+import tornadofx.addClass
+import tornadofx.asObservable
+import tornadofx.listview
+import tornadofx.onChange
+import tornadofx.onUserSelect
+import tornadofx.textfield
+import tornadofx.vbox
 import java.lang.reflect.Field
 
 /**
@@ -117,7 +123,7 @@ class EnumClassBuilder<T : Enum<*>>(
 
     internal class EnumConverter<T : Enum<*>>(clazz: Class<T>) : StringConverter<T>() {
 
-        //key is nullable to allow for shorter fromString :)
+        // key is nullable to allow for shorter fromString :)
         private val values: Map<String?, T> = findEnumValues(clazz).map { it.name to it }.toMap()
 
         override fun toString(enum: T?) = enum?.name

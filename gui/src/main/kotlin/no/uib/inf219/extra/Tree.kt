@@ -43,9 +43,9 @@ fun TreeItem<ClassBuilderNode>.findChild(key: ClassBuilder): TreeItem<ClassBuild
         if (cbn.key.serObject == key.serObject && cbn.parent == parent) {
             check(cbn.item === item) {
                 "Found child with matching key and parent but it's item is not the same object!\n" +
-                        "Are they equal? ${cbn.item == item}\n" +
-                        "child item: ${cbn.item} (hash ${Integer.toHexString(cbn.item.hashCode())})\n" +
-                        "expected: $item (hash ${Integer.toHexString(cbn.item.hashCode())})"
+                    "Are they equal? ${cbn.item == item}\n" +
+                    "child item: ${cbn.item} (hash ${Integer.toHexString(cbn.item.hashCode())})\n" +
+                    "expected: $item (hash ${Integer.toHexString(cbn.item.hashCode())})"
             }
             return item
         }
@@ -63,7 +63,6 @@ fun <T> TreeView<T>.reselect() {
         select(oldSel)
     }
 }
-
 
 /**
  * Refreshes and call select event again

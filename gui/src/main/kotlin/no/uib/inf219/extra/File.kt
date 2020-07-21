@@ -17,7 +17,11 @@
 package no.uib.inf219.extra
 
 import javafx.scene.control.ButtonType
-import java.io.*
+import java.io.File
+import java.io.FileNotFoundException
+import java.io.InputStream
+import java.io.ObjectInputStream
+import java.io.ObjectOutputStream
 import kotlin.system.exitProcess
 
 /**
@@ -32,7 +36,6 @@ import kotlin.system.exitProcess
 fun File.child(child: String): File {
     return File(this, child)
 }
-
 
 /**
  * Create an object output stream for this file.

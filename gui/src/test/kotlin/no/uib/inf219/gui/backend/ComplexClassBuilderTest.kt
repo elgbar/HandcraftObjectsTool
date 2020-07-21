@@ -31,7 +31,15 @@ import no.uib.inf219.test.PrimitiveNoDefaultValueShowcase
 import no.uib.inf219.test.conv.Conversation
 import no.uib.inf219.test.conv.Response
 import no.uib.inf219.test.precondition.AlwaysTruePrecondition
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertDoesNotThrow
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertNotEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertThrows
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Assertions.fail
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.testfx.framework.junit5.ApplicationExtension
@@ -44,9 +52,9 @@ import org.testfx.framework.junit5.ApplicationExtension
 @ExtendWith(ApplicationExtension::class)
 internal class ComplexClassBuilderTest {
 
-    ////////////////////////
+    // //////////////////////
     // serialization test //
-    ////////////////////////
+    // //////////////////////
 
     @Test
     internal fun canCreateAbstractTypes() {
@@ -60,10 +68,9 @@ internal class ComplexClassBuilderTest {
         assertEquals(PrimitiveDefaultValueShowcase(42, 46, 0.1, 0.1f, true, 6, 1, 'a', "abc"), created)
     }
 
-
-    /////////////////////////
+    // ///////////////////////
     // Creation of cb test //
-    /////////////////////////
+    // ///////////////////////
 
     @Test
     internal fun defaultValuesPresentAfterInit() {
@@ -78,7 +85,6 @@ internal class ComplexClassBuilderTest {
                 assertNull(cb.serObject[key])
             } else {
                 assertNotNull(cb.serObject[key])
-
 
                 val prop = props[key]
                 assertNotNull(prop)
@@ -97,7 +103,7 @@ internal class ComplexClassBuilderTest {
         val cb = ObjectEditorController(Conversation::class.type()).root as ComplexClassBuilder
 
         val propKey = Conversation::name.name
-        //make sure this test makes sense with a real property
+        // make sure this test makes sense with a real property
         assertNotNull(cb.serObject[propKey]) { "Property key is wrong. Change it to one of ${cb.propInfo.keys}" }
 
         val prop: StringClassBuilder = cb.serObject[propKey] as StringClassBuilder
@@ -121,7 +127,7 @@ internal class ComplexClassBuilderTest {
         val cb = ObjectEditorController(Conversation::class.type()).root as ComplexClassBuilder
 
         val propKey = "name178238623"
-        //make sure this test makes sense with a real property
+        // make sure this test makes sense with a real property
         assertFalse(cb.serObject.containsKey(propKey)) { "Property key already exists, change propKey to a property that does not exists" }
 
         assertThrows(IllegalArgumentException::class.java) {
@@ -136,14 +142,13 @@ internal class ComplexClassBuilderTest {
         val propKey = cb.serObject.filterValues { it != null }.keys.first()
         val orgProp = cb.serObject[propKey]
 
-        //this will discard orgProp and create a new one
+        // this will discard orgProp and create a new one
         cb.resetChild(propKey.toCb(), restoreDefault = true)
 
-        //we cannot reset the child with an old property
+        // we cannot reset the child with an old property
         assertThrows(IllegalArgumentException::class.java) {
             cb.resetChild(propKey.toCb(), orgProp)
         }
-
     }
 
     @Test
@@ -161,7 +166,7 @@ internal class ComplexClassBuilderTest {
         assertNotNull(item.value)
         assertTrue(item.value.cb === newProp)
 
-        //default is equal but not same object
+        // default is equal but not same object
         assertEquals(orgProp, newProp)
         assertFalse(orgProp === newProp)
 
@@ -208,7 +213,7 @@ internal class ComplexClassBuilderTest {
 
         val propKey = Conversation::name.name
         val propKeyCb = propKey.toCb()
-        //make sure this test makes sense with a real property
+        // make sure this test makes sense with a real property
         assertNotNull(cb.serObject[propKey]) { "Property key is wrong. Change it to one of ${cb.propInfo.keys}" }
 
         val init = cb.createChild(propKeyCb)
@@ -239,7 +244,6 @@ internal class ComplexClassBuilderTest {
 
         assertTrue(orgProp === created)
     }
-
 
     @Test
     internal fun loadObject_MapExample() {
@@ -283,7 +287,6 @@ internal class ComplexClassBuilderTest {
 
         val cb = ObjectEditorController(real::class.type(), real).root
 
-
         val convertedObj = cb.toObject() as Conversation
         assertEquals(real.name, convertedObj.name)
         assertEquals(real.text, convertedObj.text)
@@ -294,7 +297,6 @@ internal class ComplexClassBuilderTest {
         assertEquals(realResponse.name, convResponse.name)
 
 //        assertSame(convResponse.conv, real)
-        assertNull(convResponse.conv) //refs not yet supported!
-
+        assertNull(convResponse.conv) // refs not yet supported!
     }
 }

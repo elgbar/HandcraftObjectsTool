@@ -42,4 +42,3 @@ fun Tab.close() {
     Event.fireEvent(this, Event(Tab.CLOSED_EVENT))
     tabPane?.tabs?.remove(this)
 }
-

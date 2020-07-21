@@ -100,5 +100,4 @@ class Response : Identifiable<String> {
     override fun toString(): String {
         return "Response(response='$response', name='$name', conv=$conv)"
     }
-
 }

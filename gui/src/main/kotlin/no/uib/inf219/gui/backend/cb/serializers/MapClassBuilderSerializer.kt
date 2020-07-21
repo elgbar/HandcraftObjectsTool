@@ -45,20 +45,20 @@ object MapClassBuilderSerializer : AbstractClassBuilderSerializer<MapClassBuilde
         val map = HashMap<Any?, ClassBuilder?>()
 
         for (entry in cb.serObject) {
-            //explicitly convert the key object to it's type. This means that key elements cannot be referenced
+            // explicitly convert the key object to it's type. This means that key elements cannot be referenced
             // or be a reference. But having a reference to a key in a map I am considering to be an edge case.
             //
-            //This is because jackson is using a different type of serializers with keys as not everything is allowed
+            // This is because jackson is using a different type of serializers with keys as not everything is allowed
             // to be a key in json. So to make this happen we need to make key serializers for all existing cb
             // serializers and use in those to allow for referencing.
             val key = entry.serObject[ENTRY_KEY]?.toObject()
 
-            //value is allowed to be referenced and be a reference!
+            // value is allowed to be referenced and be a reference!
             val value = entry.serObject[ENTRY_VALUE]
             map[key] = value
         }
 
-        //Do not use the [cb.type] as it might contain the wrong instance of map.
+        // Do not use the [cb.type] as it might contain the wrong instance of map.
         // as is usually the case when the map only contains one element
         val ser = provider.findValueSerializer(Map::class.java, null)
             ?: error("Failed to find map serializer")

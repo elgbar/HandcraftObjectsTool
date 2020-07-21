@@ -69,5 +69,4 @@ interface RetrievableStorage<I, R> {
     }
 
     fun update(elem: R)
-
 }

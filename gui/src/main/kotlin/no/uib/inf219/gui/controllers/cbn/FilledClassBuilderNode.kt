@@ -59,6 +59,4 @@ data class FilledClassBuilderNode(
         result = 31 * result + parent.hashCode()
         return result
     }
-
-
 }

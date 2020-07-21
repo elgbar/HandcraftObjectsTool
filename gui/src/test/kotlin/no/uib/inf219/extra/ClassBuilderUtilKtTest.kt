@@ -26,7 +26,9 @@ import no.uib.inf219.gui.backend.cb.parents.CollectionClassBuilder
 import no.uib.inf219.gui.backend.cb.toCb
 import no.uib.inf219.gui.controllers.ObjectEditorController
 import no.uib.inf219.gui.view.ControlPanelView
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.testfx.framework.junit5.ApplicationExtension
@@ -62,12 +64,10 @@ internal class ClassBuilderUtilKtTest {
             item = TreeItem()
         ) as ClassBuilder
 
-
         assertTrue(child.isDescendantOf(parent))
         assertTrue(grandChild.isDescendantOf(child))
         assertTrue(grandChild.isDescendantOf(parent))
     }
-
 
     @Test
     internal fun isDescendantOf_illegitimateChild() {
@@ -94,5 +94,4 @@ internal class ClassBuilderUtilKtTest {
     internal fun isDescendantOf_rootSelf() {
         assertTrue(FAKE_ROOT.isDescendantOf(FAKE_ROOT))
     }
-
 }

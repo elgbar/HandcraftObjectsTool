@@ -22,4 +22,4 @@ import no.uib.inf219.test.precondition.Precondition
 /**
  * @author Elg
  */
-data class GenericExample(@JsonProperty("prerequisite", required = true) val pre: Precondition) {}
+data class GenericExample(@JsonProperty("prerequisite", required = true) val pre: Precondition)

@@ -40,4 +40,4 @@ class IntClassBuilder(
     immutable,
     IntegerStringConverter(),
     item
-) {}
+)

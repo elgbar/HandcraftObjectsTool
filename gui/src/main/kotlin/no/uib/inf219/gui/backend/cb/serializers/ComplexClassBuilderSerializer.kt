@@ -64,15 +64,15 @@ object ComplexClassBuilderSerializer : StdSerializer<ComplexClassBuilder>(
 
         val objectId: WritableObjectId?
 
-        //begin with id stuff first. If we are referencing something
+        // begin with id stuff first. If we are referencing something
         // we only want to write the id of the object we're referencing (not any begin object stuff)
         if (objIdWriter != null) {
-            //if there is no serializer for the ObjectIdWriter create one
+            // if there is no serializer for the ObjectIdWriter create one
             if (objIdWriter.serializer == null) {
                 objIdWriter = objIdWriter.withSerializer(provider.findValueSerializer(objIdWriter.idType))!!
             }
 
-            //this is ripped straight out BeanSerializerBase#_serializeWithObjectId
+            // this is ripped straight out BeanSerializerBase#_serializeWithObjectId
             checkNotNull(objIdWriter.serializer)
 
             objectId = provider.findObjectId(cb.serObject, objIdWriter.generator)
@@ -89,30 +89,30 @@ object ComplexClassBuilderSerializer : StdSerializer<ComplexClassBuilder>(
                 return
             }
         } else {
-            //no object id information so no object id to write
+            // no object id information so no object id to write
             objectId = null
         }
 
         val typeId: WritableTypeId?
         if (typeSer != null) {
-            //write out the type of the class we're creating, not the raw value or value.serObject
+            // write out the type of the class we're creating, not the raw value or value.serObject
             typeId = typeSer.typeId(null, JsonToken.START_OBJECT)
 
-            //Set the id of the type based not on the object in WritableTypeId but rather
+            // Set the id of the type based not on the object in WritableTypeId but rather
             // the class we're pretending we're serializing: value.type
             if (typeId.id == null) {
                 typeId.id = typeSer.typeIdResolver.idFromValueAndType(null, cb.type.rawClass)
             }
             gen.writeTypePrefix(typeId)
         } else {
-            //if we do not have any type id just begin the object
+            // if we do not have any type id just begin the object
             if (!cb.isJsonValueDelegator) {
                 gen.writeStartObject()
             }
-            typeId = null //No type info given
+            typeId = null // No type info given
         }
 
-        //write the object id after beginning the object
+        // write the object id after beginning the object
         // do it in here as we are sure no delegation is happening
         objectId?.writeAsField(gen, provider, objIdWriter)
 
@@ -142,7 +142,7 @@ object ComplexClassBuilderSerializer : StdSerializer<ComplexClassBuilder>(
             }
         }
 
-        //close the object we're editing
+        // close the object we're editing
         if (typeId != null) {
             gen.writeTypeSuffix(typeId)
         } else if (!cb.isJsonValueDelegator) {

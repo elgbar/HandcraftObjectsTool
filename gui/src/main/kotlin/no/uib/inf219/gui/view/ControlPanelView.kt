@@ -45,12 +45,40 @@ import no.uib.inf219.gui.loader.DynamicClassLoader
 import no.uib.inf219.gui.loader.ObjectMapperLoader
 import no.uib.inf219.gui.view.select.ClassSelectorView
 import no.uib.inf219.gui.view.settings.ModuleSetting
-import tornadofx.*
+import tornadofx.FX
+import tornadofx.FileChooserMode
+import tornadofx.Scope
+import tornadofx.View
+import tornadofx.action
+import tornadofx.addClass
+import tornadofx.asObservable
+import tornadofx.bind
+import tornadofx.button
+import tornadofx.checkbox
+import tornadofx.chooseDirectory
+import tornadofx.chooseFile
+import tornadofx.combobox
+import tornadofx.div
+import tornadofx.error
+import tornadofx.find
+import tornadofx.flowpane
+import tornadofx.hbox
+import tornadofx.hgrow
+import tornadofx.label
+import tornadofx.onChange
+import tornadofx.plusAssign
+import tornadofx.runLater
+import tornadofx.scrollpane
+import tornadofx.separator
+import tornadofx.style
+import tornadofx.tab
+import tornadofx.textfield
+import tornadofx.tooltip
+import tornadofx.vbox
 import java.io.File
 import java.io.FileFilter
 import java.lang.invoke.MethodHandles
 import kotlin.collections.set
-
 
 /**
  * Main view to control loading/unloading of object. Should also be able to edit setting (on [ObjectMapper])
@@ -64,7 +92,6 @@ object ControlPanelView : View("Control Panel") {
      */
     val tabMap = HashMap<Tab, ObjectEditorBackgroundView>()
 
-
     const val SHOW_DEBUG_NODES = false
 
     /**
@@ -75,10 +102,9 @@ object ControlPanelView : View("Control Panel") {
             it.toString() to it.getObjectMapper()
         }.asObservable()
 
-    //////////////////////
+    // ////////////////////
     // mapper variables //
-    //////////////////////
-
+    // ////////////////////
 
     private val mapperProperty by lazy {
         SimpleObjectProperty(SerializationManager.kotlinJson)
@@ -96,10 +122,9 @@ object ControlPanelView : View("Control Panel") {
             updateMapper()
         }
 
-
-    /////////////////////
+    // ///////////////////
     // Module Settings //
-    /////////////////////
+    // ///////////////////
 
     val mrBeanModule = ModuleSetting(
         false,
@@ -116,7 +141,7 @@ object ControlPanelView : View("Control Panel") {
         but can be disabled if there are any problems with it""".trimMargin()
     ) { AfterburnerModule() }
 
-    //After adding a module to the list above you must also add it to this list!
+    // After adding a module to the list above you must also add it to this list!
     private val moduleSettings = listOf(mrBeanModule, afterburnerModule)
 
     init {
@@ -128,16 +153,15 @@ object ControlPanelView : View("Control Panel") {
      * Should be called when a setting related to [mapper] is updated
      */
     fun reloadMapper() {
-        //this forces an call to #updateMapper()
+        // this forces an call to #updateMapper()
         mapper = orgMapper
     }
 
     private fun updateMapper() {
         ClassInformation.updateMapper()
 
-
-        //We do not want to register modules twice so make sure duplicates are ignored
-        //For now restore the original config after this method, but maybe this should be
+        // We do not want to register modules twice so make sure duplicates are ignored
+        // For now restore the original config after this method, but maybe this should be
         // just a test, throwing if it is disabled?
         val oldIgnore = mapper.isEnabled(IGNORE_DUPLICATE_MODULE_REGISTRATIONS)
         mapper.configure(IGNORE_DUPLICATE_MODULE_REGISTRATIONS, true)
@@ -256,7 +280,7 @@ object ControlPanelView : View("Control Panel") {
                         "Class names cannot contain space"
                     className.isBlank() ->
                         "Given classname is empty or blank"
-                    //Allow '[' to allow loading classes with their fully qualified names
+                    // Allow '[' to allow loading classes with their fully qualified names
                     !className.first().isJavaIdentifierStart() ->
                         "A class cannot start with the character ${className.first()}"
                     else -> null
@@ -266,10 +290,11 @@ object ControlPanelView : View("Control Panel") {
                     runLater {
                         error(
                             """
-                            Failed to find a class with the name '${className}'
+                            Failed to find a class with the name '$className'
                             
                             $errMsg
-                            """.trimIndent(), owner = FX.primaryStage
+                            """.trimIndent(),
+                            owner = FX.primaryStage
                         )
                     }
                     return null
@@ -282,11 +307,12 @@ object ControlPanelView : View("Control Panel") {
                     runLater {
                         error(
                             """
-                            Failed to find a class with the name '${className}'
+                            Failed to find a class with the name '$className'
                             
                             Due to exception ${e.javaClass.name}: ${e.localizedMessage}
                             Have you remembered to load the expected jar(s)?
-                            """.trimIndent(), owner = FX.primaryStage
+                            """.trimIndent(),
+                            owner = FX.primaryStage
                         )
                     }
                     null
@@ -371,14 +397,14 @@ object ControlPanelView : View("Control Panel") {
 
                     tooltip(
                         "Change what object mapper to use. It is possible to have your own object mapper loaded from\n" +
-                                "any loaded files. To find more information see the README."
+                            "any loaded files. To find more information see the README."
                     )
 
                     selectionModel.selectedItemProperty().onChange {
                         LoggerView.log("Changing object mapper to ${it?.first}")
                         if (it != null) mapper = it.second
                     }
-                    //wait till we're finished setting things up before changing the selected
+                    // wait till we're finished setting things up before changing the selected
                     runLater {
                         selectionModel.select(2)
                     }
@@ -418,7 +444,7 @@ object ControlPanelView : View("Control Panel") {
                 checkbox("Unsafe Serialization", unsafeSerializationProp) {
                     tooltip(
                         "If the objects should be serialized without checking if it can be deserialized.\n" +
-                                "Sometimes is not possible to check if an object can be deserialized in this GUI."
+                            "Sometimes is not possible to check if an object can be deserialized in this GUI."
                     )
                 }
 
@@ -465,8 +491,8 @@ object ControlPanelView : View("Control Panel") {
             error(
                 "Can not serialize ${type.rawClass}",
                 "Failed to create an editor for the given class.\n" +
-                        "\n" +
-                        "Threw ${e.javaClass.simpleName}: ${e.message}",
+                    "\n" +
+                    "Threw ${e.javaClass.simpleName}: ${e.message}",
                 owner = FX.primaryStage
             )
             return

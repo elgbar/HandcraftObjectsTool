@@ -20,7 +20,12 @@ import javafx.geometry.Pos
 import javafx.scene.control.OverrunStyle
 import javafx.scene.text.FontWeight
 import javafx.stage.Screen
-import tornadofx.*
+import tornadofx.Dimension
+import tornadofx.Stylesheet
+import tornadofx.box
+import tornadofx.c
+import tornadofx.cssclass
+import tornadofx.multi
 
 /**
  * @author Elg
@@ -40,7 +45,7 @@ class Styles : Stylesheet() {
         val parent by cssclass()
         val invisibleScrollpaneBorder by cssclass()
 
-        //em scaled
+        // em scaled
         val Number.ems: Dimension<Dimension.LinearUnits>
             get() = Dimension(
                 this.toDouble() * scale,
@@ -71,7 +76,7 @@ class Styles : Stylesheet() {
             spacing = 0.333.ems
         }
 
-        //conversation
+        // conversation
 
         conversationBorderPane {
             padding = box(0.333.ems)
@@ -84,7 +89,7 @@ class Styles : Stylesheet() {
             fontSize = 2.ems
         }
 
-        //response
+        // response
 
         responseHBox {
             alignment = Pos.BASELINE_LEFT
@@ -96,7 +101,7 @@ class Styles : Stylesheet() {
             padding = box(1.0.ems)
         }
 
-        //remove the visible borders around the scroll pane
+        // remove the visible borders around the scroll pane
         invisibleScrollpaneBorder {
             borderWidth = multi(box(0.ems))
             padding = box(0.ems)
@@ -107,7 +112,6 @@ class Styles : Stylesheet() {
                 fontSize = 1.2.ems
             }
             tabMinHeight = 1.5.ems
-
         }
 
         tabHeaderArea {
