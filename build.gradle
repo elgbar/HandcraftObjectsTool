@@ -12,6 +12,7 @@ buildscript {
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "org.junit.platform:junit-platform-gradle-plugin:1.1.0"
+        classpath "com.diffplug.spotless:spotless-plugin-gradle:5.1.0"
     }
 }
 
@@ -26,6 +27,7 @@ subprojects {
     apply plugin: "kotlin"
     apply plugin: "application"
     apply plugin: "org.junit.platform.gradle.plugin"
+    apply plugin: "com.diffplug.spotless"
 
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8
@@ -83,6 +85,14 @@ subprojects {
     test {
         failFast(true)
         useJUnitPlatform()
+    }
+
+    assemble.dependsOn(spotlessApply)
+
+    spotless {
+        kotlin {
+            ktlint('0.37.2')
+        }
     }
 
 }
