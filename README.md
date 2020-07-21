@@ -40,21 +40,25 @@ The code that handles this can be found at [`no.uib.inf219.gui.loader.ObjectMapp
 Note that this example contains that optional second line with the name of the field.
 
 ```text
-no.example.JavaClass
+no.example.SomeClass
 objMapper
 ```
 
-The class `JavaClass` would then be something like
+The class `SomeClass` would then be something like for java
+
+<details> <summary>Java example for custom ObjectMapper</summary>
 
 ```java
 package no.example;
 
-public class JavaClass{
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+public class SomeClass{
 
     //visibility of field does not matter
     // but the field MUST be static!
     // this field have to be named 'mapper' if no second line is present in '.hot'
-    private static com.fasterxml.jackson.databind.ObjectMapper objMapper;
+    private static ObjectMapper objMapper;
 
     static {
         //statically create the object mapper
@@ -63,6 +67,46 @@ public class JavaClass{
     }
 }
 ```
+</details>
+
+<details> <summary>Kotlin object example for custom ObjectMapper</summary>
+
+```kotlin
+package no.example
+
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+
+object SomeClass {
+
+  @JvmStatic
+  val mapper = jacksonObjectMapper().also {
+    it.registerModule(SomeModule())
+  }
+}
+```
+</details>
+
+<details> <summary>Kotlin companion object example for custom ObjectMapper</summary>
+
+```kotlin
+package no.example
+
+import com.fasterxml.jackson.databind.ObjectMapper
+
+class SomeClass {
+
+    companion object {
+        //visibility of field does not matter
+        // but the field MUST be static!
+        // this field have to be named 'mapper' if no second line is present in '.hot'
+        @JvmStatic
+        private var objMapper = ObjectMapper().also {
+            it.registerModule(SomeModule())
+        }
+    }
+}
+```
+</details>
 
 ## FAQ
 
