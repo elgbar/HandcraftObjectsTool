@@ -51,14 +51,22 @@ object DynamicClassLoader : URLClassLoader(emptyArray()) {
      * @param file The file to load
      */
     fun loadFile(file: File) {
-        try {
-            addURL(file.toURI().toURL())
-        } catch (e: Throwable) {
-            LoggerView.log("Failed to load jar file ${file.absolutePath}")
-            LoggerView.log("$e")
-            e.printStackTrace()
+        if (file.isDirectory) {
+            LoggerView.log("Failed loaded file ${file.absolutePath} as jar. It is a directory")
+            return
         }
-        LoggerView.log("Successfully loaded jar file ${file.absolutePath}")
+        if (file.exists()) {
+            try {
+                addURL(file.toURI().toURL())
+            } catch (e: Throwable) {
+                LoggerView.log("Failed to load jar file ${file.absolutePath}")
+                LoggerView.log("$e")
+                e.printStackTrace()
+            }
+            LoggerView.log("Successfully loaded jar file ${file.absolutePath}")
+        } else {
+            LoggerView.log("Failed to load jar file ${file.absolutePath}. It does not exists")
+        }
     }
 
     /**
