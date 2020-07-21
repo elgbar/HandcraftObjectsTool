@@ -91,10 +91,9 @@ subprojects {
 
     spotless {
         kotlin {
-            ktlint('0.37.2')
+            ktlint('0.37.2').userData disabled_rules: 'no-wildcard-imports'
         }
     }
-
 }
 
 project(":example") {
